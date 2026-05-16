@@ -1,0 +1,6 @@
+@GreenEcoCommerce.WebAPI_HostAddress = http://localhost:5244
+
+GET {{GreenEcoCommerce.WebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

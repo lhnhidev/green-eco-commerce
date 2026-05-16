@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/GreenEcoCommerce.Adapters/GreenEcoCommerce.Adapters.csproj" />
+    <Project Path="src/GreenEcoCommerce.Application/GreenEcoCommerce.Application.csproj" />
+    <Project Path="src/GreenEcoCommerce.Domain/GreenEcoCommerce.Domain.csproj" />
+    <Project Path="src/GreenEcoCommerce.WebAPI/GreenEcoCommerce.WebAPI.csproj" />
+  </Folder>
+</Solution>
