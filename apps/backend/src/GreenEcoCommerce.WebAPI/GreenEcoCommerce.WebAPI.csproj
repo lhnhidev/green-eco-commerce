@@ -12,7 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\GreenEcoCommerce.Application\GreenEcoCommerce.Application.csproj" />
-    <ProjectReference Include="..\GreenEcoCommerce.Adapters\GreenEcoCommerce.Adapters.csproj" />
+    <ProjectReference Include="..\GreenEcoCommerce.Infrastructure\GreenEcoCommerce.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
