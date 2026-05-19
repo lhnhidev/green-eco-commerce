@@ -106,13 +106,6 @@ entity "**ChatSession**" as ChatSession {
   CreatedAt: DateTimeOffset
 }
 
-entity "**ChatSession**" as ChatSession {
-  * **ChatSessionId** : string [PK]
-  --
-  * UserId : string [FK]
-  CreatedAt: DateTimeOffset
-}
-
 
 ' Mối quan hệ giữa các bảng
 Users ||--o{ UserRoles : "1 người dùng có nhiều vai trò"
