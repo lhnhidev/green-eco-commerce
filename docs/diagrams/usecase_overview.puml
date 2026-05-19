@@ -1,0 +1,36 @@
+@startuml GreenEcoCommerce_UseCase_Overview_v1.0.0
+left to right direction
+skinparam packageStyle rectangle
+
+actor "Khách hàng (User)" as User
+actor "Quản trị viên (Admin)" as Admin
+actor "Hệ thống thứ 3 (AI/Map)" as System
+
+rectangle "GreenEcoCommerce" {
+  usecase "Đăng nhập / Đăng ký" as UC_Auth
+  usecase "Xem & Tìm kiếm sản phẩm" as UC_ViewProd
+  usecase "Quản lý giỏ hàng & Đặt hàng" as UC_CartOrder
+  usecase "Tích điểm xanh & Đổi voucher" as UC_Reward
+  usecase "Trò chuyện với Chatbot AI" as UC_Chat
+
+  usecase "Quản lý sản phẩm & Danh mục" as UC_ManageProd
+  usecase "Quản lý đơn hàng" as UC_ManageOrder
+  usecase "Quản lý tài liệu RAG" as UC_ManageRAG
+  usecase "Xem Thống kê (Dashboard)" as UC_Dashboard
+}
+
+User --> UC_Auth
+User --> UC_ViewProd
+User --> UC_CartOrder
+User --> UC_Reward
+User --> UC_Chat
+
+Admin --> UC_Auth
+Admin --> UC_ManageProd
+Admin --> UC_ManageOrder
+Admin --> UC_ManageRAG
+Admin --> UC_Dashboard
+
+UC_CartOrder --> System : Google Map API
+UC_Chat --> System : OpenAI/Gemini API
+@enduml

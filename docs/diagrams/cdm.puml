@@ -1,0 +1,127 @@
+@startuml ASP_NET_Core_Identity_ERD
+!theme plain
+skinparam changepagecolor white
+skinparam shadowing false
+skinparam handwritten false
+left to right direction
+
+entity "**AspNetUsers**" as Users {
+  * **Id** : string [PK]
+  --
+  FirstName: string
+  FullName: string
+  UserName : string
+  Email : string
+  PasswordHash : string
+  CreatedAt: DateTimeOffset
+  'NormalizedUserName : string
+  'NormalizedEmail : string
+  'EmailConfirmed : bool
+  'SecurityStamp : string
+  'ConcurrencyStamp : string
+  'PhoneNumber : string
+  'PhoneNumberConfirmed : bool
+  'TwoFactorEnabled : bool
+  'LockoutEnd : DateTimeOffset?
+  'LockoutEnabled : bool
+  'AccessFailedCount : int
+}
+
+entity "**AspNetRoles**" as Roles {
+  * **Id** : string [PK]
+  --
+  Name : string
+  NormalizedName : string
+  ConcurrencyStamp : string
+}
+
+entity "**AspNetUserRoles**" as UserRoles {
+  * **UserId** : string [PK, FK]
+  * **RoleId** : string [PK, FK]
+}
+
+entity "**AspNetUserClaims**" as UserClaims {
+  * **Id** : int [PK]
+  --
+  * UserId : string [FK]
+  ClaimType : string
+  ClaimValue : string
+}
+
+entity "**AspNetRoleClaims**" as RoleClaims {
+  * **Id** : int [PK]
+  --
+  * RoleId : string [FK]
+  ClaimType : string
+  ClaimValue : string
+}
+
+entity "**AspNetUserLogins**" as UserLogins {
+  * **LoginProvider** : string [PK]
+  * **ProviderKey** : string [PK]
+  --
+  ProviderDisplayName : string
+  * UserId : string [FK]
+}
+
+entity "**AspNetUserTokens**" as UserTokens {
+  * **UserId** : string [PK, FK]
+  * **LoginProvider** : string [PK]
+  * **Name** : string [PK]
+  --
+  Value : string
+}
+
+entity "**Cart**" as Cart {
+  * **CartId** : string [PK]
+  --
+  * UserId : string [FK]
+  UpdatedAt: DateTimeOffset
+}
+
+entity "**Order**" as Order {
+  * **OrderId** : string [PK]
+  --
+  * UserId : string [FK]
+  Status: enum
+  DeliveryAddress: string
+  TotalAmount: int
+  TotalCo2Saved: double
+  CreatedAt: DateTimeOffset
+}
+
+entity "**GreenPoint**" as GreenPoint {
+  * **GreenPointId** : string [PK]
+  --
+  * UserId : string [FK]
+  Balance: double
+  EarnedTotal: double
+  UpdatedAt: DateTimeOffset
+}
+
+entity "**ChatSession**" as ChatSession {
+  * **ChatSessionId** : string [PK]
+  --
+  * UserId : string [FK]
+  CreatedAt: DateTimeOffset
+}
+
+entity "**ChatSession**" as ChatSession {
+  * **ChatSessionId** : string [PK]
+  --
+  * UserId : string [FK]
+  CreatedAt: DateTimeOffset
+}
+
+
+' Mối quan hệ giữa các bảng
+Users ||--o{ UserRoles : "1 người dùng có nhiều vai trò"
+Roles ||--o{ UserRoles : "1 vai trò thuộc về nhiều người dùng"
+
+Users ||--o{ UserClaims : "1 người dùng có nhiều claims cá nhân"
+Roles ||--o{ RoleClaims : "1 vai trò có nhiều claims quyền"
+
+Users ||--o{ UserLogins : "1 người dùng có thể đăng nhập qua nhiều bên thứ 3 (Google, FB,...)"
+Users ||--o{ UserTokens : "1 người dùng có nhiều tokens xác thực (MFA, Reset Password,...)"
+
+@enduml
