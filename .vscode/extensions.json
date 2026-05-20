@@ -1,6 +1,5 @@
 {
-  "recommendations": [
-    "esbenp.prettier-vscode", // Extension để định dạng code
-    "dbaeumer.vscode-eslint", // Extension để bắt lỗi code
-  ]
+	"recommendations": [
+		"biomejs.biome", // Extension để định dạng và bắt lỗi code
+	]
 }
