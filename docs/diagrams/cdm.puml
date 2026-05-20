@@ -1,120 +1,175 @@
-@startuml ASP_NET_Core_Identity_ERD
+@startuml CDM
 !theme plain
-skinparam changepagecolor white
-skinparam shadowing false
-skinparam handwritten false
-left to right direction
+hide circle
 
-entity "**AspNetUsers**" as Users {
-  * **Id** : string [PK]
+' ================= ENTITIES =================
+
+entity "USER" as user #E8F4FF {
+  * id : PK
   --
-  FirstName: string
-  FullName: string
-  UserName : string
-  Email : string
-  PasswordHash : string
-  CreatedAt: DateTimeOffset
-  'NormalizedUserName : string
-  'NormalizedEmail : string
-  'EmailConfirmed : bool
-  'SecurityStamp : string
-  'ConcurrencyStamp : string
-  'PhoneNumber : string
-  'PhoneNumberConfirmed : bool
-  'TwoFactorEnabled : bool
-  'LockoutEnd : DateTimeOffset?
-  'LockoutEnabled : bool
-  'AccessFailedCount : int
+  email
+  password_hash
+  full_name
+  phone
+  role (user/admin)
+  created_at
 }
 
-entity "**AspNetRoles**" as Roles {
-  * **Id** : string [PK]
+entity "CATEGORY" as category #E8F8F5 {
+  * id : PK
   --
-  Name : string
-  NormalizedName : string
-  ConcurrencyStamp : string
+  name
+  slug
+  description
+  parent_id : FK
 }
 
-entity "**AspNetUserRoles**" as UserRoles {
-  * **UserId** : string [PK, FK]
-  * **RoleId** : string [PK, FK]
-}
-
-entity "**AspNetUserClaims**" as UserClaims {
-  * **Id** : int [PK]
+entity "PRODUCT" as product #E9F7EF {
+  * id : PK
   --
-  * UserId : string [FK]
-  ClaimType : string
-  ClaimValue : string
+  name
+  slug
+  description
+  price
+  stock_qty
+  carbon_index
+  material_origin
+  decompose_percent
+  recycle_percent
+  category_id : FK
 }
 
-entity "**AspNetRoleClaims**" as RoleClaims {
-  * **Id** : int [PK]
+entity "PRODUCT_IMAGE" as product_image #F2F3F4 {
+  * id : PK
   --
-  * RoleId : string [FK]
-  ClaimType : string
-  ClaimValue : string
+  product_id : FK
+  azure_url
+  is_primary
 }
 
-entity "**AspNetUserLogins**" as UserLogins {
-  * **LoginProvider** : string [PK]
-  * **ProviderKey** : string [PK]
+entity "CART" as cart #FEF9E7 {
+  * id : PK
   --
-  ProviderDisplayName : string
-  * UserId : string [FK]
+  user_id : FK
+  updated_at
 }
 
-entity "**AspNetUserTokens**" as UserTokens {
-  * **UserId** : string [PK, FK]
-  * **LoginProvider** : string [PK]
-  * **Name** : string [PK]
+entity "CART_ITEM" as cart_item #FEF9E7 {
+  * id : PK
   --
-  Value : string
+  cart_id : FK
+  product_id : FK
+  quantity
 }
 
-entity "**Cart**" as Cart {
-  * **CartId** : string [PK]
+entity "ORDER" as order #FDEDEC {
+  * id : PK
   --
-  * UserId : string [FK]
-  UpdatedAt: DateTimeOffset
+  user_id : FK
+  status
+  delivery_address
+  total_amount
+  total_co2_saved
+  created_at
 }
 
-entity "**Order**" as Order {
-  * **OrderId** : string [PK]
+entity "ORDER_ITEM" as order_item #FDEDEC {
+  * id : PK
   --
-  * UserId : string [FK]
-  Status: enum
-  DeliveryAddress: string
-  TotalAmount: int
-  TotalCo2Saved: double
-  CreatedAt: DateTimeOffset
+  order_id : FK
+  product_id : FK
+  quantity
+  unit_price
 }
 
-entity "**GreenPoint**" as GreenPoint {
-  * **GreenPointId** : string [PK]
+entity "PAYMENT" as payment #F2F3F4 {
+  * id : PK
   --
-  * UserId : string [FK]
-  Balance: double
-  EarnedTotal: double
-  UpdatedAt: DateTimeOffset
+  order_id : FK
+  method (bank_transfer)
+  status
+  amount
+  transaction_ref
 }
 
-entity "**ChatSession**" as ChatSession {
-  * **ChatSessionId** : string [PK]
+entity "GREEN_POINT" as green_point #E9F7EF {
+  * id : PK
   --
-  * UserId : string [FK]
-  CreatedAt: DateTimeOffset
+  user_id : FK
+  balance
+  earned_total
+  updated_at
 }
 
+entity "VOUCHER" as voucher #E9F7EF {
+  * id : PK
+  --
+  code
+  discount_value
+  points_cost
+  expires_at
+  is_used
+}
 
-' Mối quan hệ giữa các bảng
-Users ||--o{ UserRoles : "1 người dùng có nhiều vai trò"
-Roles ||--o{ UserRoles : "1 vai trò thuộc về nhiều người dùng"
+entity "CHAT_SESSION" as chat_session #F4ECF7 {
+  * id : PK
+  --
+  user_id : FK
+  created_at
+}
 
-Users ||--o{ UserClaims : "1 người dùng có nhiều claims cá nhân"
-Roles ||--o{ RoleClaims : "1 vai trò có nhiều claims quyền"
+entity "CHAT_MESSAGE" as chat_message #F4ECF7 {
+  * id : PK
+  --
+  session_id : FK
+  role (user/assistant)
+  content
+  timestamp
+}
 
-Users ||--o{ UserLogins : "1 người dùng có thể đăng nhập qua nhiều bên thứ 3 (Google, FB,...)"
-Users ||--o{ UserTokens : "1 người dùng có nhiều tokens xác thực (MFA, Reset Password,...)"
+entity "DOCUMENT" as document #F2F3F4 {
+  * id : PK
+  --
+  file_name
+  file_type
+  azure_url
+  uploaded_by : FK
+}
+
+entity "EMBEDDING" as embedding #F2F3F4 {
+  * id : PK
+  --
+  document_id : FK
+  chunk_text
+  vector_id (Pinecone)
+}
+
+' ================= RELATIONSHIPS =================
+
+' Người dùng và Giỏ hàng
+user ||--|| cart : 1-1
+cart ||--o{ cart_item : 1-N
+
+' Sản phẩm và Danh mục
+category |o--o{ category : 1-N (self)
+category ||--o{ product : 1-N
+product ||--o{ product_image : 1-N
+product ||--o{ cart_item : 1-N
+
+' Đơn hàng và Thanh toán
+user ||--o{ order : 1-N
+order ||--o{ order_item : 1-N
+product ||--o{ order_item : 1-N
+order ||--|| payment : 1-1
+
+' Tích điểm xanh (Green/Eco)
+user ||--|| green_point : 1-1
+green_point ||--o{ voucher : 1-N
+
+' AI Chat & RAG
+user ||--o{ chat_session : 1-N
+chat_session ||--o{ chat_message : 1-N
+user ||--o{ document : 1-N
+document ||--o{ embedding : 1-N
 
 @enduml
