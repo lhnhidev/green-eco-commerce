@@ -70,7 +70,7 @@ entity "ORDER" as order #FDEDEC {
   status (packing/delivering/delivered) : Enum
   delivery_address : string
   latitude : float
-  longtitude : float
+  longitude : float
   total_amount : int
   total_co2_saved : float
   created_at : DateTime
