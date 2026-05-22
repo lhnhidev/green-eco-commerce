@@ -1,4 +1,4 @@
-@startuml GreenEcoCommerce_UseCase_Detail_v1.0.0
+@startuml GreenEcoCommerce_UseCase_Account_v1.0.0
 left to right direction
 
 ' Cấu hình giao diện
@@ -12,19 +12,19 @@ actor "Người dùng" as User
 actor "Quản trị viên" as Admin
 
 rectangle "GreenEcoCommerce" {
-    usecase "Đăng ký" as UC_Reg
-    usecase "Đăng nhập" as UC_Login
-    usecase "Xem trang cá nhân" as UC_ViewResume
-    usecase "Kiểm tra phân quyền" as UC_InspectAuthen
-    usecase "Xác thực email" as UC_IdefityEmail
+  usecase "Đăng ký" as UC_Reg
+  usecase "Đăng nhập" as UC_Login
+  usecase "Xem trang cá nhân" as UC_ViewResume
+  usecase "Kiểm tra phân quyền" as UC_InspectAuthen
+  usecase "Xác thực email" as UC_IdefityEmail
 }
 
 User --> UC_Reg
 User --> UC_Login
 User --> UC_ViewResume
 
-UC_Login <-- UC_InspectAuthen : <<include>>
-UC_Reg <-- UC_IdefityEmail : <<extend>>
+UC_Login --> UC_InspectAuthen : <<include>>
+UC_Reg --> UC_IdefityEmail : <<include>>
 
 Admin --> UC_Login
 
