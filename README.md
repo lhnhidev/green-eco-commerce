@@ -1,4 +1,4 @@
-# 🍃 Aboout GrrenEcoCommerce (v1.0.0-alpha)
+# 🍃 About GreenEcoCommerce (v1.0.0-alpha)
 
 Comming soon
 
@@ -44,10 +44,14 @@ Coming soon
 
 Comming soon
 
+### 3. RAG Model
+
+Commign soon
+
 ---
 
 ## 📁 Structual of repository
 
 ```text
-Comming sôn
+Comming soon
 ```

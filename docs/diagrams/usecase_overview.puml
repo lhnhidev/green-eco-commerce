@@ -1,116 +1,54 @@
-' @startuml GreenEcoCommerce_UseCase_Overview_v1.0.0
-' left to right direction
-' skinparam packageStyle rectangle
-
-' actor "Khách hàng (User)" as User
-' actor "Quản trị viên (Admin)" as Admin
-' actor "Hệ thống thứ 3 (AI/Map)" as System
-
-' rectangle "GreenEcoCommerce" {
-'   usecase "Đăng nhập / Đăng ký" as UC_Auth
-'   usecase "Xem & Tìm kiếm sản phẩm" as UC_ViewProd
-'   usecase "Quản lý giỏ hàng & Đặt hàng" as UC_CartOrder
-'   usecase "Tích điểm xanh & Đổi voucher" as UC_Reward
-'   usecase "Trò chuyện với Chatbot AI" as UC_Chat
-
-'   usecase "Quản lý sản phẩm & Danh mục" as UC_ManageProd
-'   usecase "Quản lý đơn hàng" as UC_ManageOrder
-'   usecase "Quản lý tài liệu RAG" as UC_ManageRAG
-'   usecase "Xem Thống kê (Dashboard)" as UC_Dashboard
-' }
-
-' User --> UC_Auth
-' User --> UC_ViewProd
-' User --> UC_CartOrder
-' User --> UC_Reward
-' User --> UC_Chat
-
-' Admin --> UC_Auth
-' Admin --> UC_ManageProd
-' Admin --> UC_ManageOrder
-' Admin --> UC_ManageRAG
-' Admin --> UC_Dashboard
-
-' UC_CartOrder --> System : Google Map API
-' UC_Chat --> System : OpenAI/Gemini API
-' @enduml
-
-// ver 2
-@startuml GreenEcoCommerce_Academic_Final
+@startuml GreenEcoCommerce_UseCase_Overview_v1.1.0
 left to right direction
 skinparam packageStyle rectangle
 skinparam UseCaseBackgroundColor #F9F9F9
 skinparam UseCaseBorderColor #2E8B57
 skinparam ActorBorderColor #2E8B57
 
-actor "Khách hàng" as User
+actor "Người dùng" as User
 actor "Quản trị viên" as Admin
-actor "Hệ thống AI\n<<System>>" as AI
 
-rectangle "Hệ thống Website Sản Phẩm Zero-Waste" {
+rectangle "GreenEcoCommerce" {
 
-    package "Phân hệ Xác thực" {
-        usecase "Đăng ký tài khoản" as UC_Reg
-        usecase "Đăng nhập hệ thống" as UC_Login
-    }
+  package "Quản lý Tài khoản" {
+    usecase "Đăng ký" as UC_Reg
+    usecase "Đăng nhập" as UC_Login
+    usecase "Xem trang cá nhân" as UC_ViewResume
+  }
 
-    package "Phân hệ Thương mại điện tử" {
-        usecase "Tra cứu sản phẩm bền vững" as UC_Browse
-        usecase "Quản lý giỏ hàng & Đặt hàng" as UC_Order
-        usecase "Quản lý điểm xanh & Lịch sử" as UC_Point
-    }
+  package "Quản lý Sản phẩm & Danh mục" {
+    usecase "Xem danh sách sản phẩm" as UC_ViewListProduct
+    usecase "Xem chi tiết sản phẩm" as UC_ViewDetailProduct
+    usecase "Tìm kiếm sản phẩm" as UC_SearchProduct
+    usecase "Quản lý sản phẩm (CRUD)" as UC_ManageProduct
+    usecase "Quản lý danh mục (CRUD)" as UC_ManageCategory
+  }
 
-    package "Phân hệ AI & Hỗ trợ" {
-        ' thay đổi tên UC "Trò chuyện với Chatbot AI" thành "Truy vấn hệ thống tư vấn AI"
-        usecase "Truy vấn hệ thống tư vấn AI" as UC_AIConsult
-        usecase "Tính toán dấu chân Carbon" as UC_Carbon
-        ' thêm chức năng liên hệ hỗ trợ trực tuyến để admin và user có thể trao đổi trực tiếp khi cần thiết
-        usecase "Liên hệ hỗ trợ trực tuyến" as UC_Support
-    }
+  package "Quản lý Giỏ hàng & Đặt hàng" {
+    usecase "Quản lý Sản phẩm trong Giỏ hàng (CRUD)" as UC_ManageProductCategory
+    usecase "Nhập địa chỉ giao hàng" as UC_ProvideAddress
+    usecase "Chuyển khoản" as UC_Transfer
+    usecase "Cập nhật trạng thái đơn hàng" as UC_UpdateOrderStatus
+    usecase "Xem lịch sử mua hàng" as UC_ViewOrderHistory
+  }
 
-    package "Phân hệ Quản trị" {
-        usecase "Quản lý sản phẩm xanh" as UC_M_Prod
-        usecase "Quản lý đơn hàng" as UC_M_Order
-        usecase "Quản lý tri thức AI (RAG)" as UC_M_RAG
-        usecase "Thống kê & Báo cáo" as UC_Report
-    }
+  package "Quản lý điểm xanh" {
+    usecase "Xem điểm xanh" as UC_ViewGreenPoint
+    usecase "Đổi voucher" as UC_ExchangeVoucher
+  }
+
+  package "Chatbot & RAG" {
+    usecase "Trò chuyện với Chatbot" as UC_CommunicateChatbot
+    usecase "Upload Cơ sở tri thức cho Chatbot" as UC_UploadKnowledgeBaseDocument
+  }
+
+  package "Thống kê & Báo cáo" {
+    usecase "Xem Dashboard" as UC_ViewDashboard
+    usecase "Xuất dữ liệu thống kê" as UC_ExportDataFile
+  }
+
 }
 
-' -----------------------------------
-' KẾT NỐI CỦA KHÁCH HÀNG (USER)
-' -----------------------------------
-User --> UC_Reg
-User --> UC_Login
-User --> UC_Browse
-User --> UC_Order
-User --> UC_Point
-User --> UC_AIConsult
-User --> UC_Support
 
-' -----------------------------------
-' KẾT NỐI CỦA QUẢN TRỊ VIÊN (ADMIN)
-' -----------------------------------
-Admin --> UC_Login
-Admin --> UC_M_Prod
-Admin --> UC_M_Order
-Admin --> UC_M_RAG
-Admin --> UC_Report
-Admin --> UC_Support
-
-' -----------------------------------
-' QUAN HỆ INCLUDE & EXTEND CHUẨN MỰC
-' -----------------------------------
-' Bắt buộc đăng nhập để mua hàng và xem điểm
-UC_Order ..> UC_Login : <<include>>
-UC_Point ..> UC_Login : <<include>>
-
-' Tính toán Carbon là một luồng mở rộng khi chat với AI
-UC_Carbon ..> UC_AIConsult : <<extend>>
-
-' -----------------------------------
-' KẾT NỐI VỚI HỆ THỐNG AI BÊN THỨ 3
-' -----------------------------------
-UC_AIConsult <-- AI
-UC_M_RAG <-- AI
 
 @enduml
