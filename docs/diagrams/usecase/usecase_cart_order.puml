@@ -11,7 +11,7 @@ skinparam ArrowColor #4A708B
 actor "Người dùng" as User
 actor "Quản trị viên" as Admin
 
-rectangle "GreenEcoCommerce" {
+rectangle "Quản lý Giỏ hàng & Đặt hàng" {
   usecase "Quản lý Sản phẩm trong Giỏ hàng (CRUD)" as UC_ManageProductCart
   usecase "Nhập địa chỉ giao hàng" as UC_ProvideAddress
   usecase "Chuyển khoản" as UC_Transfer

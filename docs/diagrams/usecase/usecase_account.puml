@@ -11,7 +11,7 @@ skinparam ArrowColor #4A708B
 actor "Người dùng" as User
 actor "Quản trị viên" as Admin
 
-rectangle "GreenEcoCommerce" {
+rectangle "Quản lý Tài khoản" {
   usecase "Đăng ký" as UC_Reg
   usecase "Đăng nhập" as UC_Login
   usecase "Xem trang cá nhân" as UC_ViewResume
