@@ -1,0 +1,31 @@
+@startuml GreenEcoCommerce_UseCase_Chatbot_v1.0.0
+left to right direction
+
+' Cấu hình giao diện
+skinparam packageStyle rectangle
+skinparam UseCaseBackgroundColor #F9F9F9
+skinparam UseCaseBorderColor #2E8B57
+skinparam ActorBorderColor #2E8B57
+skinparam ArrowColor #4A708B
+
+actor "Người dùng" as User
+actor "Quản trị viên" as Admin
+
+rectangle "Chatbot & RAG" {
+  usecase "Trò chuyện với Chatbot" as UC_CommunicateChatbot
+  usecase "Upload Cơ sở tri thức cho Chatbot" as UC_UploadKnowledgeBaseDocument
+
+  usecase "Gọi Model AI của OpenAI/Gemini API" as UC_CallAIModelApi
+  usecase "Lưu lịch sử hội thoại" as UC_SaveCommunicateHistory
+  usecase "Tư vấn gợi ý sản phẩm" as UC_HintProduct
+  usecase "So sánh sản phẩm" as UC_ComparatingProduct
+}
+
+User --> UC_CommunicateChatbot
+UC_UploadKnowledgeBaseDocument <-- Admin
+UC_CommunicateChatbot --> UC_CallAIModelApi : <<include>>
+UC_CommunicateChatbot --> UC_SaveCommunicateHistory : <<include>>
+UC_CommunicateChatbot <-- UC_ComparatingProduct : <<extend>>
+UC_CommunicateChatbot <-- UC_HintProduct : <<extend>>
+
+@enduml
