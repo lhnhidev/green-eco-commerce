@@ -5,143 +5,146 @@ hide circle
 ' ================= ENTITIES =================
 
 entity "USER" as user #E8F4FF {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  email
-  password_hash
-  full_name
-  phone
-  role (user/admin)
-  created_at
+  email : Email
+  password_hash : string
+  first_name : string
+  last_name : string
+  full_name : string
+  phone : PhoneNumber
+  address_default: string
+  role (user/admin) : Enum
+  created_at : DateTime
 }
 
 entity "CATEGORY" as category #E8F8F5 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  name
-  slug
-  description
-  parent_id : FK
+  * parent_id [FK] : UUID
+  name : string
+  description : string
 }
 
 entity "PRODUCT" as product #E9F7EF {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  name
-  slug
-  description
-  price
-  stock_qty
-  carbon_index
-  material_origin
-  decompose_percent
-  recycle_percent
-  category_id : FK
+  * category_id [FK] : UUID
+  name : string
+  description : string
+  price : decimal
+  stock_qty : int
+  carbon_index : float
+  material_origin : string
+  decompose_percent : float
+  recycle_percent : float
 }
 
 entity "PRODUCT_IMAGE" as product_image #F2F3F4 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  product_id : FK
-  azure_url
-  is_primary
+  * product_id [FK] : UUID
+  azure_url : string
+  is_primary : boolean
 }
 
 entity "CART" as cart #FEF9E7 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  user_id : FK
-  updated_at
+  * user_id [FK] : UUID
+  updated_at : DateTime
 }
 
 entity "CART_ITEM" as cart_item #FEF9E7 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  cart_id : FK
-  product_id : FK
-  quantity
+  * cart_id [FK] : UUID
+  * product_id [FK] : UUID
+  quantity : int
 }
 
 entity "ORDER" as order #FDEDEC {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  user_id : FK
-  status
-  delivery_address
-  total_amount
-  total_co2_saved
-  created_at
+  * user_id [FK] : UUID
+  status (packing/delivering/delivered) : Enum
+  delivery_address : string
+  latitude : float
+  longtitude : float
+  total_amount : int
+  total_co2_saved : float
+  created_at : DateTime
 }
 
 entity "ORDER_ITEM" as order_item #FDEDEC {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  order_id : FK
-  product_id : FK
-  quantity
-  unit_price
+  * order_id [FK] : UUID
+  * product_id [FK] : UUID
+  quantity : int
+  unit_price : decimal
 }
 
 entity "PAYMENT" as payment #F2F3F4 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  order_id : FK
-  method (bank_transfer)
-  status
-  amount
-  transaction_ref
+  * order_id [FK] : UUID
+  method (bank/momo) : Enum
+  status (pending/paid/refunded) : Enum
+  amount : decimal
+  transaction_ref : string
 }
 
 entity "GREEN_POINT" as green_point #E9F7EF {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  user_id : FK
-  balance
-  earned_total
-  updated_at
+  * user_id [FK] : UUID
+  balance : float
+  earned_total : float
+  updated_at : DateTime
 }
 
 entity "VOUCHER" as voucher #E9F7EF {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  code
-  discount_value
-  points_cost
-  expires_at
-  is_used
+  code : string
+  discount_value : decimal
+  points_cost : float
+  expires_at : DateTime
+  is_used : boolean
 }
 
 entity "CHAT_SESSION" as chat_session #F4ECF7 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  user_id : FK
-  created_at
+  * user_id [FK] : UUID
+  created_at : DateTime
 }
 
 entity "CHAT_MESSAGE" as chat_message #F4ECF7 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  session_id : FK
-  role (user/assistant)
-  content
-  timestamp
+  * session_id [FK] : UUID
+  role (user/bot) : Enum
+  content : string
+  created_at : DateTime
 }
 
 entity "DOCUMENT" as document #F2F3F4 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  file_name
-  file_type
-  azure_url
-  uploaded_by : FK
+  * uploaded_by [FK] : UUID
+  file_name : string
+  file_type (pdf/docx/txt) : Enum
+  azure_url : string
 }
 
 entity "EMBEDDING" as embedding #F2F3F4 {
-  * id : PK
+  * **id [PK] : UUID**
   --
-  document_id : FK
-  chunk_text
-  vector_id (Pinecone)
+  * document_id [FK] : UUID
+  chunk_text : string
+  vector_id : string
 }
 
 ' ================= RELATIONSHIPS =================
