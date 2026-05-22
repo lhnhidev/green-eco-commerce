@@ -18,7 +18,12 @@ rectangle "GreenEcoCommerce" {
   usecase "Cập nhật trạng thái đơn hàng" as UC_UpdateOrderStatus
   usecase "Xem lịch sử mua hàng" as UC_ViewOrderHistory
 
-  usecase "Thêm sản phẩm vào giỏ hàng" as UC_AddProduct
+  usecase "Thêm sản phẩm vào giỏ hàng" as UC_AddProductInCategory
+  usecase "Xóa sản phẩm khỏi giỏ hàng" as UC_RemoveProductInCategory
+  usecase "Cập nhật số lượng sản phẩm trong giỏ hàng" as UC_UpdateAmoutProductInCategory
+  usecase "Định vị tọa độ bằng Google Map" as UC_Locate
+  usecase "Gửi thông báo qua mail" as UC_NotifyByEmail
+  ' usecase "Cập nhật điểm xanh" as UC_UpdateGreenPoint
 }
 
 User --> UC_ManageProductCart
@@ -26,6 +31,12 @@ User --> UC_ProvideAddress
 User --> UC_Transfer
 User --> UC_ViewOrderHistory
 
-UC_UpdateOrderStatus <-- Admin
+UC_ManageProductCart <-- UC_AddProductInCategory : <<extend>>
+UC_ManageProductCart <-- UC_RemoveProductInCategory : <<extend>>
+UC_ManageProductCart <-- UC_UpdateAmoutProductInCategory : <<extend>>
+UC_ProvideAddress --> UC_Locate : <<include>>
+UC_UpdateOrderStatus --> UC_NotifyByEmail : <<include>>
+
+Admin --> UC_UpdateOrderStatus
 
 @enduml
