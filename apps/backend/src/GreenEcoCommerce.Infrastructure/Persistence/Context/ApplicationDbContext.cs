@@ -14,6 +14,9 @@ namespace GreenEcoCommerce.Infrastructure.Persistence.Context
         {
             base.OnModelCreating(modelBuilder);
 
+            // Supabase mặc định dùng schema public
+            modelBuilder.HasDefaultSchema("public");
+
             // Quét và áp dụng toàn bộ Configuration trong cùng một Assembly
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
         }
