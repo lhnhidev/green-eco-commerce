@@ -19,7 +19,10 @@ builder.Services.AddOpenApi();
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
+    );
 });
 
 // Đăng ký Controllers và cấu hình route convention

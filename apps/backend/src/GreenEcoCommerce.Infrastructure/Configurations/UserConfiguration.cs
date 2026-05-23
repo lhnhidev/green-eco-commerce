@@ -64,6 +64,10 @@ namespace GreenEcoCommerce.Infrastructure.Configurations
                 .HasConversion<string>()
                 .HasMaxLength(15)
                 .IsRequired();
+
+            builder.Property(t => t.CreatedAt)
+                .HasColumnName("created_at")
+                .IsRequired();
         }
     }
 }
