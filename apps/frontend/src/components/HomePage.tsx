@@ -95,7 +95,7 @@ export function HomePage() {
               <ImageWithFallback
                 src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&h=600&fit=crop"
                 alt="Beautiful indoor plants collection"
-                className="rounded-2xl w-full h-[400px] object-cover plant-shadow"
+                className="rounded-2xl w-full h-100 object-cover plant-shadow"
               />
             </div>
           </div>
