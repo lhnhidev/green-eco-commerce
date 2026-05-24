@@ -1,7 +1,8 @@
-using GreenEcoCommerce.API.Middlewares;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
+using GreenEcoCommerce.WebAPI.Middlewares;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,7 +21,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddOpenApi();
 
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -49,12 +50,18 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
 app.UseExceptionHandler();
 
+app.UseRouting();
 app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
 
 app.Run();

@@ -4,43 +4,33 @@ using GreenEcoCommerce.Domain.Exceptions;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Auth.Register
+namespace GreenEcoCommerce.Application.Features.Auth.Register;
+
+public record RegisterCommand(
+    string FirstName,
+    string LastName,
+    string Phone,
+    string AddressDefault,
+    string? Role,
+    string Email,
+    string Password
+) : IRequest<Guid>;
+
+public class RegisterHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<RegisterCommand, Guid>
 {
-    public record RegisterCommand(
-        string FirstName,
-        string LastName,
-        string Phone,
-        string AddressDefault,
-        string? Role,
-        string Email,
-        string Password
-    ) : IRequest<Guid>;
-
-    public class RegisterHandler : IRequestHandler<RegisterCommand, Guid>
+    public async Task<Guid> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
-        private readonly IMapper _mapper;
-        private readonly IUserRepository _userRepository;
+        bool emailExist = await userRepository.EmailUserExist(request.Email);
 
-        public RegisterHandler(IUserRepository userRepository, IMapper mapper)
+        if (emailExist)
         {
-            _mapper = mapper;
-            _userRepository = userRepository;            
+            throw new BadRequestException("Email user is exist");
         }
 
-        public async Task<Guid> Handle(RegisterCommand request, CancellationToken cancellationToken)
-        {
-            var emailExist = await _userRepository.EmailUserExist(request.Email);
+        var userEntity = mapper.Map<User>(request);
 
-            if (emailExist)
-            {
-                throw new BadRequestException("Email user is exist");
-            }
+        var guid = await userRepository.AddUserAsync(userEntity);
 
-            var userEntity = _mapper.Map<User>(request);
-
-            var guid = await _userRepository.AddUserAsync(userEntity);
-
-            return guid;
-        }
+        return guid;
     }
 }
