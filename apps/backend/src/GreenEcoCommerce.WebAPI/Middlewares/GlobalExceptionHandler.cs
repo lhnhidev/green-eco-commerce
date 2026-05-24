@@ -34,6 +34,12 @@ namespace GreenEcoCommerce.API.Middlewares
                 title = "Not Found";
                 detail = notFoundEx.Message;
             }
+            else if (exception is BadRequestException badRequestEx)
+            {
+                statusCode = HttpStatusCode.BadGateway; // 400
+                title = "Bad Request";
+                detail = badRequestEx.Message;
+            }
 
             // 4. Cấu hình HTTP Response trả về cho Client
             httpContext.Response.StatusCode = (int)statusCode;

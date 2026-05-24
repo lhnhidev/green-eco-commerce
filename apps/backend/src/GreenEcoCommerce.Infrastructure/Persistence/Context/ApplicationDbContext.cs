@@ -1,4 +1,4 @@
-using GreenEcoCommerce.Application.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +11,7 @@ namespace GreenEcoCommerce.Infrastructure.Persistence.Context
 
         }
 
-        DbSet<User> Users { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -35,6 +35,9 @@ builder.Services.AddControllers();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// Đăng ký AutoMapper và quét qua tất cả các Profile nằm trong Assembly (Tầng Application)
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 // Đăng ký DI
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
