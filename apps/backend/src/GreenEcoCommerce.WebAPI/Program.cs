@@ -1,11 +1,51 @@
 using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
 using GreenEcoCommerce.WebAPI.Middlewares;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Dòng này ra lệnh cho .NET: "Khi tạo JWT, hãy giữ nguyên tên gốc, đừng tự ý map sang URI dài của XML nữa!"
+JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
+
+// JWT Authentication
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]!))
+        };
+    });
+
+// Authorization Policies
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+    options.AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
+});
+
+// Đăng ký MediatR và quét toàn bộ Assembly chứa class cấu hình
+builder.Services.AddMediatR(cfg =>
+{
+    cfg.RegisterServicesFromAssembly(typeof(GreenEcoCommerce.Application.Features.Auth.Login.LoginCommand).Assembly);
+});
 
 // Cấu hình CORS (Cho phép React gọi API mà không bị chặn)
 builder.Services.AddCors(options =>
@@ -43,6 +83,7 @@ builder.Services.AddAutoMapper(cfg =>
 });
 
 // Đăng ký DI
+builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
@@ -61,6 +102,7 @@ app.UseExceptionHandler();
 app.UseRouting();
 app.UseHttpsRedirection();
 app.UseCors();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

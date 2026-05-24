@@ -30,7 +30,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 detail = notFoundEx.Message;
                 break;
             case BadRequestException badRequestEx:
-                statusCode = HttpStatusCode.BadGateway; // 400
+                statusCode = HttpStatusCode.BadRequest; // 400
                 title = "Bad Request";
                 detail = badRequestEx.Message;
                 break;

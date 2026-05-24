@@ -10,7 +10,7 @@ public record RegisterCommand(
     string FirstName,
     string LastName,
     string Phone,
-    string AddressDefault,
+    string Address,
     string? Role,
     string Email,
     string Password
@@ -21,10 +21,16 @@ public class RegisterHandler(IUserRepository userRepository, IMapper mapper) : I
     public async Task<Guid> Handle(RegisterCommand request, CancellationToken cancellationToken)
     {
         bool emailExist = await userRepository.EmailUserExist(request.Email);
+        bool phoneExist = await userRepository.PhoneNumberUserExist(request.Phone);
 
         if (emailExist)
         {
-            throw new BadRequestException("Email user is exist");
+            throw new BadRequestException("Email was exist");
+        }
+
+        if (phoneExist)
+        {
+            throw new BadRequestException("Phone was exist");
         }
 
         var userEntity = mapper.Map<User>(request);

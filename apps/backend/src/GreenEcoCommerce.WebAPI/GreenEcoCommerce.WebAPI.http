@@ -1,6 +1,19 @@
 @GreenEcoCommerce.WebAPI_HostAddress = http://localhost:5244
 
+### 1. Test API WeatherForecast mặc định
 GET {{GreenEcoCommerce.WebAPI_HostAddress}}/weatherforecast/
 Accept: application/json
 
-###
+### 2. Test API Đăng ký tài khoản (Register)
+POST {{GreenEcoCommerce.WebAPI_HostAddress}}/api/auth/register
+Content-Type: application/json
+{
+  "email": "ter2026@gmail.com",
+  "address": "Thailand",
+  "lastName": "Huy",
+  "firstName": "Nguyen Gia",
+  "password": "Password123!",
+  "fullName": "Nguyen Van A",
+  "phone": "0987654321",
+  "role": "User"
+}
