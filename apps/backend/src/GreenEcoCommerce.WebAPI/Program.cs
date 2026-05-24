@@ -1,4 +1,7 @@
+using GreenEcoCommerce.API.Middlewares;
+using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
+using GreenEcoCommerce.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -28,6 +31,13 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Đăng ký Controllers và cấu hình route convention
 builder.Services.AddControllers();
 
+// Đăng ký ExceptionHanlder
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+// Đăng ký DI
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -35,6 +45,8 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
 app.UseCors();
