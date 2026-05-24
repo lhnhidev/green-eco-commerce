@@ -7,7 +7,7 @@ namespace GreenEcoCommerce.Infrastructure.Persistence.Context;
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : DbContext(options), IApplicationDbContext
 {
-    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

@@ -42,7 +42,7 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(t => t.FullName)
                 .HasColumnName("full_name")
-                .HasMaxLength(160)
+                .HasMaxLength(161)
                 .IsRequired();
 
         builder.Property(t => t.Phone)
@@ -54,8 +54,8 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
                 .HasMaxLength(10)
                 .IsRequired();
 
-        builder.Property(t => t.AddressDefault)
-                .HasColumnName("address_default")
+        builder.Property(t => t.Address)
+                .HasColumnName("address")
                 .HasMaxLength(400)
                 .IsRequired();
 
