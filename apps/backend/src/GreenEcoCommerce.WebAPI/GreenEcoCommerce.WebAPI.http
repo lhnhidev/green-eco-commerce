@@ -8,13 +8,12 @@ Accept: application/json
 POST {{GreenEcoCommerce.WebAPI_HostAddress}}/api/auth/register
 Content-Type: application/json
 {
-  "email": "ter2026@gmail.com",
+  "email": "t11er2026@gmail.com",
   "address": "Thailand",
-  "lastName": "Huy",
+  "lastName": "Quang",
   "firstName": "Nguyen Gia",
   "password": "Password123!",
-  "fullName": "Nguyen Van A",
-  "phone": "0987654321",
+  "phone": "0927654321",
   "role": "User"
 }
 
