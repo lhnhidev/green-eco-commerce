@@ -2,172 +2,211 @@
 !theme plain
 hide circle
 
-' ================= ENTITIES =================
+' ================= PACKAGES & ENTITIES =================
 
-entity "USER" as user #E8F4FF {
-  * **id [PK] : UUID**
-  --
-  email : Email
-  password_hash : string
-  first_name : string
-  last_name : string
-  full_name : string
-  phone : PhoneNumber
-  address_default: string
-  role (user/admin) : Enum
-  created_at : DateTime
+package "Identity & Access" {
+  entity "USER" as user #E8F4FF {
+    * **id [PK] : UUID**
+    --
+    email : Email
+    password_hash : string
+    first_name : string
+    last_name : string
+    full_name : string
+    phone : PhoneNumber
+    address: string
+    role (user/admin) : Enum
+    created_at : DateTime
+    updated_at : DateTime
+  }
 }
 
-entity "CATEGORY" as category #E8F8F5 {
-  * **id [PK] : UUID**
-  --
-  * parent_id [FK] : UUID
-  name : string
-  description : string
+package "Catalog & Inventory" {
+  entity "CATEGORY" as category #E8F8F5 {
+    * **id [PK] : UUID**
+    --
+    * parent_id [FK] : UUID <<nullable>>
+    name : string
+    description : string
+  }
+
+  entity "PRODUCT" as product #E9F7EF {
+    * **id [PK] : UUID**
+    --
+    * category_id [FK] : UUID
+    sku : string
+    name : string
+    description : string
+    price : decimal(18, 2)
+    stock_qty : int
+    carbon_index : float
+    material_origin : string
+    decompose_percent : float
+    recycle_percent : float
+    is_active : boolean
+  }
+
+  entity "PRODUCT_IMAGE" as product_image #F2F3F4 {
+    * **id [PK] : UUID**
+    --
+    * product_id [FK] : UUID
+    azure_url : string
+    is_primary : boolean
+  }
 }
 
-entity "PRODUCT" as product #E9F7EF {
-  * **id [PK] : UUID**
-  --
-  * category_id [FK] : UUID
-  name : string
-  description : string
-  price : decimal
-  stock_qty : int
-  carbon_index : float
-  material_origin : string
-  decompose_percent : float
-  recycle_percent : float
+package "Sales & Checkout" {
+  entity "CART" as cart #FEF9E7 {
+    * **id [PK] : UUID**
+    --
+    * user_id [FK] : UUID
+    updated_at : DateTime
+  }
+
+  entity "CART_ITEM" as cart_item #FEF9E7 {
+    * **id [PK] : UUID**
+    --
+    * cart_id [FK] : UUID
+    * product_id [FK] : UUID
+    quantity : int
+  }
+
+  entity "ORDER" as order #FDEDEC {
+    * **id [PK] : UUID**
+    --
+    * user_id [FK] : UUID
+    * voucher_id [FK] : UUID <<nullable>>
+    status (pending/packing/delivering/delivered/cancelled) : Enum
+    delivery_address : string
+    latitude : float
+    longitude : float
+    sub_total : decimal(18, 2)
+    discount_amount : decimal(18, 2)
+    total_amount : decimal(18, 2)
+    total_co2_saved : float
+    created_at : DateTime
+  }
+
+  entity "ORDER_ITEM" as order_item #FDEDEC {
+    * **id [PK] : UUID**
+    --
+    * order_id [FK] : UUID
+    * product_id [FK] : UUID
+    quantity : int
+    unit_price : decimal(18, 2)
+  }
+
+  entity "PAYMENT" as payment #F2F3F4 {
+    * **id [PK] : UUID**
+    --
+    * order_id [FK] : UUID
+    method (bank/momo/cod) : Enum
+    status (pending/paid/refunded/failed) : Enum
+    amount : decimal(18, 2)
+    transaction_ref : string
+    created_at : DateTime
+  }
 }
 
-entity "PRODUCT_IMAGE" as product_image #F2F3F4 {
-  * **id [PK] : UUID**
-  --
-  * product_id [FK] : UUID
-  azure_url : string
-  is_primary : boolean
+package "Eco Rewards System" {
+  entity "GREEN_WALLET" as green_wallet #E9F7EF {
+    * **id [PK] : UUID**
+    --
+    * user_id [FK] : UUID
+    balance : decimal(15, 2)
+    earned_total : decimal(15, 2)
+    updated_at : DateTime
+  }
+
+  entity "POINT_TRANSACTION" as point_transaction #E9F7EF {
+    * **id [PK] : UUID**
+    --
+    * wallet_id [FK] : UUID
+    * order_id [FK] : UUID <<nullable>>
+    * voucher_id [FK] : UUID <<nullable>>
+    amount : decimal(15, 2)
+    type (earn/redeem) : Enum
+    description : string
+    created_at : DateTime
+  }
+
+  entity "VOUCHER" as voucher #E9F7EF {
+    * **id [PK] : UUID**
+    --
+    * user_id [FK] : UUID <<nullable>>
+    code : string
+    discount_value : decimal(18, 2)
+    points_cost : decimal(15, 2)
+    expires_at : DateTime
+    is_used : boolean
+  }
 }
 
-entity "CART" as cart #FEF9E7 {
-  * **id [PK] : UUID**
-  --
-  * user_id [FK] : UUID
-  updated_at : DateTime
-}
+package "AI Chat & RAG" {
+  entity "CHAT_SESSION" as chat_session #F4ECF7 {
+    * **id [PK] : UUID**
+    --
+    * user_id [FK] : UUID
+    title : string
+    created_at : DateTime
+  }
 
-entity "CART_ITEM" as cart_item #FEF9E7 {
-  * **id [PK] : UUID**
-  --
-  * cart_id [FK] : UUID
-  * product_id [FK] : UUID
-  quantity : int
-}
+  entity "CHAT_MESSAGE" as chat_message #F4ECF7 {
+    * **id [PK] : UUID**
+    --
+    * session_id [FK] : UUID
+    role (user/bot/system) : Enum
+    content : string
+    created_at : DateTime
+  }
 
-entity "ORDER" as order #FDEDEC {
-  * **id [PK] : UUID**
-  --
-  * user_id [FK] : UUID
-  status (packing/delivering/delivered) : Enum
-  delivery_address : string
-  latitude : float
-  longitude : float
-  total_amount : int
-  total_co2_saved : float
-  created_at : DateTime
-}
+  entity "DOCUMENT" as document #F2F3F4 {
+    * **id [PK] : UUID**
+    --
+    * uploaded_by [FK] : UUID
+    file_name : string
+    file_type (pdf/docx/txt) : Enum
+    azure_url : string
+    created_at : DateTime
+  }
 
-entity "ORDER_ITEM" as order_item #FDEDEC {
-  * **id [PK] : UUID**
-  --
-  * order_id [FK] : UUID
-  * product_id [FK] : UUID
-  quantity : int
-  unit_price : decimal
-}
-
-entity "PAYMENT" as payment #F2F3F4 {
-  * **id [PK] : UUID**
-  --
-  * order_id [FK] : UUID
-  method (bank/momo) : Enum
-  status (pending/paid/refunded) : Enum
-  amount : decimal
-  transaction_ref : string
-}
-
-entity "GREEN_POINT" as green_point #E9F7EF {
-  * **id [PK] : UUID**
-  --
-  * user_id [FK] : UUID
-  balance : float
-  earned_total : float
-  updated_at : DateTime
-}
-
-entity "VOUCHER" as voucher #E9F7EF {
-  * **id [PK] : UUID**
-  --
-  code : string
-  discount_value : decimal
-  points_cost : float
-  expires_at : DateTime
-  is_used : boolean
-}
-
-entity "CHAT_SESSION" as chat_session #F4ECF7 {
-  * **id [PK] : UUID**
-  --
-  * user_id [FK] : UUID
-  created_at : DateTime
-}
-
-entity "CHAT_MESSAGE" as chat_message #F4ECF7 {
-  * **id [PK] : UUID**
-  --
-  * session_id [FK] : UUID
-  role (user/bot) : Enum
-  content : string
-  created_at : DateTime
-}
-
-entity "DOCUMENT" as document #F2F3F4 {
-  * **id [PK] : UUID**
-  --
-  * uploaded_by [FK] : UUID
-  file_name : string
-  file_type (pdf/docx/txt) : Enum
-  azure_url : string
-}
-
-entity "EMBEDDING" as embedding #F2F3F4 {
-  * **id [PK] : UUID**
-  --
-  * document_id [FK] : UUID
-  chunk_text : string
-  vector_id : string
+  entity "EMBEDDING" as embedding #F2F3F4 {
+    * **id [PK] : UUID**
+    --
+    * document_id [FK] : UUID
+    chunk_text : string
+    vector_id : string
+  }
 }
 
 ' ================= RELATIONSHIPS =================
 
-' Người dùng và Giỏ hàng
+' Users & Carts
 user ||--|| cart : 1-1
 cart ||--o{ cart_item : 1-N
 
-' Sản phẩm và Danh mục
+' Catalog
 category |o--o{ category : 1-N (self)
 category ||--o{ product : 1-N
 product ||--o{ product_image : 1-N
 product ||--o{ cart_item : 1-N
 
-' Đơn hàng và Thanh toán
+' Orders & Payments
 user ||--o{ order : 1-N
 order ||--o{ order_item : 1-N
 product ||--o{ order_item : 1-N
 order ||--|| payment : 1-1
+voucher |o--o| order : 1-1 (applied to)
 
-' Tích điểm xanh (Green/Eco)
-user ||--|| green_point : 1-1
-green_point ||--o{ voucher : 1-N
+' Eco Rewards
+user ||--|| green_wallet : 1-1
+green_wallet ||--o{ point_transaction : 1-N
+order |o--o{ point_transaction : 1-N (triggers)
+user ||--o{ voucher : 1-N (owns)
+voucher |o--o{ point_transaction : 1-N (records)
+
+' For layout
+green_wallet -[hidden]- embedding
 
 ' AI Chat & RAG
 user ||--o{ chat_session : 1-N
