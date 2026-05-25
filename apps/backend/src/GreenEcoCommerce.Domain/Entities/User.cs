@@ -16,6 +16,13 @@ public class User
     public RoleEnum Role { get; set; } = RoleEnum.User;
     public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
 
+    // Navigation properties
+    public Cart Cart { get; init; } = null!;
+    public GreenPoint GreenPoint { get; init; } = null!;
+    public ICollection<Order> Orders { get; init; } = new HashSet<Order>();
+    public ICollection<ChatSession> ChatSessions { get; init; } = new HashSet<ChatSession>();
+    public ICollection<Document> Documents { get; init; } = new HashSet<Document>();
+
     private User() { }
 
     public User(Email email, string passwordHash, string firstName, string lastName, PhoneNumber phone, string address, RoleEnum? role)
