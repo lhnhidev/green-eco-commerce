@@ -1,6 +1,6 @@
 import { Route, Switch } from 'wouter'
-import { HomePage } from './components/HomePage'
 import { Navigation } from './components/Navigation'
+import { HomePage } from './pages/client/HomePage'
 
 export default function App() {
   return (
