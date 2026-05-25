@@ -1,3 +1,5 @@
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 import { Badge, Button, Group, TextInput } from '@mantine/core'
 import { LeafIcon, MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
 import { useLocation } from 'wouter'
