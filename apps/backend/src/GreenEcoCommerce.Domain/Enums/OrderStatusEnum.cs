@@ -1,3 +1,3 @@
 ﻿namespace GreenEcoCommerce.Domain.Enums;
 
-public enum OrderStatusEnum { Packing, Delivering, Delivered }
+public enum OrderStatusEnum { Pending, Packing, Delivering, Delivered, Cancelled }

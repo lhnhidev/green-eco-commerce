@@ -1,27 +1,30 @@
 using GreenEcoCommerce.Domain.Enums;
+using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Domain.ValueObjects;
 
 namespace GreenEcoCommerce.Domain.Entities;
 
-public class User
+public class User: IHasCreatedAt, IHasUpdatedAt
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
-    public Email Email { get; private set; } = null!;
-    public string PasswordHash { get; private set; } = string.Empty;
-    public string FirstName { get; set; } = string.Empty;
-    public string LastName { get; set; } = string.Empty;
-    public string FullName { get; set; } = string.Empty;
-    public PhoneNumber Phone { get; set; } = null!;
-    public string Address { get; set; } = string.Empty;
+    public required Email Email { get; set; }
+    public required string PasswordHash { get; set; }
+    public required string FirstName { get; set; }
+    public required string LastName { get; set; }
+    public required string FullName { get; set; }
+    public required PhoneNumber Phone { get; set; }
+    public required string Address { get; set; }
     public RoleEnum Role { get; set; } = RoleEnum.User;
-    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
 
     // Navigation properties
-    public Cart Cart { get; init; } = null!;
-    public GreenPoint GreenPoint { get; init; } = null!;
-    public ICollection<Order> Orders { get; init; } = new HashSet<Order>();
-    public ICollection<ChatSession> ChatSessions { get; init; } = new HashSet<ChatSession>();
-    public ICollection<Document> Documents { get; init; } = new HashSet<Document>();
+    public Cart? Cart { get; set; }
+    public GreenWallet? GreenWallet { get; set; }
+    public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
+    public ICollection<Voucher> Vouchers { get; set; } = new HashSet<Voucher>();
+    public ICollection<ChatSession> ChatSessions { get; set; } = new HashSet<ChatSession>();
+    public ICollection<Document> Documents { get; set; } = new HashSet<Document>();
 
     private User() { }
 

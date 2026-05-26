@@ -9,16 +9,16 @@ public class EmbeddingConfiguration : IEntityTypeConfiguration<Embedding>
     public void Configure(EntityTypeBuilder<Embedding> builder)
     {
         builder.ToTable("embeddings");
+        builder.HasKey(x => x.Id);
 
-        builder.HasKey(e => e.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.DocumentId).HasColumnName("document_id");
+        builder.Property(x => x.ChunkText).HasColumnName("chunk_text");
+        builder.Property(x => x.VectorId).HasColumnName("vector_id").HasMaxLength(255);
 
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
-        builder.Property(e => e.DocumentId).HasColumnName("document_id").IsRequired();
-        builder.Property(e => e.ChunkText).HasColumnName("chunk_text").IsRequired();
-        builder.Property(e => e.VectorId).HasColumnName("vector_id").HasMaxLength(100).IsRequired();
-
-        builder.HasOne(e => e.Document)
-                .WithMany(d => d.Embeddings)
-                .HasForeignKey(e => e.DocumentId);
+        builder.HasOne(x => x.Document)
+                .WithMany(x => x.Embeddings)
+                .HasForeignKey(x => x.DocumentId)
+                .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -9,20 +9,21 @@ public class CartItemConfiguration : IEntityTypeConfiguration<CartItem>
     public void Configure(EntityTypeBuilder<CartItem> builder)
     {
         builder.ToTable("cart_items");
+        builder.HasKey(x => x.Id);
 
-        builder.HasKey(e => e.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.CartId).HasColumnName("cart_id");
+        builder.Property(x => x.ProductId).HasColumnName("product_id");
+        builder.Property(x => x.Quantity).HasColumnName("quantity");
 
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
-        builder.Property(e => e.CartId).HasColumnName("cart_id").IsRequired();
-        builder.Property(e => e.ProductId).HasColumnName("product_id").IsRequired();
-        builder.Property(e => e.Quantity).HasColumnName("quantity").IsRequired();
+        builder.HasOne(x => x.Cart)
+                .WithMany(x => x.CartItems)
+                .HasForeignKey(x => x.CartId)
+                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(e => e.Cart)
-                .WithMany(c => c.CartItems)
-                .HasForeignKey(e => e.CartId);
-
-        builder.HasOne(e => e.Product)
-                .WithMany(p => p.CartItems)
-                .HasForeignKey(e => e.ProductId);
+        builder.HasOne(x => x.Product)
+                .WithMany(x => x.CartItems)
+                .HasForeignKey(x => x.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
     }
 }

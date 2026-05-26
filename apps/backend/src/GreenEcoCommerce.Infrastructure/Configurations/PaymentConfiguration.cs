@@ -9,29 +9,20 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
     public void Configure(EntityTypeBuilder<Payment> builder)
     {
         builder.ToTable("payments");
+        builder.HasKey(x => x.Id);
 
-        builder.HasKey(e => e.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.OrderId).HasColumnName("order_id");
+        builder.Property(x => x.Method).HasColumnName("method").HasConversion<string>().HasMaxLength(50);
+        builder.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(50);
+        builder.Property(x => x.Amount).HasColumnName("amount").HasPrecision(18, 2);
+        builder.Property(x => x.TransactionRef).HasColumnName("transaction_ref").HasMaxLength(150);
 
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
-        builder.Property(e => e.OrderId).HasColumnName("order_id").IsRequired();
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 
-        builder.Property(e => e.Method)
-                .HasColumnName("method")
-                .HasConversion<string>()
-                .HasMaxLength(50)
-                .IsRequired();
-
-        builder.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasConversion<string>()
-                .HasMaxLength(50)
-                .IsRequired();
-
-        builder.Property(e => e.Amount).HasColumnName("amount").HasColumnType("decimal(18,2)").IsRequired();
-        builder.Property(e => e.TransactionRef).HasColumnName("transaction_ref").HasMaxLength(100).IsRequired(false);
-
-        builder.HasOne(e => e.Order)
-                .WithOne(o => o.Payment)
-                .HasForeignKey<Payment>(e => e.OrderId);
+        builder.HasOne(x => x.Order)
+                .WithOne(x => x.Payment)
+                .HasForeignKey<Payment>(x => x.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
     }
 }

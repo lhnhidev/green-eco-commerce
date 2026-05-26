@@ -2,11 +2,11 @@
 
 public class ProductImage
 {
-    public Guid Id { get; init; } = Guid.CreateVersion7();
-    public required Guid ProductId { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid ProductId { get; set; }
     public required string AzureUrl { get; set; }
-    public required bool IsPrimary { get; set; }
+    public bool IsPrimary { get; set; }
 
-    // Navigation property
-    public Product Product { get; init; } = null!;
+    // Navigation Properties
+    public Product? Product { get; set; }
 }

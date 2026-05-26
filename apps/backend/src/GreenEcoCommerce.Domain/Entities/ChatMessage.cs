@@ -1,15 +1,16 @@
 ﻿using GreenEcoCommerce.Domain.Enums;
+using GreenEcoCommerce.Domain.Interfaces;
 
 namespace GreenEcoCommerce.Domain.Entities;
 
-public class ChatMessage
+public class ChatMessage: IHasCreatedAt
 {
-    public Guid Id { get; init; } = Guid.CreateVersion7();
-    public required Guid SessionId { get; set; }
-    public required ChatRoleEnum Role { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid SessionId { get; set; }
+    public ChatRoleEnum Role { get; set; }
     public required string Content { get; set; }
-    public required DateTime CreatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 
-    // Navigation property
-    public ChatSession Session { get; init; } = null!;
+    // Navigation Properties
+    public ChatSession? Session { get; set; }
 }

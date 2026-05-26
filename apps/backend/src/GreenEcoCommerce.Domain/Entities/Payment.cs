@@ -1,16 +1,18 @@
 ﻿using GreenEcoCommerce.Domain.Enums;
+using GreenEcoCommerce.Domain.Interfaces;
 
 namespace GreenEcoCommerce.Domain.Entities;
 
-public class Payment
+public class Payment: IHasCreatedAt
 {
-    public Guid Id { get; init; } = Guid.CreateVersion7();
-    public required Guid OrderId { get; set; }
-    public required PaymentMethodEnum Method { get; set; }
-    public required PaymentStatusEnum Status { get; set; }
-    public required decimal Amount { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid OrderId { get; set; }
+    public PaymentMethodEnum Method { get; set; }
+    public PaymentStatusEnum Status { get; set; }
+    public decimal Amount { get; set; }
     public required string TransactionRef { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 
-    // Navigation property
-    public Order Order { get; init; } = null!;
+    // Navigation Properties
+    public Order? Order { get; set; }
 }

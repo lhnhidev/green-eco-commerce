@@ -9,27 +9,31 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
     public void Configure(EntityTypeBuilder<Order> builder)
     {
         builder.ToTable("orders");
+        builder.HasKey(x => x.Id);
 
-        builder.HasKey(e => e.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.UserId).HasColumnName("user_id");
+        builder.Property(x => x.VoucherId).HasColumnName("voucher_id");
+        builder.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(50);
+        builder.Property(x => x.DeliveryAddress).HasColumnName("delivery_address").HasMaxLength(500);
+        builder.Property(x => x.Latitude).HasColumnName("latitude");
+        builder.Property(x => x.Longitude).HasColumnName("longitude");
+        builder.Property(x => x.SubTotal).HasColumnName("sub_total").HasPrecision(18, 2);
+        builder.Property(x => x.DiscountAmount).HasColumnName("discount_amount").HasPrecision(18, 2);
+        builder.Property(x => x.TotalAmount).HasColumnName("total_amount").HasPrecision(18, 2);
+        builder.Property(x => x.TotalCo2Saved).HasColumnName("total_co2_saved");
 
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
-        builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 
-        builder.Property(e => e.Status)
-                .HasColumnName("status")
-                .HasConversion<string>()
-                .HasMaxLength(50)
-                .IsRequired();
+        builder.HasOne(x => x.User)
+                .WithMany(x => x.Orders)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Property(e => e.DeliveryAddress).HasColumnName("delivery_address").HasMaxLength(500).IsRequired();
-        builder.Property(e => e.Latitude).HasColumnName("latitude").IsRequired();
-        builder.Property(e => e.Longitude).HasColumnName("longitude").IsRequired();
-        builder.Property(e => e.TotalAmount).HasColumnName("total_amount").IsRequired();
-        builder.Property(e => e.TotalCo2Saved).HasColumnName("total_co2_saved").IsRequired();
-        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
-
-        builder.HasOne(e => e.User)
-                .WithMany(u => u.Orders)
-                .HasForeignKey(e => e.UserId);
+        builder.HasOne(x => x.Voucher)
+                .WithOne(x => x.AppliedOrder)
+                .HasForeignKey<Order>(x => x.VoucherId)
+                .IsRequired(false)
+                .OnDelete(DeleteBehavior.SetNull);
     }
 }

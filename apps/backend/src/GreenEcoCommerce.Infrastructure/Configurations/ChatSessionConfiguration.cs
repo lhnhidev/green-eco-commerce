@@ -9,15 +9,17 @@ public class ChatSessionConfiguration : IEntityTypeConfiguration<ChatSession>
     public void Configure(EntityTypeBuilder<ChatSession> builder)
     {
         builder.ToTable("chat_sessions");
+        builder.HasKey(x => x.Id);
 
-        builder.HasKey(e => e.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.UserId).HasColumnName("user_id");
+        builder.Property(x => x.Title).HasColumnName("title").HasMaxLength(255);
 
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
-        builder.Property(e => e.UserId).HasColumnName("user_id").IsRequired();
-        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 
-        builder.HasOne(e => e.User)
-                .WithMany(u => u.ChatSessions)
-                .HasForeignKey(e => e.UserId);
+        builder.HasOne(x => x.User)
+                .WithMany(x => x.ChatSessions)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
     }
 }

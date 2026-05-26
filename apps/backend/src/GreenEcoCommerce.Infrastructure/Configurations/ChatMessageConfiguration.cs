@@ -9,23 +9,18 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
     public void Configure(EntityTypeBuilder<ChatMessage> builder)
     {
         builder.ToTable("chat_messages");
+        builder.HasKey(x => x.Id);
 
-        builder.HasKey(e => e.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.SessionId).HasColumnName("session_id");
+        builder.Property(x => x.Role).HasColumnName("role").HasConversion<string>().HasMaxLength(20);
+        builder.Property(x => x.Content).HasColumnName("content");
 
-        builder.Property(e => e.Id).HasColumnName("id").IsRequired();
-        builder.Property(e => e.SessionId).HasColumnName("session_id").IsRequired();
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 
-        builder.Property(e => e.Role)
-                .HasColumnName("role")
-                .HasConversion<string>()
-                .HasMaxLength(50)
-                .IsRequired();
-
-        builder.Property(e => e.Content).HasColumnName("content").IsRequired();
-        builder.Property(e => e.CreatedAt).HasColumnName("created_at").IsRequired();
-
-        builder.HasOne(e => e.Session)
-                .WithMany(s => s.Messages)
-                .HasForeignKey(e => e.SessionId);
+        builder.HasOne(x => x.Session)
+                .WithMany(x => x.Messages)
+                .HasForeignKey(x => x.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
     }
 }

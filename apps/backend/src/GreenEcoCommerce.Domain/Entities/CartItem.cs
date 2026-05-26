@@ -2,12 +2,12 @@
 
 public class CartItem
 {
-    public Guid Id { get; init; } = Guid.CreateVersion7();
-    public required Guid CartId { get; set; }
-    public required Guid ProductId { get; set; }
-    public required int Quantity { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid CartId { get; set; }
+    public Guid ProductId { get; set; }
+    public int Quantity { get; set; }
 
-    // Navigation properties
-    public Cart Cart { get; init; } = null!;
-    public Product Product { get; init; } = null!;
+    // Navigation Properties
+    public Cart? Cart { get; set; }
+    public Product? Product { get; set; }
 }

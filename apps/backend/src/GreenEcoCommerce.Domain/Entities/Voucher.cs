@@ -2,14 +2,16 @@
 
 public class Voucher
 {
-    public Guid Id { get; init; } = Guid.CreateVersion7();
-    public required Guid GreenPointId { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid? UserId { get; set; }
     public required string Code { get; set; }
-    public required decimal DiscountValue { get; set; }
-    public required float PointsCost { get; set; }
-    public required DateTime ExpiresAt { get; set; }
-    public required bool IsUsed { get; set; }
+    public decimal DiscountValue { get; set; }
+    public decimal PointsCost { get; set; }
+    public DateTimeOffset ExpiresAt { get; set; }
+    public bool IsUsed { get; set; }
 
-    // Navigation property
-    public GreenPoint GreenPoint { get; init; } = null!;
+    // Navigation Properties
+    public User? User { get; set; }
+    public ICollection<PointTransaction> PointTransactions { get; set; } = new HashSet<PointTransaction>();
+    public Order? AppliedOrder { get; set; }
 }

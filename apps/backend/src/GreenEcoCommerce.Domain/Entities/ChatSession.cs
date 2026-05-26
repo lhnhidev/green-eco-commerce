@@ -1,12 +1,15 @@
-﻿namespace GreenEcoCommerce.Domain.Entities;
+﻿using GreenEcoCommerce.Domain.Interfaces;
 
-public class ChatSession
+namespace GreenEcoCommerce.Domain.Entities;
+
+public class ChatSession: IHasCreatedAt
 {
-    public Guid Id { get; init; } = Guid.CreateVersion7();
-    public required Guid UserId { get; set; }
-    public required DateTime CreatedAt { get; set; }
+    public Guid Id { get; set; } = Guid.CreateVersion7();
+    public Guid UserId { get; set; }
+    public required string Title { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
 
-    // Navigation properties
-    public User User { get; init; } = null!;
-    public ICollection<ChatMessage> Messages { get; init; } = new HashSet<ChatMessage>();
+    // Navigation Properties
+    public User? User { get; set; }
+    public ICollection<ChatMessage> Messages { get; set; } = new HashSet<ChatMessage>();
 }
