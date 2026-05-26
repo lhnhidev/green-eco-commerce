@@ -1,15 +1,16 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Infrastructure.Identity;
+using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
 using GreenEcoCommerce.WebAPI.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,11 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
 });
 
+// Create a singleton instance if it doesn't require scoped dependencies.
+// If it requires scoped dependencies (like an ICurrentUserService), register the interceptor
+// in DI and resolve it here.
+var auditingInterceptor = new AuditingInterceptor();
+
 // Đăng ký MediatR và quét toàn bộ Assembly chứa class cấu hình
 builder.Services.AddMediatR(cfg =>
 {
@@ -66,7 +72,8 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
-    );
+    )
+    .AddInterceptors(auditingInterceptor);;
 });
 
 // Đăng ký Controllers và cấu hình route convention
