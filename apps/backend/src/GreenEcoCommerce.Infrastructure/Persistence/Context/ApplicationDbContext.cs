@@ -1,5 +1,7 @@
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.ValueObjects;
+using GreenEcoCommerce.Infrastructure.Converters;
 using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Infrastructure.Persistence.Context;
@@ -8,6 +10,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         : DbContext(options), IApplicationDbContext
 {
     public DbSet<User> Users => Set<User>();
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        // This replaces the need for .HasConversion() on individual properties
+        configurationBuilder
+                .Properties<PhoneNumber>()
+                .HaveConversion<PhoneNumberConverter>();
+
+        configurationBuilder
+                .Properties<Email>()
+                .HaveConversion<EmailConverter>();
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
