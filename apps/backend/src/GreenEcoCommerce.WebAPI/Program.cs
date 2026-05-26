@@ -5,6 +5,7 @@ using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
 using GreenEcoCommerce.WebAPI.Middlewares;
+using GreenEcoCommerce.WebAPI.OpenApi;
 using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -62,7 +63,10 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddOperationTransformer<DocFilter>();
+});
 
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
