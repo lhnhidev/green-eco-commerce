@@ -9,7 +9,7 @@ const AuthPage = () => {
           <Brand linkToHome={false} size="md" />
         </div>
 
-        <div className="bg-white p-4 rounded-lg shadow-md">
+        <div className="bg-white py-4 px-6 rounded-lg shadow-md">
           <AuthFormLayout></AuthFormLayout>
         </div>
       </div>

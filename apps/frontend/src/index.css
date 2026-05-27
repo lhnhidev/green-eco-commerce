@@ -15,6 +15,7 @@
   --color-primary-foreground: #ffffff;
   --color-muted: #f1f5eb;
   --color-muted-foreground: #6b7280;
+  --color-input-muted: #f8f9f7;
 }
 
 @layer base {
