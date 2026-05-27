@@ -5,15 +5,20 @@ using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
 using GreenEcoCommerce.WebAPI.Middlewares;
+using GreenEcoCommerce.WebAPI.OpenApi;
+using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Dòng này ra lệnh cho .NET: "Khi tạo JWT, hãy giữ nguyên tên gốc, đừng tự ý map sang URI dài của XML nữa!"
+// Khi tạo JWT sẽ giữ nguyên tên gốc, không tự ý map sang URI dài của XML
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
 
@@ -58,7 +63,10 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddOperationTransformer<DocFilter>();
+});
 
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
@@ -68,6 +76,25 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
         b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
     );
 });
+
+// Swagger
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "GreenEcoCommerce API",
+        Version = "v1",
+        Description = "API GreenEcoCommerce app - app for buying and selling green products"
+    });
+
+    // Cấu hình để Swagger đọc file XML documentation
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    c.IncludeXmlComments(xmlPath);
+});
+
+// Kích hoạt Fluent Validator cho Swagger
+builder.Services.AddFluentValidationRulesToSwagger();
 
 // Đăng ký Controllers và cấu hình route convention
 builder.Services.AddControllers();
@@ -92,6 +119,9 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseDefaultFiles();

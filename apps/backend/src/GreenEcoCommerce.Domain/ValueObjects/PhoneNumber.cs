@@ -1,3 +1,4 @@
+using GreenEcoCommerce.Domain.Exceptions;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -16,14 +17,14 @@ public partial class PhoneNumber
     public static PhoneNumber Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Số điện thoại không được để trống.");
+            throw new InvalidPhoneNumberException("Phone number must be not empty.");
 
         var sb = new StringBuilder(value.Length);
         foreach (char c in value.Where(c => !char.IsWhiteSpace(c))) { sb.Append(c); }
 
         string cleanedPhone = sb.ToString();
 
-        return !PhoneRegex().IsMatch(cleanedPhone) ? throw new ArgumentException("Số điện thoại không đúng định dạng.") : new PhoneNumber(cleanedPhone);
+        return !PhoneRegex().IsMatch(cleanedPhone) ? throw new InvalidPhoneNumberException("Invalid phone number") : new PhoneNumber(cleanedPhone);
     }
 
     // Ép kiểu ngầm định sang string

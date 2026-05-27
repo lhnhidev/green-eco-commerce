@@ -7,6 +7,9 @@ namespace GreenEcoCommerce.WebAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
     public class AuthController : ControllerBase
     {
         private readonly ISender _sender;
