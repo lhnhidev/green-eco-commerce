@@ -1,8 +1,9 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 import { Badge, Button, Group, TextInput } from '@mantine/core'
-import { LeafIcon, MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
 import { Link, useLocation } from 'react-router'
+import Brand from './Brand'
 
 const navigationItems = [
   { path: '/', label: 'Home' },
@@ -20,13 +21,7 @@ export function Navigation() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link className="flex items-center gap-2 cursor-pointer" to="/">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-              <LeafIcon className="h-5 w-5 text-white" weight="fill" />
-            </div>
-            <span className="text-xl font-semibold text-primary">GreenCart</span>
-          </Link>
-
+          <Brand linkToHome={true} size="md" />
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center gap-2">
             {navigationItems.map((item) => (
