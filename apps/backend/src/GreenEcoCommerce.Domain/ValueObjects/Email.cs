@@ -20,7 +20,7 @@ public partial class Email : IEquatable<Email>
     public static Email Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidEmailException("Email must not empty");
+            throw new InvalidEmailException("Email must not be empty");
 
         string trimmedEmail = value.Trim();
 
