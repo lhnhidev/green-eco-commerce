@@ -1,5 +1,7 @@
 import { SegmentedControl } from '@mantine/core'
-import { useState } from 'react'
+import { useAppDispatch } from '../../../hooks/useAppDispatch'
+import { useAppSelector } from '../../../hooks/useAppSelector'
+import { changeActive } from './auth.slice'
 
 type AuthHeaderType = {
   title: string
@@ -7,7 +9,8 @@ type AuthHeaderType = {
 }
 
 const AuthHeader = ({ title, description }: AuthHeaderType) => {
-  const [active, setActive] = useState<'login' | 'register'>('login')
+  const active = useAppSelector((state) => state.auth.active)
+  const dispatch = useAppDispatch()
 
   return (
     <div className="px-2">
@@ -19,7 +22,7 @@ const AuthHeader = ({ title, description }: AuthHeaderType) => {
       <div>
         <SegmentedControl
           value={active}
-          onChange={setActive}
+          onChange={() => dispatch(changeActive(active === 'register' ? 'login' : 'register'))}
           classNames={{
             root: '!rounded-4xl !w-full !bg-[var(--color-muted)]',
             indicator: '!rounded-4xl',

@@ -1,4 +1,4 @@
-import AuthHeader from '../components/AuthHeader'
+import AuthHeader from '../components/features/auth/AuthHeader'
 
 const AuthFormLayout = () => {
   return (

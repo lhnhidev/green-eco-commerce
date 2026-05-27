@@ -1,8 +1,8 @@
 import { Suspense } from 'react'
 import { Outlet } from 'react-router'
-import Footer from '../components/Footer'
-import Loading from '../components/Loading'
-import { Navigation } from '../components/Navigation'
+import { Navigation } from '../components/features/Navigation'
+import Footer from '../components/ui/Footer'
+import Loading from '../components/ui/status/Loading'
 
 const RootLayout = () => {
   return (

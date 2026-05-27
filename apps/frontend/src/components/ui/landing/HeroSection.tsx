@@ -1,6 +1,6 @@
 import { Button } from '@mantine/core'
 import { Link } from 'react-router'
-import { ImageWithFallback } from '../components/ImageWithFallback'
+import { ImageWithFallback } from '../status/ImageWithFallback'
 
 const HeroSection = () => {
   return (

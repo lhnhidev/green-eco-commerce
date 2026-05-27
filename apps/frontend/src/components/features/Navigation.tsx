@@ -3,7 +3,7 @@
 import { Badge, Button, Group, TextInput } from '@mantine/core'
 import { MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
 import { Link, useLocation } from 'react-router'
-import Brand from './Brand'
+import Brand from '../ui/Brand'
 
 const navigationItems = [
   { path: '/', label: 'Home' },

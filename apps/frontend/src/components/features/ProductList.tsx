@@ -1,7 +1,7 @@
 import { Badge, Button, Card } from '@mantine/core'
 import { StarIcon } from '@phosphor-icons/react'
 import { Link } from 'react-router'
-import { ImageWithFallback } from './ImageWithFallback'
+import { ImageWithFallback } from '../ui/status/ImageWithFallback'
 
 const ProductList = () => {
   const featuredProducts = [
