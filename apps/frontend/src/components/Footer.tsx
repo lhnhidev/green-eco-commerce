@@ -1,7 +1,9 @@
 import { LeafIcon } from '@phosphor-icons/react'
-import { navigate } from 'wouter/use-browser-location'
+import { useNavigate } from 'react-router'
 
 const Footer = () => {
+  const navigate = useNavigate()
+
   return (
     <footer className="bg-primary text-white py-12">
       <div className="container mx-auto px-4">

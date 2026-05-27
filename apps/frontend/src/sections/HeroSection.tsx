@@ -1,10 +1,8 @@
 import { Button } from '@mantine/core'
-import { useLocation } from 'wouter'
+import { Link } from 'react-router'
 import { ImageWithFallback } from '../components/ImageWithFallback'
 
 const HeroSection = () => {
-  const [, navigate] = useLocation()
-
   return (
     <section className="plant-gradient py-16 md:py-24">
       <div className="container mx-auto px-4">
@@ -20,12 +18,16 @@ const HeroSection = () => {
               paradise.
             </p>
             <div className="flex gap-4">
-              <Button size="lg" radius="xl" color="green.9" onClick={() => navigate('/products')}>
-                Shop Plants
-              </Button>
-              <Button variant="outline" size="lg" radius="xl" color="green.9" onClick={() => navigate('/remedies')}>
-                Plant Remedies
-              </Button>
+              <Link to="/products">
+                <Button size="lg" radius="xl" color="green.9">
+                  Shop Plants
+                </Button>
+              </Link>
+              <Link to="/remedies">
+                <Button variant="outline" size="lg" radius="xl" color="green.9">
+                  Plant Remedies
+                </Button>
+              </Link>
             </div>
           </div>
           <div className="relative">
