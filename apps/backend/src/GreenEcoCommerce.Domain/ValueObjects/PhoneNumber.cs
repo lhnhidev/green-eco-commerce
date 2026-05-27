@@ -17,7 +17,7 @@ public partial class PhoneNumber
     public static PhoneNumber Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidPhoneNumberException("Phone number must be not empty.");
+            throw new InvalidPhoneNumberException("Phone number must not be empty.");
 
         var sb = new StringBuilder(value.Length);
         foreach (char c in value.Where(c => !char.IsWhiteSpace(c))) { sb.Append(c); }
