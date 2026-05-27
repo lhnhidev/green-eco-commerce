@@ -2,8 +2,9 @@ import { createTheme, MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { RouterProvider } from 'react-router/dom'
 import './index.css'
-import App from './App.tsx'
+import { router } from './router/index.tsx'
 
 const theme = createTheme({
   fontFamily: 'Poppins, sans-serif',
@@ -30,7 +31,7 @@ createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <MantineProvider theme={theme}>
       <Notifications position="bottom-right" />
-      <App />
+      <RouterProvider router={router} />
     </MantineProvider>
   </StrictMode>,
 )

@@ -2,7 +2,7 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 import { Badge, Button, Group, TextInput } from '@mantine/core'
 import { LeafIcon, MagnifyingGlassIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
-import { useLocation } from 'wouter'
+import { Link, useLocation } from 'react-router'
 
 const navigationItems = [
   { path: '/', label: 'Home' },
@@ -11,34 +11,30 @@ const navigationItems = [
 ]
 
 export function Navigation() {
-  const [location, navigate] = useLocation()
+  const location = useLocation()
 
-  const isActive = (path: string) => (path === '/' ? location === '/' : location.startsWith(path))
+  const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+          <Link className="flex items-center gap-2 cursor-pointer" to="/">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
               <LeafIcon className="h-5 w-5 text-white" weight="fill" />
             </div>
             <span className="text-xl font-semibold text-primary">GreenCart</span>
-          </div>
+          </Link>
 
           {/* Navigation Links - Desktop */}
           <nav className="hidden md:flex items-center gap-2">
             {navigationItems.map((item) => (
-              <Button
-                key={item.path}
-                variant={isActive(item.path) ? 'filled' : 'subtle'}
-                color="green.9"
-                radius="xl"
-                onClick={() => navigate(item.path)}
-              >
-                {item.label}
-              </Button>
+              <Link key={item.path} to={item.path}>
+                <Button variant={isActive(item.path) ? 'filled' : 'subtle'} color="green.9" radius="xl">
+                  {item.label}
+                </Button>
+              </Link>
             ))}
           </nav>
 
@@ -54,27 +50,29 @@ export function Navigation() {
 
           {/* User Actions */}
           <Group gap="xs">
-            <Button
-              variant="subtle"
-              color="gray"
-              size="sm"
-              onClick={() => navigate('/auth')}
-              radius="xl"
-              leftSection={<UserIcon className="h-4 w-4" />}
-            >
-              <span className="hidden sm:inline">Login</span>
-            </Button>
-            <div className="relative">
+            <Link to="/auth">
               <Button
                 variant="subtle"
                 color="gray"
                 size="sm"
-                onClick={() => navigate('/cart')}
                 radius="xl"
-                leftSection={<ShoppingCartIcon className="h-4 w-4" />}
+                leftSection={<UserIcon className="h-4 w-4" />}
               >
-                <span className="hidden sm:inline">Cart</span>
+                <span className="hidden sm:inline">Login</span>
               </Button>
+            </Link>
+            <div className="relative">
+              <Link to="/cart">
+                <Button
+                  variant="subtle"
+                  color="gray"
+                  size="sm"
+                  radius="xl"
+                  leftSection={<ShoppingCartIcon className="h-4 w-4" />}
+                >
+                  <span className="hidden sm:inline">Cart</span>
+                </Button>
+              </Link>
               <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
                 1
               </Badge>
@@ -92,16 +90,17 @@ export function Navigation() {
           />
           <nav className="flex items-center gap-2 overflow-x-auto">
             {navigationItems.map((item) => (
-              <Button
-                key={item.path}
-                variant={isActive(item.path) ? 'filled' : 'subtle'}
-                color="green.9"
-                size="xs"
-                onClick={() => navigate(item.path)}
-                radius="xl"
-              >
-                {item.label}
-              </Button>
+              <Link to={item.path} key={item.path}>
+                <Button
+                  variant={isActive(item.path) ? 'filled' : 'subtle'}
+                  color="green.9"
+                  size="xs"
+                  // onClick={() => navigate(item.path)}
+                  radius="xl"
+                >
+                  {item.label}
+                </Button>
+              </Link>
             ))}
           </nav>
         </div>

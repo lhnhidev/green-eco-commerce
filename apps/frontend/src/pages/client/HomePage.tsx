@@ -1,4 +1,3 @@
-import Footer from '../../components/Footer'
 import FormSendEmail from '../../components/FormSendEmail'
 import ProductList from '../../components/ProductList'
 import FeatureSection from '../../sections/FeatureSection'
@@ -24,8 +23,6 @@ export function HomePage() {
         contentComponent={<FormSendEmail />}
         backgroundColor="plant-gradient"
       />
-
-      <Footer />
     </div>
   )
 }
