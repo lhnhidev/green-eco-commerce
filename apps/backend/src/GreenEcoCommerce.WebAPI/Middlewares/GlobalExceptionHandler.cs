@@ -1,8 +1,8 @@
-using System.Net;
+using AutoMapper;
 using GreenEcoCommerce.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-// Khai báo namespace chứa NotFoundException của bạn
+using System.Net;
 
 namespace GreenEcoCommerce.WebAPI.Middlewares;
 
@@ -23,6 +23,17 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         switch (exception)
         {
+            case AutoMapperMappingException autoMapperEx when autoMapperEx.InnerException is InvalidEmailException invalidEmailEx:
+                statusCode = HttpStatusCode.BadRequest; // 400
+                title = "Bad Request";
+                detail = invalidEmailEx.Message;
+                break;
+
+            case AutoMapperMappingException autoMapperEx when autoMapperEx.InnerException is InvalidPhoneNumberException invalidPhoneEx:
+                statusCode = HttpStatusCode.BadRequest; // 400
+                title = "Bad Request";
+                detail = invalidPhoneEx.Message;
+                break;
             // 3. Phân loại Exception để đổi mã lỗi HTTP tương ứng
             case NotFoundException notFoundEx:
                 statusCode = HttpStatusCode.NotFound; // 404
@@ -33,6 +44,16 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 statusCode = HttpStatusCode.BadRequest; // 400
                 title = "Bad Request";
                 detail = badRequestEx.Message;
+                break;
+            case InvalidPhoneNumberException invalidPhoneEx:
+                statusCode = HttpStatusCode.BadRequest; // 400
+                title = "Bad Request";
+                detail = invalidPhoneEx.Message;
+                break;
+            case InvalidEmailException invalidEmailEx:
+                statusCode = HttpStatusCode.BadRequest; // 400
+                title = "Bad Request";
+                detail = invalidEmailEx.Message;
                 break;
         }
 

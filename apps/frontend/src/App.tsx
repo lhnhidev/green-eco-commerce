@@ -1,5 +1,16 @@
-const App = () => {
-  return <div className="text-3xl underline">Hello</div>
-}
+import { Route, Switch } from 'wouter'
+import { Navigation } from './components/Navigation'
+import { HomePage } from './pages/client/HomePage'
 
-export default App
+export default function App() {
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <main>
+        <Switch>
+          <Route path="/" component={HomePage} />
+        </Switch>
+      </main>
+    </div>
+  )
+}

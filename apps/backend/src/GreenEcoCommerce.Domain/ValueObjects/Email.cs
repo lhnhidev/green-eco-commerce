@@ -1,3 +1,4 @@
+using GreenEcoCommerce.Domain.Exceptions;
 using System.Text.RegularExpressions;
 
 namespace GreenEcoCommerce.Domain.ValueObjects;
@@ -19,11 +20,11 @@ public partial class Email : IEquatable<Email>
     public static Email Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Email không được để trống.");
+            throw new InvalidEmailException("Email must not be empty");
 
         string trimmedEmail = value.Trim();
 
-        return !EmailRegex().IsMatch(trimmedEmail) ? throw new ArgumentException("Định dạng Email không hợp lệ.") : new Email(trimmedEmail);
+        return !EmailRegex().IsMatch(trimmedEmail) ? throw new InvalidEmailException("Invalid email") : new Email(trimmedEmail);
     }
 
     // Ép kiểu ngầm định (Implicit Conversion) từ Email sang string
