@@ -61,6 +61,7 @@ const LoginForm = () => {
 
         <div>
           <Button
+            type="submit"
             size="xs"
             radius="xl"
             color="green.9"

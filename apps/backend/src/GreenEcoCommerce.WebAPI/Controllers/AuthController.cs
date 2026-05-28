@@ -7,14 +7,13 @@ namespace GreenEcoCommerce.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
 public class AuthController(ISender sender) : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-    public class AuthController : ControllerBase
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterCommand command)
     {
         var id = await sender.Send(command);
         return Ok(new { id });
