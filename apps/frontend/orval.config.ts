@@ -8,6 +8,12 @@ export default defineConfig({
       target: './src/api/index.ts',
       schemas: './src/api/schemas',
       client: 'react-query',
+      override: {
+        mutator: {
+          path: './src/lib/axios.ts',
+          name: 'customInstance',
+        },
+      },
     },
   },
 })

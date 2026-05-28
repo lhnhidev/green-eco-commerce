@@ -1,5 +1,5 @@
-export type LoginFormValues = {
-  email: string
-  password: string
+import type { LoginCommand } from '../api/schemas'
+
+export type LocalLoginFormValues = LoginCommand & {
   remember: boolean
 }

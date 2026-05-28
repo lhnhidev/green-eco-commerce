@@ -23,6 +23,25 @@ public class AuthController(ISender sender) : ControllerBase
     public async Task<IActionResult> Login(LoginCommand command)
     {
         string token = await sender.Send(command);
-        return Ok(new { token });
+
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true, // Ngăn js/ts truy cập vào token
+            Secure = true,   // Bắt buộc dùng HTTPS (ở localhost .NET tự chạy HTTPS)
+            SameSite = SameSiteMode.Strict, // Chống tấn công CSRF
+            Expires = DateTime.UtcNow.AddDays(7) // Thời gian sống của Cookie
+        };
+
+        // Ghi cookie vào Response với tên là "AccessToken"
+        Response.Cookies.Append("AccessToken", token, cookieOptions);
+
+        return Ok(new { message = "Login successful" });
+    }
+
+    [HttpPost("logout")]
+    public IActionResult Logout()
+    {
+        Response.Cookies.Delete("auth_token");
+        return Ok(new { message = "Logout successful" });
     }
 }

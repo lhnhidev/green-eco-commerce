@@ -1,8 +1,11 @@
 import { Button } from '@mantine/core'
+import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { FaFacebook, FaGoogle, FaRegEnvelope } from 'react-icons/fa'
 import { MdLockOutline } from 'react-icons/md'
-import type { LoginFormValues } from '../../../types/loginForm.types'
+import { usePostApiAuthLogin } from '../../../api'
+import type { ProblemDetails } from '../../../api/schemas'
+import type { LocalLoginFormValues } from '../../../types/index'
 import FormField from '../form-field'
 import CheckboxInput from '../form-field/checkbox-input'
 import EmailInput from '../form-field/email-input'
@@ -13,7 +16,7 @@ const LoginForm = () => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<LoginFormValues>({
+  } = useForm<LocalLoginFormValues>({
     defaultValues: {
       email: '',
       password: '',
@@ -21,15 +24,30 @@ const LoginForm = () => {
     },
   })
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log('Dữ liệu submit:', data)
+  const { mutate, isPending } = usePostApiAuthLogin()
+
+  const onSubmit = (formData: LocalLoginFormValues) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { remember, ...data } = formData
+    mutate(
+      { data: data },
+      {
+        onSuccess: (response) => {
+          const token = (response.data as { token: string }).token
+        },
+        onError: (error) => {
+          const axiosError = error as AxiosError<ProblemDetails>
+          alert(axiosError.response?.data.detail || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!')
+        },
+      },
+    )
   }
 
   return (
     <div className="text-xs mt-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-5">
-          <FormField<LoginFormValues>
+          <FormField<LocalLoginFormValues>
             name="email"
             control={control}
             label="Email"
@@ -39,7 +57,7 @@ const LoginForm = () => {
             Component={EmailInput}
           />
 
-          <FormField<LoginFormValues>
+          <FormField<LocalLoginFormValues>
             name="password"
             control={control}
             rules={{ required: 'Password is required' }}
@@ -65,6 +83,7 @@ const LoginForm = () => {
             size="xs"
             radius="xl"
             color="green.9"
+            loading={isPending}
             classNames={{
               root: '!w-full',
             }}
