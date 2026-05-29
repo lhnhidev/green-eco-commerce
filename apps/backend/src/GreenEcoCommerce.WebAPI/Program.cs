@@ -50,12 +50,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 // Authorization Policies
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
-    options.AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
-});
+builder.Services.AddAuthorizationBuilder()
+        .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
+        .AddPolicy("UserOnly", policy => policy.RequireRole("User"))
+        .AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
 
 // Create a singleton instance if it doesn't require scoped dependencies.
 // If it requires scoped dependencies (like an ICurrentUserService), register the interceptor
@@ -94,7 +92,7 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
         builder.Configuration.GetConnectionString("DefaultConnection"),
         b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
     )
-    .AddInterceptors(auditingInterceptor);;
+    .AddInterceptors(auditingInterceptor);
 });
 
 // Swagger
@@ -108,8 +106,8 @@ builder.Services.AddSwaggerGen(c =>
     });
 
     // Cấu hình để Swagger đọc file XML documentation
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
     c.IncludeXmlComments(xmlPath);
 });
 
