@@ -15,9 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
-using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
-using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +27,16 @@ JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                // Đọc token từ cookie thay vì Authorization header
+                context.Token = context.Request.Cookies["AccessToken"];
+                return Task.CompletedTask;
+            }
+        };
+
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = true,
@@ -63,9 +71,12 @@ builder.Services.AddMediatR(cfg =>
 // Cấu hình CORS (Cho phép React gọi API mà không bị chặn)
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
+    options.AddPolicy("CORS", policy =>
     {
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // BẮT BUỘC: Cho phép gửi/nhận Cookie
     });
 });
 
@@ -140,7 +151,7 @@ app.UseExceptionHandler();
 
 app.UseRouting();
 app.UseHttpsRedirection();
-app.UseCors();
+app.UseCors("CORS");
 app.UseAuthentication();
 app.UseAuthorization();
 

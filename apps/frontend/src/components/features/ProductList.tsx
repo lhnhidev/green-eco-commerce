@@ -1,11 +1,9 @@
 import { Badge, Button, Card } from '@mantine/core'
 import { StarIcon } from '@phosphor-icons/react'
-import { useLocation } from 'wouter'
-import { ImageWithFallback } from './ImageWithFallback'
+import { Link } from 'react-router'
+import { ImageWithFallback } from '../ui/status/ImageWithFallback'
 
 const ProductList = () => {
-  const [, navigate] = useLocation()
-
   const featuredProducts = [
     {
       id: '1',
@@ -88,9 +86,11 @@ const ProductList = () => {
       </div>
 
       <div className="text-center mt-12">
-        <Button size="lg" variant="outline" radius="xl" color="green.9" onClick={() => navigate('/products')}>
-          View All Products
-        </Button>
+        <Link to="/products">
+          <Button size="lg" variant="outline" radius="xl" color="green.9">
+            View All Products
+          </Button>
+        </Link>
       </div>
     </div>
   )

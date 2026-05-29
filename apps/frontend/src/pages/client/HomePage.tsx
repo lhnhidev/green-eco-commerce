@@ -1,10 +1,8 @@
-import Footer from '../../components/Footer'
-import FormSendEmail from '../../components/FormSendEmail'
-import ProductList from '../../components/ProductList'
-import FeatureSection from '../../sections/FeatureSection'
-import HeroSection from '../../sections/HeroSection'
-import TrustSection from '../../sections/TrustSection'
-
+import FormSendEmail from '../../components/features/FormSendEmail'
+import ProductList from '../../components/features/ProductList'
+import FeatureSection from '../../components/ui/landing/FeatureSection'
+import HeroSection from '../../components/ui/landing/HeroSection'
+import TrustSection from '../../components/ui/landing/TrustSection'
 export function HomePage() {
   return (
     <div className="min-h-screen">
@@ -24,8 +22,6 @@ export function HomePage() {
         contentComponent={<FormSendEmail />}
         backgroundColor="plant-gradient"
       />
-
-      <Footer />
     </div>
   )
 }
