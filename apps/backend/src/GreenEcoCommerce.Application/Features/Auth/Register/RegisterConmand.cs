@@ -18,7 +18,7 @@ public record RegisterCommand(
 
 public class RegisterHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<RegisterCommand, Guid>
 {
-    public async Task<Guid> Handle(RegisterCommand request, CancellationToken cancellationToken)
+    public async Task<Guid> Handle(RegisterCommand request, CancellationToken ct)
     {
         bool emailExist = await userRepository.EmailUserExist(request.Email);
         bool phoneExist = await userRepository.PhoneNumberUserExist(request.Phone);

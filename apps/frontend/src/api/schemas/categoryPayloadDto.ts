@@ -6,8 +6,10 @@
  * OpenAPI spec version: v1
  */
 
-export * from './categoryDto';
-export * from './categoryPayloadDto';
-export * from './loginCommand';
-export * from './problemDetails';
-export * from './registerCommand';
+export interface CategoryPayloadDto {
+  name: string;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  parentId?: string | null;
+}

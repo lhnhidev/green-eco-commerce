@@ -11,7 +11,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     public async ValueTask<bool> TryHandleAsync(
         HttpContext httpContext,
         Exception exception,
-        CancellationToken cancellationToken)
+        CancellationToken ct)
     {
         // 1. Log lại lỗi chi tiết ở Server để Developer vào xem khi hệ thống gặp sự cố
         logger.LogError(exception, "Một lỗi xảy ra trong hệ thống: {Message}", exception.Message);
@@ -23,13 +23,33 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
 
         switch (exception)
         {
-            case AutoMapperMappingException autoMapperEx when autoMapperEx.InnerException is InvalidEmailException invalidEmailEx:
+            case ValidationException validationEx:
+                statusCode = HttpStatusCode.BadRequest; // 400
+                title = "Validation Error";
+                detail = "One or more validation errors occurred.";
+
+                httpContext.Response.StatusCode = (int)statusCode;
+                var validationResponse = new ProblemDetails
+                {
+                    Status = (int)statusCode,
+                    Title = title,
+                    Detail = detail,
+                    Instance = httpContext.Request.Path,
+                    Extensions = new Dictionary<string, object?>
+                    {
+                        { "errors", validationEx.Errors }
+                    }
+                };
+                await httpContext.Response.WriteAsJsonAsync(validationResponse, ct);
+                return true;
+
+            case AutoMapperMappingException { InnerException: InvalidEmailException invalidEmailEx }:
                 statusCode = HttpStatusCode.BadRequest; // 400
                 title = "Bad Request";
                 detail = invalidEmailEx.Message;
                 break;
 
-            case AutoMapperMappingException autoMapperEx when autoMapperEx.InnerException is InvalidPhoneNumberException invalidPhoneEx:
+            case AutoMapperMappingException { InnerException: InvalidPhoneNumberException invalidPhoneEx }:
                 statusCode = HttpStatusCode.BadRequest; // 400
                 title = "Bad Request";
                 detail = invalidPhoneEx.Message;
@@ -70,7 +90,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         };
 
         // 5. Trả về JSON sạch đẹp cho Client (Frontend)
-        await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+        await httpContext.Response.WriteAsJsonAsync(problemDetails, ct);
 
         return true; // Trả về true để báo với .NET là lỗi này đã được xử lý xong, đừng sập App
     }
