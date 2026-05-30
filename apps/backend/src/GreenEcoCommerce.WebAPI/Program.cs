@@ -1,5 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using FluentValidation;
+using GreenEcoCommerce.Application.Behaviors;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Interfaces;
@@ -8,14 +10,11 @@ using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
 using GreenEcoCommerce.WebAPI.Middlewares;
-using GreenEcoCommerce.WebAPI.OpenApi;
-using MicroElements.Swashbuckle.FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi;
 using Scalar.AspNetCore;
-using System.Reflection;
+using GreenEcoCommerce.WebAPI.Endpoints;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -64,7 +63,11 @@ var auditingInterceptor = new AuditingInterceptor();
 builder.Services.AddMediatR(cfg =>
 {
     cfg.RegisterServicesFromAssembly(typeof(GreenEcoCommerce.Application.Features.Auth.Login.LoginCommand).Assembly);
+    cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
+
+// Đăng ký FluentValidation
+builder.Services.AddValidatorsFromAssembly(typeof(GreenEcoCommerce.Application.Features.Auth.Login.LoginCommand).Assembly);
 
 // Cấu hình CORS (Cho phép React gọi API mà không bị chặn)
 builder.Services.AddCors(options =>
@@ -80,9 +83,16 @@ builder.Services.AddCors(options =>
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi(options =>
+builder.Services.AddOpenApi(opt =>
 {
-    options.AddOperationTransformer<DocFilter>();
+    opt.AddDocumentTransformer((document, _, _) =>
+    {
+        document.Info.Title = "GreenEcoCommerce API";
+        document.Info.Version = "v1";
+        document.Info.Description = "API GreenEcoCommerce app - app for buying and selling green products";
+
+        return Task.CompletedTask;
+    });
 });
 
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
@@ -94,25 +104,6 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
     )
     .AddInterceptors(auditingInterceptor);
 });
-
-// Swagger
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Title = "GreenEcoCommerce API",
-        Version = "v1",
-        Description = "API GreenEcoCommerce app - app for buying and selling green products"
-    });
-
-    // Cấu hình để Swagger đọc file XML documentation
-    string xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    string xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    c.IncludeXmlComments(xmlPath);
-});
-
-// Kích hoạt Fluent Validator cho Swagger
-builder.Services.AddFluentValidationRulesToSwagger();
 
 // Đăng ký Controllers và cấu hình route convention
 builder.Services.AddControllers();
@@ -130,6 +121,7 @@ builder.Services.AddAutoMapper(cfg =>
 // Đăng ký DI
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 var app = builder.Build();
 
@@ -138,8 +130,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
-    app.UseSwagger();
-    app.UseSwaggerUI();
 }
 
 app.UseDefaultFiles();
@@ -154,6 +144,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapCategoryEndpoints();
 
 app.MapFallbackToFile("index.html");
 
