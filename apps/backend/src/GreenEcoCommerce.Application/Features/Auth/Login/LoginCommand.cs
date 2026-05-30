@@ -9,7 +9,7 @@ public record LoginCommand(string Email, string Password) : IRequest<string>;
 public class LoginHandler(IUserRepository userRepository, IJwtService jwtService)
         : IRequestHandler<LoginCommand, string>
 {
-    public async Task<string> Handle(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(LoginCommand request, CancellationToken ct)
     {
         var user = await userRepository.GetUserByEmailAsync(request.Email);
 
