@@ -1,29 +1,25 @@
 using System.Text.RegularExpressions;
+using Vogen;
 
 namespace GreenEcoCommerce.Domain.ValueObjects;
 
-public partial class Password
+[ValueObject<string>(toPrimitiveCasting: CastOperator.Implicit)]
+public readonly partial record struct Password
 {
     // Mật khẩu phải từ 6 ký tự, có 1 chữ hoa, 1 chữ thường, 1 số)
     [GeneratedRegex(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{6,}$")]
     private static partial Regex PasswordRegex();
 
-    public string Value { get; }
-
-    private Password(string value) => Value = value;
-
-    public static Password Create(string passwordRaw)
+    private static Validation Validate(string input)
     {
-        if (string.IsNullOrWhiteSpace(passwordRaw))
-            throw new ArgumentException("Mật khẩu không được để trống.");
+        if (string.IsNullOrWhiteSpace(input))
+        {
+            return Validation.Invalid("Mật khẩu không được để trống.");
+        }
 
-        return !PasswordRegex().IsMatch(passwordRaw) ? throw new ArgumentException("Mật khẩu phải từ 6 ký tự trở lên, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số.") : new Password(passwordRaw);
+        return !PasswordRegex().IsMatch(input) ? Validation.Invalid("Mật khẩu phải từ 6 ký tự trở lên, bao gồm ít nhất 1 chữ hoa, 1 chữ thường và 1 chữ số.") : Validation.Ok;
     }
 
     // Ngăn chặn việc vô tình log mật khẩu thô ra màn hình console
     public override string ToString() => "********";
-
-    public bool Equals(Password? other) => other is not null && Value == other.Value;
-    public override bool Equals(object? obj) => obj is Password other && Equals(other);
-    public override int GetHashCode() => Value.GetHashCode();
 }
