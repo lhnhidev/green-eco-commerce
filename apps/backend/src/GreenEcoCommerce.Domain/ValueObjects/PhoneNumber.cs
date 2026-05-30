@@ -7,7 +7,7 @@ namespace GreenEcoCommerce.Domain.ValueObjects;
 public partial class PhoneNumber
 {
     // Regex kiểm tra số điện thoại Việt Nam (10 số, bắt đầu bằng 03, 05, 07, 08, 09)
-    [GeneratedRegex(@"^(0[3|5|7|8|9])+([0-8]{8})\b$")]
+    [GeneratedRegex("^0[35789][0-9]{8}$")]
     private static partial Regex PhoneRegex();
 
     public string Value { get; }
