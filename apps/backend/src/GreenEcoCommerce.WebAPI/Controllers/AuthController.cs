@@ -13,6 +13,25 @@ namespace GreenEcoCommerce.WebAPI.Controllers;
 public class AuthController(ISender sender) : ControllerBase
 {
     [HttpPost("register")]
+    [EndpointDescription("""
+                         Đăng ký tài khoản dựa vào thông tin gửi lên. Đăng ký thành công thì gửi về một id của người dùng đã đăng ký
+
+                         ### Dữ liệu gửi lên mẫu:
+                         ```json
+                         {
+                             "firstName": "Nguyễn",
+                             "lastName": "Văn A",
+                             "phone": "0811125678",
+                             "address": "123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh",
+                             "role": "User",
+                             "email": "annguynnn111@greeneco.com",
+                             "password": "SecurePassword123jfdlkjkl!"
+                         }
+                         ```
+                         """)]
+    [ProducesResponseType<object>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest, Description = "Dữ liệu không hợp lệ. Sai định dạng Email/Phone hoặc thông tin đã tồn tại.")]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, Description = "Lỗi hệ thống.")]
     public async Task<IActionResult> Register(RegisterCommand command)
     {
         var id = await sender.Send(command);
