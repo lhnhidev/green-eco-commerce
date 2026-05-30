@@ -1,13 +1,13 @@
-namespace GreenEcoCommerce.WebAPI.OpenApi
+namespace GreenEcoCommerce.WebAPI.OpenApi;
+
+public class ApiDocStorage
 {
-    public class ApiDocStorage
+    public static readonly Dictionary<string, ApiEndpointDoc> Endpoints = new()
     {
-        public static readonly Dictionary<string, ApiEndpointDoc> Endpoints = new()
+        // Khóa Key cấu trúc: [Tên Controller]_[Tên Hàm Action]
+        ["Auth_Register"] = new ApiEndpointDoc
         {
-            // Khóa Key cấu trúc: [Tên Controller]_[Tên Hàm Action]
-            ["Auth_Register"] = new ApiEndpointDoc
-            {
-                Description = """
+            Description = """
                 Đăng ký tài khoản dựa vào thông tin gửi lên. Đăng ký thành công thì gửi về một id của người dùng đã đăng ký
                 
                 ### Dữ liệu gửi lên mẫu:
@@ -23,13 +23,12 @@ namespace GreenEcoCommerce.WebAPI.OpenApi
                 }
                 ```
                 """,
-                Responses = new()
-                {
-                    ["200"] = "Đăng ký người dùng thành công.",
-                    ["400"] = "Dữ liệu không hợp lệ. Sai định dạng Email/Phone hoặc thông tin đã tồn tại.",
-                    ["500"] = "Lỗi hệ thống."
-                }
+            Responses = new()
+            {
+                ["200"] = "Đăng ký người dùng thành công.",
+                ["400"] = "Dữ liệu không hợp lệ. Sai định dạng Email/Phone hoặc thông tin đã tồn tại.",
+                ["500"] = "Lỗi hệ thống."
             }
-        };
-    }
+        }
+    };
 }
