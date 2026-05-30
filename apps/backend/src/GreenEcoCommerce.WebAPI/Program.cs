@@ -107,6 +107,11 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
 
 // Đăng ký Controllers và cấu hình route convention
 builder.Services.AddControllers();
+builder.Services.Configure<RouteOptions>(opt =>
+{
+    opt.LowercaseUrls = true; // Chuyển tất cả URL thành chữ thường
+    opt.AppendTrailingSlash = false; // Không thêm dấu / ở cuối URL
+});
 
 // Đăng ký ExceptionHanlder
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
