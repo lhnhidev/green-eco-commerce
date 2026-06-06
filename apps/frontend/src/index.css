@@ -1,1 +1,38 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+@import "@mantine/core/styles.css";
+@import "@mantine/notifications/styles.css";
+@import "@mantine/dropzone/styles.css";
+@import "@mantine/charts/styles.css";
+@import "@mantine/spotlight/styles.css";
+
 @import "tailwindcss";
+
+@theme inline {
+  --color-background: #fefefe;
+  --color-foreground: #1a1a1a;
+  --color-primary: #2d5016;
+  --color-primary-foreground: #ffffff;
+  --color-muted: #f1f5eb;
+  --color-muted-foreground: #6b7280;
+  --color-input-muted: #f8f9f7;
+}
+
+@layer base {
+  body {
+    font-family: "Poppins", sans-serif;
+    background-color: #fefefe;
+    color: #1a1a1a;
+  }
+}
+
+/* Custom plant-themed utilities */
+.plant-gradient {
+  background: linear-gradient(135deg, #e8f5d6 0%, #f1f5eb 100%);
+}
+
+.plant-shadow {
+  box-shadow:
+    0 4px 6px -1px rgba(45, 80, 22, 0.1),
+    0 2px 4px -1px rgba(45, 80, 22, 0.06);
+}
