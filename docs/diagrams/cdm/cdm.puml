@@ -6,212 +6,161 @@ hide circle
 
 package "Identity & Access" {
   entity "USER" as user #E8F4FF {
-    * **id [PK] : UUID**
+    * id
     --
-    email : Email
-    password_hash : string
-    first_name : string
-    last_name : string
-    full_name : string
-    phone : PhoneNumber
-    address: string
-    role (user/admin) : Enum
-    created_at : DateTime
-    updated_at : DateTime
+    email
+    password_hash
+    first_name
+    last_name
+    phone
+    address
+    role
+    created_at
+    updated_at
   }
 }
 
 package "Catalog & Inventory" {
   entity "CATEGORY" as category #E8F8F5 {
-    * **id [PK] : UUID**
+    * id
     --
-    * parent_id [FK] : UUID <<nullable>>
-    name : string
-    description : string
+    name
+    description
   }
 
   entity "PRODUCT" as product #E9F7EF {
-    * **id [PK] : UUID**
-    --
-    * category_id [FK] : UUID
-    sku : string
-    name : string
-    description : string
-    price : decimal(18, 2)
-    stock_qty : int
-    carbon_index : float
-    material_origin : string
-    decompose_percent : float
-    recycle_percent : float
-    is_active : boolean
+    * id
+    ---
+    sku
+    name
+    description
+    price
+    stock_qty
+    carbon_index
+    baseline_carbon_index
+    decompose_percent
+    recycle_percent
+    image_url
+    is_active
   }
 
-  entity "PRODUCT_IMAGE" as product_image #F2F3F4 {
-    * **id [PK] : UUID**
+  entity "MATERIAL" as material #E8F8F5 {
+    * id
     --
-    * product_id [FK] : UUID
-    azure_url : string
-    is_primary : boolean
+    name
+    type
+    eco_rating
   }
 }
 
 package "Sales & Checkout" {
   entity "CART" as cart #FEF9E7 {
-    * **id [PK] : UUID**
+    * id
     --
-    * user_id [FK] : UUID
-    updated_at : DateTime
+    updated_at
   }
 
   entity "CART_ITEM" as cart_item #FEF9E7 {
-    * **id [PK] : UUID**
+    * id
     --
-    * cart_id [FK] : UUID
-    * product_id [FK] : UUID
-    quantity : int
+    quantity
   }
 
   entity "ORDER" as order #FDEDEC {
-    * **id [PK] : UUID**
+    * id
     --
-    * user_id [FK] : UUID
-    * voucher_id [FK] : UUID <<nullable>>
-    status (pending/packing/delivering/delivered/cancelled) : Enum
-    delivery_address : string
-    latitude : float
-    longitude : float
-    sub_total : decimal(18, 2)
-    discount_amount : decimal(18, 2)
-    total_amount : decimal(18, 2)
-    total_co2_saved : float
-    created_at : DateTime
+    status
+    delivery_address
+    discount_amount
+    total_co2_saved
+    earned_points
+    created_at
   }
 
   entity "ORDER_ITEM" as order_item #FDEDEC {
-    * **id [PK] : UUID**
+    * id
     --
-    * order_id [FK] : UUID
-    * product_id [FK] : UUID
-    quantity : int
-    unit_price : decimal(18, 2)
-  }
-
-  entity "PAYMENT" as payment #F2F3F4 {
-    * **id [PK] : UUID**
-    --
-    * order_id [FK] : UUID
-    method (bank/momo/cod) : Enum
-    status (pending/paid/refunded/failed) : Enum
-    amount : decimal(18, 2)
-    transaction_ref : string
-    created_at : DateTime
+    quantity
+    unit_price
   }
 }
 
 package "Eco Rewards System" {
   entity "GREEN_WALLET" as green_wallet #E9F7EF {
-    * **id [PK] : UUID**
+    * id
     --
-    * user_id [FK] : UUID
-    balance : decimal(15, 2)
-    earned_total : decimal(15, 2)
-    updated_at : DateTime
+    balance
+    earned_total
+    updated_at
   }
 
   entity "POINT_TRANSACTION" as point_transaction #E9F7EF {
-    * **id [PK] : UUID**
+    * id
     --
-    * wallet_id [FK] : UUID
-    * order_id [FK] : UUID <<nullable>>
-    * voucher_id [FK] : UUID <<nullable>>
-    amount : decimal(15, 2)
-    type (earn/redeem) : Enum
-    description : string
-    created_at : DateTime
-  }
-
-  entity "VOUCHER" as voucher #E9F7EF {
-    * **id [PK] : UUID**
-    --
-    * user_id [FK] : UUID <<nullable>>
-    code : string
-    discount_value : decimal(18, 2)
-    points_cost : decimal(15, 2)
-    expires_at : DateTime
-    is_used : boolean
+    amount
+    type
+    description
+    created_at
   }
 }
 
-package "AI Chat & RAG" {
+package "AI Chatbot System" {
   entity "CHAT_SESSION" as chat_session #F4ECF7 {
-    * **id [PK] : UUID**
+    * id
     --
-    * user_id [FK] : UUID
-    title : string
-    created_at : DateTime
+    title
+    created_at
   }
 
   entity "CHAT_MESSAGE" as chat_message #F4ECF7 {
-    * **id [PK] : UUID**
+    * id
     --
-    * session_id [FK] : UUID
-    role (user/bot/system) : Enum
-    content : string
-    created_at : DateTime
+    role
+    content
+    metadata
+    created_at
   }
 
   entity "DOCUMENT" as document #F2F3F4 {
-    * **id [PK] : UUID**
+    * id
     --
-    * uploaded_by [FK] : UUID
-    file_name : string
-    file_type (pdf/docx/txt) : Enum
-    azure_url : string
-    created_at : DateTime
+    file_name
+    file_type
+    file_url
+    created_at
   }
 
   entity "EMBEDDING" as embedding #F2F3F4 {
-    * **id [PK] : UUID**
+    * id
     --
-    * document_id [FK] : UUID
-    chunk_text : string
-    vector_id : string
+    chunk_text
+    vector_id
   }
 }
 
 ' ================= RELATIONSHIPS =================
 
-' Users & Carts
-user ||--|| cart : 1-1
-cart ||--o{ cart_item : 1-N
+user ||--|| cart
+cart ||--o{ cart_item
 
-' Catalog
-category |o--o{ category : 1-N (self)
-category ||--o{ product : 1-N
-product ||--o{ product_image : 1-N
-product ||--o{ cart_item : 1-N
+category |o--o{ category
+category ||--o{ product
+product ||--o{ cart_item
 
-' Orders & Payments
-user ||--o{ order : 1-N
-order ||--o{ order_item : 1-N
-product ||--o{ order_item : 1-N
-order ||--|| payment : 1-1
-voucher |o--o| order : 1-1 (applied to)
+user ||--o{ order
+order ||--o{ order_item
+product ||--o{ order_item
 
-' Eco Rewards
-user ||--|| green_wallet : 1-1
-green_wallet ||--o{ point_transaction : 1-N
-order |o--o{ point_transaction : 1-N (triggers)
-user ||--o{ voucher : 1-N (owns)
-voucher |o--o{ point_transaction : 1-N (records)
+user ||--|| green_wallet
+green_wallet ||--o{ point_transaction
+order ||--|| point_transaction
 
-' For layout
+user ||--o{ chat_session
+chat_session ||--o{ chat_message
+user ||--o{ document
+document ||--o{ embedding
+product }o--|{ material
+
 green_wallet -[hidden]- embedding
-
-' AI Chat & RAG
-user ||--o{ chat_session : 1-N
-chat_session ||--o{ chat_message : 1-N
-user ||--o{ document : 1-N
-document ||--o{ embedding : 1-N
 
 @enduml
