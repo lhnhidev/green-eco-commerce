@@ -12,7 +12,6 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public required string PasswordHash { get; set; }
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
-    public required string FullName { get; set; }
     public required PhoneNumber Phone { get; set; }
     public required string Address { get; set; }
     public RoleEnum Role { get; set; } = RoleEnum.User;
@@ -25,19 +24,4 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
     public ICollection<ChatSession> ChatSessions { get; set; } = new HashSet<ChatSession>();
     public ICollection<Document> Documents { get; set; } = new HashSet<Document>();
-
-    private User() { }
-
-    [SetsRequiredMembers]
-    public User(Email email, string passwordHash, string firstName, string lastName, PhoneNumber phone, string address, RoleEnum? role)
-    {
-        Email = email;
-        PasswordHash = passwordHash;
-        FirstName = firstName;
-        LastName = lastName;
-        FullName = $"{lastName} {firstName}";
-        Phone = phone;
-        Address = address;
-        Role = role ?? RoleEnum.User;
-    }
 }

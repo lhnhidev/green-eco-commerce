@@ -52,21 +52,19 @@ public sealed class UserRepositoryTests(PostgreSqlFixture fixture) : IAsyncLifet
     /// Builds a unique, valid <see cref="User"/> for each test. All required
     /// fields are populated; email and phone must be unique across the table.
     /// </summary>
-    private static User MakeUser(
-        string email = "john.doe@example.com",
-        string phone = "0311111110",
-        string firstName = "John",
-        string lastName = "Doe",
-        string address = "123 Main Street",
-        RoleEnum role = RoleEnum.User)
-        => new(
-            Email.From(email),
-            BCrypt.Net.BCrypt.HashPassword("P@ssw0rd!"),
-            firstName,
-            lastName,
-            PhoneNumber.From(phone),
-            address,
-            role);
+    private static User MakeUser(string email = "john.doe@example.com", string phone = "0311111110",
+                                 string firstName = "John", string lastName = "Doe", string address = "123 Main Street",
+                                 RoleEnum role = RoleEnum.User) =>
+            new()
+            {
+                Email = Email.From(email),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("P@ssw0rd!"),
+                Phone = PhoneNumber.From(phone),
+                FirstName = firstName,
+                LastName = lastName,
+                Address = address,
+                Role = role
+            };
 
     // ---------------------------------------------------------------------------
     // AddUserAsync
