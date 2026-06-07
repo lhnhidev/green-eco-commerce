@@ -1,4 +1,4 @@
-﻿using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,6 +15,7 @@ public class ChatMessageConfiguration : IEntityTypeConfiguration<ChatMessage>
         builder.Property(x => x.SessionId).HasColumnName("session_id");
         builder.Property(x => x.Role).HasColumnName("role").HasConversion<string>().HasMaxLength(20);
         builder.Property(x => x.Content).HasColumnName("content");
+        builder.Property(x => x.Metadata).HasColumnName("metadata");
 
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 

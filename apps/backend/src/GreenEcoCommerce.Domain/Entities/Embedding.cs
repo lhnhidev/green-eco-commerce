@@ -8,5 +8,5 @@ public class Embedding
     public required string VectorId { get; set; }
 
     // Navigation Properties
-    public Document? Document { get; set; }
+    public Document Document { get; set; } = null!;
 }

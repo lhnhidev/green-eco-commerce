@@ -20,10 +20,9 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public DateTimeOffset? UpdatedAt { get; set; }
 
     // Navigation properties
-    public Cart? Cart { get; set; }
-    public GreenWallet? GreenWallet { get; set; }
+    public Cart Cart { get; set; } = null!;
+    public GreenWallet GreenWallet { get; set; } = null!;
     public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
-    public ICollection<Voucher> Vouchers { get; set; } = new HashSet<Voucher>();
     public ICollection<ChatSession> ChatSessions { get; set; } = new HashSet<ChatSession>();
     public ICollection<Document> Documents { get; set; } = new HashSet<Document>();
 
