@@ -9,6 +9,6 @@ public class Cart: IHasUpdatedAt
     public DateTimeOffset? UpdatedAt { get; set; }
 
     // Navigation Properties
-    public User? User { get; set; }
+    public User User { get; set; } = null!;
     public ICollection<CartItem> CartItems { get; set; } = new HashSet<CartItem>();
 }

@@ -28,14 +28,16 @@ public class RegisterHandlerTests
         new("John", "Doe", phone, "123 Main Street", null, email, "Password1");
 
     private static User CreateValidUser() =>
-        new(
-            Email.From("john@example.com"),
-            BCrypt.Net.BCrypt.HashPassword("Password1"),
-            "John",
-            "Doe",
-            PhoneNumber.From("0311111110"),
-            "123 Main Street",
-            RoleEnum.User);
+            new()
+            {
+                Email = Email.From("john@example.com"),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password1"),
+                FirstName = "John",
+                LastName = "Doe",
+                Phone = PhoneNumber.From("0311111110"),
+                Address = "123 Main Street",
+                Role = RoleEnum.User
+            };
 
     [Fact]
     public async Task Handle_ShouldReturnGuid_WhenCommandIsValid()

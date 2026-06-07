@@ -1,4 +1,4 @@
-﻿using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -15,7 +15,7 @@ public class DocumentConfiguration : IEntityTypeConfiguration<Document>
         builder.Property(x => x.UploadedBy).HasColumnName("uploaded_by");
         builder.Property(x => x.FileName).HasColumnName("file_name").HasMaxLength(255);
         builder.Property(x => x.FileType).HasColumnName("file_type").HasConversion<string>().HasMaxLength(20);
-        builder.Property(x => x.AzureUrl).HasColumnName("azure_url").HasMaxLength(1000);
+        builder.Property(x => x.FileUrl).HasColumnName("file_url").HasMaxLength(1000);
 
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 

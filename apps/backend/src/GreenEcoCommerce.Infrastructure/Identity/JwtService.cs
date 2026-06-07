@@ -21,7 +21,6 @@ public class JwtService(IConfiguration config) : IJwtService
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.MobilePhone, user.Phone),
             new Claim(ClaimTypes.Role, user.Role.ToString()),
-            new Claim(ClaimTypes.Name, user.FullName),
             new Claim(ClaimTypes.GivenName, user.FirstName),
             new Claim(ClaimTypes.Surname, user.LastName),
             new Claim(ClaimTypes.StreetAddress, user.Address),

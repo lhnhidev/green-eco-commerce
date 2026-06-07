@@ -23,14 +23,16 @@ public class LoginHandlerTests
     }
 
     private static User CreateValidUser(string rawPassword = "Password1") =>
-        new(
-            Email.From("test@example.com"),
-            BCrypt.Net.BCrypt.HashPassword(rawPassword),
-            "Test",
-            "User",
-            PhoneNumber.From("0311111110"),
-            "123 Test Street",
-            RoleEnum.User);
+            new()
+            {
+                Email = Email.From("test@example.com"),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(rawPassword),
+                FirstName = "Test",
+                LastName = "User",
+                Phone = PhoneNumber.From("0311111110"),
+                Address = "123 Test Street",
+                Role = RoleEnum.User
+            };
 
     [Fact]
     public async Task Handle_ShouldReturnToken_WhenCredentialsAreValid()

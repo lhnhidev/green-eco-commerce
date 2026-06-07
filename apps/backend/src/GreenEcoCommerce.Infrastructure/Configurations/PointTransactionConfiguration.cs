@@ -1,4 +1,4 @@
-﻿using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -14,7 +14,6 @@ public class PointTransactionConfiguration : IEntityTypeConfiguration<PointTrans
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.WalletId).HasColumnName("wallet_id");
         builder.Property(x => x.OrderId).HasColumnName("order_id");
-        builder.Property(x => x.VoucherId).HasColumnName("voucher_id");
         builder.Property(x => x.Type).HasColumnName("type").HasConversion<string>().HasMaxLength(50);
         builder.Property(x => x.Amount).HasColumnName("amount").HasPrecision(15, 2);
         builder.Property(x => x.Description).HasColumnName("description").HasMaxLength(500);
@@ -27,14 +26,8 @@ public class PointTransactionConfiguration : IEntityTypeConfiguration<PointTrans
                 .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Order)
-                .WithMany(x => x.PointTransactions)
-                .HasForeignKey(x => x.OrderId)
-                .IsRequired(false)
-                .OnDelete(DeleteBehavior.SetNull);
-
-        builder.HasOne(x => x.Voucher)
-                .WithMany(x => x.PointTransactions)
-                .HasForeignKey(x => x.VoucherId)
+                .WithOne(x => x.PointTransaction)
+                .HasForeignKey<PointTransaction>(x => x.OrderId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
     }

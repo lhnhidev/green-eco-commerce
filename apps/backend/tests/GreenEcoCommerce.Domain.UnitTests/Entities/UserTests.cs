@@ -13,15 +13,17 @@ public class UserTests
     private static Email ValidEmail => Email.From("alice@green-eco.vn");
     private static PhoneNumber ValidPhone => PhoneNumber.From("0911111110");
 
-    private static User BuildUser(RoleEnum? role = null) =>
-        new(
-            email: ValidEmail,
-            passwordHash: "hashed_password_123",
-            firstName: "Alice",
-            lastName: "Nguyen",
-            phone: ValidPhone,
-            address: "123 Green Street, Hanoi",
-            role: role);
+    private static User BuildUser(RoleEnum? role = RoleEnum.User) =>
+            new()
+            {
+                Email = ValidEmail,
+                PasswordHash = "hashed_password_123",
+                FirstName = "Alice",
+                LastName = "Nguyen",
+                Phone = ValidPhone,
+                Address = "123 Green Street, Hanoi",
+                Role = role ?? RoleEnum.User
+            };
 
     // -----------------------------------------------------------------------
     // Constructor — all properties set correctly
@@ -39,7 +41,16 @@ public class UserTests
         const string address = "123 Green Street, Hanoi";
 
         // Act
-        var user = new User(email, passwordHash, firstName, lastName, phone, address, RoleEnum.User);
+        var user = new User
+        {
+            Email = email,
+            PasswordHash = passwordHash,
+            FirstName = firstName,
+            LastName = lastName,
+            Phone = phone,
+            Address = address,
+            Role = RoleEnum.User
+        };
 
         // Assert
         Assert.Equal((string)email, user.Email.Value);
@@ -73,24 +84,6 @@ public class UserTests
 
         // Assert
         Assert.Equal(RoleEnum.Admin, user.Role);
-    }
-
-    // -----------------------------------------------------------------------
-    // FullName composition
-    // -----------------------------------------------------------------------
-
-    [Fact]
-    public void Constructor_ShouldSetFullNameAsLastNameSpaceFirstName()
-    {
-        // Arrange
-        const string firstName = "Alice";
-        const string lastName = "Nguyen";
-
-        // Act
-        var user = new User(ValidEmail, "hash", firstName, lastName, ValidPhone, "addr", null);
-
-        // Assert
-        Assert.Equal($"{lastName} {firstName}", user.FullName);
     }
 
     // -----------------------------------------------------------------------
