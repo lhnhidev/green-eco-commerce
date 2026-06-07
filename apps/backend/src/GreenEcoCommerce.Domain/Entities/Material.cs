@@ -5,8 +5,8 @@ namespace GreenEcoCommerce.Domain.Entities;
 public class Material
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
-    public string Name { get; set; }
-    public MaterialTypeEnum Type { get; set; }
+    public required string Name { get; set; }
+    public required MaterialTypeEnum Type { get; set; }
     public int EcoRating { get; set; }
 
     // Navigation Properties
