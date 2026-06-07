@@ -30,6 +30,6 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
                 .HasForeignKey(x => x.CategoryId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasMany(x => x.Materials).WithMany(x => x.Products).UsingEntity(j => j.ToTable("product_materials"));
+        builder.HasMany(x => x.Materials).WithMany(x => x.Products).UsingEntity(x => x.ToTable("product_materials"));
     }
 }
