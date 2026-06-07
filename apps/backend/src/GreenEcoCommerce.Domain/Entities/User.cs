@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Domain.ValueObjects;
@@ -28,6 +29,7 @@ public class User: IHasCreatedAt, IHasUpdatedAt
 
     private User() { }
 
+    [SetsRequiredMembers]
     public User(Email email, string passwordHash, string firstName, string lastName, PhoneNumber phone, string address, RoleEnum? role)
     {
         Email = email;
