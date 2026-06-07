@@ -82,6 +82,16 @@ package "Sales & Checkout" {
     unit_price
     unit_co2_saved
   }
+
+  entity "PAYMENT" as payment #FDEDEC {
+    * id
+    --
+    method
+    status
+    amount
+    transaction_ref
+    created_at
+  }
 }
 
 package "Eco Rewards System" {
@@ -153,6 +163,7 @@ product ||--o{ order_item : "1 - 0..*"
 user ||--|| green_wallet : "1 - 1"
 green_wallet ||--o{ point_transaction : "1 - 0..*"
 order |o--|| point_transaction : "0..1 - 1"
+order ||--o| payment : "1 - 0..1"
 
 user ||--o{ chat_session : "1 - 0..*"
 chat_session ||--o{ chat_message : "1 - 0..*"
