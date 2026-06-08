@@ -12,7 +12,7 @@ public class RegisterCommandValidatorTests
     private static RegisterCommand CreateValidCommand(string firstName = "John", string lastName = "Doe",
                                                       string phone = "0311111110", string address = "123 Main Street",
                                                       string? role = null, string email = "john@example.com",
-                                                      string password = "Password1") =>
+                                                      string password = "Password1!") =>
             new(firstName, lastName, phone, address, role, email, password);
 
     // ── Happy path ───────────────────────────────────────────────────────────
@@ -243,9 +243,9 @@ public class RegisterCommandValidatorTests
     }
 
     [Theory]
-    [InlineData("Password1")]
+    [InlineData("Password1!")]
     [InlineData("S3cur3P@ss")]
-    [InlineData("MyPass123")]
+    [InlineData("MyPass#123")]
     public void Validate_ShouldPass_WhenPasswordMeetsAllRules(string password)
     {
         var result = validator.TestValidate(CreateValidCommand(password: password));

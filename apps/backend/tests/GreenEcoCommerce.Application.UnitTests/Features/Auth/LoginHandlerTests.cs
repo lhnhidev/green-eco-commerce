@@ -1,4 +1,5 @@
 using GreenEcoCommerce.Application.Features.Auth.Login;
+using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
@@ -13,13 +14,15 @@ public class LoginHandlerTests
 {
     private readonly Mock<IUserRepository> mockUserRepo;
     private readonly Mock<IJwtService> mockJwtService;
+    private readonly Mock<ICacheService> mockCacheService;
     private readonly LoginHandler handler;
 
     public LoginHandlerTests()
     {
         mockUserRepo = new Mock<IUserRepository>();
         mockJwtService = new Mock<IJwtService>();
-        handler = new LoginHandler(mockUserRepo.Object, mockJwtService.Object);
+        mockCacheService = new Mock<ICacheService>();
+        handler = new LoginHandler(mockUserRepo.Object, mockJwtService.Object, mockCacheService.Object);
     }
 
     private static User CreateValidUser(string rawPassword = "Password1") =>
@@ -51,7 +54,7 @@ public class LoginHandlerTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(expectedToken, result);
+        Assert.Equal(expectedToken, result.Token);
     }
 
     [Fact]

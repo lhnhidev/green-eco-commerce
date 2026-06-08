@@ -14,11 +14,11 @@ public record RegisterCommand(
     string? Role,
     string Email,
     string Password
-) : IRequest<Guid>;
+) : IRequest<RegisterResponse>;
 
-public class RegisterHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<RegisterCommand, Guid>
+public class RegisterHandler(IUserRepository userRepository, IMapper mapper) : IRequestHandler<RegisterCommand, RegisterResponse>
 {
-    public async Task<Guid> Handle(RegisterCommand request, CancellationToken ct)
+    public async Task<RegisterResponse> Handle(RegisterCommand request, CancellationToken ct)
     {
         bool emailExist = await userRepository.EmailUserExist(request.Email);
         bool phoneExist = await userRepository.PhoneNumberUserExist(request.Phone);
@@ -31,6 +31,6 @@ public class RegisterHandler(IUserRepository userRepository, IMapper mapper) : I
 
         var guid = await userRepository.AddUserAsync(userEntity);
 
-        return guid;
+        return new RegisterResponse(guid);
     }
 }

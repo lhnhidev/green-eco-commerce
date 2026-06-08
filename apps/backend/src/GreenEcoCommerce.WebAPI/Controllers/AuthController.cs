@@ -32,19 +32,26 @@ public class AuthController(ISender sender) : ControllerBase
                          }
                          ```
                          """)]
-    [ProducesResponseType<object>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest, Description = "Dữ liệu không hợp lệ. Sai định dạng Email/Phone hoặc thông tin đã tồn tại.")]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, Description = "Lỗi hệ thống.")]
+    [ProducesResponseType<RegisterResponse>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest,
+        Description = "Dữ liệu không hợp lệ. Sai định dạng Email/Phone hoặc thông tin đã tồn tại.")]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError,
+        Description = "Lỗi hệ thống.")]
     public async Task<IActionResult> Register(RegisterCommand command)
     {
-        var id = await sender.Send(command);
-        return Ok(new { id });
+        var response = await sender.Send(command);
+        return Ok(response);
     }
 
     [HttpPost("login")]
+    [ProducesResponseType<LoginResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Login(LoginCommand command)
     {
-        var token = await sender.Send(command);
+        var response = await sender.Send(command);
 
         var cookieOptions = new CookieOptions
         {
@@ -55,16 +62,18 @@ public class AuthController(ISender sender) : ControllerBase
         };
 
         // Ghi cookie vào Response với tên là "AccessToken"
-        Response.Cookies.Append("AccessToken", token, cookieOptions);
+        Response.Cookies.Append("AccessToken", response.Token, cookieOptions);
 
-        return Ok(new { message = "Login successful" });
+        return Ok(response);
     }
 
+    [Authorize]
     [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("auth_token");
-        return Ok(new { message = "Logout successful" });
+        Response.Cookies.Delete("AccessToken");
+        return NoContent();
     }
 
     [HttpGet("me")]
