@@ -1,4 +1,5 @@
 using FluentValidation;
+using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Exceptions;
 using GreenEcoCommerce.Domain.Interfaces;
@@ -9,7 +10,7 @@ namespace GreenEcoCommerce.Application.Features.Auth.Login;
 
 public record LoginCommand(string Email, string Password) : IRequest<string>;
 
-public class LoginHandler(IUserRepository userRepository, IJwtService jwtService)
+public class LoginHandler(IUserRepository userRepository, IJwtService jwtService, ICacheService cacheService)
         : IRequestHandler<LoginCommand, string>
 {
     public async Task<string> Handle(LoginCommand request, CancellationToken ct)
@@ -21,6 +22,11 @@ public class LoginHandler(IUserRepository userRepository, IJwtService jwtService
             throw new NotFoundException("Not found user, email or password is wrong");
         }
 
-        return jwtService.GenerateToken(user);
+        var token = jwtService.GenerateToken(user);
+        var refreshToken = jwtService.GenerateRefreshToken();
+
+        await cacheService.SetAsync($"refresh_token:{user.Id}", refreshToken, TimeSpan.FromDays(7), ct);
+
+        return token;
     }
 }
