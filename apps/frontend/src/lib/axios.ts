@@ -1,9 +1,9 @@
-import Axios from 'axios'
+import Axios, { type AxiosRequestConfig } from 'axios'
 
 export const axiosInstance = Axios.create({
   baseURL: 'http://localhost:5244',
   withCredentials: true, // ← Tương đương credentials: "include"
 })
 
-export const customInstance = <T>(config: Parameters<typeof axiosInstance>[0]) =>
+export const customInstance = <T>(config: AxiosRequestConfig): Promise<T> =>
   axiosInstance<T>(config).then((res) => res.data)
