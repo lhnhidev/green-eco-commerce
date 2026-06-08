@@ -32,13 +32,19 @@ public class AuthController(ISender sender) : ControllerBase
                          }
                          ```
                          """)]
-    [ProducesResponseType<object>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest, Description = "Dữ liệu không hợp lệ. Sai định dạng Email/Phone hoặc thông tin đã tồn tại.")]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError, Description = "Lỗi hệ thống.")]
+    [ProducesResponseType<RegisterResponse>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status400BadRequest,
+        Description = "Dữ liệu không hợp lệ. Sai định dạng Email/Phone hoặc thông tin đã tồn tại.")]
+    [ProducesResponseType(
+        typeof(ProblemDetails),
+        StatusCodes.Status500InternalServerError,
+        Description = "Lỗi hệ thống.")]
     public async Task<IActionResult> Register(RegisterCommand command)
     {
-        var id = await sender.Send(command);
-        return Ok(new { id });
+        var response = await sender.Send(command);
+        return Ok(response);
     }
 
     [HttpPost("login")]
