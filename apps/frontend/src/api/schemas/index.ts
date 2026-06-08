@@ -10,6 +10,7 @@ export * from './categoryDto';
 export * from './categoryPayloadDto';
 export * from './createProductCommand';
 export * from './loginCommand';
+export * from './logoutCommand';
 export * from './problemDetails';
 export * from './productDto';
 export * from './productPayloadDto';

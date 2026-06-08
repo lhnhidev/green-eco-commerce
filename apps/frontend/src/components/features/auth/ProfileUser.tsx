@@ -1,11 +1,17 @@
-import { Avatar, Button, Divider, Group, Stack, Text } from '@mantine/core'
-import { UserIcon } from '@phosphor-icons/react'
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
+import { Avatar, Divider, Group, Stack, Text } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { BiLeaf } from 'react-icons/bi'
 import { FiHeart, FiLogOut, FiPackage, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi'
 import type { IconType } from 'react-icons/lib'
 import { Link } from 'react-router'
+import { getGetApiAuthMeQueryKey, usePostApiAuthLogout } from '../../../api'
 import type { UserProfileResponse } from '../../../api/schemas'
+import { useAppDispatch } from '../../../hooks/useAppDispatch'
+import { clearAuthUser } from './auth.slice'
+import LoginComponent from './LoginComponent'
 
 type ProfileUserType = {
   user: UserProfileResponse | null
@@ -15,6 +21,7 @@ type menuItemType = {
   id: number
   label: string
   icon: IconType
+  url: string
 }
 
 const menuList: Array<menuItemType> = [
@@ -22,42 +29,75 @@ const menuList: Array<menuItemType> = [
     id: 1,
     label: 'Profile',
     icon: FiUser,
+    url: '/profile',
   },
   {
     id: 2,
     label: 'My orders',
     icon: FiPackage,
+    url: '/my-orders',
   },
   {
     id: 3,
     label: 'History shopping',
     icon: FiShoppingBag,
+    url: '/history-shopping',
   },
   {
     id: 4,
     label: 'Favorite products',
     icon: FiHeart,
+    url: '/favorite-products',
   },
   {
     id: 5,
     label: 'Green wallet',
     icon: BiLeaf,
+    url: '/green-wallet',
   },
   {
-    id: 5,
+    id: 6,
     label: 'Settings',
     icon: FiSettings,
+    url: '/settings',
   },
 ]
 
 const ProfileUser = ({ user }: ProfileUserType) => {
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false)
+  const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
+  const { mutate: logout } = usePostApiAuthLogout()
 
-  const fullName = user?.firstName.charAt(0).concat(user?.lastName.charAt(0)).toUpperCase()
+  if (!user) {
+    return <LoginComponent />
+  }
+
+  const fullName = user?.firstName?.charAt(0).concat(user?.lastName?.charAt(0)).toUpperCase()
+
+  const handleLogout = () => {
+    logout(
+      // biome-ignore lint/style/noNonNullAssertion: <>
+      { data: { id: user!.id } },
+      {
+        onSuccess: () => {
+          dispatch(clearAuthUser())
+          queryClient.removeQueries({ queryKey: getGetApiAuthMeQueryKey() })
+          setShowProfileMenu(false)
+        },
+        onError: () => {
+          notifications.show({
+            title: 'Logout failed!',
+            message: 'Please try again.',
+            color: 'red',
+          })
+        },
+      },
+    )
+  }
 
   return user ? (
     // biome-ignore lint/a11y/noStaticElementInteractions: <>
-    // biome-ignore lint/a11y/useKeyWithClickEvents: <>
     <div onClick={() => setShowProfileMenu(!showProfileMenu)} className="relative">
       <Avatar
         color="green"
@@ -103,45 +143,36 @@ const ProfileUser = ({ user }: ProfileUserType) => {
 
               <div className="flex flex-col gap-1 px-1">
                 {menuList.map((menuItem) => (
-                  <div
+                  <Link
+                    to={menuItem.url}
                     key={menuItem.id}
                     className="w-full hover:bg-gray-100 -mx-2 p-2 rounded-md transition-colors text-left flex items-center gap-3"
                   >
                     <menuItem.icon size={16} className="text-gray-400" />
                     <span className="text-sm">{menuItem.label}</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
 
               <Divider my="xs" classNames={{ root: '!border-gray-200 !mt-4' }} />
 
-              <div className="w-full hover:bg-gray-100 -mx-1   p-2 rounded-md transition-colors text-left flex items-center gap-3">
+              {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
+              <div
+                onClick={handleLogout}
+                className="w-full hover:bg-gray-100 -mx-1 p-2 rounded-md transition-colors text-left flex items-center gap-3 cursor-pointer"
+              >
                 <FiLogOut size={16} className="text-gray-400" />
                 <span className="text-sm">Log out</span>
               </div>
             </>
           ) : (
-            <Link to="/auth">
-              <Button
-                variant="subtle"
-                color="gray"
-                size="sm"
-                radius="xl"
-                leftSection={<UserIcon className="h-4 w-4" />}
-              >
-                <span className="hidden sm:inline">Login</span>
-              </Button>
-            </Link>
+            <LoginComponent />
           )}
         </div>
       )}
     </div>
   ) : (
-    <Link to="/auth">
-      <Button variant="subtle" color="gray" size="sm" radius="xl" leftSection={<UserIcon className="h-4 w-4" />}>
-        <span className="hidden sm:inline">Login</span>
-      </Button>
-    </Link>
+    <LoginComponent />
   )
 }
 
