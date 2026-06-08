@@ -14,5 +14,5 @@ public class Payment: IHasCreatedAt
     public DateTimeOffset CreatedAt { get; set; }
 
     // Navigation Properties
-    public Order? Order { get; set; }
+    public Order Order { get; set; } = null!;
 }

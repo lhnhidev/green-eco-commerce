@@ -5,4 +5,10 @@
     <Project Path="src/GreenEcoCommerce.Infrastructure/GreenEcoCommerce.Infrastructure.csproj" />
     <Project Path="src/GreenEcoCommerce.WebAPI/GreenEcoCommerce.WebAPI.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/GreenEcoCommerce.Application.UnitTests/GreenEcoCommerce.Application.UnitTests.csproj" />
+    <Project Path="tests/GreenEcoCommerce.Domain.UnitTests/GreenEcoCommerce.Domain.UnitTests.csproj" />
+    <Project Path="tests/GreenEcoCommerce.Infrastructure.IntegrationTests/GreenEcoCommerce.Infrastructure.IntegrationTests.csproj" />
+    <Project Path="tests/GreenEcoCommerce.WebAPI.FunctionalTests/GreenEcoCommerce.WebAPI.FunctionalTests.csproj" />
+  </Folder>
 </Solution>
