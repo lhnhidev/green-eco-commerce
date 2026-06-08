@@ -42,9 +42,10 @@ public class AuthController(ISender sender) : ControllerBase
     }
 
     [HttpPost("login")]
+    [ProducesResponseType<LoginResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Login(LoginCommand command)
     {
-        var token = await sender.Send(command);
+        var response = await sender.Send(command);
 
         var cookieOptions = new CookieOptions
         {
@@ -55,9 +56,9 @@ public class AuthController(ISender sender) : ControllerBase
         };
 
         // Ghi cookie vào Response với tên là "AccessToken"
-        Response.Cookies.Append("AccessToken", token, cookieOptions);
+        Response.Cookies.Append("AccessToken", response.Token, cookieOptions);
 
-        return Ok(new { message = "Login successful" });
+        return Ok(response);
     }
 
     [HttpPost("logout")]
