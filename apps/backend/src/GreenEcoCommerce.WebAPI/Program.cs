@@ -127,6 +127,7 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 
@@ -152,6 +153,9 @@ app.MapControllers();
 
 app.MapCategoryEndpoints();
 
+app.MapProductEndpoints();
+
 app.MapFallbackToFile("index.html");
+
 
 app.Run();
