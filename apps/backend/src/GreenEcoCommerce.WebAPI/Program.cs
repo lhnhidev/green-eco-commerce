@@ -2,9 +2,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
+using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Infrastructure.Caching;
 using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
@@ -105,6 +107,12 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
     .AddInterceptors(auditingInterceptor);
 });
 
+// Đăng ký dịch vụ Redis Distributed Cache của Microsoft
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+});
+
 // Đăng ký Controllers và cấu hình route convention
 builder.Services.AddControllers();
 builder.Services.Configure<RouteOptions>(opt =>
@@ -127,6 +135,8 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
 
 var app = builder.Build();
 

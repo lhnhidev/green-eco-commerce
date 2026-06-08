@@ -1,5 +1,6 @@
 using FluentValidation.TestHelper;
 using GreenEcoCommerce.Application.Features.Auth.Register;
+using GreenEcoCommerce.Application.Features.Auth.Validators;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
