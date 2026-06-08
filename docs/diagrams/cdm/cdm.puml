@@ -31,7 +31,6 @@ package "Catalog & Inventory" {
   entity "PRODUCT" as product #E9F7EF {
     * id
     ---
-    sku
     name
     description
     price
@@ -72,7 +71,6 @@ package "Sales & Checkout" {
     status
     delivery_address
     discount_amount
-    total_co2_saved
     earned_points
     created_at
   }
@@ -82,6 +80,17 @@ package "Sales & Checkout" {
     --
     quantity
     unit_price
+    unit_co2_saved
+  }
+
+  entity "PAYMENT" as payment #FDEDEC {
+    * id
+    --
+    method
+    status
+    amount
+    transaction_ref
+    created_at
   }
 }
 
@@ -140,26 +149,27 @@ package "AI Chatbot System" {
 
 ' ================= RELATIONSHIPS =================
 
-user ||--|| cart
-cart ||--o{ cart_item
+user ||--|| cart : "1 - 1"
+cart ||--o{ cart_item : "1 - 0..*"
 
-category |o--o{ category
-category ||--o{ product
-product ||--o{ cart_item
+category |o--o{ category : "0..1 - 0..*"
+category ||--o{ product : "1 - 0..*"
+product ||--o{ cart_item : "1 - 0..*"
 
-user ||--o{ order
-order ||--o{ order_item
-product ||--o{ order_item
+user ||--o{ order : "1 - 0..*"
+order ||--o{ order_item : "1 - 0..*"
+product ||--o{ order_item : "1 - 0..*"
 
-user ||--|| green_wallet
-green_wallet ||--o{ point_transaction
-order ||--|| point_transaction
+user ||--|| green_wallet : "1 - 1"
+green_wallet ||--o{ point_transaction : "1 - 0..*"
+order |o--|| point_transaction : "0..1 - 1"
+order ||--o| payment : "1 - 0..1"
 
-user ||--o{ chat_session
-chat_session ||--o{ chat_message
-user ||--o{ document
-document ||--o{ embedding
-product }o--|{ material
+user ||--o{ chat_session : "1 - 0..*"
+chat_session ||--o{ chat_message : "1 - 0..*"
+user ||--o{ document : "1 - 0..*"
+document ||--o{ embedding : "1 - 0..*"
+product }o--|{ material : "0..* - 1..*"
 
 green_wallet -[hidden]- embedding
 

@@ -10,7 +10,7 @@ public interface IApplicationDbContext
     // Catalog
     public DbSet<Category> Categories { get; }
     public DbSet<Product> Products { get; }
-    public DbSet<ProductImage> ProductImages { get; }
+    public DbSet<Material> Materials { get; }
 
     // Sales
     public DbSet<Cart> Carts { get; }
@@ -22,7 +22,6 @@ public interface IApplicationDbContext
     // Eco Rewards
     public DbSet<GreenWallet> GreenWallets { get; }
     public DbSet<PointTransaction> PointTransactions { get; }
-    public DbSet<Voucher> Vouchers { get; }
 
     // AI Chat & RAG
     public DbSet<ChatSession> ChatSessions { get; }

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Domain.ValueObjects;
@@ -11,7 +12,6 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public required string PasswordHash { get; set; }
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
-    public required string FullName { get; set; }
     public required PhoneNumber Phone { get; set; }
     public required string Address { get; set; }
     public RoleEnum Role { get; set; } = RoleEnum.User;
@@ -19,24 +19,9 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public DateTimeOffset? UpdatedAt { get; set; }
 
     // Navigation properties
-    public Cart? Cart { get; set; }
-    public GreenWallet? GreenWallet { get; set; }
+    public Cart Cart { get; set; } = null!;
+    public GreenWallet GreenWallet { get; set; } = null!;
     public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
-    public ICollection<Voucher> Vouchers { get; set; } = new HashSet<Voucher>();
     public ICollection<ChatSession> ChatSessions { get; set; } = new HashSet<ChatSession>();
     public ICollection<Document> Documents { get; set; } = new HashSet<Document>();
-
-    private User() { }
-
-    public User(Email email, string passwordHash, string firstName, string lastName, PhoneNumber phone, string address, RoleEnum? role)
-    {
-        Email = email;
-        PasswordHash = passwordHash;
-        FirstName = firstName;
-        LastName = lastName;
-        FullName = $"{lastName} {firstName}";
-        Phone = phone;
-        Address = address;
-        Role = role ?? RoleEnum.User;
-    }
 }

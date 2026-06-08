@@ -1,4 +1,4 @@
-﻿using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,6 +16,7 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.Property(x => x.ProductId).HasColumnName("product_id");
         builder.Property(x => x.Quantity).HasColumnName("quantity");
         builder.Property(x => x.UnitPrice).HasColumnName("unit_price").HasPrecision(18, 2);
+        builder.Property(x => x.UnitCo2Saved).HasColumnName("unit_co2_saved");
 
         builder.HasOne(x => x.Order)
                 .WithMany(x => x.OrderItems)

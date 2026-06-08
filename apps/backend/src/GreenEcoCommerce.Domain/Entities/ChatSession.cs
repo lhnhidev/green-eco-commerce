@@ -10,6 +10,6 @@ public class ChatSession: IHasCreatedAt
     public DateTimeOffset CreatedAt { get; set; }
 
     // Navigation Properties
-    public User? User { get; set; }
+    public User User { get; set; } = null!;
     public ICollection<ChatMessage> Messages { get; set; } = new HashSet<ChatMessage>();
 }

@@ -1,44 +1,29 @@
-using GreenEcoCommerce.Domain.Exceptions;
 using System.Text.RegularExpressions;
+using GreenEcoCommerce.Domain.Exceptions;
+using Vogen;
 
 namespace GreenEcoCommerce.Domain.ValueObjects;
 
-public partial class Email : IEquatable<Email>
+[ValueObject<string>(toPrimitiveCasting: CastOperator.Implicit, throws: typeof(InvalidEmailException))]
+public readonly partial record struct Email
 {
     // Regex chuẩn để kiểm tra định dạng email
 
     [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase)]
     private static partial Regex EmailRegex();
 
-    public string Value { get; }
-
-    private Email(string value)
+    private static string NormalizeInput(string value)
     {
-        Value = value;
+        return string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToLowerInvariant();
     }
 
-    public static Email Create(string value)
+    private static Validation Validate(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new InvalidEmailException("Email must not be empty");
+        {
+            return Validation.Invalid("Email must not be empty");
+        }
 
-        string trimmedEmail = value.Trim();
-
-        return !EmailRegex().IsMatch(trimmedEmail) ? throw new InvalidEmailException("Invalid email") : new Email(trimmedEmail);
+        return !EmailRegex().IsMatch(value) ? Validation.Invalid("Invalid email") : Validation.Ok;
     }
-
-    // Ép kiểu ngầm định (Implicit Conversion) từ Email sang string
-    public static implicit operator string(Email email) => email.Value;
-
-    // So sánh bằng
-    public bool Equals(Email? other)
-    {
-        return other is not null && string.Equals(Value, other.Value, StringComparison.OrdinalIgnoreCase);
-    }
-
-    public override bool Equals(object? obj) => obj is Email other && Equals(other);
-
-    public override int GetHashCode() => Value.ToLowerInvariant().GetHashCode();
-
-    public override string ToString() => Value;
 }

@@ -16,6 +16,9 @@ public class CategoryConfiguration : IEntityTypeConfiguration<Category>
         builder.Property(x => x.Name).HasColumnName("name").HasMaxLength(150);
         builder.Property(x => x.Description).HasColumnName("description").HasMaxLength(1000);
 
+        builder.HasIndex(u => new { u.ParentId, u.Name })
+                .IsUnique();
+
         builder.HasOne(x => x.ParentCategory)
                 .WithMany(x => x.ChildCategories)
                 .HasForeignKey(x => x.ParentId)

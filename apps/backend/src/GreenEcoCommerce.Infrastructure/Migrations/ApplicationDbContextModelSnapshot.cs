@@ -98,7 +98,8 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("ParentId", "Name")
+                        .IsUnique();
 
                     b.ToTable("categories", "public");
                 });
@@ -118,6 +119,10 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
+
+                    b.Property<string>("Metadata")
+                        .HasColumnType("text")
+                        .HasColumnName("metadata");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -171,12 +176,6 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AzureUrl")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("azure_url");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -192,6 +191,12 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasColumnName("file_type");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("file_url");
 
                     b.Property<Guid>("UploadedBy")
                         .HasColumnType("uuid")
@@ -266,6 +271,34 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                     b.ToTable("green_wallets", "public");
                 });
 
+            modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Material", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("EcoRating")
+                        .HasColumnType("integer")
+                        .HasColumnName("eco_rating");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("materials", "public");
+                });
+
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Order", b =>
                 {
                     b.Property<Guid>("Id")
@@ -288,13 +321,10 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasColumnType("numeric(18,2)")
                         .HasColumnName("discount_amount");
 
-                    b.Property<double>("Latitude")
-                        .HasColumnType("double precision")
-                        .HasColumnName("latitude");
-
-                    b.Property<double>("Longitude")
-                        .HasColumnType("double precision")
-                        .HasColumnName("longitude");
+                    b.Property<decimal>("EarnedPoints")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("numeric(18,2)")
+                        .HasColumnName("earned_points");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -302,34 +332,13 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("status");
 
-                    b.Property<decimal>("SubTotal")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("sub_total");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("total_amount");
-
-                    b.Property<float>("TotalCo2Saved")
-                        .HasColumnType("real")
-                        .HasColumnName("total_co2_saved");
-
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid")
                         .HasColumnName("user_id");
 
-                    b.Property<Guid?>("VoucherId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("voucher_id");
-
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
-
-                    b.HasIndex("VoucherId")
-                        .IsUnique();
 
                     b.ToTable("orders", "public");
                 });
@@ -352,6 +361,10 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
+
+                    b.Property<float>("UnitCo2Saved")
+                        .HasColumnType("real")
+                        .HasColumnName("unit_co2_saved");
 
                     b.Property<decimal>("UnitPrice")
                         .HasPrecision(18, 2)
@@ -445,19 +458,14 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("type");
 
-                    b.Property<Guid?>("VoucherId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("voucher_id");
-
                     b.Property<Guid>("WalletId")
                         .HasColumnType("uuid")
                         .HasColumnName("wallet_id");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderId");
-
-                    b.HasIndex("VoucherId");
+                    b.HasIndex("OrderId")
+                        .IsUnique();
 
                     b.HasIndex("WalletId");
 
@@ -470,6 +478,10 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<float>("BaselineCarbonIndex")
+                        .HasColumnType("real")
+                        .HasColumnName("baseline_carbon_index");
 
                     b.Property<float>("CarbonIndex")
                         .HasColumnType("real")
@@ -487,15 +499,14 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)")
+                        .HasColumnName("image_url");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
-
-                    b.Property<string>("MaterialOrigin")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("material_origin");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -512,12 +523,6 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasColumnType("real")
                         .HasColumnName("recycle_percent");
 
-                    b.Property<string>("Sku")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("sku");
-
                     b.Property<int>("StockQty")
                         .HasColumnType("integer")
                         .HasColumnName("stock_qty");
@@ -526,38 +531,7 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("Sku")
-                        .IsUnique();
-
                     b.ToTable("products", "public");
-                });
-
-            modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.ProductImage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AzureUrl")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasColumnName("azure_url");
-
-                    b.Property<bool>("IsPrimary")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_primary");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("product_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("product_images", "public");
                 });
 
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.User", b =>
@@ -588,12 +562,6 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasMaxLength(80)
                         .HasColumnType("character varying(80)")
                         .HasColumnName("first_name");
-
-                    b.Property<string>("FullName")
-                        .IsRequired()
-                        .HasMaxLength(161)
-                        .HasColumnType("character varying(161)")
-                        .HasColumnName("full_name");
 
                     b.Property<string>("LastName")
                         .IsRequired()
@@ -631,49 +599,19 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                     b.ToTable("users", "public");
                 });
 
-            modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Voucher", b =>
+            modelBuilder.Entity("MaterialProduct", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                    b.Property<Guid>("MaterialsId")
+                        .HasColumnType("uuid");
 
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("code");
+                    b.Property<Guid>("ProductsId")
+                        .HasColumnType("uuid");
 
-                    b.Property<decimal>("DiscountValue")
-                        .HasPrecision(18, 2)
-                        .HasColumnType("numeric(18,2)")
-                        .HasColumnName("discount_value");
+                    b.HasKey("MaterialsId", "ProductsId");
 
-                    b.Property<DateTimeOffset>("ExpiresAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at");
+                    b.HasIndex("ProductsId");
 
-                    b.Property<bool>("IsUsed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_used");
-
-                    b.Property<decimal>("PointsCost")
-                        .HasPrecision(15, 2)
-                        .HasColumnType("numeric(15,2)")
-                        .HasColumnName("points_cost");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Code")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("vouchers", "public");
+                    b.ToTable("product_materials", "public");
                 });
 
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Cart", b =>
@@ -779,14 +717,7 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("GreenEcoCommerce.Domain.Entities.Voucher", "Voucher")
-                        .WithOne("AppliedOrder")
-                        .HasForeignKey("GreenEcoCommerce.Domain.Entities.Order", "VoucherId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.Navigation("User");
-
-                    b.Navigation("Voucher");
                 });
 
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.OrderItem", b =>
@@ -822,13 +753,8 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.PointTransaction", b =>
                 {
                     b.HasOne("GreenEcoCommerce.Domain.Entities.Order", "Order")
-                        .WithMany("PointTransactions")
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("GreenEcoCommerce.Domain.Entities.Voucher", "Voucher")
-                        .WithMany("PointTransactions")
-                        .HasForeignKey("VoucherId")
+                        .WithOne("PointTransaction")
+                        .HasForeignKey("GreenEcoCommerce.Domain.Entities.PointTransaction", "OrderId")
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("GreenEcoCommerce.Domain.Entities.GreenWallet", "Wallet")
@@ -838,8 +764,6 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Order");
-
-                    b.Navigation("Voucher");
 
                     b.Navigation("Wallet");
                 });
@@ -855,25 +779,19 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.ProductImage", b =>
+            modelBuilder.Entity("MaterialProduct", b =>
                 {
-                    b.HasOne("GreenEcoCommerce.Domain.Entities.Product", "Product")
-                        .WithMany("Images")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("GreenEcoCommerce.Domain.Entities.Material", null)
+                        .WithMany()
+                        .HasForeignKey("MaterialsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Voucher", b =>
-                {
-                    b.HasOne("GreenEcoCommerce.Domain.Entities.User", "User")
-                        .WithMany("Vouchers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("User");
+                    b.HasOne("GreenEcoCommerce.Domain.Entities.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Cart", b =>
@@ -909,38 +827,30 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
 
                     b.Navigation("Payment");
 
-                    b.Navigation("PointTransactions");
+                    b.Navigation("PointTransaction")
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Product", b =>
                 {
                     b.Navigation("CartItems");
 
-                    b.Navigation("Images");
-
                     b.Navigation("OrderItems");
                 });
 
             modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.User", b =>
                 {
-                    b.Navigation("Cart");
+                    b.Navigation("Cart")
+                        .IsRequired();
 
                     b.Navigation("ChatSessions");
 
                     b.Navigation("Documents");
 
-                    b.Navigation("GreenWallet");
+                    b.Navigation("GreenWallet")
+                        .IsRequired();
 
                     b.Navigation("Orders");
-
-                    b.Navigation("Vouchers");
-                });
-
-            modelBuilder.Entity("GreenEcoCommerce.Domain.Entities.Voucher", b =>
-                {
-                    b.Navigation("AppliedOrder");
-
-                    b.Navigation("PointTransactions");
                 });
 #pragma warning restore 612, 618
         }

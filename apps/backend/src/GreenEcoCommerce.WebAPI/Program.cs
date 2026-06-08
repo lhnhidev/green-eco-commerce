@@ -1,10 +1,13 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
+using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Infrastructure.Caching;
 using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
@@ -105,8 +108,22 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
     .AddInterceptors(auditingInterceptor);
 });
 
+// Đăng ký dịch vụ Redis Distributed Cache của Microsoft
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
+});
+
 // Đăng ký Controllers và cấu hình route convention
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.Configure<RouteOptions>(opt =>
 {
     opt.LowercaseUrls = true; // Chuyển tất cả URL thành chữ thường
@@ -127,6 +144,9 @@ builder.Services.AddAutoMapper(cfg =>
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
 
 var app = builder.Build();
 
@@ -152,6 +172,9 @@ app.MapControllers();
 
 app.MapCategoryEndpoints();
 
+app.MapProductEndpoints();
+
 app.MapFallbackToFile("index.html");
+
 
 app.Run();

@@ -18,7 +18,6 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(t => t.PasswordHash).HasColumnName("password_hash").HasMaxLength(500).IsRequired();
         builder.Property(t => t.FirstName).HasColumnName("first_name").HasMaxLength(80).IsRequired();
         builder.Property(t => t.LastName).HasColumnName("last_name").HasMaxLength(80).IsRequired();
-        builder.Property(t => t.FullName).HasColumnName("full_name").HasMaxLength(161).IsRequired();
         builder.Property(t => t.Phone).HasColumnName("phone").HasMaxLength(10).IsRequired();
         builder.Property(t => t.Address).HasColumnName("address").HasMaxLength(400).IsRequired();
 
