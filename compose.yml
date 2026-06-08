@@ -10,6 +10,8 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server
+    networks:
+      - redis_network
   redis-insight:
     image: redis/redisinsight:latest
     container_name: redis_insight
