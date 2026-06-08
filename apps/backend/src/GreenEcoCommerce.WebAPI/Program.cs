@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
 using GreenEcoCommerce.Application.Interfaces.Caching;
@@ -114,7 +115,15 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 // Đăng ký Controllers và cấu hình route convention
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+        .AddJsonOptions(options =>
+        {
+            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+});
 builder.Services.Configure<RouteOptions>(opt =>
 {
     opt.LowercaseUrls = true; // Chuyển tất cả URL thành chữ thường
