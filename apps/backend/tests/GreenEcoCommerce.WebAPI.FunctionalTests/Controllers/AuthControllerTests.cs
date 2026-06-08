@@ -26,7 +26,7 @@ public sealed class AuthControllerTests(CustomWebApplicationFactory factory)
     private const string ValidAddress = "123 Le Loi Street, District 1, HCMC";
     private const string ValidRole = "User";
     private const string ValidEmail = "validuser@greeneco.com";
-    private const string ValidPassword = "SecurePass123";
+    private const string ValidPassword = "SecureP@ss123";
 
     // ══════════════════════════════════════════════════════════════════════════════
     // POST /api/auth/register
@@ -186,11 +186,14 @@ public sealed class AuthControllerTests(CustomWebApplicationFactory factory)
     }
 
     [Theory]
-    [InlineData("abc")] // no uppercase, no digit
-    [InlineData("ABCDEF")] // no lowercase, no digit
-    [InlineData("Abcdef")] // no digit
-    [InlineData("abcde1")] // no uppercase
-    [InlineData("ABCDE1")] // no lowercase
+    [InlineData("abc")] // no uppercase, no digit, no special characters
+    [InlineData("a@c")] // no uppercase, no digit
+    [InlineData("ABCDEF")] // no lowercase, no digit, no special characters
+    [InlineData("AB*DEF")] // no lowercase, no digit
+    [InlineData("Abcdef")] // no digit, no special characters
+    [InlineData("@bcdef")] // no digit
+    [InlineData("abcde1")] // no uppercase, no special characters
+    [InlineData("ABCDE1")] // no lowercase, no special characters
     [InlineData("Ab1")] // below MinimumLength(6)
     [InlineData("")] // empty
     public async Task Register_WithWeakPassword_ShouldReturn400(string weakPassword)

@@ -25,13 +25,13 @@ public class RegisterHandlerTests
     private static RegisterCommand CreateValidCommand(
         string email = "john@example.com",
         string phone = "0311111110") =>
-        new("John", "Doe", phone, "123 Main Street", null, email, "Password1");
+        new("John", "Doe", phone, "123 Main Street", null, email, "Password1!");
 
     private static User CreateValidUser() =>
             new()
             {
                 Email = Email.From("john@example.com"),
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password1"),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("Password1!"),
                 FirstName = "John",
                 LastName = "Doe",
                 Phone = PhoneNumber.From("0311111110"),
@@ -56,7 +56,7 @@ public class RegisterHandlerTests
         var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(expectedGuid, result);
+        Assert.Equal(expectedGuid, result.Id);
     }
 
     [Fact]
