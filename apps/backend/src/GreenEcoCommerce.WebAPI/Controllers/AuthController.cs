@@ -41,7 +41,7 @@ public class AuthController(ISender sender) : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginCommand command)
     {
-        string token = await sender.Send(command);
+        var token = await sender.Send(command);
 
         var cookieOptions = new CookieOptions
         {
