@@ -98,7 +98,8 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
+                    b.HasIndex("ParentId", "Name")
+                        .IsUnique();
 
                     b.ToTable("categories", "public");
                 });
