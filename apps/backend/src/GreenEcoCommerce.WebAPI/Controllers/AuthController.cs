@@ -67,11 +67,13 @@ public class AuthController(ISender sender) : ControllerBase
         return Ok(response);
     }
 
+    [Authorize]
     [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult Logout()
     {
-        Response.Cookies.Delete("auth_token");
-        return Ok(new { message = "Logout successful" });
+        Response.Cookies.Delete("AccessToken");
+        return NoContent();
     }
 
     [HttpGet("me")]
