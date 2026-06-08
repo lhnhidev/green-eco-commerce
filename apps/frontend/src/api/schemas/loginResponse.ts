@@ -5,7 +5,9 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { UserInfoResponse } from './userInfoResponse';
 
 export interface LoginResponse {
   token: string;
+  userInfo: UserInfoResponse;
 }

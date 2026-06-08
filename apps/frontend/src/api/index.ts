@@ -27,12 +27,12 @@ import type {
   CategoryPayloadDto,
   CreateProductCommand,
   LoginCommand,
-  LoginResponse,
   ProblemDetails,
   ProductDto,
   ProductPayloadDto,
   RegisterCommand,
   RegisterResponse,
+  UserInfoResponse,
   UserProfileResponse,
 } from './schemas'
 export const getApiCategories = (signal?: AbortSignal) => {
@@ -759,7 +759,7 @@ export const usePostApiAuthRegister = <TError = ProblemDetails, TContext = unkno
 }
 
 export const postApiAuthLogin = (loginCommand: LoginCommand, signal?: AbortSignal) => {
-  return customInstance<LoginResponse>({
+  return customInstance<UserInfoResponse>({
     url: `/api/auth/login`,
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

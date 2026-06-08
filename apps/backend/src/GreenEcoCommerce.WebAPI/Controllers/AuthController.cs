@@ -48,7 +48,7 @@ public class AuthController(ISender sender) : ControllerBase
     }
 
     [HttpPost("login")]
-    [ProducesResponseType<LoginResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<UserInfoResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
