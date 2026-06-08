@@ -53,9 +53,9 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 // Authorization Policies
 builder.Services.AddAuthorizationBuilder()
-        .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
-        .AddPolicy("UserOnly", policy => policy.RequireRole("User"))
-        .AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
+    .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
+    .AddPolicy("UserOnly", policy => policy.RequireRole("User"))
+    .AddPolicy("UserOrAdmin", policy => policy.RequireRole("User", "Admin"));
 
 // Create a singleton instance if it doesn't require scoped dependencies.
 // If it requires scoped dependencies (like an ICurrentUserService), register the interceptor

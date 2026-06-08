@@ -64,7 +64,7 @@ public class AuthController(ISender sender) : ControllerBase
         // Ghi cookie vào Response với tên là "AccessToken"
         Response.Cookies.Append("AccessToken", response.Token, cookieOptions);
 
-        return Ok(response);
+        return Ok(response.UserInfo);
     }
 
     [Authorize]
