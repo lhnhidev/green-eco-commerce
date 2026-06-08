@@ -1,6 +1,8 @@
+using GreenEcoCommerce.Application.Features.Auth.GetMe;
 using GreenEcoCommerce.Application.Features.Auth.Login;
 using GreenEcoCommerce.Application.Features.Auth.Register;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GreenEcoCommerce.WebAPI.Controllers;
@@ -62,5 +64,22 @@ public class AuthController(ISender sender) : ControllerBase
     {
         Response.Cookies.Delete("auth_token");
         return Ok(new { message = "Logout successful" });
+    }
+
+    [HttpGet("me")]
+    [Authorize]
+    [ProducesResponseType<UserProfileResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> GetMe()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            return Unauthorized(new ProblemDetails { Title = "Invalid user ID in token" });
+        }
+
+        var response = await sender.Send(new GetMeQuery(userId));
+        return Ok(response);
     }
 }
