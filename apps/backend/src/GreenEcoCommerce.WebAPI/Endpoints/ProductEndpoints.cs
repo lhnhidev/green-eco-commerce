@@ -1,4 +1,6 @@
 using GreenEcoCommerce.Application.Features.Products;
+using GreenEcoCommerce.Application.Features.Products.Commands;
+using GreenEcoCommerce.Application.Features.Products.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

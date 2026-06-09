@@ -172,7 +172,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapCategoryEndpoints();
-
+app.MapMaterialEndpoints();
 app.MapProductEndpoints();
 
 app.MapFallbackToFile("index.html");

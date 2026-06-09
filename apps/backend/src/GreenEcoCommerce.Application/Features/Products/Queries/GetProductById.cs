@@ -3,7 +3,7 @@ using GreenEcoCommerce.Domain.Exceptions;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Products;
+namespace GreenEcoCommerce.Application.Features.Products.Queries;
 
 public record GetProductByIdQuery(Guid Id) : IRequest<ProductDto>;
 

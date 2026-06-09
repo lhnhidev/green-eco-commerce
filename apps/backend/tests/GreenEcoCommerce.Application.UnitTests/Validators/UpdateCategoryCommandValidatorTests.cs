@@ -1,5 +1,6 @@
 using FluentValidation.TestHelper;
 using GreenEcoCommerce.Application.Features.Categories;
+using GreenEcoCommerce.Application.Features.Categories.Commands;
 using GreenEcoCommerce.Application.Features.Categories.Validators;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;

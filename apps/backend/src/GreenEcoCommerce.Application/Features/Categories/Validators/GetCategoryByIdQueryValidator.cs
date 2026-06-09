@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using GreenEcoCommerce.Application.Features.Categories.Queries;
 
 namespace GreenEcoCommerce.Application.Features.Categories.Validators;
 

@@ -4,7 +4,7 @@ using GreenEcoCommerce.Domain.Exceptions;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Categories;
+namespace GreenEcoCommerce.Application.Features.Categories.Commands;
 
 public record UpdateCategoryCommand(Guid Id, CategoryPayloadDto Dto)
         : IRequest<CategoryDto>;

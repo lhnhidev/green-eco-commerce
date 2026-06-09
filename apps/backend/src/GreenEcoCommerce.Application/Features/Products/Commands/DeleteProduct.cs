@@ -1,7 +1,7 @@
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Products;
+namespace GreenEcoCommerce.Application.Features.Products.Commands;
 
 public record DeleteProductCommand(Guid Id) : IRequest<Unit>;
 
