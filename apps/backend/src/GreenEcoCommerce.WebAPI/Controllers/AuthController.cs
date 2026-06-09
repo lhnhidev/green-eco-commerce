@@ -68,8 +68,8 @@ public class AuthController(ISender sender) : ControllerBase
         return Ok(response.UserInfo);
     }
 
-    [Authorize]
     [HttpPost("logout")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> Logout(LogoutCommand command)
     {
