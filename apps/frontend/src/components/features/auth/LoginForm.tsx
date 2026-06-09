@@ -1,17 +1,26 @@
 import { Button } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
+import { useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { FaFacebook, FaGoogle, FaRegEnvelope } from 'react-icons/fa'
 import { MdLockOutline } from 'react-icons/md'
-import { usePostApiAuthLogin } from '../../../api'
+import { useNavigate } from 'react-router'
+import { getGetApiAuthMeQueryOptions, usePostApiAuthLogin } from '../../../api'
 import type { ProblemDetails } from '../../../api/schemas'
+import { useAppDispatch } from '../../../hooks/useAppDispatch'
 import type { LocalLoginFormValues } from '../../../types/index'
 import FormField from '../form-field'
 import CheckboxInput from '../form-field/checkbox-input'
 import EmailInput from '../form-field/email-input'
 import PasswordInputV2 from '../form-field/password-input'
+import { setAuthUser } from './auth.slice'
 
 const LoginForm = () => {
+  const queryClient = useQueryClient()
+  const dispatch = useAppDispatch()
+  const navigate = useNavigate()
+
   const {
     handleSubmit,
     control,
@@ -32,12 +41,18 @@ const LoginForm = () => {
     mutate(
       { data: data },
       {
-        onSuccess: (response) => {
-          const token = (response.data as { token: string }).token
+        onSuccess: async () => {
+          const profile = await queryClient.fetchQuery(getGetApiAuthMeQueryOptions())
+          dispatch(setAuthUser(profile))
+          navigate('/')
         },
         onError: (error) => {
           const axiosError = error as AxiosError<ProblemDetails>
-          alert(axiosError.response?.data.detail || 'Đăng nhập thất bại. Vui lòng kiểm tra lại!')
+          notifications.show({
+            title: 'Login failed!',
+            message: axiosError.response?.data.detail || 'Login failed. Please try again!',
+            color: 'red',
+          })
         },
       },
     )

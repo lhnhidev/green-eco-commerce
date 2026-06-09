@@ -5,6 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using GreenEcoCommerce.Application.Features.Auth.Logout;
 
 namespace GreenEcoCommerce.WebAPI.Controllers;
 
@@ -48,7 +49,7 @@ public class AuthController(ISender sender) : ControllerBase
     }
 
     [HttpPost("login")]
-    [ProducesResponseType<LoginResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<UserInfoResponse>(StatusCodes.Status200OK)]
     public async Task<IActionResult> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
@@ -64,15 +65,16 @@ public class AuthController(ISender sender) : ControllerBase
         // Ghi cookie vào Response với tên là "AccessToken"
         Response.Cookies.Append("AccessToken", response.Token, cookieOptions);
 
-        return Ok(response);
+        return Ok(response.UserInfo);
     }
 
     [Authorize]
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout(LogoutCommand command)
     {
         Response.Cookies.Delete("AccessToken");
+        await sender.Send(command);
         return NoContent();
     }
 
