@@ -25,6 +25,14 @@ public class LoginHandler(IUserRepository userRepository, IJwtService jwtService
 
         await cacheService.SetAsync($"refresh_token:{user.Id}", refreshToken, TimeSpan.FromDays(7), ct);
 
-        return new LoginResponse(token);
+        var userInfo = new UserInfoResponse(
+            user.FirstName,
+            user.LastName,
+            user.Email,
+            user.Phone,
+            user.Address
+        );
+
+        return new LoginResponse(token, userInfo);
     }
 }

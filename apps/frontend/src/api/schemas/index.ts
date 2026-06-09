@@ -8,6 +8,14 @@
 
 export * from './categoryDto';
 export * from './categoryPayloadDto';
+export * from './createProductCommand';
 export * from './loginCommand';
+export * from './logoutCommand';
 export * from './problemDetails';
+export * from './productDto';
+export * from './productPayloadDto';
 export * from './registerCommand';
+export * from './registerResponse';
+export * from './roleEnum';
+export * from './userInfoResponse';
+export * from './userProfileResponse';
