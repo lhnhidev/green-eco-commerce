@@ -24,7 +24,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Khi tạo JWT sẽ giữ nguyên tên gốc, không tự ý map sang URI dài của XML
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 JwtSecurityTokenHandler.DefaultOutboundClaimTypeMap.Clear();
-builder.Configuration.AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true);
+
 // JWT Authentication
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

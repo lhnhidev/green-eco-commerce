@@ -1,8 +1,9 @@
 version: '3.8'
-
 services:
+  # if you use redis-insight service then you should connect through url: redis://default:4caymantruocnha@green_eco_commerce_redis:6379
+  # if you use redis-insight software in your pc then you should connect throuh url: 127.0.0.1:6379 and don't forget set password
   redis:
-    image: redis
+    image: redis:latest
     container_name: green_eco_commerce_redis
     restart: always
     ports:
@@ -13,7 +14,7 @@ services:
     networks:
       - redis_network
 
-  redis-insight:
+  redis-insight: # access thourgh link: redis://green_eco_commerce_redis:6379
     image: redis/redisinsight:latest
     container_name: redis_insight
     restart: always
