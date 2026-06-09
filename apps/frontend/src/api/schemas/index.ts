@@ -8,9 +8,13 @@
 
 export * from './categoryDto';
 export * from './categoryPayloadDto';
+export * from './createMaterialCommand';
+export * from './createMaterialResponse';
 export * from './createProductCommand';
 export * from './loginCommand';
 export * from './logoutCommand';
+export * from './materialItem';
+export * from './materialTypeEnum';
 export * from './problemDetails';
 export * from './productDto';
 export * from './productPayloadDto';
