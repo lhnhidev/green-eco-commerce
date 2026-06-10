@@ -1,10 +1,8 @@
 using FluentValidation;
-using GreenEcoCommerce.Application.Features.Products;
-using GreenEcoCommerce.Application.Features.Products.Commands;
 
 namespace GreenEcoCommerce.Application.Features.Products.Validators;
 
-public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
+public class CreateProductCommandValidator : AbstractValidator<ProductPayloadDto>
 {
     public CreateProductCommandValidator()
     {

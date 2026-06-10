@@ -33,8 +33,9 @@ public static class ProductEndpoints
         return TypedResults.Ok(product);
     }
 
+    // ✅ Đổi CreateProductCommand → ProductPayloadDto
     private static async Task<Created<ProductDto>> CreateProduct(
-        [FromBody] CreateProductCommand command, ISender sender)
+        [FromBody] ProductPayloadDto command, ISender sender)
     {
         var created = await sender.Send(command);
         return TypedResults.Created($"/api/products/{created.Id}", created);
