@@ -43,7 +43,7 @@ public class JwtService(IConfiguration config) : IJwtService
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)); // random string
     }
 
-    public ClaimsPrincipal ValidateToken(string token)
+    public ClaimsPrincipal ValidateToken(string token, bool validateLifetime = true)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:SecretKey"]!));
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -52,7 +52,7 @@ public class JwtService(IConfiguration config) : IJwtService
         {
             ValidateIssuer = true,
             ValidateAudience = true,
-            // ValidateLifetime = true,
+            ValidateLifetime = validateLifetime, // validateLifeTime = false => Chấp nhận cả token còn hạn và không còn hạn
             ValidateIssuerSigningKey = true,
             ValidIssuer = config["Jwt:Issuer"],
             ValidAudience = config["Jwt:Audience"],

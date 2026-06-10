@@ -32,7 +32,7 @@ const theme = createTheme({
 })
 
 // Cấu hình URL gốc cho tất cả các lượt gọi API thông qua Axios
-axios.defaults.baseURL = 'http://localhost:5244'
+axios.defaults.baseURL = import.meta.env.VITE_API_ROOT
 axios.defaults.withCredentials = true
 
 const queryClient = new QueryClient({

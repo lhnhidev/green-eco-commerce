@@ -137,7 +137,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
 
         try
         {
-            var claimsPrincipal = jwtService.ValidateToken(expiredToken);
+            var claimsPrincipal = jwtService.ValidateToken(expiredToken, validateLifetime: false);
             var userId = CheckUserIdClaim(claimsPrincipal);
 
             var result = await sender.Send(new RefreshTokenCommand(userId, refreshToken));
