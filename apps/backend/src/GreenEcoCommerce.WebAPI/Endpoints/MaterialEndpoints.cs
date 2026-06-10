@@ -15,15 +15,34 @@ public static class MaterialEndpoints
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("/", GetAllMaterials);
-        // group.MapGet("/{id:guid}", GetMaterialById);
+        group.MapGet("/{id:guid}", GetMaterialById);
         group.MapPost("/", CreateMaterial).RequireAuthorization("AdminOnly");
-        // group.MapPut("/{id:guid}", UpdateMaterial).RequireAuthorization("AdminOnly");
-        // group.MapDelete("/{id:guid}", DeleteMaterial).RequireAuthorization("AdminOnly");
+        group.MapPut("/{id:guid}", UpdateMaterial).RequireAuthorization("AdminOnly");
+        group.MapDelete("/{id:guid}", DeleteMaterial).RequireAuthorization("AdminOnly");
     }
 
-    private static async Task<Ok<List<MaterialItem>>> GetAllMaterials(ISender sender)
+    private static async Task<Ok<MaterialItem>> UpdateMaterial([FromRoute] Guid id, [FromBody] MaterialUpdateDto dto, ISender sender)
     {
-        var materials = await sender.Send(new GetAllMaterialsQuery());
+        var command = new UpdateMaterialCommand(id, dto);
+        var materialItem = await sender.Send(command);
+        return TypedResults.Ok(materialItem);
+    }
+
+    private static async Task<NoContent> DeleteMaterial([AsParameters] DeleteMaterialCommand command, ISender sender)
+    {
+        await sender.Send(command);
+        return TypedResults.NoContent();
+    }
+
+    private static async Task<Ok<MaterialItem>> GetMaterialById([AsParameters] GetMaterialByIdQuery query, ISender sender)
+    {
+        var material = await sender.Send(query);
+        return TypedResults.Ok(material);
+    }
+
+    private static async Task<Ok<List<MaterialItem>>> GetAllMaterials([AsParameters] GetAllMaterialsQuery query, ISender sender)
+    {
+        var materials = await sender.Send(query);
         return TypedResults.Ok(materials);
     }
 
