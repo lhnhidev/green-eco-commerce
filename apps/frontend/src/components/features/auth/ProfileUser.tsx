@@ -76,24 +76,20 @@ const ProfileUser = ({ user }: ProfileUserType) => {
   const fullName = user?.firstName?.charAt(0).concat(user?.lastName?.charAt(0)).toUpperCase()
 
   const handleLogout = () => {
-    logout(
-      // biome-ignore lint/style/noNonNullAssertion: <>
-      { data: { id: user!.id } },
-      {
-        onSuccess: () => {
-          dispatch(clearAuthUser())
-          queryClient.removeQueries({ queryKey: getGetApiAuthMeQueryKey() })
-          setShowProfileMenu(false)
-        },
-        onError: () => {
-          notifications.show({
-            title: 'Logout failed!',
-            message: 'Please try again.',
-            color: 'red',
-          })
-        },
+    logout(undefined, {
+      onSuccess: () => {
+        dispatch(clearAuthUser())
+        queryClient.removeQueries({ queryKey: getGetApiAuthMeQueryKey() })
+        setShowProfileMenu(false)
       },
-    )
+      onError: () => {
+        notifications.show({
+          title: 'Logout failed!',
+          message: 'Please try again.',
+          color: 'red',
+        })
+      },
+    })
   }
 
   return user ? (

@@ -42,4 +42,30 @@ public class JwtService(IConfiguration config) : IJwtService
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)); // random string
     }
+
+    public ClaimsPrincipal ValidateToken(string token)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:SecretKey"]!));
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            // ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config["Jwt:Issuer"],
+            ValidAudience = config["Jwt:Audience"],
+            IssuerSigningKey = key
+        };
+
+        try
+        {
+            return tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+        }
+        catch (SecurityTokenException ex)
+        {
+            throw new UnauthorizedAccessException("Invalid token", ex);
+        }
+    }
 }

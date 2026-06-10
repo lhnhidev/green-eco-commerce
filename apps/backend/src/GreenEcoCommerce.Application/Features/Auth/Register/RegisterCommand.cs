@@ -23,9 +23,15 @@ public class RegisterHandler(IUserRepository userRepository, IMapper mapper) : I
         bool emailExist = await userRepository.EmailUserExist(request.Email);
         bool phoneExist = await userRepository.PhoneNumberUserExist(request.Phone);
 
-        if (emailExist) { throw new BadRequestException("Email was exist"); }
+        if (emailExist)
+        {
+            throw new BadRequestException("Email was exist");
+        }
 
-        if (phoneExist) { throw new BadRequestException("Phone was exist"); }
+        if (phoneExist)
+        {
+            throw new BadRequestException("Phone was exist");
+        }
 
         var userEntity = mapper.Map<User>(request);
 

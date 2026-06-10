@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using GreenEcoCommerce.Application.Features.Auth.GetMe;
 using GreenEcoCommerce.Application.Features.Auth.Login;
 using GreenEcoCommerce.Application.Features.Auth.Register;
@@ -6,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using GreenEcoCommerce.Application.Features.Auth.Logout;
+using GreenEcoCommerce.Application.Features.Auth.RefreshToken;
+using GreenEcoCommerce.Application.Interfaces.Security;
+using Microsoft.IdentityModel.Tokens;
 
 namespace GreenEcoCommerce.WebAPI.Controllers;
 
@@ -14,8 +18,43 @@ namespace GreenEcoCommerce.WebAPI.Controllers;
 [ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-public class AuthController(ISender sender) : ControllerBase
+public class AuthController(ISender sender, IJwtService jwtService) : ControllerBase
 {
+    private enum TokenType
+    {
+        AccessToken,
+        RefreshToken
+    }
+
+    // minutes
+    private readonly int timeExpireAccessToken = 15; // 15 minuts
+    private readonly int timeExpireRefreshToken = 7 * 24 * 60; // 7 days
+
+    private static Guid CheckUserIdClaim(ClaimsPrincipal user)
+    {
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            throw new UnauthorizedAccessException("Invalid user ID in token");
+        }
+
+        return userId;
+    }
+
+    private void SetToken(string token, TokenType type, int minutesLive = 15)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true, // Ngăn js/ts truy cập vào token
+            Secure = true,   // Bắt buộc dùng HTTPS (ở localhost .NET tự chạy HTTPS)
+            SameSite = SameSiteMode.Strict, // Chống tấn công CSRF
+            Expires = DateTime.UtcNow.AddMinutes(minutesLive) // Thời gian sống của Cookie
+        };
+
+        // Ghi cookie vào Response
+        Response.Cookies.Append(type.ToString(), token, cookieOptions);
+    }
+
     [HttpPost("register")]
     [EndpointDescription("""
                          Đăng ký tài khoản dựa vào thông tin gửi lên. Đăng ký thành công thì gửi về một id của người dùng đã đăng ký
@@ -53,28 +92,22 @@ public class AuthController(ISender sender) : ControllerBase
     public async Task<IActionResult> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
-
-        var cookieOptions = new CookieOptions
-        {
-            HttpOnly = true, // Ngăn js/ts truy cập vào token
-            Secure = true,   // Bắt buộc dùng HTTPS (ở localhost .NET tự chạy HTTPS)
-            SameSite = SameSiteMode.Strict, // Chống tấn công CSRF
-            Expires = DateTime.UtcNow.AddDays(7) // Thời gian sống của Cookie
-        };
-
-        // Ghi cookie vào Response với tên là "AccessToken"
-        Response.Cookies.Append("AccessToken", response.Token, cookieOptions);
-
+        SetToken(response.Token, TokenType.AccessToken, timeExpireAccessToken);
+        SetToken(response.RefreshToken, TokenType.RefreshToken, timeExpireRefreshToken);
         return Ok(response.UserInfo);
     }
 
     [HttpPost("logout")]
     [Authorize]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Logout(LogoutCommand command)
+    public async Task<IActionResult> Logout()
     {
+        var userId = CheckUserIdClaim(User);
+        await sender.Send(new LogoutCommand(userId));
+
         Response.Cookies.Delete("AccessToken");
-        await sender.Send(command);
+        Response.Cookies.Delete("RefreshToken");
+
         return NoContent();
     }
 
@@ -84,14 +117,38 @@ public class AuthController(ISender sender) : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> GetMe()
     {
-        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-
-        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
-        {
-            return Unauthorized(new ProblemDetails { Title = "Invalid user ID in token" });
-        }
-
+        var userId = CheckUserIdClaim(User);
         var response = await sender.Send(new GetMeQuery(userId));
         return Ok(response);
+    }
+
+    [HttpPost("refresh-token")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var expiredToken = Request.Cookies["AccessToken"];
+        var refreshToken = Request.Cookies["RefreshToken"];
+
+        if (string.IsNullOrEmpty(expiredToken) || string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized("Invalid access token or refresh token");
+        }
+
+        try
+        {
+            var claimsPrincipal = jwtService.ValidateToken(expiredToken);
+            var userId = CheckUserIdClaim(claimsPrincipal);
+
+            var result = await sender.Send(new RefreshTokenCommand(userId, refreshToken));
+            SetToken(result.Token, TokenType.AccessToken, timeExpireAccessToken);
+            SetToken(result.RefreshToken, TokenType.RefreshToken, timeExpireRefreshToken);
+
+            return Ok();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return Unauthorized("Invalid token");
+        }
     }
 }

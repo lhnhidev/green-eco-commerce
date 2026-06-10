@@ -33,6 +33,6 @@ public class LoginHandler(IUserRepository userRepository, IJwtService jwtService
             user.Address
         );
 
-        return new LoginResponse(token, userInfo);
+        return new LoginResponse(token, refreshToken, userInfo);
     }
 }
