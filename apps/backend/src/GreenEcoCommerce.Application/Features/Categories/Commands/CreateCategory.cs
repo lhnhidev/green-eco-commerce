@@ -3,7 +3,7 @@ using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Categories;
+namespace GreenEcoCommerce.Application.Features.Categories.Commands;
 
 public class CreateCategoryHandler(ICategoryRepository categoryRepository, IMapper mapper)
         : IRequestHandler<CategoryPayloadDto, CategoryDto>

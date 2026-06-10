@@ -2,7 +2,7 @@
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Categories;
+namespace GreenEcoCommerce.Application.Features.Categories.Queries;
 
 public record GetAllCategoriesQuery : IRequest<List<CategoryDto>>;
 
