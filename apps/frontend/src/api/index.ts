@@ -31,6 +31,7 @@ import type {
   LoginCommand,
   LogoutCommand,
   MaterialItem,
+  MaterialUpdateDto,
   ProblemDetails,
   ProductDto,
   ProductPayloadDto,
@@ -507,6 +508,189 @@ export const usePostApiMaterials = <TError = ProblemDetails, TContext = unknown>
   TContext
 > => {
   return useMutation(getPostApiMaterialsMutationOptions(options), queryClient)
+}
+
+export const getApiMaterialsId = (id: string, signal?: AbortSignal) => {
+  return customInstance<MaterialItem>({ url: `/api/materials/${id}`, method: 'GET', signal })
+}
+
+export const getGetApiMaterialsIdQueryKey = (id: string) => {
+  return [`/api/materials/${id}`] as const
+}
+
+export const getGetApiMaterialsIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiMaterialsId>>,
+  TError = ProblemDetails,
+>(
+  id: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMaterialsId>>, TError, TData>> },
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiMaterialsIdQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiMaterialsId>>> = ({ signal }) =>
+    getApiMaterialsId(id, signal)
+
+  return { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiMaterialsId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiMaterialsIdQueryResult = NonNullable<Awaited<ReturnType<typeof getApiMaterialsId>>>
+export type GetApiMaterialsIdQueryError = ProblemDetails
+
+export function useGetApiMaterialsId<TData = Awaited<ReturnType<typeof getApiMaterialsId>>, TError = ProblemDetails>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMaterialsId>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiMaterialsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiMaterialsId>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiMaterialsId<TData = Awaited<ReturnType<typeof getApiMaterialsId>>, TError = ProblemDetails>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMaterialsId>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiMaterialsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiMaterialsId>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiMaterialsId<TData = Awaited<ReturnType<typeof getApiMaterialsId>>, TError = ProblemDetails>(
+  id: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMaterialsId>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiMaterialsId<TData = Awaited<ReturnType<typeof getApiMaterialsId>>, TError = ProblemDetails>(
+  id: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiMaterialsId>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiMaterialsIdQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const putApiMaterialsId = (id: string, materialUpdateDto: MaterialUpdateDto, signal?: AbortSignal) => {
+  return customInstance<MaterialItem>({
+    url: `/api/materials/${id}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: materialUpdateDto,
+    signal,
+  })
+}
+
+export const getPutApiMaterialsIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putApiMaterialsId>>,
+    TError,
+    { id: string; data: MaterialUpdateDto },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putApiMaterialsId>>,
+  TError,
+  { id: string; data: MaterialUpdateDto },
+  TContext
+> => {
+  const mutationKey = ['putApiMaterialsId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putApiMaterialsId>>,
+    { id: string; data: MaterialUpdateDto }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return putApiMaterialsId(id, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutApiMaterialsIdMutationResult = NonNullable<Awaited<ReturnType<typeof putApiMaterialsId>>>
+export type PutApiMaterialsIdMutationBody = MaterialUpdateDto
+export type PutApiMaterialsIdMutationError = ProblemDetails
+
+export const usePutApiMaterialsId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putApiMaterialsId>>,
+      TError,
+      { id: string; data: MaterialUpdateDto },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof putApiMaterialsId>>,
+  TError,
+  { id: string; data: MaterialUpdateDto },
+  TContext
+> => {
+  return useMutation(getPutApiMaterialsIdMutationOptions(options), queryClient)
+}
+
+export const deleteApiMaterialsId = (id: string, signal?: AbortSignal) => {
+  return customInstance<void>({ url: `/api/materials/${id}`, method: 'DELETE', signal })
+}
+
+export const getDeleteApiMaterialsIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteApiMaterialsId>>, TError, { id: string }, TContext>
+}): UseMutationOptions<Awaited<ReturnType<typeof deleteApiMaterialsId>>, TError, { id: string }, TContext> => {
+  const mutationKey = ['deleteApiMaterialsId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiMaterialsId>>, { id: string }> = (props) => {
+    const { id } = props ?? {}
+
+    return deleteApiMaterialsId(id)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteApiMaterialsIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiMaterialsId>>>
+
+export type DeleteApiMaterialsIdMutationError = ProblemDetails
+
+export const useDeleteApiMaterialsId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteApiMaterialsId>>, TError, { id: string }, TContext>
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof deleteApiMaterialsId>>, TError, { id: string }, TContext> => {
+  return useMutation(getDeleteApiMaterialsIdMutationOptions(options), queryClient)
 }
 
 export const getApiProducts = (signal?: AbortSignal) => {

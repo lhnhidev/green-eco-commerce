@@ -15,6 +15,7 @@ export * from './loginCommand';
 export * from './logoutCommand';
 export * from './materialItem';
 export * from './materialTypeEnum';
+export * from './materialUpdateDto';
 export * from './problemDetails';
 export * from './productDto';
 export * from './productPayloadDto';
