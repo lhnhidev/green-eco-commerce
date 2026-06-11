@@ -7,6 +7,7 @@ namespace GreenEcoCommerce.Application.Features.Auth.GetMe;
 
 public record UserProfileResponse(
     Guid Id,
+    string Avatar,
     string Email,
     string FirstName,
     string LastName,

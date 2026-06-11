@@ -8,6 +8,7 @@ namespace GreenEcoCommerce.Domain.Entities;
 public class User: IHasCreatedAt, IHasUpdatedAt
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
+    public string Avatar { get; set; } = string.Empty!;
     public required Email Email { get; set; }
     public required string PasswordHash { get; set; }
     public required string FirstName { get; set; }
