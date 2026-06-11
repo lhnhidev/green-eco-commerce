@@ -3,7 +3,6 @@
 import { Badge, Button, Group, TextInput } from '@mantine/core'
 import { MagnifyingGlassIcon, ShoppingCartIcon } from '@phosphor-icons/react'
 import { Link, useLocation } from 'react-router'
-import { useAppSelector } from '../../hooks/useAppSelector'
 import Brand from '../ui/Brand'
 import ProfileUser from './auth/ProfileUser'
 
@@ -14,8 +13,6 @@ const navigationItems = [
 ]
 
 export function Navigation() {
-  const user = useAppSelector((state) => state.auth.user)
-
   const location = useLocation()
 
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
@@ -49,7 +46,7 @@ export function Navigation() {
 
           {/* User Actions */}
           <Group gap="xs">
-            <ProfileUser user={user} />
+            <ProfileUser />
             <div className="relative">
               <Link to="/cart">
                 <Button

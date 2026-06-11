@@ -9,6 +9,8 @@ export function AuthBootstrap() {
   const { data, isError } = useGetApiAuthMe({
     query: {
       retry: false,
+      staleTime: 1000 * 60 * 10, // 10 phút - data được coi là "mới"
+      gcTime: 1000 * 60 * 30, // 30 phút - giữ cache trong memory
     },
   })
 
