@@ -93,28 +93,34 @@ const ProfileUser = () => {
   return (
     // biome-ignore lint/a11y/noStaticElementInteractions: <>
     <div onClick={() => setShowProfileMenu(!showProfileMenu)} className="relative">
-      <Avatar
-        color="green"
-        radius="xl"
-        classNames={{
-          placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
-        }}
-      >
-        {fullName}
-      </Avatar>
+      <div className="cursor-pointer">
+        <Avatar
+          src={user?.avatar}
+          color="green"
+          radius="xl"
+          alt="it's me"
+          classNames={{
+            placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
+          }}
+        >
+          {!user?.avatar && fullName}
+        </Avatar>
+      </div>
 
       {showProfileMenu && (
         <div className="shadow-xl border border-gray-200 py-5 px-4 absolute top-14 left-1/2 -translate-x-1/2 bg-white text-black text-sm w-68 rounded-xl z-50">
           <div>
             <Group gap="sm">
               <Avatar
-                radius="xl"
-                size="md"
+                src={user?.avatar}
                 color="green"
-                className="font-bold text-xs"
-                classNames={{ placeholder: '!border-gray-300' }}
+                radius="xl"
+                alt="it's me"
+                classNames={{
+                  placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
+                }}
               >
-                {fullName}
+                {!user?.avatar && fullName}
               </Avatar>
               <Stack gap={0} className="max-w-42.5">
                 <Text fw={600} size="sm" className="truncate">

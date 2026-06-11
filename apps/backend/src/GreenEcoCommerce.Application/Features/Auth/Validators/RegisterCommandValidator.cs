@@ -1,5 +1,6 @@
 using FluentValidation;
 using GreenEcoCommerce.Application.Features.Auth.Register;
+using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.ValueObjects;
 
 namespace GreenEcoCommerce.Application.Features.Auth.Validators;
@@ -36,5 +37,8 @@ public class RegisterCommandValidator : AbstractValidator<RegisterCommand>
             .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
             .Matches("[0-9]").WithMessage("Password must contain at least one digit.")
             .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
+
+        RuleFor(x => x.Role)
+            .IsEnumName(typeof(RoleEnum)).WithMessage("Role must be User or Admin");
     }
 }

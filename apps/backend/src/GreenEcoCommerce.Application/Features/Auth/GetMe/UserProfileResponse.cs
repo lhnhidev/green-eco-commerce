@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using GreenEcoCommerce.Application.Features.Products;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 
@@ -7,6 +6,7 @@ namespace GreenEcoCommerce.Application.Features.Auth.GetMe;
 
 public record UserProfileResponse(
     Guid Id,
+    string Avatar,
     string Email,
     string FirstName,
     string LastName,

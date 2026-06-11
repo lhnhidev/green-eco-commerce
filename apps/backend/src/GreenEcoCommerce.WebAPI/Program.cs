@@ -174,6 +174,7 @@ app.MapControllers();
 app.MapCategoryEndpoints();
 app.MapMaterialEndpoints();
 app.MapProductEndpoints();
+app.MapInfoUserEndpoints();
 
 app.MapFallbackToFile("index.html");
 
