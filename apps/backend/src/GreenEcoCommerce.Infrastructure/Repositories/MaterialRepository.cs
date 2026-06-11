@@ -19,6 +19,15 @@ public class MaterialRepository(IApplicationDbContext context) : IMaterialReposi
         return materials;
     }
 
+    public async Task<List<Material>> GetManyAsync(ICollection<Guid> materialIdList, CancellationToken ct = default)
+    {
+        var materials = await context.Materials
+            .Where(m => materialIdList.Contains(m.Id))
+            .ToListAsync(ct);
+
+        return materials;
+    }
+
     public async Task<Material> AddAsync(Material material, CancellationToken ct = default)
     {
         await context.Materials.AddAsync(material, ct);

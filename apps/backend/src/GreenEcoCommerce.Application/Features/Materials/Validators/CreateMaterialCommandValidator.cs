@@ -19,6 +19,6 @@ public class CreateMaterialCommandValidator : AbstractValidator<CreateMaterialCo
 
         RuleFor(p => p.Type)
             .NotEmpty().WithMessage("Type is required")
-            .IsEnumName(typeof(MaterialTypeEnum)).WithMessage("Type must be in enum (Natural, Synthetic, Recycled)");
+            .IsEnumName(typeof(MaterialTypeEnum)).WithMessage("Type must be in enum");
     }
 }

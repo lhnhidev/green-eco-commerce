@@ -9,12 +9,14 @@ public class ProductRepository(IApplicationDbContext context) : IProductReposito
 {
     public async Task<Product?> GetByIdAsync(Guid id, CancellationToken ct)
     {
-        return await context.Products.FindAsync([id], ct);
+        return await context.Products
+            .Include(p => p.Materials)
+            .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
     public async Task<List<Product>> GetAllAsync(CancellationToken ct)
     {
-        return await context.Products.ToListAsync(ct);
+        return await context.Products.Include(p => p.Materials).ToListAsync(ct);
     }
 
     public async Task<Product> AddAsync(Product product, CancellationToken ct)
@@ -42,6 +44,16 @@ public class ProductRepository(IApplicationDbContext context) : IProductReposito
             ct);
 
         return affectedRows > 0;
+    }
+
+    public async Task<List<Product>> GetSomeAsync(int pageSize, int pageNumber, CancellationToken ct = default)
+    {
+        var products = await context.Products
+            .Skip(pageSize * (pageNumber - 1))
+            .Take(pageSize)
+            .Include(p => p.Materials)
+            .ToListAsync(ct);
+        return products;
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct)
