@@ -14,7 +14,7 @@ public record ProductPayloadDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    string? ImageUrl
+    string[] ImageUrl
 ) : IRequest<ProductDto>;
 
 public record ProductDto(
@@ -28,7 +28,7 @@ public record ProductDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    string? ImageUrl,
+    string[] ImageUrl,
     bool IsActive
 );
 
