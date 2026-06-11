@@ -31,4 +31,17 @@ public class RedisCacheService(IDistributedCache distributedCache) : ICacheServi
     {
         await distributedCache.RemoveAsync(key, cancellationToken);
     }
+
+    // Có một chút sai sót ở hàm này
+    // IsLive sẽ trả về true đối với key còn hạn
+    // và false nếu hết hạn hoặc không tồn tại
+    // Nhưng với Redis thì việc kiểm tra sự tồn tại của key
+    // không hoàn toàn chính xác do có thể key đã hết hạn
+    // nhưng vẫn còn trong cache do Redis chưa dọn dẹp
+    // Tuy nhiên, với quy mô project hiện tại, xài đỡ thì đưuọc
+    public async Task<bool> IsLiveAsync(string key, CancellationToken cancellationToken = default)
+    {
+        var cachedData = await distributedCache.GetStringAsync(key, cancellationToken);
+        return cachedData != null;
+    }
 }

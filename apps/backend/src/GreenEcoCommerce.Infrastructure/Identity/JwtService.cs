@@ -11,7 +11,7 @@ namespace GreenEcoCommerce.Infrastructure.Identity;
 
 public class JwtService(IConfiguration config) : IJwtService
 {
-    public string GenerateToken(User user)
+    public string GenerateToken(User user, int minutesExprired = 15)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:SecretKey"]!));
 
@@ -31,7 +31,7 @@ public class JwtService(IConfiguration config) : IJwtService
             issuer: config["Jwt:Issuer"],
             audience: config["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15),
+            expires: DateTime.UtcNow.AddMinutes(minutesExprired),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
 
@@ -41,5 +41,31 @@ public class JwtService(IConfiguration config) : IJwtService
     public string GenerateRefreshToken()
     {
         return Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)); // random string
+    }
+
+    public ClaimsPrincipal ValidateToken(string token, bool validateLifetime = true)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:SecretKey"]!));
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = validateLifetime, // validateLifeTime = false => Chấp nhận cả token còn hạn và không còn hạn
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = config["Jwt:Issuer"],
+            ValidAudience = config["Jwt:Audience"],
+            IssuerSigningKey = key
+        };
+
+        try
+        {
+            return tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+        }
+        catch (SecurityTokenException ex)
+        {
+            throw new UnauthorizedAccessException("Invalid token", ex);
+        }
     }
 }
