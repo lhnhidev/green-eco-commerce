@@ -20,6 +20,15 @@ public class CreateProductCommandValidator : AbstractValidator<ProductPayloadDto
             .NotEmpty().WithMessage("Category ID is required.");
 
         RuleFor(x => x.CarbonIndex)
-            .GreaterThanOrEqualTo(0).WithMessage("Carbon index cannot be negative.");
+            .GreaterThan(0).WithMessage("Carbon index must be greater than 0.");
+
+        RuleFor(x => x.DecomposePercent)
+            .InclusiveBetween(0, 100).WithMessage("Decompose percent must be between 0 and 100.");
+
+        RuleFor(x => x.RecyclePercent)
+            .InclusiveBetween(0, 100).WithMessage("Decompose percent must be between 0 and 100.");
+
+        RuleFor(x => x.BaselineCarbonIndex)
+            .GreaterThan(0).WithMessage("Carbon index must be greater than 0.");
     }
 }
