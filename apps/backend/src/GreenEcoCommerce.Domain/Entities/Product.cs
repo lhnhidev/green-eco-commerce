@@ -4,6 +4,7 @@ public class Product
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public Guid CategoryId { get; set; }
+    public Guid MaterialId { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public decimal Price { get; set; }
