@@ -1,6 +1,6 @@
 import { createTheme, MantineProvider } from '@mantine/core'
 import { Notifications } from '@mantine/notifications'
-import { StrictMode } from 'react'
+// import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { RouterProvider } from 'react-router/dom'
@@ -32,7 +32,7 @@ const theme = createTheme({
 })
 
 // Cấu hình URL gốc cho tất cả các lượt gọi API thông qua Axios
-axios.defaults.baseURL = 'http://localhost:5244'
+axios.defaults.baseURL = import.meta.env.VITE_API_ROOT
 axios.defaults.withCredentials = true
 
 const queryClient = new QueryClient({
@@ -47,15 +47,15 @@ const queryClient = new QueryClient({
 
 // biome-ignore lint/style/noNonNullAssertion: idk
 createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <AuthBootstrap />
-        <MantineProvider theme={theme}>
-          <Notifications position="bottom-right" />
-          <RouterProvider router={router} />
-        </MantineProvider>
-      </Provider>
-    </QueryClientProvider>
-  </StrictMode>,
+  // <StrictMode>
+  <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
+      <AuthBootstrap />
+      <MantineProvider theme={theme}>
+        <Notifications position="bottom-right" />
+        <RouterProvider router={router} />
+      </MantineProvider>
+    </Provider>
+  </QueryClientProvider>,
+  // </StrictMode>,
 )

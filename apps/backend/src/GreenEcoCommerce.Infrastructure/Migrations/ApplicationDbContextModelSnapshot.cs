@@ -499,9 +499,10 @@ namespace GreenEcoCommerce.Infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
+                    b.PrimitiveCollection<string[]>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(10000)
+                        .HasColumnType("text[]")
                         .HasColumnName("image_url");
 
                     b.Property<bool>("IsActive")

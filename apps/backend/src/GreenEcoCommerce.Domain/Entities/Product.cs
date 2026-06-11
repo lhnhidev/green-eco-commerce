@@ -12,7 +12,7 @@ public class Product
     public float BaselineCarbonIndex { get; set; }
     public float DecomposePercent { get; set; }
     public float RecyclePercent { get; set; }
-    public string? ImageUrl { get; set; }
+    public string[] ImageUrl { get; set; } = [];
     public bool IsActive { get; set; } = true;
 
     // Navigation Properties

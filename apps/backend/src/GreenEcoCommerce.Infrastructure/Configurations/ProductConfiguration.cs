@@ -22,7 +22,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.BaselineCarbonIndex).HasColumnName("baseline_carbon_index");
         builder.Property(x => x.DecomposePercent).HasColumnName("decompose_percent");
         builder.Property(x => x.RecyclePercent).HasColumnName("recycle_percent");
-        builder.Property(x => x.ImageUrl).HasColumnName("image_url").HasMaxLength(1000);
+        builder.Property(x => x.ImageUrl).HasColumnName("image_url").HasMaxLength(10000);
         builder.Property(x => x.IsActive).HasColumnName("is_active");
 
         builder.HasOne(x => x.Category)

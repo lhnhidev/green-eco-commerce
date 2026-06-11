@@ -1,5 +1,6 @@
 using AutoMapper;
 using GreenEcoCommerce.Application.Features.Categories;
+using GreenEcoCommerce.Application.Features.Categories.Queries;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Interfaces;
 using Moq;

@@ -2,7 +2,7 @@ using AutoMapper;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Products;
+namespace GreenEcoCommerce.Application.Features.Products.Queries;
 
 public record GetAllProductsQuery : IRequest<List<ProductDto>>;
 

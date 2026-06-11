@@ -3,7 +3,7 @@ using GreenEcoCommerce.Domain.Exceptions;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Categories;
+namespace GreenEcoCommerce.Application.Features.Categories.Queries;
 
 public record GetCategoryByIdQuery(Guid Id) : IRequest<CategoryDto>;
 

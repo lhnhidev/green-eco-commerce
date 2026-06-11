@@ -1,4 +1,5 @@
 using FluentValidation;
+using GreenEcoCommerce.Application.Features.Products.Commands;
 
 namespace GreenEcoCommerce.Application.Features.Products.Validators;
 

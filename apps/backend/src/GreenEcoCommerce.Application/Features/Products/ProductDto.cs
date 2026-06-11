@@ -1,5 +1,6 @@
 using AutoMapper;
 using GreenEcoCommerce.Domain.Entities;
+using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Products;
 
@@ -13,8 +14,8 @@ public record ProductPayloadDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    string? ImageUrl
-);
+    string[] ImageUrl
+) : IRequest<ProductDto>;
 
 public record ProductDto(
     Guid Id,
@@ -27,7 +28,7 @@ public record ProductDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    string? ImageUrl,
+    string[] ImageUrl,
     bool IsActive
 );
 

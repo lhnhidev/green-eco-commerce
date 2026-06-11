@@ -1,4 +1,6 @@
 ﻿using GreenEcoCommerce.Application.Features.Categories;
+using GreenEcoCommerce.Application.Features.Categories.Commands;
+using GreenEcoCommerce.Application.Features.Categories.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -33,7 +35,7 @@ public static class CategoryEndpoints
 
     private static async Task<Created<CategoryDto>> CreateCategory([FromBody] CategoryPayloadDto category, ISender sender)
     {
-        var createdCategory = await sender.Send(new CategoryPayloadDto(category.Name, category.Description, category.ParentId));
+        var createdCategory = await sender.Send(category);
         return TypedResults.Created($"/categories/{createdCategory.Id}", createdCategory);
     }
 
