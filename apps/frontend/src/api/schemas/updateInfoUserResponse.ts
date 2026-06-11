@@ -5,9 +5,8 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { RoleEnum } from './roleEnum';
 
-export interface UserProfileResponse {
+export interface UpdateInfoUserResponse {
   id: string;
   avatar: string;
   email: string;
@@ -15,6 +14,4 @@ export interface UserProfileResponse {
   lastName: string;
   phone: string;
   address: string;
-  role: RoleEnum;
-  createdAt: string;
 }

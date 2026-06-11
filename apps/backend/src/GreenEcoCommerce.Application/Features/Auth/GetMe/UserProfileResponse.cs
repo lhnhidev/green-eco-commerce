@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using GreenEcoCommerce.Application.Features.Products;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 

@@ -35,6 +35,8 @@ import type {
   ProductPayloadDto,
   RegisterCommand,
   RegisterResponse,
+  UpdateInfoUserDto,
+  UpdateInfoUserResponse,
   UserInfoResponse,
   UserProfileResponse,
 } from './schemas'
@@ -1002,6 +1004,71 @@ export const useDeleteApiProductsId = <TError = ProblemDetails, TContext = unkno
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof deleteApiProductsId>>, TError, { id: string }, TContext> => {
   return useMutation(getDeleteApiProductsIdMutationOptions(options), queryClient)
+}
+
+export const putApiInfoUserId = (id: string, updateInfoUserDto: UpdateInfoUserDto, signal?: AbortSignal) => {
+  return customInstance<UpdateInfoUserResponse>({
+    url: `/api/info-user/${id}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: updateInfoUserDto,
+    signal,
+  })
+}
+
+export const getPutApiInfoUserIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putApiInfoUserId>>,
+    TError,
+    { id: string; data: UpdateInfoUserDto },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putApiInfoUserId>>,
+  TError,
+  { id: string; data: UpdateInfoUserDto },
+  TContext
+> => {
+  const mutationKey = ['putApiInfoUserId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putApiInfoUserId>>,
+    { id: string; data: UpdateInfoUserDto }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return putApiInfoUserId(id, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutApiInfoUserIdMutationResult = NonNullable<Awaited<ReturnType<typeof putApiInfoUserId>>>
+export type PutApiInfoUserIdMutationBody = UpdateInfoUserDto
+export type PutApiInfoUserIdMutationError = ProblemDetails
+
+export const usePutApiInfoUserId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putApiInfoUserId>>,
+      TError,
+      { id: string; data: UpdateInfoUserDto },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof putApiInfoUserId>>,
+  TError,
+  { id: string; data: UpdateInfoUserDto },
+  TContext
+> => {
+  return useMutation(getPutApiInfoUserIdMutationOptions(options), queryClient)
 }
 
 /**

@@ -24,7 +24,6 @@ export interface ProductDto {
   decomposePercent: number | string;
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
   recyclePercent: number | string;
-  /** @nullable */
-  imageUrl: string | null;
+  imageUrl: string[];
   isActive: boolean;
 }

@@ -7,6 +7,7 @@
  */
 
 export interface UserInfoResponse {
+  avatar: string;
   firstName: string;
   lastName: string;
   email: string;

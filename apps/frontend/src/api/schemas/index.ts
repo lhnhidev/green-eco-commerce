@@ -20,5 +20,7 @@ export * from './productPayloadDto';
 export * from './registerCommand';
 export * from './registerResponse';
 export * from './roleEnum';
+export * from './updateInfoUserDto';
+export * from './updateInfoUserResponse';
 export * from './userInfoResponse';
 export * from './userProfileResponse';
