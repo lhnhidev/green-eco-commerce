@@ -33,7 +33,7 @@ public class RefreshTokenCommandHanlder(IUserRepository userRepository, ICacheSe
             throw new NotFoundException("User not found");
         }
 
-        var newToken = jwtService.GenerateToken(user);
+        var newToken = jwtService.GenerateToken(user, minutesExprired : 15);
         var newRefreshToken = jwtService.GenerateRefreshToken();
 
         await cacheService.SetAsync($"refresh_token:{request.Id}", newRefreshToken, TimeSpan.FromDays(7), cancellationToken);

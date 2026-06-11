@@ -11,7 +11,7 @@ namespace GreenEcoCommerce.Infrastructure.Identity;
 
 public class JwtService(IConfiguration config) : IJwtService
 {
-    public string GenerateToken(User user)
+    public string GenerateToken(User user, int minutesExprired = 15)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:SecretKey"]!));
 
@@ -31,7 +31,7 @@ public class JwtService(IConfiguration config) : IJwtService
             issuer: config["Jwt:Issuer"],
             audience: config["Jwt:Audience"],
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(15),
+            expires: DateTime.UtcNow.AddMinutes(minutesExprired),
             signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
         );
 

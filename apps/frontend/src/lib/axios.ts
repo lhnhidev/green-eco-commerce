@@ -3,7 +3,7 @@
 import Axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
 
 export const axiosInstance = Axios.create({
-  baseURL: import.meta.env.VITE_API_ROOT,
+  baseURL: 'http://localhost:5244',
   withCredentials: true, // ← Tương đương credentials: "include"
 })
 
@@ -41,7 +41,9 @@ axiosInstance.interceptors.response.use(
       isRefreshing = true
 
       try {
-        await axiosInstance.post(`${import.meta.env.VITE_API_ROOT}${import.meta.env.VITE_API_REFRESH_TOKEN}`)
+        await axiosInstance.post('/api/auth/refresh-token', null, {
+          _retry: true, // Đánh dấu true ngay từ đầu để interceptor bỏ qua nếu lỗi 401
+        } as any)
         processQueue()
         return axiosInstance(originalRequest)
       } catch (err) {

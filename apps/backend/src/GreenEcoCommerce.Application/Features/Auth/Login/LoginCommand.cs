@@ -20,7 +20,7 @@ public class LoginHandler(IUserRepository userRepository, IJwtService jwtService
             throw new NotFoundException("Not found user, email or password is wrong");
         }
 
-        var token = jwtService.GenerateToken(user);
+        var token = jwtService.GenerateToken(user, minutesExprired : 15);
         var refreshToken = jwtService.GenerateRefreshToken();
 
         await cacheService.SetAsync($"refresh_token:{user.Id}", refreshToken, TimeSpan.FromDays(7), ct);

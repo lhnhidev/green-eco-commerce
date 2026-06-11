@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using GreenEcoCommerce.Application.Features.Auth.GetMe;
 using GreenEcoCommerce.Application.Features.Auth.Login;
 using GreenEcoCommerce.Application.Features.Auth.Register;
@@ -9,7 +8,6 @@ using System.Security.Claims;
 using GreenEcoCommerce.Application.Features.Auth.Logout;
 using GreenEcoCommerce.Application.Features.Auth.RefreshToken;
 using GreenEcoCommerce.Application.Interfaces.Security;
-using Microsoft.IdentityModel.Tokens;
 
 namespace GreenEcoCommerce.WebAPI.Controllers;
 
@@ -26,10 +24,6 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         RefreshToken
     }
 
-    // minutes
-    private readonly int timeExpireAccessToken = 15; // 15 minuts
-    private readonly int timeExpireRefreshToken = 7 * 24 * 60; // 7 days
-
     private static Guid CheckUserIdClaim(ClaimsPrincipal user)
     {
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
@@ -41,14 +35,14 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         return userId;
     }
 
-    private void SetToken(string token, TokenType type, int minutesLive = 15)
+    private void SetTokenCookie(string token, TokenType type, int daysLive = 7)
     {
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true, // Ngăn js/ts truy cập vào token
             Secure = true,   // Bắt buộc dùng HTTPS (ở localhost .NET tự chạy HTTPS)
             SameSite = SameSiteMode.Strict, // Chống tấn công CSRF
-            Expires = DateTime.UtcNow.AddMinutes(minutesLive) // Thời gian sống của Cookie
+            Expires = DateTime.UtcNow.AddDays(daysLive) // Thời gian sống của Cookie
         };
 
         // Ghi cookie vào Response
@@ -92,8 +86,8 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
     public async Task<IActionResult> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
-        SetToken(response.Token, TokenType.AccessToken, timeExpireAccessToken);
-        SetToken(response.RefreshToken, TokenType.RefreshToken, timeExpireRefreshToken);
+        SetTokenCookie(response.Token, TokenType.AccessToken);
+        SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
         return Ok(response.UserInfo);
     }
 
@@ -130,6 +124,14 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         var expiredToken = Request.Cookies["AccessToken"];
         var refreshToken = Request.Cookies["RefreshToken"];
 
+        foreach (var cookie in Request.Cookies)
+        {
+            string key = cookie.Key;
+            string value = cookie.Value;
+
+            Console.WriteLine($"Key: {key} | Value: {value}");
+        }
+
         if (string.IsNullOrEmpty(expiredToken) || string.IsNullOrEmpty(refreshToken))
         {
             return Unauthorized("Invalid access token or refresh token");
@@ -141,8 +143,8 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
             var userId = CheckUserIdClaim(claimsPrincipal);
 
             var result = await sender.Send(new RefreshTokenCommand(userId, refreshToken));
-            SetToken(result.Token, TokenType.AccessToken, timeExpireAccessToken);
-            SetToken(result.RefreshToken, TokenType.RefreshToken, timeExpireRefreshToken);
+            SetTokenCookie(result.Token, TokenType.AccessToken);
+            SetTokenCookie(result.RefreshToken, TokenType.RefreshToken);
 
             return Ok();
         }
