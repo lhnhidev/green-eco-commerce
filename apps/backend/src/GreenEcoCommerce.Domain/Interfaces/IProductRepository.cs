@@ -8,5 +8,6 @@ public interface IProductRepository
     Task<List<Product>> GetAllAsync(CancellationToken ct = default);
     Task<Product> AddAsync(Product product, CancellationToken ct = default);
     Task<bool> UpdateAsync(Product product, CancellationToken ct = default);
+    Task<List<Product>> GetSomeAsync(int pageSize, int pageNumber, CancellationToken ct = default);
     Task DeleteAsync(Guid id, CancellationToken ct = default);
 }
