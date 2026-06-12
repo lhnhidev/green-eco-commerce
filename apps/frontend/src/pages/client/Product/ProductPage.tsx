@@ -1,7 +1,7 @@
 import { Anchor, Breadcrumbs, Select } from '@mantine/core'
-import { useGetApiProductsSome } from '../../api'
-import ProductCardv2 from '../../components/features/products/ProductCardv2'
-import Loading from '../../components/ui/status/Loading'
+import { useGetApiProductsSome } from '../../../api'
+import ProductCardv2 from '../../../components/features/products/ProductCardv2'
+import Loading from '../../../components/ui/status/Loading'
 
 const items = [
   { id: 1, title: 'Home', href: '/' },
