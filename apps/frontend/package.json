@@ -12,6 +12,7 @@
     "format": "bunx --bun @biomejs/biome format --write"
   },
   "dependencies": {
+    "@fontsource-variable/raleway": "^5.2.8",
     "@mantine/carousel": "^9.3.1",
     "@mantine/charts": "^9.2.1",
     "@mantine/code-highlight": "^9.2.1",

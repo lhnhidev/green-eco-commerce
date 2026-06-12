@@ -10,9 +10,10 @@ import axios from 'axios'
 import { AuthBootstrap } from './components/features/AuthBootstrap.tsx'
 import { router } from './router/index.tsx'
 import { store } from './store/index.ts'
+import '@fontsource-variable/raleway/wght.css'
 
 const theme = createTheme({
-  fontFamily: 'Poppins, sans-serif',
+  fontFamily: 'Raleway Variable, Poppins, sans-serif',
   primaryColor: 'green',
   colors: {
     green: [
