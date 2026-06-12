@@ -3,7 +3,7 @@ import { StarIcon } from '@phosphor-icons/react'
 import type { ProductDto } from '../../../api/schemas'
 import { ImageWithFallback } from '../../ui/status/ImageWithFallback'
 
-const ProductCard = ({ product }: { product: ProductDto }) => {
+const ProductCardv1 = ({ product }: { product: ProductDto }) => {
   return (
     <Card
       key={product.id}
@@ -62,4 +62,4 @@ const ProductCard = ({ product }: { product: ProductDto }) => {
   )
 }
 
-export default ProductCard
+export default ProductCardv1

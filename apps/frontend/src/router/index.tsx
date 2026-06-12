@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router'
 import RootLayout from '../layouts/RootLayout'
 import AuthPage from '../pages/client/AuthPage'
 import { HomePage } from '../pages/client/HomePage'
+import ProductPage from '../pages/client/ProductPage'
 
 export const router = createBrowserRouter([
   {
@@ -13,7 +14,7 @@ export const router = createBrowserRouter([
       },
       {
         path: '/products',
-        element: <></>,
+        element: <ProductPage />,
       },
       {
         path: '/remedies',

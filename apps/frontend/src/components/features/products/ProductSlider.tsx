@@ -1,7 +1,7 @@
 import { Carousel } from '@mantine/carousel'
 import { Center, Loader, Text } from '@mantine/core'
 import { useGetApiProductsSome } from '../../../api'
-import ProductCard from './ProductCard'
+import ProductCard from './ProductCardv1'
 import '@mantine/core/styles.css'
 import '@mantine/carousel/styles.css'
 import Autoplay from 'embla-carousel-autoplay'

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useGetApiProductsSome } from '../../../api'
-import ProductCard from './ProductCard'
+import ProductCard from './ProductCardv1'
 
 const ProductList = () => {
   const [pageNumber, setPageNumber] = useState<number>(1)
