@@ -1,4 +1,5 @@
 using AutoMapper;
+using GreenEcoCommerce.Application.Features.Materials;
 using GreenEcoCommerce.Domain.Entities;
 using MediatR;
 
@@ -14,7 +15,8 @@ public record ProductPayloadDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    string[] ImageUrl
+    ICollection<string> ImageUrl,
+    ICollection<Guid> MaterialIds
 ) : IRequest<ProductDto>;
 
 public record ProductDto(
@@ -28,15 +30,22 @@ public record ProductDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    string[] ImageUrl,
+    ICollection<string> ImageUrl,
+    ICollection<MaterialItem> Materials,
     bool IsActive
-);
+)
+{
+    public ProductDto() : this(default, "", null, 0, 0, default, 0, 0, 0, 0, new List<string>(), new List<MaterialItem>(), false) { }
+}
 
 public class ProductDtoProfile : Profile
 {
     public ProductDtoProfile()
     {
-        CreateMap<ProductPayloadDto, Product>();
+        CreateMap<ProductPayloadDto, Product>()
+            .ForMember(dest => dest.Materials, opt => opt.Ignore())
+            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl.ToArray()));
+
         CreateMap<Product, ProductDto>();
     }
 }

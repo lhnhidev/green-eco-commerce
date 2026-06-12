@@ -5,25 +5,27 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { MaterialItem } from './materialItem';
 
 export interface ProductDto {
-  id: string;
-  name: string;
+  id?: string;
+  name?: string;
   /** @nullable */
-  description: string | null;
+  description?: string | null;
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  price: number | string;
+  price?: number | string;
   /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  stockQty: number | string;
-  categoryId: string;
+  stockQty?: number | string;
+  categoryId?: string;
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  carbonIndex: number | string;
+  carbonIndex?: number | string;
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  baselineCarbonIndex: number | string;
+  baselineCarbonIndex?: number | string;
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  decomposePercent: number | string;
+  decomposePercent?: number | string;
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  recyclePercent: number | string;
-  imageUrl: string[];
-  isActive: boolean;
+  recyclePercent?: number | string;
+  imageUrl?: string[];
+  materials?: MaterialItem[];
+  isActive?: boolean;
 }

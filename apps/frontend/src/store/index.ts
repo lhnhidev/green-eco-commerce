@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit'
 import authReducer from '../components/features/auth/auth.slice'
+import imgSliderReducer from '../components/ui/img-slider/img-slider.slice'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    imgSlider: imgSliderReducer,
   },
 })
 

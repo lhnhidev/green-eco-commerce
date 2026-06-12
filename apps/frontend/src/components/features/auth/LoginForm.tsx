@@ -45,6 +45,11 @@ const LoginForm = () => {
           const profile = await queryClient.fetchQuery(getGetApiAuthMeQueryOptions())
           dispatch(setAuthUser(profile))
           navigate('/')
+          notifications.show({
+            title: 'Login sucessed!',
+            message: 'Welcome to our shop.',
+            color: 'green',
+          })
         },
         onError: (error) => {
           const axiosError = error as AxiosError<ProblemDetails>

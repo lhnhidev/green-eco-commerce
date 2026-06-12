@@ -10,6 +10,8 @@ export * from './categoryDto';
 export * from './categoryPayloadDto';
 export * from './createMaterialCommand';
 export * from './createMaterialResponse';
+export * from './getApiProductsParams';
+export * from './getApiProductsSomeParams';
 export * from './loginCommand';
 export * from './materialItem';
 export * from './materialTypeEnum';

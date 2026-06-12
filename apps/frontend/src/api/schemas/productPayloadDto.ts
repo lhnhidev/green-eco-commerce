@@ -24,4 +24,5 @@ export interface ProductPayloadDto {
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
   recyclePercent: number | string;
   imageUrl: string[];
+  materialIds: string[];
 }
