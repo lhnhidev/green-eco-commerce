@@ -9,9 +9,10 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #fefefe;
+  --color-background: #f9f8f4;
   --color-foreground: #1a1a1a;
-  --color-primary: #2d5016;
+  --color-primary: #2d5a27;
+  --color-secondary: #8ba888;
   --color-primary-foreground: #ffffff;
   --color-muted: #f1f5eb;
   --color-muted-foreground: #6b7280;

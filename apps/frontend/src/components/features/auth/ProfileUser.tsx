@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { BiLeaf } from 'react-icons/bi'
 import { FiHeart, FiLogOut, FiPackage, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi'
 import type { IconType } from 'react-icons/lib'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { getGetApiAuthMeQueryKey, usePostApiAuthLogout } from '../../../api'
 import { useAuth } from '../../../hooks/useAuth'
 import LoginComponent from './LoginComponent'
@@ -62,6 +62,8 @@ const ProfileUser = () => {
   const queryClient = useQueryClient()
   const { mutate: logout } = usePostApiAuthLogout()
 
+  const navigate = useNavigate()
+
   const { user, isPending } = useAuth()
 
   if (isPending) {
@@ -79,6 +81,12 @@ const ProfileUser = () => {
       onSuccess: () => {
         queryClient.removeQueries({ queryKey: getGetApiAuthMeQueryKey() })
         setShowProfileMenu(false)
+        navigate('/')
+        notifications.show({
+          title: 'Logout successed!',
+          message: 'See you later...',
+          color: 'blue',
+        })
       },
       onError: () => {
         notifications.show({
