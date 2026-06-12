@@ -9,23 +9,23 @@ const HeroSection = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <h1 className="text-4xl md:text-6xl font-bold text-primary">
-              Bring Nature
+              Essentials that breathe
               <br />
-              <span className="text-green-600">Home</span>
+              <span className="text-green-600 italic">with the planet.</span>
             </h1>
             <p className="text-lg text-gray-500 max-w-md">
-              Discover our curated collection of healthy, beautiful plants that transform your space into a green
-              paradise.
+              Curating high-quality, sustainable alternatives for your everyday life. Transparent sourcing, plastic-free
+              shipping, and a commitment to longevity.
             </p>
             <div className="flex gap-4">
               <Link to="/products">
                 <Button size="lg" radius="xl" color="green.9">
-                  Shop Plants
+                  Shop Sustainably
                 </Button>
               </Link>
               <Link to="/remedies">
                 <Button variant="outline" size="lg" radius="xl" color="green.9">
-                  Plant Remedies
+                  Our Impact Report
                 </Button>
               </Link>
             </div>
