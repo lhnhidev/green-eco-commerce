@@ -54,7 +54,7 @@ const ProductPage = () => {
         </div>
       </div>
 
-      <div className="flex gap-18~ mt-12">
+      <div className="flex gap-18 mt-12">
         <aside className="w-full lg:w-64 space-y-10 shrink-0">
           <section>
             <h3 className="font-label-md text-label-md text-primary uppercase tracking-widest mb-6 font-bold">
