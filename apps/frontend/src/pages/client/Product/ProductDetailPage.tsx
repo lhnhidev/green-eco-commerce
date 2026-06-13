@@ -5,6 +5,7 @@ import { IoBagHandleOutline } from 'react-icons/io5'
 import { useParams } from 'react-router'
 import { useGetApiProductsId } from '../../../api'
 import ImgSlider from '../../../components/ui/img-slider/ImgSlider'
+import Loading from '../../../components/ui/status/Loading'
 import { useAppSelector } from '../../../hooks/useAppSelector'
 import { formatParam } from '../../../utils/formatParam'
 
@@ -15,6 +16,7 @@ const ProductDetailPage = () => {
 
   const {
     data: product,
+    isLoading,
     isError,
     // biome-ignore lint/style/noNonNullAssertion: <>
   } = useGetApiProductsId(id!, {
@@ -25,6 +27,10 @@ const ProductDetailPage = () => {
 
   const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
+
+  if (isLoading) {
+    return <Loading text="Product detail is loading"></Loading>
+  }
 
   if (isError || product === undefined) {
     return <div>Can't load this product.</div>

@@ -22,13 +22,16 @@ const GroupProductSliderWithButtonShowMore = () => {
     PageSize: productTotal,
   })
 
+  if (isLoading) {
+    return <Loading text="Loading"></Loading>
+  }
+
   if (isError || products === undefined || products.length === 0) {
     return <div>Can't load products now</div>
   }
 
   return (
     <div>
-      {isLoading && <Loading text="Products is loading"></Loading>}
       <ProductSlider products={products} delayTime={delayTime} percent={percent} />
       <div className="text-center mt-12">
         <Link to="/products">
