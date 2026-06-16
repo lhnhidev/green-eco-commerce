@@ -14,6 +14,11 @@ public class ProductRepository(IApplicationDbContext context) : IProductReposito
             .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
+    public Task<bool> ProductExistsAsync(Guid id, CancellationToken ct = default)
+    {
+        return context.Products.AnyAsync(p => p.Id == id, ct);
+    }
+
     public async Task<List<Product>> GetAllAsync(CancellationToken ct)
     {
         return await context.Products.Include(p => p.Materials).ToListAsync(ct);

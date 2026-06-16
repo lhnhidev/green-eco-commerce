@@ -147,6 +147,7 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
 
 
 var app = builder.Build();
@@ -175,6 +176,7 @@ app.MapCategoryEndpoints();
 app.MapMaterialEndpoints();
 app.MapProductEndpoints();
 app.MapInfoUserEndpoints();
+app.MapCartEndpoints();
 
 app.MapFallbackToFile("index.html");
 
