@@ -1,4 +1,5 @@
-import { TextInput } from '@mantine/core'
+import { TextInput, Tooltip } from '@mantine/core'
+import { IoIosSend } from 'react-icons/io'
 import ChatBanner from './ChatBanner'
 import HeaderChatbot from './HeaderChatbot'
 
@@ -13,7 +14,19 @@ const ChatComunication = () => {
       </div>
 
       <div className="px-4">
-        <TextInput />
+        <TextInput
+          classNames={{
+            input: '!py-7 !px-5',
+          }}
+          placeholder="Enter your question here"
+          rightSection={
+            <Tooltip label="Send">
+              <div className="p-5 mr-5 cursor-pointer hover:text-primary transition-all">
+                <IoIosSend />
+              </div>
+            </Tooltip>
+          }
+        />
       </div>
     </div>
   )
