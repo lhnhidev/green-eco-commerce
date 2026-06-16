@@ -8,7 +8,8 @@ public record CartItemDto(
     string ProductName,
     decimal ProductPrice,
     string[] ProductImageUrl,
-    int Quantity
+    int Quantity,
+    int CurrentStockQuantity
 );
 
 public record CartDto(
@@ -29,7 +30,8 @@ public class CartDtoProfile : Profile
         CreateMap<CartItem, CartItemDto>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
             .ForMember(dest => dest.ProductPrice, opt => opt.MapFrom(src => src.Product.Price))
-            .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product.ImageUrl));
+            .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product.ImageUrl))
+            .ForMember(dest => dest.CurrentStockQuantity, opt => opt.MapFrom(src => src.Product.StockQty));
 
         CreateMap<Cart, CartDto>()
             .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.CartItems))
