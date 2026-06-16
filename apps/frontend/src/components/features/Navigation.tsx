@@ -10,6 +10,7 @@ const navigationItems = [
   { path: '/', label: 'Home' },
   { path: '/products', label: 'Products' },
   { path: '/remedies', label: 'Remedies' },
+  { path: '/support', label: 'Support' },
 ]
 
 export function Navigation() {

@@ -26,6 +26,10 @@ export const router = createBrowserRouter([
         element: <></>,
       },
       {
+        path: '/support',
+        element: <></>,
+      },
+      {
         path: '/auth',
         element: <AuthPage />,
       },
