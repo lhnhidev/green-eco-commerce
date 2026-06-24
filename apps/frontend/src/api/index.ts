@@ -23,10 +23,15 @@ import type {
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { customInstance } from '../lib/axios'
 import type {
+  AddCartItemPayloadDto,
+  CartDto,
   CategoryDto,
   CategoryPayloadDto,
+  ChatSessionDto,
+  ChatSessionPayloadDto,
   CreateMaterialCommand,
   CreateMaterialResponse,
+  GenerateContentCommand,
   GetApiProductsParams,
   GetApiProductsSomeParams,
   LoginCommand,
@@ -37,6 +42,7 @@ import type {
   ProductPayloadDto,
   RegisterCommand,
   RegisterResponse,
+  UpdateCartItemPayloadDto,
   UpdateInfoUserDto,
   UpdateInfoUserResponse,
   UserInfoResponse,
@@ -1236,6 +1242,712 @@ export const usePutApiInfoUserId = <TError = ProblemDetails, TContext = unknown>
   TContext
 > => {
   return useMutation(getPutApiInfoUserIdMutationOptions(options), queryClient)
+}
+
+export const postApiChatbot = (generateContentCommand: GenerateContentCommand, signal?: AbortSignal) => {
+  return customInstance<string>({
+    url: `/api/chatbot`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: generateContentCommand,
+    signal,
+  })
+}
+
+export const getPostApiChatbotMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiChatbot>>,
+    TError,
+    { data: GenerateContentCommand },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiChatbot>>,
+  TError,
+  { data: GenerateContentCommand },
+  TContext
+> => {
+  const mutationKey = ['postApiChatbot']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiChatbot>>, { data: GenerateContentCommand }> = (
+    props,
+  ) => {
+    const { data } = props ?? {}
+
+    return postApiChatbot(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiChatbotMutationResult = NonNullable<Awaited<ReturnType<typeof postApiChatbot>>>
+export type PostApiChatbotMutationBody = GenerateContentCommand
+export type PostApiChatbotMutationError = ProblemDetails
+
+export const usePostApiChatbot = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiChatbot>>,
+      TError,
+      { data: GenerateContentCommand },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiChatbot>>,
+  TError,
+  { data: GenerateContentCommand },
+  TContext
+> => {
+  return useMutation(getPostApiChatbotMutationOptions(options), queryClient)
+}
+
+export const getApiCart = (signal?: AbortSignal) => {
+  return customInstance<CartDto>({ url: `/api/cart`, method: 'GET', signal })
+}
+
+export const getGetApiCartQueryKey = () => {
+  return [`/api/cart`] as const
+}
+
+export const getGetApiCartQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiCart>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCart>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiCartQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiCart>>> = ({ signal }) => getApiCart(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiCart>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiCartQueryResult = NonNullable<Awaited<ReturnType<typeof getApiCart>>>
+export type GetApiCartQueryError = ProblemDetails
+
+export function useGetApiCart<TData = Awaited<ReturnType<typeof getApiCart>>, TError = ProblemDetails>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCart>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiCart>>,
+          TError,
+          Awaited<ReturnType<typeof getApiCart>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiCart<TData = Awaited<ReturnType<typeof getApiCart>>, TError = ProblemDetails>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCart>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiCart>>,
+          TError,
+          Awaited<ReturnType<typeof getApiCart>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiCart<TData = Awaited<ReturnType<typeof getApiCart>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCart>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiCart<TData = Awaited<ReturnType<typeof getApiCart>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiCart>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiCartQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const deleteApiCart = (signal?: AbortSignal) => {
+  return customInstance<void>({ url: `/api/cart`, method: 'DELETE', signal })
+}
+
+export const getDeleteApiCartMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteApiCart>>, TError, void, TContext>
+}): UseMutationOptions<Awaited<ReturnType<typeof deleteApiCart>>, TError, void, TContext> => {
+  const mutationKey = ['deleteApiCart']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiCart>>, void> = () => {
+    return deleteApiCart()
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteApiCartMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiCart>>>
+
+export type DeleteApiCartMutationError = ProblemDetails
+
+export const useDeleteApiCart = <TError = ProblemDetails, TContext = unknown>(
+  options?: { mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteApiCart>>, TError, void, TContext> },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof deleteApiCart>>, TError, void, TContext> => {
+  return useMutation(getDeleteApiCartMutationOptions(options), queryClient)
+}
+
+export const postApiCartItems = (addCartItemPayloadDto: AddCartItemPayloadDto, signal?: AbortSignal) => {
+  return customInstance<CartDto>({
+    url: `/api/cart/items`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: addCartItemPayloadDto,
+    signal,
+  })
+}
+
+export const getPostApiCartItemsMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiCartItems>>,
+    TError,
+    { data: AddCartItemPayloadDto },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiCartItems>>,
+  TError,
+  { data: AddCartItemPayloadDto },
+  TContext
+> => {
+  const mutationKey = ['postApiCartItems']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiCartItems>>, { data: AddCartItemPayloadDto }> = (
+    props,
+  ) => {
+    const { data } = props ?? {}
+
+    return postApiCartItems(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiCartItemsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiCartItems>>>
+export type PostApiCartItemsMutationBody = AddCartItemPayloadDto
+export type PostApiCartItemsMutationError = ProblemDetails
+
+export const usePostApiCartItems = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiCartItems>>,
+      TError,
+      { data: AddCartItemPayloadDto },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiCartItems>>,
+  TError,
+  { data: AddCartItemPayloadDto },
+  TContext
+> => {
+  return useMutation(getPostApiCartItemsMutationOptions(options), queryClient)
+}
+
+export const putApiCartItemsProductId = (
+  productId: string,
+  updateCartItemPayloadDto: UpdateCartItemPayloadDto,
+  signal?: AbortSignal,
+) => {
+  return customInstance<CartDto>({
+    url: `/api/cart/items/${productId}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: updateCartItemPayloadDto,
+    signal,
+  })
+}
+
+export const getPutApiCartItemsProductIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putApiCartItemsProductId>>,
+    TError,
+    { productId: string; data: UpdateCartItemPayloadDto },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putApiCartItemsProductId>>,
+  TError,
+  { productId: string; data: UpdateCartItemPayloadDto },
+  TContext
+> => {
+  const mutationKey = ['putApiCartItemsProductId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putApiCartItemsProductId>>,
+    { productId: string; data: UpdateCartItemPayloadDto }
+  > = (props) => {
+    const { productId, data } = props ?? {}
+
+    return putApiCartItemsProductId(productId, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutApiCartItemsProductIdMutationResult = NonNullable<Awaited<ReturnType<typeof putApiCartItemsProductId>>>
+export type PutApiCartItemsProductIdMutationBody = UpdateCartItemPayloadDto
+export type PutApiCartItemsProductIdMutationError = ProblemDetails
+
+export const usePutApiCartItemsProductId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putApiCartItemsProductId>>,
+      TError,
+      { productId: string; data: UpdateCartItemPayloadDto },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof putApiCartItemsProductId>>,
+  TError,
+  { productId: string; data: UpdateCartItemPayloadDto },
+  TContext
+> => {
+  return useMutation(getPutApiCartItemsProductIdMutationOptions(options), queryClient)
+}
+
+export const deleteApiCartItemsProductId = (productId: string, signal?: AbortSignal) => {
+  return customInstance<CartDto>({ url: `/api/cart/items/${productId}`, method: 'DELETE', signal })
+}
+
+export const getDeleteApiCartItemsProductIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteApiCartItemsProductId>>,
+    TError,
+    { productId: string },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteApiCartItemsProductId>>,
+  TError,
+  { productId: string },
+  TContext
+> => {
+  const mutationKey = ['deleteApiCartItemsProductId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiCartItemsProductId>>, { productId: string }> = (
+    props,
+  ) => {
+    const { productId } = props ?? {}
+
+    return deleteApiCartItemsProductId(productId)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteApiCartItemsProductIdMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteApiCartItemsProductId>>
+>
+
+export type DeleteApiCartItemsProductIdMutationError = ProblemDetails
+
+export const useDeleteApiCartItemsProductId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof deleteApiCartItemsProductId>>,
+      TError,
+      { productId: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof deleteApiCartItemsProductId>>,
+  TError,
+  { productId: string },
+  TContext
+> => {
+  return useMutation(getDeleteApiCartItemsProductIdMutationOptions(options), queryClient)
+}
+
+export const getApiChatSessions = (signal?: AbortSignal) => {
+  return customInstance<ChatSessionDto[]>({ url: `/api/chat-sessions`, method: 'GET', signal })
+}
+
+export const getGetApiChatSessionsQueryKey = () => {
+  return [`/api/chat-sessions`] as const
+}
+
+export const getGetApiChatSessionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiChatSessions>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessions>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiChatSessionsQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiChatSessions>>> = ({ signal }) =>
+    getApiChatSessions(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiChatSessions>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiChatSessionsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiChatSessions>>>
+export type GetApiChatSessionsQueryError = ProblemDetails
+
+export function useGetApiChatSessions<TData = Awaited<ReturnType<typeof getApiChatSessions>>, TError = ProblemDetails>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessions>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiChatSessions>>,
+          TError,
+          Awaited<ReturnType<typeof getApiChatSessions>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiChatSessions<TData = Awaited<ReturnType<typeof getApiChatSessions>>, TError = ProblemDetails>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessions>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiChatSessions>>,
+          TError,
+          Awaited<ReturnType<typeof getApiChatSessions>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiChatSessions<TData = Awaited<ReturnType<typeof getApiChatSessions>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessions>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiChatSessions<TData = Awaited<ReturnType<typeof getApiChatSessions>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessions>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiChatSessionsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const postApiChatSessions = (chatSessionPayloadDto: ChatSessionPayloadDto, signal?: AbortSignal) => {
+  return customInstance<ChatSessionDto>({
+    url: `/api/chat-sessions`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: chatSessionPayloadDto,
+    signal,
+  })
+}
+
+export const getPostApiChatSessionsMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiChatSessions>>,
+    TError,
+    { data: ChatSessionPayloadDto },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiChatSessions>>,
+  TError,
+  { data: ChatSessionPayloadDto },
+  TContext
+> => {
+  const mutationKey = ['postApiChatSessions']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiChatSessions>>,
+    { data: ChatSessionPayloadDto }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postApiChatSessions(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiChatSessionsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiChatSessions>>>
+export type PostApiChatSessionsMutationBody = ChatSessionPayloadDto
+export type PostApiChatSessionsMutationError = ProblemDetails
+
+export const usePostApiChatSessions = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiChatSessions>>,
+      TError,
+      { data: ChatSessionPayloadDto },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiChatSessions>>,
+  TError,
+  { data: ChatSessionPayloadDto },
+  TContext
+> => {
+  return useMutation(getPostApiChatSessionsMutationOptions(options), queryClient)
+}
+
+export const getApiChatSessionsId = (id: string, signal?: AbortSignal) => {
+  return customInstance<ChatSessionDto>({ url: `/api/chat-sessions/${id}`, method: 'GET', signal })
+}
+
+export const getGetApiChatSessionsIdQueryKey = (id: string) => {
+  return [`/api/chat-sessions/${id}`] as const
+}
+
+export const getGetApiChatSessionsIdQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiChatSessionsId>>,
+  TError = void | ProblemDetails,
+>(
+  id: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessionsId>>, TError, TData>> },
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiChatSessionsIdQueryKey(id)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiChatSessionsId>>> = ({ signal }) =>
+    getApiChatSessionsId(id, signal)
+
+  return { queryKey, queryFn, enabled: id !== null && id !== undefined, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiChatSessionsId>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiChatSessionsIdQueryResult = NonNullable<Awaited<ReturnType<typeof getApiChatSessionsId>>>
+export type GetApiChatSessionsIdQueryError = void | ProblemDetails
+
+export function useGetApiChatSessionsId<
+  TData = Awaited<ReturnType<typeof getApiChatSessionsId>>,
+  TError = void | ProblemDetails,
+>(
+  id: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessionsId>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiChatSessionsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiChatSessionsId>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiChatSessionsId<
+  TData = Awaited<ReturnType<typeof getApiChatSessionsId>>,
+  TError = void | ProblemDetails,
+>(
+  id: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessionsId>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiChatSessionsId>>,
+          TError,
+          Awaited<ReturnType<typeof getApiChatSessionsId>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiChatSessionsId<
+  TData = Awaited<ReturnType<typeof getApiChatSessionsId>>,
+  TError = void | ProblemDetails,
+>(
+  id: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessionsId>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiChatSessionsId<
+  TData = Awaited<ReturnType<typeof getApiChatSessionsId>>,
+  TError = void | ProblemDetails,
+>(
+  id: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiChatSessionsId>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiChatSessionsIdQueryOptions(id, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const putApiChatSessionsId = (
+  id: string,
+  chatSessionPayloadDto: ChatSessionPayloadDto,
+  signal?: AbortSignal,
+) => {
+  return customInstance<void>({
+    url: `/api/chat-sessions/${id}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    data: chatSessionPayloadDto,
+    signal,
+  })
+}
+
+export const getPutApiChatSessionsIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof putApiChatSessionsId>>,
+    TError,
+    { id: string; data: ChatSessionPayloadDto },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof putApiChatSessionsId>>,
+  TError,
+  { id: string; data: ChatSessionPayloadDto },
+  TContext
+> => {
+  const mutationKey = ['putApiChatSessionsId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof putApiChatSessionsId>>,
+    { id: string; data: ChatSessionPayloadDto }
+  > = (props) => {
+    const { id, data } = props ?? {}
+
+    return putApiChatSessionsId(id, data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PutApiChatSessionsIdMutationResult = NonNullable<Awaited<ReturnType<typeof putApiChatSessionsId>>>
+export type PutApiChatSessionsIdMutationBody = ChatSessionPayloadDto
+export type PutApiChatSessionsIdMutationError = ProblemDetails
+
+export const usePutApiChatSessionsId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof putApiChatSessionsId>>,
+      TError,
+      { id: string; data: ChatSessionPayloadDto },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof putApiChatSessionsId>>,
+  TError,
+  { id: string; data: ChatSessionPayloadDto },
+  TContext
+> => {
+  return useMutation(getPutApiChatSessionsIdMutationOptions(options), queryClient)
+}
+
+export const deleteApiChatSessionsId = (id: string, signal?: AbortSignal) => {
+  return customInstance<void>({ url: `/api/chat-sessions/${id}`, method: 'DELETE', signal })
+}
+
+export const getDeleteApiChatSessionsIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteApiChatSessionsId>>, TError, { id: string }, TContext>
+}): UseMutationOptions<Awaited<ReturnType<typeof deleteApiChatSessionsId>>, TError, { id: string }, TContext> => {
+  const mutationKey = ['deleteApiChatSessionsId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteApiChatSessionsId>>, { id: string }> = (props) => {
+    const { id } = props ?? {}
+
+    return deleteApiChatSessionsId(id)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type DeleteApiChatSessionsIdMutationResult = NonNullable<Awaited<ReturnType<typeof deleteApiChatSessionsId>>>
+
+export type DeleteApiChatSessionsIdMutationError = ProblemDetails
+
+export const useDeleteApiChatSessionsId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<Awaited<ReturnType<typeof deleteApiChatSessionsId>>, TError, { id: string }, TContext>
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof deleteApiChatSessionsId>>, TError, { id: string }, TContext> => {
+  return useMutation(getDeleteApiChatSessionsIdMutationOptions(options), queryClient)
 }
 
 /**

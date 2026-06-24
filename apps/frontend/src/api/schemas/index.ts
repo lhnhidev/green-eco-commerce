@@ -6,10 +6,16 @@
  * OpenAPI spec version: v1
  */
 
+export * from './addCartItemPayloadDto';
+export * from './cartDto';
+export * from './cartItemDto';
 export * from './categoryDto';
 export * from './categoryPayloadDto';
+export * from './chatSessionDto';
+export * from './chatSessionPayloadDto';
 export * from './createMaterialCommand';
 export * from './createMaterialResponse';
+export * from './generateContentCommand';
 export * from './getApiProductsParams';
 export * from './getApiProductsSomeParams';
 export * from './loginCommand';
@@ -22,6 +28,7 @@ export * from './productPayloadDto';
 export * from './registerCommand';
 export * from './registerResponse';
 export * from './roleEnum';
+export * from './updateCartItemPayloadDto';
 export * from './updateInfoUserDto';
 export * from './updateInfoUserResponse';
 export * from './userInfoResponse';

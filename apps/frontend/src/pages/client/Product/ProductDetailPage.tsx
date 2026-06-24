@@ -1,9 +1,11 @@
-import { Anchor, Breadcrumbs } from '@mantine/core'
+import { Anchor, Breadcrumbs, NumberInput } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
+import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { GrFavorite } from 'react-icons/gr'
 import { IoBagHandleOutline } from 'react-icons/io5'
 import { useParams } from 'react-router'
-import { useGetApiProductsId } from '../../../api'
+import { getGetApiCartQueryKey, useGetApiProductsId, usePostApiCartItems } from '../../../api'
 import ImgSlider from '../../../components/ui/img-slider/ImgSlider'
 import Loading from '../../../components/ui/status/Loading'
 import { useAppSelector } from '../../../hooks/useAppSelector'
@@ -13,6 +15,7 @@ const ProductDetailPage = () => {
   const { id } = useParams()
 
   const [isShowMore, setIsShowMore] = useState<boolean>(false)
+  const [amountProduct, setAmountProduct] = useState<number>(1)
 
   const {
     data: product,
@@ -27,6 +30,41 @@ const ProductDetailPage = () => {
 
   const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
+
+  const { mutate } = usePostApiCartItems()
+
+  const queryClient = useQueryClient()
+
+  const handleAddToCart = (productId: string | undefined, quantity: number) => {
+    if (!productId) return
+
+    mutate(
+      {
+        data: {
+          productId,
+          quantity,
+        },
+      },
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: getGetApiCartQueryKey() })
+
+          notifications.show({
+            title: 'Add Product Sucessed!',
+            message: `Product: ${product?.name} - Amount: ${quantity}`,
+            color: 'green',
+          })
+        },
+        onError: () => {
+          notifications.show({
+            title: 'Add Product Failed!',
+            message: 'Add product failed. Please try again!',
+            color: 'red',
+          })
+        },
+      },
+    )
+  }
 
   if (isLoading) {
     return <Loading text="Product detail is loading"></Loading>
@@ -116,6 +154,17 @@ const ProductDetailPage = () => {
               </div>
             </div>
             <div>
+              <div className="mb-3 w-50">
+                <NumberInput
+                  min={1}
+                  defaultValue={amountProduct}
+                  size="md"
+                  placeholder="Amount of Product"
+                  classNames={{ input: '!text-center !border-none' }}
+                  onChange={(value) => setAmountProduct(parseInt(value.toString(), 10))}
+                />
+              </div>
+
               <div className="flex items-center gap-4">
                 <p className="font-semibold text-primary mb-2 text-2xl uppercase">Descriptions:</p>
                 {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
@@ -136,7 +185,10 @@ const ProductDetailPage = () => {
 
             <div className="flex flex-col gap-4 mb-8">
               {/** biome-ignore lint/a11y/useButtonType: <> */}
-              <button className="w-full cursor-pointer bg-primary text-on-primary text-white font-bold py-4 rounded-lg tracking-widest flex items-center justify-center gap-3 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] transition-all duration-300">
+              <button
+                onClick={() => handleAddToCart(product.id, amountProduct)}
+                className="w-full cursor-pointer bg-primary text-on-primary text-white font-bold py-4 rounded-lg tracking-widest flex items-center justify-center gap-3 hover:scale-[1.02] hover:shadow-lg active:scale-[0.98] transition-all duration-300"
+              >
                 <IoBagHandleOutline className="text-2xl" />
                 <span className="font-bold">ADD TO CART</span>
               </button>

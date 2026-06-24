@@ -11,6 +11,8 @@ import { AuthBootstrap } from './components/features/AuthBootstrap.tsx'
 import { router } from './router/index.tsx'
 import { store } from './store/index.ts'
 import '@fontsource-variable/raleway/wght.css'
+import 'animate.css'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const theme = createTheme({
   fontFamily: 'Raleway Variable, Poppins, sans-serif',
@@ -57,6 +59,7 @@ createRoot(document.getElementById('root')!).render(
         <RouterProvider router={router} />
       </MantineProvider>
     </Provider>
+    <ReactQueryDevtools initialIsOpen={false} position="bottom" />
   </QueryClientProvider>,
   // </StrictMode>,
 )
