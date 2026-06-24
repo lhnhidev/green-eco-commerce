@@ -10,14 +10,20 @@ public record CartItemDto(
     string[] ProductImageUrl,
     int Quantity,
     int CurrentStockQuantity
-);
+)
+{
+    public CartItemDto() : this(Guid.Empty, string.Empty, 0, Array.Empty<string>(), 0, 0) {}
+}
 
 public record CartDto(
     Guid Id,
     Guid UserId,
     List<CartItemDto> Items,
     decimal TotalPrice
-);
+)
+{
+    public CartDto() : this(Guid.Empty, Guid.Empty, new List<CartItemDto>(), 0) {}
+}
 
 public record AddCartItemPayloadDto(Guid ProductId, int Quantity = 1);
 

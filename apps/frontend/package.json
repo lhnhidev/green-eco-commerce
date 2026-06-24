@@ -34,6 +34,7 @@
     "@tiptap/react": "^3.23.6",
     "@tiptap/starter-kit": "^3.23.6",
     "add": "^2.0.6",
+    "animate.css": "^4.1.1",
     "axios": "^1.16.1",
     "dayjs": "^1.11.20",
     "embla-carousel": "^8.5.2",
