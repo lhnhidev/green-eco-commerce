@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import { Outlet } from 'react-router'
+import ChatBot from '../components/features/chatbot/ChatBot'
 import { Navigation } from '../components/features/Navigation'
 import Footer from '../components/ui/Footer'
 import Loading from '../components/ui/status/Loading'
@@ -14,6 +15,7 @@ const RootLayout = () => {
         <Outlet></Outlet>
       </Suspense>
 
+      <ChatBot />
       <Footer />
     </div>
   )
