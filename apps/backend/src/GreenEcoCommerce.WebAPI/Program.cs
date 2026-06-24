@@ -4,10 +4,12 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
 using GreenEcoCommerce.Application.Interfaces.Caching;
+using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Infrastructure.Caching;
+using GreenEcoCommerce.Infrastructure.ChatbotServices;
 using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
@@ -142,12 +144,19 @@ builder.Services.AddAutoMapper(cfg =>
 
 // Đăng ký DI
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ICacheService, RedisCacheService>();
+
+builder.Services.AddHttpClient<IAiService, AiService>(client =>
+{
+    client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
+});
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<ICacheService, RedisCacheService>();
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
-
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
 
 var app = builder.Build();
 
@@ -175,6 +184,9 @@ app.MapCategoryEndpoints();
 app.MapMaterialEndpoints();
 app.MapProductEndpoints();
 app.MapInfoUserEndpoints();
+app.MapChatbotEndpoints();
+app.MapCartEndpoints();
+app.MapChatSessionEndpoints();
 
 app.MapFallbackToFile("index.html");
 

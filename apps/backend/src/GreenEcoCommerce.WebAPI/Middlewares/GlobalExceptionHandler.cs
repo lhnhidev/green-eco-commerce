@@ -75,6 +75,11 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 title = "Bad Request";
                 detail = invalidEmailEx.Message;
                 break;
+            case MissingKeyException missingKeyEx:
+                statusCode = HttpStatusCode.NotFound;
+                title = "Not found";
+                detail = missingKeyEx.Message;
+                break;
         }
 
         // 4. Cấu hình HTTP Response trả về cho Client

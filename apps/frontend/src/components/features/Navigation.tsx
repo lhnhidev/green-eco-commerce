@@ -1,19 +1,23 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
-import { Badge, Button, Group, TextInput } from '@mantine/core'
+import { Button, Group, TextInput } from '@mantine/core'
 import { MagnifyingGlassIcon, ShoppingCartIcon } from '@phosphor-icons/react'
 import { Link, useLocation } from 'react-router'
+import { useAppDispatch } from '../../hooks/useAppDispatch'
 import Brand from '../ui/Brand'
 import ProfileUser from './auth/ProfileUser'
+import { setIsShow } from './cart/cart.slice'
 
 const navigationItems = [
   { path: '/', label: 'Home' },
   { path: '/products', label: 'Products' },
   { path: '/remedies', label: 'Remedies' },
+  { path: '/support', label: 'Support' },
 ]
 
 export function Navigation() {
   const location = useLocation()
+  const dispatch = useAppDispatch()
 
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
 
@@ -48,7 +52,7 @@ export function Navigation() {
           <Group gap="xs">
             <ProfileUser />
             <div className="relative">
-              <Link to="/cart">
+              {/* <Link to="/cart">
                 <Button
                   variant="subtle"
                   color="gray"
@@ -58,10 +62,18 @@ export function Navigation() {
                 >
                   <span className="hidden sm:inline">Cart</span>
                 </Button>
-              </Link>
-              <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
-                1
-              </Badge>
+              </Link> */}
+              <Button
+                variant="subtle"
+                color="gray"
+                size="sm"
+                radius="xl"
+                onClick={() => dispatch(setIsShow(true))}
+                leftSection={<ShoppingCartIcon className="h-4 w-4" />}
+              >
+                <span className="hidden sm:inline">Cart</span>
+              </Button>
+              {/* <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">1</Badge> */}
             </div>
           </Group>
         </div>
