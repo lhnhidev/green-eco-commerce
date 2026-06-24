@@ -77,7 +77,7 @@ const ProductDetailPage = () => {
   const items = [
     { id: 1, title: 'Home', href: '/' },
     { id: 2, title: 'Products', href: '/products' },
-    { id: 2, title: product.name, href: `/${product.id}` },
+    { id: 2, title: product.name, href: `/products/${product.id}` },
   ].map((item) => (
     <Anchor href={item.href} key={item.id}>
       {item.title}

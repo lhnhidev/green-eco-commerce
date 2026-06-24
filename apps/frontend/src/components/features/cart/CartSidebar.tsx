@@ -75,10 +75,29 @@ const CartSidebar = () => {
               <div className="px-4 py-5">
                 <p className="text-center text-sm mb-2"> Included tax. Checkout to pay them.</p>
                 <div>
-                  <Button color="green.9" size="md" w="100%" radius="xl" classNames={{ root: '!mb-3' }}>
+                  <Button
+                    onClick={() => {
+                      dispatch(setIsShow(false))
+                      navigate('/payment')
+                    }}
+                    color="green.9"
+                    size="md"
+                    w="100%"
+                    radius="xl"
+                    classNames={{ root: '!mb-3' }}
+                  >
                     <span className="hidden sm:inline">Checkout</span>
                   </Button>
-                  <Button color="green.9" size="md" w="100%" radius="xl">
+                  <Button
+                    onClick={() => {
+                      dispatch(setIsShow(false))
+                      navigate('/products')
+                    }}
+                    color="green.9"
+                    size="md"
+                    w="100%"
+                    radius="xl"
+                  >
                     <span className="hidden sm:inline">Continue Shopping</span>
                   </Button>
                 </div>

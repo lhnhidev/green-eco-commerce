@@ -15,7 +15,7 @@ public record CartItemDto(
     public CartItemDto() : this(Guid.Empty, string.Empty, 0, Array.Empty<string>(), 0, 0) {}
 }
 
-public record CartDto(
+public record  CartDto(
     Guid Id,
     Guid UserId,
     List<CartItemDto> Items,
