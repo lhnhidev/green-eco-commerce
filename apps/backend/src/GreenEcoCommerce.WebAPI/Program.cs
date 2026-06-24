@@ -155,6 +155,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
 
 var app = builder.Build();
 
@@ -183,6 +185,8 @@ app.MapMaterialEndpoints();
 app.MapProductEndpoints();
 app.MapInfoUserEndpoints();
 app.MapChatbotEndpoints();
+app.MapCartEndpoints();
+app.MapChatSessionEndpoints();
 
 app.MapFallbackToFile("index.html");
 
