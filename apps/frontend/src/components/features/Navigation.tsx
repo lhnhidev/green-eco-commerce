@@ -1,8 +1,9 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
-import { Button, Group, TextInput } from '@mantine/core'
+import { Badge, Button, Group, TextInput } from '@mantine/core'
 import { MagnifyingGlassIcon, ShoppingCartIcon } from '@phosphor-icons/react'
 import { Link, useLocation } from 'react-router'
+import { useGetApiCart } from '../../api'
 import { useAppDispatch } from '../../hooks/useAppDispatch'
 import Brand from '../ui/Brand'
 import ProfileUser from './auth/ProfileUser'
@@ -11,7 +12,7 @@ import { setIsShow } from './cart/cart.slice'
 const navigationItems = [
   { path: '/', label: 'Home' },
   { path: '/products', label: 'Products' },
-  { path: '/remedies', label: 'Remedies' },
+  { path: '/payment', label: 'Payment' },
   { path: '/support', label: 'Support' },
 ]
 
@@ -20,6 +21,8 @@ export function Navigation() {
   const dispatch = useAppDispatch()
 
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
+
+  const { data } = useGetApiCart()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
@@ -73,7 +76,9 @@ export function Navigation() {
               >
                 <span className="hidden sm:inline">Cart</span>
               </Button>
-              {/* <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">1</Badge> */}
+              <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
+                {data?.items?.length}
+              </Badge>
             </div>
           </Group>
         </div>

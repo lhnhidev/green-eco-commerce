@@ -37,3 +37,31 @@
     0 4px 6px -1px rgba(45, 80, 22, 0.1),
     0 2px 4px -1px rgba(45, 80, 22, 0.06);
 }
+
+/* 1. Định dạng thanh cuộn tổng thể */
+::-webkit-scrollbar {
+  width: 8px; /* Độ rộng của thanh cuộn dọc */
+  height: 8px; /* Độ cao của thanh cuộn ngang */
+}
+
+/* 2. Phần nền bên dưới thanh cuộn (Track) */
+::-webkit-scrollbar-track {
+  background: transparent; /* Notion để nền trong suốt để tạo sự tối giản */
+}
+
+/* 3. Thanh kéo (Thumb) - Trạng thái bình thường */
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 15, 15, 0.1); /* Màu xám nhạt, trong suốt nhẹ */
+  border-radius: 20px; /* Bo tròn góc giống Notion */
+}
+
+/* 4. Thanh kéo (Thumb) - Khi di chuột qua (Hover) */
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(15, 15, 15, 0.2); /* Đậm lên một chút khi hover */
+}
+
+/* 5. Hỗ trợ cho Firefox (Firefox sử dụng thuộc tính khác) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 15, 15, 0.1) transparent;
+}
