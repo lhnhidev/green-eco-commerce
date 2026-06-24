@@ -11,7 +11,7 @@ const ChatBot = () => {
   const dispatch = useAppDispatch()
 
   return (
-    <div onClick={() => dispatch(setIsShow(true))}>${isShow === false ? <ChatIconComp /> : <ChatComunication />}</div>
+    <div onClick={() => dispatch(setIsShow(true))}>{isShow === false ? <ChatIconComp /> : <ChatComunication />}</div>
   )
 }
 

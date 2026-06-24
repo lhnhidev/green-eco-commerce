@@ -11,7 +11,7 @@ import { setIsShow } from './cart/cart.slice'
 const navigationItems = [
   { path: '/', label: 'Home' },
   { path: '/products', label: 'Products' },
-  { path: '/remedies', label: 'Remedies' },
+  { path: '/payment', label: 'Payment' },
   { path: '/support', label: 'Support' },
 ]
 
