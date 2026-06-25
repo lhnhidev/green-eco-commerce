@@ -160,6 +160,7 @@ builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
 builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IGreenWalletRepository, GreenWalletRepository>();
 
 var app = builder.Build();
 
@@ -193,6 +194,7 @@ app.MapChatSessionEndpoints();
 app.MapOrderEndpoints();
 app.MapPaymentEndpoints();
 app.MapOrderItemEndpoints();
+app.MapGreenWalletEndpoints();
 
 app.MapFallbackToFile("index.html");
 
