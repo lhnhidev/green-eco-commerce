@@ -21,6 +21,7 @@ const PaymentPage = () => {
   const { data, isLoading } = useGetApiCart()
 
   const [addressType, setAddressType] = useState<'default' | 'new'>('default')
+  const [paymentManner, setPaymentManner] = useState<'cod' | 'bank' | 'momo'>('bank')
 
   if (isLoading) return <Loading text="Loading" />
 
@@ -93,11 +94,11 @@ const PaymentPage = () => {
               <LiaMoneyBillWaveSolid className="text-xl" /> Payment
             </div>
 
-            <Radio.Group name="paymentManner" label="Select your payment manner">
+            <Radio.Group name="paymentManner" label="Select your payment manner" defaultValue={paymentManner}>
               <Group mt="xs">
-                <Radio value="cod" label="COD" />
-                <Radio value="bank" label="Bank" />
-                <Radio value="momo" label="Momo" />
+                <Radio onClick={() => setPaymentManner('cod')} value="cod" label="COD" />
+                <Radio onClick={() => setPaymentManner('bank')} value="bank" label="Bank" />
+                <Radio onClick={() => setPaymentManner('momo')} value="momo" label="Momo" />
               </Group>
             </Radio.Group>
           </div>
