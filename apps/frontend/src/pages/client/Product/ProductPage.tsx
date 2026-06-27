@@ -25,7 +25,11 @@ const ProductPage = () => {
   })
 
   if (isLoading) {
-    return <Loading text="Loading..."></Loading>
+    return (
+      <div className="min-h-100">
+        <Loading text="Loading..."></Loading>
+      </div>
+    )
   }
 
   if (isError) {

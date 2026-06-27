@@ -161,6 +161,7 @@ builder.Services.AddScoped<IOrderRepository, OrderRepository>();
 builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IGreenWalletRepository, GreenWalletRepository>();
+builder.Services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
 
 var app = builder.Build();
 

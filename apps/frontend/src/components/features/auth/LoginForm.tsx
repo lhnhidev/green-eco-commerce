@@ -42,6 +42,8 @@ const LoginForm = () => {
       { data: data },
       {
         onSuccess: async () => {
+          queryClient.clear()
+
           const profile = await queryClient.fetchQuery(getGetApiAuthMeQueryOptions())
           dispatch(setAuthUser(profile))
           navigate('/')

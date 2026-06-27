@@ -79,6 +79,8 @@ const ProfileUser = () => {
   const handleLogout = () => {
     logout(undefined, {
       onSuccess: () => {
+        queryClient.clear()
+
         queryClient.removeQueries({ queryKey: getGetApiAuthMeQueryKey() })
         setShowProfileMenu(false)
         navigate('/')

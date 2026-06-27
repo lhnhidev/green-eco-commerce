@@ -9,6 +9,7 @@ public class GreenWalletRepository(IApplicationDbContext context) : IGreenWallet
     public async Task<GreenWallet> AddGreenWalletAsync(GreenWallet greenWallet, CancellationToken ct = default)
     {
         await context.GreenWallets.AddAsync(greenWallet);
+        await context.SaveChangesAsync();
         return greenWallet;
     }
 }

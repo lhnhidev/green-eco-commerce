@@ -17,6 +17,7 @@
     <Folder Include="Features\Orders\Query\" />
     <Folder Include="Features\Orders\Validators\" />
     <Folder Include="Features\Payments\Query\" />
+    <Folder Include="Features\PointTransactions\Query\" />
   </ItemGroup>
 
   <PropertyGroup>

@@ -67,7 +67,11 @@ const ProductDetailPage = () => {
   }
 
   if (isLoading) {
-    return <Loading text="Product detail is loading"></Loading>
+    return (
+      <div className="min-h-200">
+        <Loading text="Product detail is loading"></Loading>
+      </div>
+    )
   }
 
   if (isError || product === undefined) {
