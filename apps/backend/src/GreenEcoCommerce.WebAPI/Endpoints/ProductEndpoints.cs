@@ -16,11 +16,18 @@ public static class ProductEndpoints
 
         group.MapGet("/", GetProducts);
         group.MapGet("/all", GetAllProducts);
+        group.MapGet("/search/{name}", SearchProductByName);
         group.MapGet("/some", GetSomeProducts);
         group.MapGet("/{id:guid}", GetProductById);
         group.MapPost("/", CreateProduct).RequireAuthorization("AdminOnly");
         group.MapPut("/{id:guid}", UpdateProduct).RequireAuthorization("AdminOnly");
         group.MapDelete("/{id:guid}", DeleteProduct).RequireAuthorization("AdminOnly");
+    }
+
+    private static async Task<Ok<List<ProductDto>>> SearchProductByName([FromRoute] string name, ISender sender)
+    {
+        var products = await sender.Send(new SearchProductQuery(name));
+        return TypedResults.Ok(products);
     }
 
     private static async Task<Ok<List<ProductDto>>> GetProducts([FromQuery] int? pageSize, [FromQuery] int? pageNumber, ISender sender)
@@ -64,7 +71,6 @@ public static class ProductEndpoints
         return TypedResults.Ok(product);
     }
 
-    // ✅ Đổi CreateProductCommand → ProductPayloadDto
     private static async Task<Created<ProductDto>> CreateProduct(
         [FromBody] ProductPayloadDto command, ISender sender)
     {

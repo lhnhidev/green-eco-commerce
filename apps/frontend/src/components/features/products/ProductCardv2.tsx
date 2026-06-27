@@ -50,7 +50,7 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
           />
           <div className="absolute top-2 left-2 flex gap-2">
             <span className="bg-(--color-secondary) text-white px-3 py-1 text-sm rounded-full font-light uppercase tracking-wider">
-              Biodegradable
+              {product.materials?.at(0)?.name}
             </span>
           </div>
           {/** biome-ignore lint/a11y/useButtonType: <> */}
@@ -67,10 +67,10 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
         </div>
         <div className="p-6 flex flex-col flex-1">
           <div className="flex justify-between items-start mb-2">
-            <h2 className="text-xl font-bold text-primary">product.name</h2>
+            <h2 className="text-xl font-bold text-primary">{product.name}</h2>
             <span className="text-lg text-primary font-semibold">${product.price}</span>
           </div>
-          <p className="line-clamp-3">product.description</p>
+          <p className="line-clamp-3">{product.description}</p>
           <div className="mt-auto flex items-center gap-2">
             <div className="flex text-primary-container">
               <span className="material-symbols-outlined text-[18px] [font-variation-settings:'FILL'_1,'wght'_400,'GRAD'_0,'opsz'_24]">

@@ -1,4 +1,4 @@
-import { Anchor, Breadcrumbs, Select } from '@mantine/core'
+import { Anchor, Breadcrumbs, Input, Select } from '@mantine/core'
 import { useGetApiProductsSome } from '../../../api'
 import ProductCardv2 from '../../../components/features/products/ProductCardv2'
 import Loading from '../../../components/ui/status/Loading'
@@ -48,12 +48,26 @@ const ProductPage = () => {
             environmental standards.
           </p>
         </div>
+
+        {/* <div className="w-100">
+          <Input.Wrapper label="Search" classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}>
+            <Input placeholder="Search your product" loading />
+          </Input.Wrapper>
+        </div> */}
+
         <div className="flex items-center gap-4">
+          <Input.Wrapper
+            className="w-100"
+            label="Search"
+            classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}
+          >
+            <Input placeholder="Search your product" loading />
+          </Input.Wrapper>
           <Select
             classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}
             label="Sort by:"
             placeholder="Pick value"
-            data={['React', 'Angular', 'Vue', 'Svelte']}
+            data={['Name product', 'Price', 'Assess', 'Carbon index']}
           />
         </div>
       </div>
