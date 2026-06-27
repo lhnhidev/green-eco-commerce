@@ -1,5 +1,7 @@
 import { Anchor, Breadcrumbs, Input, Select } from '@mantine/core'
-import { useGetApiProductsSome } from '../../../api'
+import { useState } from 'react'
+import { CiSearch } from 'react-icons/ci'
+import { useGetApiProductsSearchName, useGetApiProductsSome } from '../../../api'
 import ProductCardv2 from '../../../components/features/products/ProductCardv2'
 import Loading from '../../../components/ui/status/Loading'
 
@@ -23,6 +25,23 @@ const ProductPage = () => {
     PageNumber: 1,
     PageSize: productsAmount,
   })
+
+  const [searchName, setSearchName] = useState<string>('')
+  const [triggerSearch, setTriggerSearch] = useState<string>('')
+
+  const { data: productsSearch, isLoading: isLoadingSearch } = useGetApiProductsSearchName(triggerSearch.trim(), {
+    query: {
+      enabled: triggerSearch.trim() !== '',
+    },
+  })
+
+  const handleSearch = () => {
+    console.log(123)
+    setTriggerSearch(searchName.trim())
+    setSearchName('')
+  }
+
+  const displayedProducts = triggerSearch.trim() !== '' ? productsSearch : products
 
   if (isLoading) {
     return (
@@ -56,13 +75,27 @@ const ProductPage = () => {
         </div> */}
 
         <div className="flex items-center gap-4">
-          <Input.Wrapper
-            className="w-100"
-            label="Search"
-            classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault() // Ngăn trang web bị reload lại khi nhấn Enter
+              handleSearch()
+            }}
+            className="flex flex-col gap-4"
           >
-            <Input placeholder="Search your product" loading />
-          </Input.Wrapper>
+            <Input.Wrapper
+              className="w-100"
+              label="Search"
+              classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}
+            >
+              <Input
+                value={searchName}
+                onChange={(event) => setSearchName(event.currentTarget.value)}
+                placeholder="Search your product"
+                loading={isLoadingSearch}
+                leftSection={<CiSearch />}
+              />
+            </Input.Wrapper>
+          </form>
           <Select
             classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}
             label="Sort by:"
@@ -158,10 +191,39 @@ const ProductPage = () => {
           </button>
         </aside>
 
-        <div className="grid grid-cols-4 gap-3">
-          {products?.map((product) => {
-            return <ProductCardv2 key={product.id} product={product} />
-          })}
+        <div className="flex-1">
+          {/* ✅ Hiển thị label khi đang có kết quả search */}
+          {triggerSearch && (
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-on-surface-variant">
+                Kết quả tìm kiếm cho: <span className="font-semibold text-primary">"{triggerSearch}"</span> (
+                {displayedProducts?.length ?? 0} sản phẩm)
+              </p>
+              <button
+                type="button"
+                onClick={() => setTriggerSearch('')}
+                className="text-sm text-primary hover:underline"
+              >
+                Xóa tìm kiếm
+              </button>
+            </div>
+          )}
+
+          {/* ✅ Hiển thị loading khi đang fetch kết quả search */}
+          {isLoadingSearch ? (
+            <div className="min-h-40">
+              <Loading text="Đang tìm kiếm..." />
+            </div>
+          ) : displayedProducts?.length === 0 ? (
+            <p className="text-on-surface-variant">Không tìm thấy sản phẩm nào.</p>
+          ) : (
+            <div className="grid grid-cols-4 gap-3">
+              {displayedProducts?.map((product) => {
+                console.log(product)
+                return <ProductCardv2 key={product.id} product={product} />
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
