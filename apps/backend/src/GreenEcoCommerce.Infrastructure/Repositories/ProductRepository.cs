@@ -14,6 +14,25 @@ public class ProductRepository(IApplicationDbContext context) : IProductReposito
             .FirstOrDefaultAsync(p => p.Id == id, ct);
     }
 
+    public async Task<List<Product>> GetByIdsAsync(List<Guid> ids, CancellationToken ct = default)
+    {
+        var productList = await context.Products
+            .Include(p => p.Materials)
+            .Where(p => ids.Contains(p.Id)).ToListAsync();
+
+        return productList;
+    }
+
+    public async Task<List<Product>> SearchByNameAsync(string name, CancellationToken ct = default)
+    {
+        var productList = await context.Products
+            .Include(p => p.Materials)
+            .Where(p => p.Name.ToLower().Contains(name.ToLower()))
+            .ToListAsync(ct);
+
+        return productList;
+    }
+
     public Task<bool> ProductExistsAsync(Guid id, CancellationToken ct = default)
     {
         return context.Products.AnyAsync(p => p.Id == id, ct);

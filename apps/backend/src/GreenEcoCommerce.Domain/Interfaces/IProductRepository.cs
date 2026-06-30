@@ -5,6 +5,8 @@ namespace GreenEcoCommerce.Domain.Interfaces;
 public interface IProductRepository
 {
     Task<Product?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    Task<List<Product>> GetByIdsAsync(List<Guid> ids, CancellationToken ct = default);
+    Task<List<Product>> SearchByNameAsync(String name, CancellationToken ct = default);
     Task<bool> ProductExistsAsync(Guid id, CancellationToken ct = default);
     Task<List<Product>> GetAllAsync(CancellationToken ct = default);
     Task<Product> AddAsync(Product product, CancellationToken ct = default);

@@ -2,7 +2,7 @@ import { createBrowserRouter } from 'react-router'
 import RootLayout from '../layouts/RootLayout'
 import AuthPage from '../pages/client/AuthPage'
 import { HomePage } from '../pages/client/HomePage'
-import PaymentPage from '../pages/client/PaymentPage'
+import PaymentPage from '../pages/client/Payment/PaymentPage'
 import ProductDetailPage from '../pages/client/Product/ProductDetailPage'
 import ProductPage from '../pages/client/Product/ProductPage'
 

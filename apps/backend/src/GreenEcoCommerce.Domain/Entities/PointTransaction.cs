@@ -10,10 +10,10 @@ public class PointTransaction: IHasCreatedAt
     public Guid? OrderId { get; set; }
     public decimal Amount { get; set; }
     public PointTransactionTypeEnum Type { get; set; }
-    public required string Description { get; set; }
-    public DateTimeOffset CreatedAt { get; set; }
+    public string Description { get; set; } = string.Empty!;
+    public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     // Navigation Properties
     public GreenWallet Wallet { get; set; } = null!;
-    public Order? Order { get; set; }
+    public Order? Order { get; set; } = null!;
 }

@@ -76,9 +76,18 @@ export function Navigation() {
               >
                 <span className="hidden sm:inline">Cart</span>
               </Button>
-              <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
-                {data?.items?.length}
-              </Badge>
+              {data?.items?.length === 0 ? (
+                <div></div>
+              ) : (
+                <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
+                  {data?.items?.length}
+                </Badge>
+              )}
+              {/* {data?.items?.length !== 0 || (
+                <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
+                  {data?.items?.length}
+                </Badge>
+              )} */}
             </div>
           </Group>
         </div>
