@@ -12,6 +12,14 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\OrderItems\Query\" />
+    <Folder Include="Features\Orders\Query\" />
+    <Folder Include="Features\Orders\Validators\" />
+    <Folder Include="Features\Payments\Query\" />
+    <Folder Include="Features\PointTransactions\Query\" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

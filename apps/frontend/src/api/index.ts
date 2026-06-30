@@ -29,8 +29,15 @@ import type {
   CategoryPayloadDto,
   ChatSessionDto,
   ChatSessionPayloadDto,
+  CreateGreenWalletCommandResponse,
   CreateMaterialCommand,
   CreateMaterialResponse,
+  CreateOrderCommand,
+  CreateOrderCommandResponse,
+  CreateOrderItemCommand,
+  CreateOrderItemCommandResponse,
+  CreatePaymentCommand,
+  CreatePaymentCommandResponse,
   GenerateContentCommand,
   GetApiProductsParams,
   GetApiProductsSomeParams,
@@ -906,6 +913,100 @@ export function useGetApiProductsAll<TData = Awaited<ReturnType<typeof getApiPro
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
   const queryOptions = getGetApiProductsAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const getApiProductsSearchName = (name: string, signal?: AbortSignal) => {
+  return customInstance<ProductDto[]>({ url: `/api/products/search/${name}`, method: 'GET', signal })
+}
+
+export const getGetApiProductsSearchNameQueryKey = (name: string) => {
+  return [`/api/products/search/${name}`] as const
+}
+
+export const getGetApiProductsSearchNameQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiProductsSearchName>>,
+  TError = ProblemDetails,
+>(
+  name: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProductsSearchName>>, TError, TData>> },
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiProductsSearchNameQueryKey(name)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiProductsSearchName>>> = ({ signal }) =>
+    getApiProductsSearchName(name, signal)
+
+  return { queryKey, queryFn, enabled: name !== null && name !== undefined, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiProductsSearchName>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiProductsSearchNameQueryResult = NonNullable<Awaited<ReturnType<typeof getApiProductsSearchName>>>
+export type GetApiProductsSearchNameQueryError = ProblemDetails
+
+export function useGetApiProductsSearchName<
+  TData = Awaited<ReturnType<typeof getApiProductsSearchName>>,
+  TError = ProblemDetails,
+>(
+  name: string,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProductsSearchName>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiProductsSearchName>>,
+          TError,
+          Awaited<ReturnType<typeof getApiProductsSearchName>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiProductsSearchName<
+  TData = Awaited<ReturnType<typeof getApiProductsSearchName>>,
+  TError = ProblemDetails,
+>(
+  name: string,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProductsSearchName>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiProductsSearchName>>,
+          TError,
+          Awaited<ReturnType<typeof getApiProductsSearchName>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiProductsSearchName<
+  TData = Awaited<ReturnType<typeof getApiProductsSearchName>>,
+  TError = ProblemDetails,
+>(
+  name: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProductsSearchName>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiProductsSearchName<
+  TData = Awaited<ReturnType<typeof getApiProductsSearchName>>,
+  TError = ProblemDetails,
+>(
+  name: string,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiProductsSearchName>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiProductsSearchNameQueryOptions(name, options)
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>
@@ -1948,6 +2049,464 @@ export const useDeleteApiChatSessionsId = <TError = ProblemDetails, TContext = u
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof deleteApiChatSessionsId>>, TError, { id: string }, TContext> => {
   return useMutation(getDeleteApiChatSessionsIdMutationOptions(options), queryClient)
+}
+
+export const getApiOrders = (signal?: AbortSignal) => {
+  return customInstance<unknown>({ url: `/api/orders`, method: 'GET', signal })
+}
+
+export const getGetApiOrdersQueryKey = () => {
+  return [`/api/orders`] as const
+}
+
+export const getGetApiOrdersQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiOrders>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrders>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiOrdersQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiOrders>>> = ({ signal }) => getApiOrders(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiOrders>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiOrdersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiOrders>>>
+export type GetApiOrdersQueryError = ProblemDetails
+
+export function useGetApiOrders<TData = Awaited<ReturnType<typeof getApiOrders>>, TError = ProblemDetails>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrders>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrders>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrders>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrders<TData = Awaited<ReturnType<typeof getApiOrders>>, TError = ProblemDetails>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrders>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrders>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrders>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrders<TData = Awaited<ReturnType<typeof getApiOrders>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrders>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiOrders<TData = Awaited<ReturnType<typeof getApiOrders>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrders>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiOrdersQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const postApiOrders = (createOrderCommand: CreateOrderCommand, signal?: AbortSignal) => {
+  return customInstance<CreateOrderCommandResponse>({
+    url: `/api/orders`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: createOrderCommand,
+    signal,
+  })
+}
+
+export const getPostApiOrdersMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiOrders>>,
+    TError,
+    { data: CreateOrderCommand },
+    TContext
+  >
+}): UseMutationOptions<Awaited<ReturnType<typeof postApiOrders>>, TError, { data: CreateOrderCommand }, TContext> => {
+  const mutationKey = ['postApiOrders']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiOrders>>, { data: CreateOrderCommand }> = (
+    props,
+  ) => {
+    const { data } = props ?? {}
+
+    return postApiOrders(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiOrdersMutationResult = NonNullable<Awaited<ReturnType<typeof postApiOrders>>>
+export type PostApiOrdersMutationBody = CreateOrderCommand
+export type PostApiOrdersMutationError = ProblemDetails
+
+export const usePostApiOrders = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiOrders>>,
+      TError,
+      { data: CreateOrderCommand },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof postApiOrders>>, TError, { data: CreateOrderCommand }, TContext> => {
+  return useMutation(getPostApiOrdersMutationOptions(options), queryClient)
+}
+
+export const getApiPayments = (signal?: AbortSignal) => {
+  return customInstance<unknown>({ url: `/api/payments`, method: 'GET', signal })
+}
+
+export const getGetApiPaymentsQueryKey = () => {
+  return [`/api/payments`] as const
+}
+
+export const getGetApiPaymentsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiPayments>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPayments>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiPaymentsQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPayments>>> = ({ signal }) => getApiPayments(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiPayments>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPaymentsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPayments>>>
+export type GetApiPaymentsQueryError = ProblemDetails
+
+export function useGetApiPayments<TData = Awaited<ReturnType<typeof getApiPayments>>, TError = ProblemDetails>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPayments>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPayments>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPayments>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPayments<TData = Awaited<ReturnType<typeof getApiPayments>>, TError = ProblemDetails>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPayments>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPayments>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPayments>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPayments<TData = Awaited<ReturnType<typeof getApiPayments>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPayments>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiPayments<TData = Awaited<ReturnType<typeof getApiPayments>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPayments>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiPaymentsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const postApiPayments = (createPaymentCommand: CreatePaymentCommand, signal?: AbortSignal) => {
+  return customInstance<CreatePaymentCommandResponse>({
+    url: `/api/payments`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: createPaymentCommand,
+    signal,
+  })
+}
+
+export const getPostApiPaymentsMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiPayments>>,
+    TError,
+    { data: CreatePaymentCommand },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiPayments>>,
+  TError,
+  { data: CreatePaymentCommand },
+  TContext
+> => {
+  const mutationKey = ['postApiPayments']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiPayments>>, { data: CreatePaymentCommand }> = (
+    props,
+  ) => {
+    const { data } = props ?? {}
+
+    return postApiPayments(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiPaymentsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiPayments>>>
+export type PostApiPaymentsMutationBody = CreatePaymentCommand
+export type PostApiPaymentsMutationError = ProblemDetails
+
+export const usePostApiPayments = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiPayments>>,
+      TError,
+      { data: CreatePaymentCommand },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof postApiPayments>>, TError, { data: CreatePaymentCommand }, TContext> => {
+  return useMutation(getPostApiPaymentsMutationOptions(options), queryClient)
+}
+
+export const getApiOrderItems = (signal?: AbortSignal) => {
+  return customInstance<unknown>({ url: `/api/order-items`, method: 'GET', signal })
+}
+
+export const getGetApiOrderItemsQueryKey = () => {
+  return [`/api/order-items`] as const
+}
+
+export const getGetApiOrderItemsQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiOrderItems>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItems>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiOrderItemsQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiOrderItems>>> = ({ signal }) => getApiOrderItems(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiOrderItems>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiOrderItemsQueryResult = NonNullable<Awaited<ReturnType<typeof getApiOrderItems>>>
+export type GetApiOrderItemsQueryError = ProblemDetails
+
+export function useGetApiOrderItems<TData = Awaited<ReturnType<typeof getApiOrderItems>>, TError = ProblemDetails>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItems>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrderItems>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrderItems>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrderItems<TData = Awaited<ReturnType<typeof getApiOrderItems>>, TError = ProblemDetails>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItems>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrderItems>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrderItems>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrderItems<TData = Awaited<ReturnType<typeof getApiOrderItems>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItems>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiOrderItems<TData = Awaited<ReturnType<typeof getApiOrderItems>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItems>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiOrderItemsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const postApiOrderItems = (createOrderItemCommand: CreateOrderItemCommand, signal?: AbortSignal) => {
+  return customInstance<CreateOrderItemCommandResponse>({
+    url: `/api/order-items`,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    data: createOrderItemCommand,
+    signal,
+  })
+}
+
+export const getPostApiOrderItemsMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiOrderItems>>,
+    TError,
+    { data: CreateOrderItemCommand },
+    TContext
+  >
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof postApiOrderItems>>,
+  TError,
+  { data: CreateOrderItemCommand },
+  TContext
+> => {
+  const mutationKey = ['postApiOrderItems']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof postApiOrderItems>>,
+    { data: CreateOrderItemCommand }
+  > = (props) => {
+    const { data } = props ?? {}
+
+    return postApiOrderItems(data)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiOrderItemsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiOrderItems>>>
+export type PostApiOrderItemsMutationBody = CreateOrderItemCommand
+export type PostApiOrderItemsMutationError = ProblemDetails
+
+export const usePostApiOrderItems = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiOrderItems>>,
+      TError,
+      { data: CreateOrderItemCommand },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<
+  Awaited<ReturnType<typeof postApiOrderItems>>,
+  TError,
+  { data: CreateOrderItemCommand },
+  TContext
+> => {
+  return useMutation(getPostApiOrderItemsMutationOptions(options), queryClient)
+}
+
+export const postApiGreenWalletsUserId = (userId: string, signal?: AbortSignal) => {
+  return customInstance<CreateGreenWalletCommandResponse>({
+    url: `/api/green-wallets/${userId}`,
+    method: 'POST',
+    signal,
+  })
+}
+
+export const getPostApiGreenWalletsUserIdMutationOptions = <TError = ProblemDetails, TContext = unknown>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof postApiGreenWalletsUserId>>,
+    TError,
+    { userId: string },
+    TContext
+  >
+}): UseMutationOptions<Awaited<ReturnType<typeof postApiGreenWalletsUserId>>, TError, { userId: string }, TContext> => {
+  const mutationKey = ['postApiGreenWalletsUserId']
+  const { mutation: mutationOptions } = options
+    ? options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey } }
+
+  const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiGreenWalletsUserId>>, { userId: string }> = (
+    props,
+  ) => {
+    const { userId } = props ?? {}
+
+    return postApiGreenWalletsUserId(userId)
+  }
+
+  return { mutationFn, ...mutationOptions }
+}
+
+export type PostApiGreenWalletsUserIdMutationResult = NonNullable<Awaited<ReturnType<typeof postApiGreenWalletsUserId>>>
+
+export type PostApiGreenWalletsUserIdMutationError = ProblemDetails
+
+export const usePostApiGreenWalletsUserId = <TError = ProblemDetails, TContext = unknown>(
+  options?: {
+    mutation?: UseMutationOptions<
+      Awaited<ReturnType<typeof postApiGreenWalletsUserId>>,
+      TError,
+      { userId: string },
+      TContext
+    >
+  },
+  queryClient?: QueryClient,
+): UseMutationResult<Awaited<ReturnType<typeof postApiGreenWalletsUserId>>, TError, { userId: string }, TContext> => {
+  return useMutation(getPostApiGreenWalletsUserIdMutationOptions(options), queryClient)
 }
 
 /**
