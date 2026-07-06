@@ -76,7 +76,7 @@ export function Navigation() {
               >
                 <span className="hidden sm:inline">Cart</span>
               </Button>
-              {data?.items?.length === 0 ? (
+              {data?.items?.length === undefined ? (
                 <div></div>
               ) : (
                 <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
