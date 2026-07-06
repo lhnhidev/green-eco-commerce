@@ -16,7 +16,7 @@ const CartSidebar = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  const { data, isLoading } = useGetApiCart()
+  const { data, isLoading, isError } = useGetApiCart()
 
   // console.log(data)
 
@@ -30,7 +30,9 @@ const CartSidebar = () => {
         <div
           className={`bg-(--color-background) fixed top-0 right-0 w-[40%] h-full animate__animated animate__fadeInRight ${data?.items?.length === 0 ? 'flex items-center justify-center' : ''}`}
         >
-          {data === undefined || isLoading ? (
+          {isError ? (
+            <div className="h-full flex items-center justify-center">You are not logged in</div>
+          ) : data === undefined || isLoading ? (
             <div className="h-full flex items-center justify-center">
               <Loading text="Loading" />
             </div>
