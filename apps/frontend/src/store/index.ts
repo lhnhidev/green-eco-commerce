@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import authReducer from '../components/features/auth/auth.slice'
 import cartReducer from '../components/features/cart/cart.slice'
 import chatbotReducer from '../components/features/chatbot/chatbot.slice'
+import theNavgationReducer from '../components/features/navigation/navigation.slice'
 import imgSliderReducer from '../components/ui/img-slider/img-slider.slice'
 
 export const store = configureStore({
@@ -10,6 +11,7 @@ export const store = configureStore({
     imgSlider: imgSliderReducer,
     chatbot: chatbotReducer,
     cart: cartReducer,
+    theNavigation: theNavgationReducer,
   },
 })
 

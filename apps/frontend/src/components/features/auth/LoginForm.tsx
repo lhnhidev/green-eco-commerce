@@ -46,7 +46,13 @@ const LoginForm = () => {
 
           const profile = await queryClient.fetchQuery(getGetApiAuthMeQueryOptions())
           dispatch(setAuthUser(profile))
-          navigate('/')
+
+          if (profile.role === 'User') {
+            navigate('/')
+          } else {
+            navigate('/admin')
+          }
+
           notifications.show({
             title: 'Login sucessed!',
             message: 'Welcome to our shop.',
