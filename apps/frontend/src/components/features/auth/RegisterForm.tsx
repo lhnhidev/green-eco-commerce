@@ -7,7 +7,6 @@ import { CiUser } from 'react-icons/ci'
 import { FaPhoneAlt, FaRegEnvelope } from 'react-icons/fa'
 import { FaLocationDot } from 'react-icons/fa6'
 import { MdLockOutline } from 'react-icons/md'
-import { useNavigate } from 'react-router'
 import { usePostApiAuthRegister } from '../../../api'
 import type { ProblemDetails } from '../../../api/schemas'
 import { useAppDispatch } from '../../../hooks/useAppDispatch'
@@ -21,7 +20,6 @@ import { changeActive } from './auth.slice'
 const RegisterForm = () => {
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
-  const navigate = useNavigate()
 
   const {
     handleSubmit,
