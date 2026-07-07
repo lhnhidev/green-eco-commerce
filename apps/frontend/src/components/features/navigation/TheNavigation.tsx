@@ -4,6 +4,7 @@ import { IoIosDocument, IoIosSettings } from 'react-icons/io'
 import { IoReceipt } from 'react-icons/io5'
 import { MdCategory } from 'react-icons/md'
 import { TbCategory } from 'react-icons/tb'
+import { Link } from 'react-router'
 import { useAppDispatch } from '../../../hooks/useAppDispatch'
 import { useAppSelector } from '../../../hooks/useAppSelector'
 import Brand from '../../ui/Brand'
@@ -59,14 +60,14 @@ const TheNavigation = () => {
       </div>
       <div className="flex flex-col gap-2">
         {navigateMems.map((item) => (
-          <button
+          <Link
+            to={`${item.id}`}
             key={item.id}
-            type="button"
             onClick={() => dispatch(setActive(item.id as ActiveType))}
             className="w-full text-left"
           >
-            <NavigationIndex icon={item.icon} text={item.text} isActive={active === item.id} />
-          </button>
+            <NavigationIndex icon={item.icon} text={item.text} isActive={active.toLocaleLowerCase() === item.id} />
+          </Link>
         ))}
       </div>
 
