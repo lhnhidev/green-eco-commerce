@@ -57,7 +57,11 @@ const menuList: Array<menuItemType> = [
   },
 ]
 
-const ProfileUser = () => {
+type ProfileUserType = {
+  position?: 'center' | 'left' | 'right'
+}
+
+const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false)
   const queryClient = useQueryClient()
   const { mutate: logout } = usePostApiAuthLogout()
@@ -118,7 +122,9 @@ const ProfileUser = () => {
       </div>
 
       {showProfileMenu && (
-        <div className="shadow-xl border border-gray-200 py-5 px-4 absolute top-14 left-1/2 -translate-x-1/2 bg-white text-black text-sm w-68 rounded-xl z-50">
+        <div
+          className={`${position === 'center' ? 'left-1/2 -translate-x-1/2' : position === 'left' ? 'left-0' : 'right-0'} shadow-xl border border-gray-200 py-5 px-4 absolute top-14 bg-white text-black text-sm w-68 rounded-xl z-50`}
+        >
           <div>
             <Group gap="sm">
               <Avatar
