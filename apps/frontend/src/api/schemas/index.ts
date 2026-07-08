@@ -25,6 +25,7 @@ export * from './createPaymentCommandResponse';
 export * from './generateContentCommand';
 export * from './getApiProductsParams';
 export * from './getApiProductsSomeParams';
+export * from './getInfoAnalystQueryResponse';
 export * from './loginCommand';
 export * from './materialItem';
 export * from './materialTypeEnum';
