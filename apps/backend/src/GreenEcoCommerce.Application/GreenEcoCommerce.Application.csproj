@@ -13,10 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\OrderItems\Query\" />
-    <Folder Include="Features\Orders\Query\" />
+    <Folder Include="Features\Admin\Commands\" />
     <Folder Include="Features\Orders\Validators\" />
-    <Folder Include="Features\Payments\Query\" />
     <Folder Include="Features\PointTransactions\Query\" />
   </ItemGroup>
 

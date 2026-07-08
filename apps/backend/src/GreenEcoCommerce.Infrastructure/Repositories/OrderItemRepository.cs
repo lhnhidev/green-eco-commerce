@@ -1,6 +1,7 @@
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Infrastructure.Repositories;
 
@@ -13,5 +14,10 @@ public class OrderItemRepository(IApplicationDbContext context) : IOrderItemRepo
         await context.OrderItems.AddAsync(orderItem);
         await context.SaveChangesAsync();
         return orderItem;
+    }
+
+    public async Task<List<OrderItem>> GetAllOrdersAsync(CancellationToken ct = default)
+    {
+        return await context.OrderItems.ToListAsync(ct);
     }
 }
