@@ -39,6 +39,7 @@ import type {
   CreatePaymentCommand,
   CreatePaymentCommandResponse,
   GenerateContentCommand,
+  GetApiAdminAnalystParams,
   GetApiProductsParams,
   GetApiProductsSomeParams,
   GetInfoAnalystQueryResponse,
@@ -2859,26 +2860,27 @@ export function useGetApiUsersAmountAll<
   return { ...query, queryKey: queryOptions.queryKey }
 }
 
-export const getApiAdminAnalyst = (signal?: AbortSignal) => {
-  return customInstance<GetInfoAnalystQueryResponse>({ url: `/api/admin/analyst`, method: 'GET', signal })
+export const getApiAdminAnalyst = (params: GetApiAdminAnalystParams, signal?: AbortSignal) => {
+  return customInstance<GetInfoAnalystQueryResponse>({ url: `/api/admin/analyst`, method: 'GET', params, signal })
 }
 
-export const getGetApiAdminAnalystQueryKey = () => {
-  return [`/api/admin/analyst`] as const
+export const getGetApiAdminAnalystQueryKey = (params?: GetApiAdminAnalystParams) => {
+  return [`/api/admin/analyst`, ...(params ? [params] : [])] as const
 }
 
 export const getGetApiAdminAnalystQueryOptions = <
   TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>,
   TError = ProblemDetails,
->(options?: {
-  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>>
-}) => {
+>(
+  params: GetApiAdminAnalystParams,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> },
+) => {
   const { query: queryOptions } = options ?? {}
 
-  const queryKey = queryOptions?.queryKey ?? getGetApiAdminAnalystQueryKey()
+  const queryKey = queryOptions?.queryKey ?? getGetApiAdminAnalystQueryKey(params)
 
   const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAdminAnalyst>>> = ({ signal }) =>
-    getApiAdminAnalyst(signal)
+    getApiAdminAnalyst(params, signal)
 
   return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
     Awaited<ReturnType<typeof getApiAdminAnalyst>>,
@@ -2891,6 +2893,7 @@ export type GetApiAdminAnalystQueryResult = NonNullable<Awaited<ReturnType<typeo
 export type GetApiAdminAnalystQueryError = ProblemDetails
 
 export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
   options: {
     query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> &
       Pick<
@@ -2905,6 +2908,7 @@ export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAd
   queryClient?: QueryClient,
 ): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
   options?: {
     query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> &
       Pick<
@@ -2919,15 +2923,17 @@ export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAd
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
   options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
   options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> },
   queryClient?: QueryClient,
 ): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-  const queryOptions = getGetApiAdminAnalystQueryOptions(options)
+  const queryOptions = getGetApiAdminAnalystQueryOptions(params, options)
 
   const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
     queryKey: DataTag<QueryKey, TData, TError>
