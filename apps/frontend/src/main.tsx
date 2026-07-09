@@ -12,6 +12,7 @@ import { router } from './router/index.tsx'
 import { store } from './store/index.ts'
 import '@fontsource-variable/raleway/wght.css'
 import 'animate.css'
+import '@mantine/dates/styles.css'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const theme = createTheme({

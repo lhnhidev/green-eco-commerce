@@ -39,8 +39,10 @@ import type {
   CreatePaymentCommand,
   CreatePaymentCommandResponse,
   GenerateContentCommand,
+  GetApiAdminAnalystParams,
   GetApiProductsParams,
   GetApiProductsSomeParams,
+  GetInfoAnalystQueryResponse,
   LoginCommand,
   MaterialItem,
   MaterialUpdateDto,
@@ -2051,8 +2053,84 @@ export const useDeleteApiChatSessionsId = <TError = ProblemDetails, TContext = u
   return useMutation(getDeleteApiChatSessionsIdMutationOptions(options), queryClient)
 }
 
+export const getApiOrdersAll = (signal?: AbortSignal) => {
+  return customInstance<number | string>({ url: `/api/orders/all`, method: 'GET', signal })
+}
+
+export const getGetApiOrdersAllQueryKey = () => {
+  return [`/api/orders/all`] as const
+}
+
+export const getGetApiOrdersAllQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiOrdersAll>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrdersAll>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiOrdersAllQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiOrdersAll>>> = ({ signal }) => getApiOrdersAll(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiOrdersAll>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiOrdersAllQueryResult = NonNullable<Awaited<ReturnType<typeof getApiOrdersAll>>>
+export type GetApiOrdersAllQueryError = ProblemDetails
+
+export function useGetApiOrdersAll<TData = Awaited<ReturnType<typeof getApiOrdersAll>>, TError = ProblemDetails>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrdersAll>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrdersAll>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrdersAll>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrdersAll<TData = Awaited<ReturnType<typeof getApiOrdersAll>>, TError = ProblemDetails>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrdersAll>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrdersAll>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrdersAll>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrdersAll<TData = Awaited<ReturnType<typeof getApiOrdersAll>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrdersAll>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiOrdersAll<TData = Awaited<ReturnType<typeof getApiOrdersAll>>, TError = ProblemDetails>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrdersAll>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiOrdersAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
 export const getApiOrders = (signal?: AbortSignal) => {
-  return customInstance<unknown>({ url: `/api/orders`, method: 'GET', signal })
+  return customInstance<number | string>({ url: `/api/orders`, method: 'GET', signal })
 }
 
 export const getGetApiOrdersQueryKey = () => {
@@ -2316,6 +2394,95 @@ export const usePostApiPayments = <TError = ProblemDetails, TContext = unknown>(
   return useMutation(getPostApiPaymentsMutationOptions(options), queryClient)
 }
 
+export const getApiPaymentsTotalRevenue = (signal?: AbortSignal) => {
+  return customInstance<number | string>({ url: `/api/payments/total-revenue`, method: 'GET', signal })
+}
+
+export const getGetApiPaymentsTotalRevenueQueryKey = () => {
+  return [`/api/payments/total-revenue`] as const
+}
+
+export const getGetApiPaymentsTotalRevenueQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiPaymentsTotalRevenueQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>> = ({ signal }) =>
+    getApiPaymentsTotalRevenue(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiPaymentsTotalRevenueQueryResult = NonNullable<Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>>
+export type GetApiPaymentsTotalRevenueQueryError = ProblemDetails
+
+export function useGetApiPaymentsTotalRevenue<
+  TData = Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+  TError = ProblemDetails,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPaymentsTotalRevenue<
+  TData = Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+  TError = ProblemDetails,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+          TError,
+          Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiPaymentsTotalRevenue<
+  TData = Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+  TError = ProblemDetails,
+>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiPaymentsTotalRevenue<
+  TData = Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>,
+  TError = ProblemDetails,
+>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiPaymentsTotalRevenue>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiPaymentsTotalRevenueQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
 export const getApiOrderItems = (signal?: AbortSignal) => {
   return customInstance<unknown>({ url: `/api/order-items`, method: 'GET', signal })
 }
@@ -2457,6 +2624,101 @@ export const usePostApiOrderItems = <TError = ProblemDetails, TContext = unknown
   return useMutation(getPostApiOrderItemsMutationOptions(options), queryClient)
 }
 
+export const getApiOrderItemsTotalCo2Saved = (signal?: AbortSignal) => {
+  return customInstance<number | string>({ url: `/api/order-items/total-co2-saved`, method: 'GET', signal })
+}
+
+export const getGetApiOrderItemsTotalCo2SavedQueryKey = () => {
+  return [`/api/order-items/total-co2-saved`] as const
+}
+
+export const getGetApiOrderItemsTotalCo2SavedQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiOrderItemsTotalCo2SavedQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>> = ({ signal }) =>
+    getApiOrderItemsTotalCo2Saved(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiOrderItemsTotalCo2SavedQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>
+>
+export type GetApiOrderItemsTotalCo2SavedQueryError = ProblemDetails
+
+export function useGetApiOrderItemsTotalCo2Saved<
+  TData = Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+  TError = ProblemDetails,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrderItemsTotalCo2Saved<
+  TData = Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+  TError = ProblemDetails,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+          TError,
+          Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiOrderItemsTotalCo2Saved<
+  TData = Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+  TError = ProblemDetails,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>, TError, TData>>
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiOrderItemsTotalCo2Saved<
+  TData = Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>,
+  TError = ProblemDetails,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiOrderItemsTotalCo2Saved>>, TError, TData>>
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiOrderItemsTotalCo2SavedQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
 export const postApiGreenWalletsUserId = (userId: string, signal?: AbortSignal) => {
   return customInstance<CreateGreenWalletCommandResponse>({
     url: `/api/green-wallets/${userId}`,
@@ -2507,6 +2769,177 @@ export const usePostApiGreenWalletsUserId = <TError = ProblemDetails, TContext =
   queryClient?: QueryClient,
 ): UseMutationResult<Awaited<ReturnType<typeof postApiGreenWalletsUserId>>, TError, { userId: string }, TContext> => {
   return useMutation(getPostApiGreenWalletsUserIdMutationOptions(options), queryClient)
+}
+
+export const getApiUsersAmountAll = (signal?: AbortSignal) => {
+  return customInstance<number | string>({ url: `/api/users/amount-all`, method: 'GET', signal })
+}
+
+export const getGetApiUsersAmountAllQueryKey = () => {
+  return [`/api/users/amount-all`] as const
+}
+
+export const getGetApiUsersAmountAllQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+  TError = ProblemDetails,
+>(options?: {
+  query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>>
+}) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiUsersAmountAllQueryKey()
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiUsersAmountAll>>> = ({ signal }) =>
+    getApiUsersAmountAll(signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiUsersAmountAllQueryResult = NonNullable<Awaited<ReturnType<typeof getApiUsersAmountAll>>>
+export type GetApiUsersAmountAllQueryError = ProblemDetails
+
+export function useGetApiUsersAmountAll<
+  TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+  TError = ProblemDetails,
+>(
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersAmountAll>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiUsersAmountAll<
+  TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+  TError = ProblemDetails,
+>(
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+          TError,
+          Awaited<ReturnType<typeof getApiUsersAmountAll>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiUsersAmountAll<
+  TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+  TError = ProblemDetails,
+>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiUsersAmountAll<
+  TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+  TError = ProblemDetails,
+>(
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiUsersAmountAllQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
+}
+
+export const getApiAdminAnalyst = (params: GetApiAdminAnalystParams, signal?: AbortSignal) => {
+  return customInstance<GetInfoAnalystQueryResponse>({ url: `/api/admin/analyst`, method: 'GET', params, signal })
+}
+
+export const getGetApiAdminAnalystQueryKey = (params?: GetApiAdminAnalystParams) => {
+  return [`/api/admin/analyst`, ...(params ? [params] : [])] as const
+}
+
+export const getGetApiAdminAnalystQueryOptions = <
+  TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>,
+  TError = ProblemDetails,
+>(
+  params: GetApiAdminAnalystParams,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> },
+) => {
+  const { query: queryOptions } = options ?? {}
+
+  const queryKey = queryOptions?.queryKey ?? getGetApiAdminAnalystQueryKey(params)
+
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiAdminAnalyst>>> = ({ signal }) =>
+    getApiAdminAnalyst(params, signal)
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getApiAdminAnalyst>>,
+    TError,
+    TData
+  > & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApiAdminAnalystQueryResult = NonNullable<Awaited<ReturnType<typeof getApiAdminAnalyst>>>
+export type GetApiAdminAnalystQueryError = ProblemDetails
+
+export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
+  options: {
+    query: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> &
+      Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminAnalyst>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminAnalyst>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
+  options?: {
+    query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> &
+      Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApiAdminAnalyst>>,
+          TError,
+          Awaited<ReturnType<typeof getApiAdminAnalyst>>
+        >,
+        'initialData'
+      >
+  },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApiAdminAnalyst<TData = Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError = ProblemDetails>(
+  params: GetApiAdminAnalystParams,
+  options?: { query?: Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiAdminAnalyst>>, TError, TData>> },
+  queryClient?: QueryClient,
+): UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+  const queryOptions = getGetApiAdminAnalystQueryOptions(params, options)
+
+  const query = useQuery(queryOptions, queryClient) as UseQueryResult<TData, TError> & {
+    queryKey: DataTag<QueryKey, TData, TError>
+  }
+
+  return { ...query, queryKey: queryOptions.queryKey }
 }
 
 /**

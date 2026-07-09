@@ -20,6 +20,15 @@ public class OrderRepository(IApplicationDbContext context) : IOrderRepository
         return orders;
     }
 
+    public Task<List<Order>> GetAllOrders(CancellationToken ct = default)
+    {
+        return context.Orders
+            .Include(o => o.PointTransaction)
+            .Include(o => o.Payment)
+            .Include(o => o.OrderItems)
+            .ToListAsync(ct);
+    }
+
     public async Task<Order> AddOrderAsync(Order order, CancellationToken ct = default)
     {
         await context.Orders.AddAsync(order);
