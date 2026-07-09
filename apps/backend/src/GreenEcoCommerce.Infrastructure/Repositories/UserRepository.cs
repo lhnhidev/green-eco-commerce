@@ -9,6 +9,17 @@ namespace GreenEcoCommerce.Infrastructure.Repositories;
 
 public class UserRepository(IApplicationDbContext context) : IUserRepository
 {
+    public async Task<List<User>> GetAllUsersAsync()
+    {
+        var users = await context.Users
+            .Include(u => u.Orders)
+                .ThenInclude(o => o.Payment)
+            .Include(u => u.Orders)
+                .ThenInclude(o => o.OrderItems)
+            .ToListAsync();
+        return users;
+    }
+
     public async Task<Guid> AddUserAsync(User user)
     {
         await context.Users.AddAsync(user);

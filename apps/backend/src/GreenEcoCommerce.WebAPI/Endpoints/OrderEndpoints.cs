@@ -1,5 +1,6 @@
 using GreenEcoCommerce.Application.Features.Orders;
 using GreenEcoCommerce.Application.Features.Orders.Command;
+using GreenEcoCommerce.Application.Features.Orders.Query;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ public static class OrderEndpoints
         var group = app.MapGroup("/api/orders").WithTags("Orders")
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        group.MapGet("/all", GetAllOrders).RequireAuthorization("AdminOnly");
         group.MapGet("/", GetAllOrders).RequireAuthorization();
         group.MapPost("/", CreateOrder).RequireAuthorization();
     }
@@ -23,8 +25,9 @@ public static class OrderEndpoints
         return TypedResults.Created($"/orders/{createdOrder.Id}", createdOrder);
     }
 
-    private static Task GetAllOrders()
+    private static async Task<Ok<int>> GetAllOrders([AsParameters] GetAmountAllOrdersQuery query, ISender sender)
     {
-        throw new NotImplementedException();
+        var amount = await sender.Send(query);
+        return TypedResults.Ok(amount);
     }
 }

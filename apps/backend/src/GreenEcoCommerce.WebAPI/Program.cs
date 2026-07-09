@@ -162,6 +162,7 @@ builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
 builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
 builder.Services.AddScoped<IGreenWalletRepository, GreenWalletRepository>();
 builder.Services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 var app = builder.Build();
 
@@ -196,6 +197,8 @@ app.MapOrderEndpoints();
 app.MapPaymentEndpoints();
 app.MapOrderItemEndpoints();
 app.MapGreenWalletEndpoints();
+app.MapUserEndpoints();
+app.MapAdminEndpoints();
 
 app.MapFallbackToFile("index.html");
 

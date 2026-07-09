@@ -50,7 +50,7 @@ const LoginForm = () => {
           if (profile.role === 'User') {
             navigate('/')
           } else {
-            navigate('/admin')
+            navigate('/admin/dashboard')
           }
 
           notifications.show({

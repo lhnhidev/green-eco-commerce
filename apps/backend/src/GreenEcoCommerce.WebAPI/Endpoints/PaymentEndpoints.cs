@@ -1,5 +1,6 @@
 using GreenEcoCommerce.Application.Features.Payments;
 using GreenEcoCommerce.Application.Features.Payments.Command;
+using GreenEcoCommerce.Application.Features.Payments.Query;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,14 @@ public static class PaymentEndpoints
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("/", GetAllPayments).RequireAuthorization();
+        group.MapGet("/total-revenue", GetTotalRevenue).RequireAuthorization("AdminOnly");
         group.MapPost("/", CreatePayment).RequireAuthorization();
+    }
+
+    private static async Task<Ok<decimal>> GetTotalRevenue([AsParameters] GetTotalRevenueQuery query, ISender sender)
+    {
+        var total = await sender.Send(query);
+        return TypedResults.Ok(total);
     }
 
     private static async Task<Created<CreatePaymentCommandResponse>> CreatePayment([FromBody] CreatePaymentCommand command, ISender sender)
