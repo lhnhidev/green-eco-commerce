@@ -7,6 +7,7 @@ import { HomePage } from '../pages/client/HomePage'
 import PaymentPage from '../pages/client/Payment/PaymentPage'
 import ProductDetailPage from '../pages/client/Product/ProductDetailPage'
 import ProductPage from '../pages/client/Product/ProductPage'
+import MaterialManagement from '../pages/admin/MaterialManagement'
 
 export const router = createBrowserRouter([
   {
@@ -57,7 +58,7 @@ export const router = createBrowserRouter([
       },
       {
         path: 'material',
-        element: <Dashboard />,
+        element: <MaterialManagement  />,
       },
       {
         path: 'order',
