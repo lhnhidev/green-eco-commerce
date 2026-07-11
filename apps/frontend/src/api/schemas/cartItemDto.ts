@@ -9,11 +9,8 @@
 export interface CartItemDto {
   productId?: string;
   productName?: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  productPrice?: number | string;
+  productPrice?: number;
   productImageUrl?: string[];
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  quantity?: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  currentStockQuantity?: number | string;
+  quantity?: number;
+  currentStockQuantity?: number;
 }

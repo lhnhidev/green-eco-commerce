@@ -7,11 +7,8 @@
  */
 
 export interface Revenue {
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  currentValue: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  previousValue: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  growthPercentage: number | string;
+  currentValue: number;
+  previousValue: number;
+  growthPercentage: number;
   isGrowth: boolean;
 }

@@ -34,6 +34,7 @@ export * from './materialTypeEnum';
 export * from './materialUpdateDto';
 export * from './orders';
 export * from './orderStatusEnum';
+export * from './pagedResultDtoOfProductDto';
 export * from './paymentMethodEnum';
 export * from './paymentStatusEnum';
 export * from './problemDetails';

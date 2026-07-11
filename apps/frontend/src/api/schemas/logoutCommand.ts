@@ -7,5 +7,5 @@
  */
 
 export interface LogoutCommand {
-  id: string;
+  id: string
 }

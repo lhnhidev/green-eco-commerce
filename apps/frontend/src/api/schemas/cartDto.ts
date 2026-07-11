@@ -11,6 +11,5 @@ export interface CartDto {
   id?: string;
   userId?: string;
   items?: CartItemDto[];
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  totalPrice?: number | string;
+  totalPrice?: number;
 }

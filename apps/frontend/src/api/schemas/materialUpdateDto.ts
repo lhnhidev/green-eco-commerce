@@ -9,6 +9,5 @@
 export interface MaterialUpdateDto {
   name: string;
   type: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  ecoRating: number | string;
+  ecoRating: number;
 }

@@ -8,7 +8,6 @@
 
 export interface CreatePaymentCommand {
   orderId: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  amount: number | string;
+  amount: number;
   transactionRef: string;
 }

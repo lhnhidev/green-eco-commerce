@@ -7,12 +7,6 @@
  */
 
 export type GetApiAdminAnalystParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-Month: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-Year: number | string;
+Month: number;
+Year: number;
 };

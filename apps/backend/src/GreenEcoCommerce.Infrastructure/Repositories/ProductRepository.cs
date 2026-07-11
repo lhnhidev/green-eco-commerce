@@ -18,7 +18,7 @@ public class ProductRepository(IApplicationDbContext context) : IProductReposito
     {
         var productList = await context.Products
             .Include(p => p.Materials)
-            .Where(p => ids.Contains(p.Id)).ToListAsync();
+            .Where(p => ids.Contains(p.Id)).ToListAsync(ct);
 
         return productList;
     }
@@ -70,14 +70,61 @@ public class ProductRepository(IApplicationDbContext context) : IProductReposito
         return affectedRows > 0;
     }
 
-    public async Task<List<Product>> GetSomeAsync(int pageSize, int pageNumber, CancellationToken ct = default)
+    public async Task<(List<Product> Products, int TotalCount)> GetSomeAsync(Domain.Models.ProductFilterParams filterParams, CancellationToken ct = default)
     {
-        var products = await context.Products
-            .Skip(pageSize * (pageNumber - 1))
-            .Take(pageSize)
-            .Include(p => p.Materials)
+        var query = context.Products.Include(p => p.Materials).AsQueryable();
+
+        if (!string.IsNullOrWhiteSpace(filterParams.SearchTerm))
+        {
+            query = query.Where(p => p.Name.ToLower().Contains(filterParams.SearchTerm.ToLower()));
+        }
+
+        if (filterParams.CategoryId.HasValue)
+        {
+            query = query.Where(p => p.CategoryId == filterParams.CategoryId.Value);
+        }
+
+        if (filterParams.MinPrice.HasValue)
+        {
+            query = query.Where(p => p.Price >= filterParams.MinPrice.Value);
+        }
+
+        if (filterParams.MaxPrice.HasValue)
+        {
+            query = query.Where(p => p.Price <= filterParams.MaxPrice.Value);
+        }
+
+        if (filterParams.IsOrganic == true)
+        {
+            query = query.Where(p => p.Materials.Any(m => m.Type == Domain.Enums.MaterialTypeEnum.Organic));
+        }
+
+        if (filterParams.IsBiodegradable == true)
+        {
+            query = query.Where(p => p.Materials.Any(m => m.Type == Domain.Enums.MaterialTypeEnum.Biodegradable) || p.DecomposePercent > 0);
+        }
+
+        if (filterParams.IsRecycled == true)
+        {
+            query = query.Where(p => p.Materials.Any(m => m.Type == Domain.Enums.MaterialTypeEnum.Recycled) || p.RecyclePercent > 0);
+        }
+
+        int totalCount = await query.CountAsync(ct);
+
+        query = filterParams.SortBy?.ToLower() switch
+        {
+            "price" => filterParams.IsDescending ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+            "carbon" => filterParams.IsDescending ? query.OrderByDescending(p => p.CarbonIndex) : query.OrderBy(p => p.CarbonIndex),
+            "name" => filterParams.IsDescending ? query.OrderByDescending(p => p.Name) : query.OrderBy(p => p.Name),
+            _ => filterParams.IsDescending ? query.OrderByDescending(p => p.Id) : query.OrderByDescending(p => p.Id) // default
+        };
+
+        var products = await query
+            .Skip(filterParams.PageSize * (filterParams.PageNumber - 1))
+            .Take(filterParams.PageSize)
             .ToListAsync(ct);
-        return products;
+
+        return (products, totalCount);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken ct)
