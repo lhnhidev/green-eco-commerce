@@ -1,3 +1,4 @@
+using GreenEcoCommerce.Application.Common.Models;
 using GreenEcoCommerce.Application.Features.Products;
 using GreenEcoCommerce.Application.Features.Products.Commands;
 using GreenEcoCommerce.Application.Features.Products.Queries;
@@ -30,7 +31,7 @@ public static class ProductEndpoints
         return TypedResults.Ok(products);
     }
 
-    private static async Task<Ok<List<ProductDto>>> GetProducts([FromQuery] int? pageSize, [FromQuery] int? pageNumber, ISender sender)
+    private static async Task<Results<Ok<List<ProductDto>>, Ok<PagedResultDto<ProductDto>>>> GetProducts([FromQuery] int? pageSize, [FromQuery] int? pageNumber, ISender sender)
     {
         if (pageNumber == null && pageSize == null)
         {
@@ -38,13 +39,9 @@ public static class ProductEndpoints
             return TypedResults.Ok(allProducts);
         }
 
-        int validatedPageNumber = (pageNumber == null || pageNumber < 1)
-            ? 1
-            : pageNumber.Value;
+        int validatedPageNumber = pageNumber is null or < 1 ? 1 : pageNumber.Value;
 
-        int validatedPageSize = (pageSize == null || pageSize < 1)
-            ? 10
-            : (pageSize > 50 ? 50 : pageSize.Value);
+        int validatedPageSize = pageSize is null or < 1 ? 10 : pageSize > 50 ? 50 : pageSize.Value;
 
         // Tạo bản query sạch để gửi đi
         var sanitizedQuery = new GetSomeProductsQuery(validatedPageSize, validatedPageNumber);
@@ -59,7 +56,7 @@ public static class ProductEndpoints
         return TypedResults.Ok(products);
     }
 
-    private static async Task<Ok<List<ProductDto>>> GetSomeProducts([AsParameters] GetSomeProductsQuery query, ISender sender)
+    private static async Task<Ok<Application.Common.Models.PagedResultDto<ProductDto>>> GetSomeProducts([AsParameters] GetSomeProductsQuery query, ISender sender)
     {
         var products = await sender.Send(query);
         return TypedResults.Ok(products);
