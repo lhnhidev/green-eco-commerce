@@ -7,12 +7,15 @@
  */
 
 export type GetApiProductsSomeParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-PageSize: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-PageNumber: number | string;
+PageSize?: number;
+PageNumber?: number;
+SearchTerm?: string;
+CategoryId?: string;
+MinPrice?: number;
+MaxPrice?: number;
+SortBy?: string;
+IsDescending?: boolean;
+IsOrganic?: boolean;
+IsBiodegradable?: boolean;
+IsRecycled?: boolean;
 };

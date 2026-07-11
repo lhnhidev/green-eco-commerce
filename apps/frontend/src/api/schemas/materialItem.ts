@@ -11,6 +11,5 @@ export interface MaterialItem {
   id: string;
   name: string;
   type: MaterialTypeEnum;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  ecoRating: number | string;
+  ecoRating: number;
 }

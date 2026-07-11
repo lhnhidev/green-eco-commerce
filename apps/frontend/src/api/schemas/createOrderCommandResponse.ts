@@ -12,9 +12,7 @@ export interface CreateOrderCommandResponse {
   userId: string;
   status: OrderStatusEnum;
   deliveryAddress: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  discountAmount: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  earnedPoints: number | string;
+  discountAmount: number;
+  earnedPoints: number;
   createdAt: string;
 }

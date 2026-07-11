@@ -9,10 +9,7 @@
 export interface CreateOrderItemCommand {
   orderId: string;
   productId: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  quantity: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  unitPrice: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  unitCo2Saved: number | string;
+  quantity: number;
+  unitPrice: number;
+  unitCo2Saved: number;
 }

@@ -7,12 +7,6 @@
  */
 
 export type GetApiProductsParams = {
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageSize?: number | string;
-/**
- * @pattern ^-?(?:0|[1-9]\d*)$
- */
-pageNumber?: number | string;
+pageSize?: number;
+pageNumber?: number;
 };

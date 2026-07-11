@@ -13,7 +13,6 @@ export interface CreatePaymentCommandResponse {
   orderId: string;
   method: PaymentMethodEnum;
   status: PaymentStatusEnum;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  amount: number | string;
+  amount: number;
   createdAt: string;
 }

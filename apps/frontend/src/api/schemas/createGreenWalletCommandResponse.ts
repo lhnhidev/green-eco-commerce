@@ -9,10 +9,8 @@
 export interface CreateGreenWalletCommandResponse {
   id: string;
   userId: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  balance: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  earnedTotal: number | string;
+  balance: number;
+  earnedTotal: number;
   /** @nullable */
   updatedAt: string | null;
 }

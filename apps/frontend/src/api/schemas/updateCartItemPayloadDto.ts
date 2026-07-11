@@ -7,6 +7,5 @@
  */
 
 export interface UpdateCartItemPayloadDto {
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  quantity: number | string;
+  quantity: number;
 }

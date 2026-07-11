@@ -7,22 +7,22 @@
  */
 
 export interface CreateProductCommand {
-  name: string;
+  name: string
   /** @nullable */
-  description: string | null;
+  description: string | null
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  price: number | string;
+  price: number | string
   /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  stockQty: number | string;
-  categoryId: string;
+  stockQty: number | string
+  categoryId: string
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  carbonIndex: number | string;
+  carbonIndex: number | string
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  baselineCarbonIndex: number | string;
+  baselineCarbonIndex: number | string
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  decomposePercent: number | string;
+  decomposePercent: number | string
   /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  recyclePercent: number | string;
+  recyclePercent: number | string
   /** @nullable */
-  imageUrl: string | null;
+  imageUrl: string | null
 }

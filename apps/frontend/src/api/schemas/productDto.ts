@@ -12,19 +12,13 @@ export interface ProductDto {
   name?: string;
   /** @nullable */
   description?: string | null;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?$ */
-  price?: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)$ */
-  stockQty?: number | string;
+  price?: number;
+  stockQty?: number;
   categoryId?: string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  carbonIndex?: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  baselineCarbonIndex?: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  decomposePercent?: number | string;
-  /** @pattern ^-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?$ */
-  recyclePercent?: number | string;
+  carbonIndex?: number;
+  baselineCarbonIndex?: number;
+  decomposePercent?: number;
+  recyclePercent?: number;
   imageUrl?: string[];
   materials?: MaterialItem[];
   isActive?: boolean;
