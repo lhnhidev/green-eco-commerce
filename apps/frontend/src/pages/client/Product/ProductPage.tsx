@@ -1,9 +1,8 @@
-import { Anchor, Breadcrumbs, Input, Select } from '@mantine/core'
+import { Anchor, Breadcrumbs, Input, Select, Pagination, Checkbox, Skeleton } from '@mantine/core'
 import { useState } from 'react'
 import { CiSearch } from 'react-icons/ci'
-import { useGetApiProductsSearchName, useGetApiProductsSome } from '../../../api'
+import { useGetApiProductsSome, useGetApiCategories } from '../../../api'
 import ProductCardv2 from '../../../components/features/products/ProductCardv2'
-import Loading from '../../../components/ui/status/Loading'
 
 const items = [
   { id: 1, title: 'Home', href: '/' },
@@ -17,213 +16,370 @@ const items = [
 const ProductPage = () => {
   const productsAmount = 8
 
-  const {
-    data: products,
-    isLoading,
-    isError,
-  } = useGetApiProductsSome({
-    PageNumber: 1,
-    PageSize: productsAmount,
-  })
-
+  const [pageNumber, setPageNumber] = useState(1)
   const [searchName, setSearchName] = useState<string>('')
   const [triggerSearch, setTriggerSearch] = useState<string>('')
 
-  const { data: productsSearch, isLoading: isLoadingSearch } = useGetApiProductsSearchName(triggerSearch.trim(), {
-    query: {
-      enabled: triggerSearch.trim() !== '',
-    },
+  const [categoryId, setCategoryId] = useState<string>('')
+  const [sortBy, setSortBy] = useState<string>('')
+
+  const [minPrice, setMinPrice] = useState<number>(0)
+  const [maxPrice, setMaxPrice] = useState<number>(1000)
+
+  const [isOrganic, setIsOrganic] = useState(false)
+  const [isBiodegradable, setIsBiodegradable] = useState(false)
+  const [isRecycled, setIsRecycled] = useState(false)
+
+  const { data: categoriesData } = useGetApiCategories()
+
+  const {
+    data: productsData,
+    isLoading,
+    isError,
+  } = useGetApiProductsSome({
+    PageNumber: pageNumber,
+    PageSize: productsAmount,
+    SearchTerm: triggerSearch || undefined,
+    CategoryId: categoryId || undefined,
+    MinPrice: minPrice,
+    MaxPrice: maxPrice === 1000 ? undefined : maxPrice,
+    SortBy: sortBy ? sortBy.split('|')[0] : undefined,
+    IsDescending: sortBy ? sortBy.split('|')[1] === 'desc' : undefined,
+    IsOrganic: isOrganic || undefined,
+    IsBiodegradable: isBiodegradable || undefined,
+    IsRecycled: isRecycled || undefined,
   })
 
   const handleSearch = () => {
-    console.log(123)
     setTriggerSearch(searchName.trim())
+    setPageNumber(1)
+  }
+
+  const handleClearFilters = () => {
+    setTriggerSearch('')
     setSearchName('')
+    setCategoryId('')
+    setSortBy('')
+    setMinPrice(0)
+    setMaxPrice(1000)
+    setIsOrganic(false)
+    setIsBiodegradable(false)
+    setIsRecycled(false)
+    setPageNumber(1)
   }
 
-  const displayedProducts = triggerSearch.trim() !== '' ? productsSearch : products
-
-  if (isLoading) {
-    return (
-      <div className="min-h-100">
-        <Loading text="Loading..."></Loading>
-      </div>
-    )
-  }
-
-  if (isError) {
-    return <div>Can't load products now</div>
+  const handlePageChange = (page: number) => {
+    setPageNumber(page)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   return (
-    <div className="container mx-auto px-4 pt-8 pb-10">
-      <Breadcrumbs>{items}</Breadcrumbs>
-
-      <div className="mt-6 flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h1 className="font-bold text-4xl text-primary mb-2">Green Product</h1>
-          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-            Discover everyday essentials designed with the planet in mind. Every item in our collection meets rigorous
-            environmental standards.
-          </p>
+    <div className="bg-gray-50/50 min-h-screen pb-20">
+      {/* Hero Section */}
+      <div className="bg-gradient-to-br from-green-900 via-green-800 to-green-600 text-white py-20 px-4 relative overflow-hidden">
+        {/* Subtle background circles for premium feel */}
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
+          <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" />
+          <div
+            className="absolute top-24 -left-24 w-72 h-72 bg-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"
+            style={{ animationDelay: '2s' }}
+          />
         </div>
 
-        {/* <div className="w-100">
-          <Input.Wrapper label="Search" classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}>
-            <Input placeholder="Search your product" loading />
-          </Input.Wrapper>
-        </div> */}
-
-        <div className="flex items-center gap-4">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault() // Ngăn trang web bị reload lại khi nhấn Enter
-              handleSearch()
+        <div className="container mx-auto relative z-10">
+          <Breadcrumbs
+            className="mb-6"
+            classNames={{
+              breadcrumb: 'text-green-100 hover:text-white transition-colors text-sm font-medium',
+              separator: 'text-white!',
             }}
-            className="flex flex-col gap-4"
           >
-            <Input.Wrapper
-              className="w-100"
-              label="Search"
-              classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}
-            >
-              <Input
-                value={searchName}
-                onChange={(event) => setSearchName(event.currentTarget.value)}
-                placeholder="Search your product"
-                loading={isLoadingSearch}
-                leftSection={<CiSearch />}
-              />
-            </Input.Wrapper>
-          </form>
-          <Select
-            classNames={{ label: '!mb-2 !font-semibold !uppercase !text-md' }}
-            label="Sort by:"
-            placeholder="Pick value"
-            data={['Name product', 'Price', 'Assess', 'Carbon index']}
-          />
+            {items}
+          </Breadcrumbs>
+          <div className="max-w-3xl">
+            <h1 className="font-extrabold text-5xl md:text-6xl mb-6 tracking-tight drop-shadow-sm">Green Product</h1>
+            <p className="text-lg md:text-xl text-green-50 max-w-2xl leading-relaxed font-light">
+              Discover everyday essentials designed with the planet in mind. Every item in our collection meets rigorous
+              environmental standards.
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="flex gap-18 mt-12">
-        <aside className="w-full lg:w-64 space-y-10 shrink-0">
-          <section>
-            <h3 className="font-label-md text-label-md text-primary uppercase tracking-widest mb-6 font-bold">
-              Sustainability
-            </h3>
-            <div className="space-y-4">
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
-                  type="checkbox"
-                />
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">Organic</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
-                  type="checkbox"
-                />
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">
-                  Biodegradable
-                </span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
-                  type="checkbox"
-                />
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">
-                  Recycled
-                </span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer group">
-                <input
-                  className="w-5 h-5 rounded border-outline-variant text-primary focus:ring-primary"
-                  type="checkbox"
-                />
-                <span className="font-body-md text-on-surface group-hover:text-primary transition-colors">
-                  Fair Trade
-                </span>
-              </label>
-            </div>
-          </section>
-          <section>
-            <h3 className="font-label-md text-label-md text-primary uppercase tracking-widest mb-6 font-bold">
-              Category
-            </h3>
-            <div className="space-y-3">
-              <a className="block font-body-md text-primary font-medium" href="/">
-                All Essentials
-              </a>
-              <a className="block font-body-md text-on-surface-variant hover:text-primary transition-colors" href="/">
-                Bath & Personal Care
-              </a>
-              <a className="block font-body-md text-on-surface-variant hover:text-primary transition-colors" href="/">
-                Kitchen & Dining
-              </a>
-              <a className="block font-body-md text-on-surface-variant hover:text-primary transition-colors" href="/">
-                Living & Textiles
-              </a>
-              <a className="block font-body-md text-on-surface-variant hover:text-primary transition-colors" href="/">
-                Zero-Waste Kits
-              </a>
-            </div>
-          </section>
-          <section>
-            <h3 className="font-label-md text-label-md text-primary uppercase tracking-widest mb-6 font-bold">
-              Price Range
-            </h3>
-            <div className="space-y-4">
-              <input
-                className="w-full accent-primary h-1 bg-surface-container-highest rounded-lg appearance-none cursor-pointer"
-                type="range"
-              />
-              <div className="flex justify-between font-label-md text-on-surface-variant">
-                <span>$0</span>
-                <span>$200+</span>
+      <div className="container mx-auto px-4 -mt-10 relative z-20">
+        {/* Search & Sort Bar */}
+        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-5 mb-10 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-xl">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleSearch()
+            }}
+            className="flex-1 w-full md:max-w-md"
+          >
+            <Input
+              size="md"
+              radius="xl"
+              value={searchName}
+              onChange={(event) => setSearchName(event.currentTarget.value)}
+              placeholder="Search your eco-friendly product..."
+              leftSection={<CiSearch size={20} className="text-gray-400" />}
+              classNames={{
+                input:
+                  'border-gray-200 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all bg-gray-50/50 hover:bg-white',
+              }}
+            />
+          </form>
+          <Select
+            size="md"
+            radius="xl"
+            placeholder="Sort by"
+            value={sortBy}
+            onChange={(val) => {
+              setSortBy(val || '')
+              setPageNumber(1)
+            }}
+            data={[
+              { value: 'name|asc', label: 'Name (A-Z)' },
+              { value: 'name|desc', label: 'Name (Z-A)' },
+              { value: 'price|asc', label: 'Price (Low to High)' },
+              { value: 'price|desc', label: 'Price (High to Low)' },
+              { value: 'carbon|asc', label: 'Carbon Index (Low to High)' },
+              { value: 'carbon|desc', label: 'Carbon Index (High to Low)' },
+            ]}
+            classNames={{
+              input:
+                'border-gray-200 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all w-full md:w-56 bg-gray-50/50 hover:bg-white',
+            }}
+          />
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-10">
+          {/* Sidebar Filters */}
+          <aside className="w-full lg:w-72 shrink-0 space-y-8">
+            <div className="bg-white p-7 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+                Category
+              </h3>
+              <div className="space-y-1.5">
+                <button
+                  type="button"
+                  className={`w-full text-left px-4 py-2.5 rounded-xl transition-all duration-200 text-sm ${categoryId === '' ? 'bg-green-50 text-green-700 font-bold shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-green-600 font-medium'}`}
+                  onClick={() => {
+                    setCategoryId('')
+                    setPageNumber(1)
+                  }}
+                >
+                  All Essentials
+                </button>
+                {categoriesData?.map((cat) => (
+                  <button
+                    type="button"
+                    key={cat.id}
+                    className={`w-full text-left px-4 py-2.5 rounded-xl transition-all duration-200 text-sm ${categoryId === cat.id ? 'bg-green-50 text-green-700 font-bold shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-green-600 font-medium'}`}
+                    onClick={() => {
+                      setCategoryId(cat.id)
+                      setPageNumber(1)
+                    }}
+                  >
+                    {cat.name}
+                  </button>
+                ))}
               </div>
             </div>
-          </section>
-          {/** biome-ignore lint/a11y/useButtonType: <> */}
-          <button className="w-full py-3 border border-primary text-primary font-label-md rounded-lg hover:bg-primary hover:text-white transition-all">
-            Clear All Filters
-          </button>
-        </aside>
 
-        <div className="flex-1">
-          {/* ✅ Hiển thị label khi đang có kết quả search */}
-          {triggerSearch && (
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-on-surface-variant">
-                Kết quả tìm kiếm cho: <span className="font-semibold text-primary">"{triggerSearch}"</span> (
-                {displayedProducts?.length ?? 0} sản phẩm)
-              </p>
-              <button
-                type="button"
-                onClick={() => setTriggerSearch('')}
-                className="text-sm text-primary hover:underline"
-              >
-                Xóa tìm kiếm
-              </button>
+            <div className="bg-white p-7 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+                Sustainability
+              </h3>
+              <div className="space-y-4 px-1">
+                <Checkbox
+                  label="Organic"
+                  checked={isOrganic}
+                  onChange={(e) => {
+                    setIsOrganic(e.currentTarget.checked)
+                    setPageNumber(1)
+                  }}
+                  color="green.6"
+                  size="sm"
+                  classNames={{
+                    label: 'text-gray-700 font-medium cursor-pointer',
+                    input: 'cursor-pointer transition-colors',
+                  }}
+                />
+                <Checkbox
+                  label="Biodegradable"
+                  checked={isBiodegradable}
+                  onChange={(e) => {
+                    setIsBiodegradable(e.currentTarget.checked)
+                    setPageNumber(1)
+                  }}
+                  color="green.6"
+                  size="sm"
+                  classNames={{
+                    label: 'text-gray-700 font-medium cursor-pointer',
+                    input: 'cursor-pointer transition-colors',
+                  }}
+                />
+                <Checkbox
+                  label="Recycled"
+                  checked={isRecycled}
+                  onChange={(e) => {
+                    setIsRecycled(e.currentTarget.checked)
+                    setPageNumber(1)
+                  }}
+                  color="green.6"
+                  size="sm"
+                  classNames={{
+                    label: 'text-gray-700 font-medium cursor-pointer',
+                    input: 'cursor-pointer transition-colors',
+                  }}
+                />
+              </div>
             </div>
-          )}
 
-          {/* ✅ Hiển thị loading khi đang fetch kết quả search */}
-          {isLoadingSearch ? (
-            <div className="min-h-40">
-              <Loading text="Đang tìm kiếm..." />
+            <div className="bg-white p-7 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full" />
+                Price Range
+              </h3>
+              <div className="space-y-5 px-1">
+                <div className="text-green-700 font-bold text-xl tracking-tight">
+                  Up to ${maxPrice === 1000 ? '1000+' : maxPrice}
+                </div>
+                <input
+                  className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-green-600 hover:accent-green-500 transition-colors"
+                  type="range"
+                  min={0}
+                  max={1000}
+                  step={10}
+                  value={maxPrice}
+                  onChange={(e) => {
+                    setMaxPrice(Number(e.target.value))
+                    setPageNumber(1)
+                  }}
+                />
+                <div className="flex justify-between text-xs text-gray-400 font-semibold tracking-wider">
+                  <span>$0</span>
+                  <span>$1000+</span>
+                </div>
+              </div>
             </div>
-          ) : displayedProducts?.length === 0 ? (
-            <p className="text-on-surface-variant">Không tìm thấy sản phẩm nào.</p>
-          ) : (
-            <div className="grid grid-cols-4 gap-3">
-              {displayedProducts?.map((product) => {
-                console.log(product)
-                return <ProductCardv2 key={product.id} product={product} />
-              })}
-            </div>
-          )}
+
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="w-full py-4 px-6 bg-white border-2 border-gray-100 text-gray-600 font-bold rounded-2xl hover:border-green-600 hover:text-green-700 hover:bg-green-50/50 transition-all duration-300 shadow-sm active:scale-95"
+            >
+              Clear All Filters
+            </button>
+          </aside>
+
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col">
+            {triggerSearch && (
+              <div className="bg-green-50/80 backdrop-blur-sm text-green-900 px-6 py-4 rounded-2xl flex items-center justify-between mb-8 shadow-sm border border-green-100/50">
+                <p className="font-medium">
+                  Search results for: <span className="font-bold text-green-700">"{triggerSearch}"</span> (
+                  {productsData?.totalCount ?? 0} products)
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTriggerSearch('')
+                    setSearchName('')
+                    setPageNumber(1)
+                  }}
+                  className="text-sm font-bold text-green-600 hover:text-green-800 underline decoration-2 underline-offset-4 transition-colors"
+                >
+                  Clear search
+                </button>
+              </div>
+            )}
+
+            {isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="flex flex-col gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm"
+                  >
+                    <Skeleton height={240} radius="xl" className="w-full" />
+                    <Skeleton height={28} radius="xl" className="w-3/4 mt-2" />
+                    <Skeleton height={16} radius="xl" className="w-full" />
+                    <Skeleton height={16} radius="xl" className="w-5/6" />
+                    <div className="flex justify-between items-center mt-4">
+                      <Skeleton height={24} width={80} radius="xl" />
+                      <Skeleton height={40} width={40} radius="full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : isError ? (
+              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white rounded-3xl shadow-sm border border-red-100 h-full">
+                <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mb-6">
+                  <span className="text-4xl">⚠️</span>
+                </div>
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">Oops! Something went wrong</h3>
+                <p className="text-gray-500 max-w-md mb-6">
+                  We couldn't load the products at this time. Please try refreshing the page.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => window.location.reload()}
+                  className="py-3 px-8 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors shadow-md hover:shadow-lg transform duration-200"
+                >
+                  Refresh Page
+                </button>
+              </div>
+            ) : !productsData?.items || productsData.items.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white rounded-3xl shadow-sm border border-gray-100 h-full">
+                <div className="w-28 h-28 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                  <CiSearch size={56} className="text-gray-300" />
+                </div>
+                <h3 className="text-3xl font-bold text-gray-800 mb-3 tracking-tight">No products found</h3>
+                <p className="text-gray-500 max-w-md text-lg leading-relaxed">
+                  We couldn't find any products matching your current filters. Try adjusting your search criteria.
+                </p>
+                <button
+                  type="button"
+                  onClick={handleClearFilters}
+                  className="mt-8 py-3 px-8 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200"
+                >
+                  Clear All Filters
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {productsData.items.map((product) => (
+                    <div key={product.id} className="animate__animated animate__fadeIn">
+                      <ProductCardv2 product={product} />
+                    </div>
+                  ))}
+                </div>
+
+                {productsData.totalPages > 1 && (
+                  <div className="mt-14 flex justify-center pb-8">
+                    <Pagination
+                      total={productsData.totalPages}
+                      value={pageNumber}
+                      onChange={handlePageChange}
+                      color="green"
+                      size="lg"
+                      radius="xl"
+                      withEdges
+                      classNames={{
+                        control: 'border-none shadow-sm hover:shadow-md transition-shadow bg-white font-medium',
+                        dots: 'text-gray-400',
+                      }}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

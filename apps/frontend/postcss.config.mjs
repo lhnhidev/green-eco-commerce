@@ -9,4 +9,4 @@ export const plugins = {
       'mantine-breakpoint-xl': '88em',
     },
   },
-};
+}
