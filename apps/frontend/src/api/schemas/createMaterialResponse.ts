@@ -12,14 +12,4 @@ export interface CreateMaterialResponse {
   name: string;
   type: MaterialTypeEnum;
   ecoRating: number;
-  /** @nullable */
-  origin: string | null;
-  /** @nullable */
-  sku: string | null;
-  stockQty: number;
-  /** @nullable */
-  unit: string | null;
-  unitPrice: number;
-  /** @nullable */
-  imageUrl: string | null;
 }

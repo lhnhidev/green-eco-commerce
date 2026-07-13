@@ -1,9 +1,9 @@
-import { Button, TextInput, NumberInput, Select, ActionIcon } from '@mantine/core'
+import { ActionIcon, Button, NumberInput, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate, Link } from 'react-router'
 import { FiArrowLeft } from 'react-icons/fi'
+import { Link, useNavigate } from 'react-router'
 import { getGetApiMaterialsQueryKey, usePostApiMaterials } from '../../../api'
 import { MaterialTypeEnum } from '../../../api/schemas'
 
@@ -15,18 +15,13 @@ const MaterialCreate = () => {
   const form = useForm({
     initialValues: {
       name: '',
-      sku: '',
-      origin: '',
       type: MaterialTypeEnum.Recycled,
       ecoRating: 50,
-      stockQty: 0,
       unit: 'kg',
-      unitPrice: 0,
       notes: '',
     },
     validate: {
       name: (val) => (val.trim().length === 0 ? 'Name is required' : null),
-      sku: (val) => (val.trim().length === 0 ? 'SKU is required' : null),
     },
   })
 
@@ -42,7 +37,7 @@ const MaterialCreate = () => {
         onError: () => {
           notifications.show({ title: 'Error', message: 'Could not create material', color: 'red' })
         },
-      }
+      },
     )
   }
 
@@ -60,13 +55,11 @@ const MaterialCreate = () => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-8">
         <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-6">
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <TextInput label="Name" placeholder="Bamboo Fiber" withAsterisk {...form.getInputProps('name')} />
-            <TextInput label="SKU" placeholder="MAT-BAM-01" withAsterisk {...form.getInputProps('sku')} />
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <TextInput label="Origin" placeholder="Vietnam" {...form.getInputProps('origin')} />
             <Select
               label="Type"
               data={[
@@ -76,20 +69,21 @@ const MaterialCreate = () => {
               ]}
               {...form.getInputProps('type')}
             />
-          </div>
-
-          <div className="grid grid-cols-3 gap-6">
             <NumberInput label="Eco Rating" min={0} max={100} {...form.getInputProps('ecoRating')} />
-            <NumberInput label="Stock Qty" min={0} {...form.getInputProps('stockQty')} />
-            <TextInput label="Unit" placeholder="kg, meters..." {...form.getInputProps('unit')} />
           </div>
 
-          <NumberInput label="Unit Price (VND)" min={0} step={1000} {...form.getInputProps('unitPrice')} />
-          <TextInput label="Notes" placeholder="Additional details..." {...form.getInputProps('notes')} />
+          <div className="grid grid-cols-2 gap-6">
+            <TextInput label="Unit" placeholder="kg, meters..." {...form.getInputProps('unit')} />
+            <TextInput label="Notes" placeholder="Additional details..." {...form.getInputProps('notes')} />
+          </div>
 
           <div className="flex justify-end gap-4 mt-4">
-            <Button component={Link} to="/admin/material" variant="default">Cancel</Button>
-            <Button type="submit" color="primary" loading={isPending}>Create Material</Button>
+            <Button component={Link} to="/admin/material" variant="default">
+              Cancel
+            </Button>
+            <Button type="submit" color="primary" loading={isPending}>
+              Create Material
+            </Button>
           </div>
         </form>
       </div>
