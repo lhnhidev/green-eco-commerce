@@ -9,7 +9,7 @@ public class GetAmountAllOrdersQueryHandler(IOrderRepository orderRepository) : 
 {
     public async Task<int> Handle(GetAmountAllOrdersQuery request, CancellationToken cancellationToken)
     {
-        var orders = await orderRepository.GetAllOrders();
+        var orders = await orderRepository.GetAllOrders(cancellationToken);
         return orders.Count;
     }
 }
