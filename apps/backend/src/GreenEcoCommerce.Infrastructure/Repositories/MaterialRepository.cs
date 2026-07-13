@@ -43,7 +43,13 @@ public class MaterialRepository(IApplicationDbContext context) : IMaterialReposi
             .ExecuteUpdateAsync(set => set
                     .SetProperty(m => m.Name, material.Name)
                     .SetProperty(m => m.Type, material.Type)
-                    .SetProperty(m => m.EcoRating, material.EcoRating),
+                    .SetProperty(m => m.EcoRating, material.EcoRating)
+                    .SetProperty(m => m.Origin, material.Origin)
+                    .SetProperty(m => m.Sku, material.Sku)
+                    .SetProperty(m => m.StockQty, material.StockQty)
+                    .SetProperty(m => m.Unit, material.Unit)
+                    .SetProperty(m => m.UnitPrice, material.UnitPrice)
+                    .SetProperty(m => m.ImageUrl, material.ImageUrl),
                 ct);
 
         return affectedRows > 0;

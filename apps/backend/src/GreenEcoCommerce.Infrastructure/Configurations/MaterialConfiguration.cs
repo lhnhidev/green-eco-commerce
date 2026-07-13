@@ -15,5 +15,13 @@ public class MaterialConfiguration : IEntityTypeConfiguration<Material>
         builder.Property(x => x.Name).HasColumnName("name").HasMaxLength(150);
         builder.Property(x => x.Type).HasColumnName("type").HasConversion<string>().HasMaxLength(20);
         builder.Property(x => x.EcoRating).HasColumnName("eco_rating");
+
+        // --- Fields mở rộng ---
+        builder.Property(x => x.Origin).HasColumnName("origin").HasMaxLength(150);
+        builder.Property(x => x.Sku).HasColumnName("sku").HasMaxLength(50);
+        builder.Property(x => x.StockQty).HasColumnName("stock_qty").HasPrecision(18, 2);
+        builder.Property(x => x.Unit).HasColumnName("unit").HasMaxLength(20);
+        builder.Property(x => x.UnitPrice).HasColumnName("unit_price").HasPrecision(18, 2);
+        builder.Property(x => x.ImageUrl).HasColumnName("image_url").HasMaxLength(10000);
     }
 }
