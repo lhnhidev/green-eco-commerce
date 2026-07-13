@@ -9,33 +9,35 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #f9f8f4;
-  --color-foreground: #1a1a1a;
-  --color-primary: #2d5a27;
-  --color-secondary: #8ba888;
+  --color-background: #ffffff;
+  --color-foreground: #09090b;
+  --color-primary: #10b157;
+  --color-secondary: #d7f7de;
   --color-primary-foreground: #ffffff;
-  --color-muted: #f1f5eb;
-  --color-muted-foreground: #6b7280;
-  --color-input-muted: #f8f9f7;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+  --color-input-muted: #f4f4f5;
 }
 
 @layer base {
   body {
-    font-family: "Raleway Variable", sans-serif;
-    background-color: #fefefe;
-    color: #1a1a1a;
+    font-family: "Inter Variable", sans-serif;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
 /* Custom plant-themed utilities */
 .plant-gradient {
-  background: linear-gradient(135deg, #e8f5d6 0%, #f1f5eb 100%);
+  background: linear-gradient(135deg, #d7f7de 0%, #eefcf1 100%);
 }
 
 .plant-shadow {
   box-shadow:
-    0 4px 6px -1px rgba(45, 80, 22, 0.1),
-    0 2px 4px -1px rgba(45, 80, 22, 0.06);
+    0 4px 12px -2px rgba(16, 177, 87, 0.08),
+    0 2px 6px -1px rgba(16, 177, 87, 0.04);
 }
 
 /* 1. Định dạng thanh cuộn tổng thể */
