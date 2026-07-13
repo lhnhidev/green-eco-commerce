@@ -1,7 +1,7 @@
+import { usePostApiChatbot } from '@api'
 import { TextInput, Tooltip } from '@mantine/core'
 import { useEffect, useRef, useState } from 'react'
 import { IoIosSend } from 'react-icons/io'
-import { usePostApiChatbot } from '../../../api'
 import ChatBanner from './ChatBanner'
 import HeaderChatbot from './HeaderChatbot'
 import MessageBox from './MessageBox'

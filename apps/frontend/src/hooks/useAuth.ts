@@ -1,4 +1,4 @@
-import { useGetApiAuthMe } from '../api'
+import { useGetApiAuthMe } from '@api'
 
 export const useAuth = () => {
   const { data: user, isPending } = useGetApiAuthMe({

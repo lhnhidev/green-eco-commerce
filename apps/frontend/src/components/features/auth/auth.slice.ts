@@ -1,6 +1,6 @@
+import type { UserProfileResponse } from '@api/schemas'
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { UserProfileResponse } from '../../../api/schemas'
-import type { AuthState } from '../../../types'
+import type { AuthState } from '@types'
 
 const initialState: AuthState = {
   active: 'login',

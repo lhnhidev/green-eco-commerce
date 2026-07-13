@@ -1,16 +1,12 @@
+import { getGetApiMaterialsQueryKey, useDeleteApiMaterialsId, useGetApiMaterials } from '@api'
+import type { MaterialItem } from '@api/schemas'
+import Loading from '@components/ui/status/Loading'
 import { ActionIcon, Badge, Button, Modal, Table, TextInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
-import {
-  getGetApiMaterialsQueryKey,
-  useDeleteApiMaterialsId,
-  useGetApiMaterials,
-} from '../../../api'
-import type { MaterialItem } from '../../../api/schemas'
-import Loading from '../../../components/ui/status/Loading'
 
 const MaterialList = () => {
   const queryClient = useQueryClient()
@@ -25,19 +21,13 @@ const MaterialList = () => {
     if (!materials) return []
     const keyword = search.trim().toLowerCase()
     if (!keyword) return materials
-    return materials.filter(
-      (m) =>
-        m.name.toLowerCase().includes(keyword),
-    )
+    return materials.filter((m) => m.name.toLowerCase().includes(keyword))
   }, [materials, search])
 
   const stats = useMemo(() => {
     const list = materials ?? []
     const total = list.length
-    const avgEco =
-      total === 0
-        ? 0
-        : Math.round(list.reduce((sum, m) => sum + Number(m.ecoRating), 0) / total)
+    const avgEco = total === 0 ? 0 : Math.round(list.reduce((sum, m) => sum + Number(m.ecoRating), 0) / total)
     return { total, avgEco }
   }, [materials])
 
@@ -148,11 +138,16 @@ const MaterialList = () => {
 
       <Modal opened={deleting !== null} onClose={() => setDeleting(null)} title="Delete material" centered size="sm">
         <p className="text-gray-600">
-          Are you sure you want to delete <span className="font-semibold">{deleting?.name}</span>? This action cannot be undone.
+          Are you sure you want to delete <span className="font-semibold">{deleting?.name}</span>? This action cannot be
+          undone.
         </p>
         <div className="flex justify-end gap-3 mt-5">
-          <Button variant="default" onClick={() => setDeleting(null)}>Cancel</Button>
-          <Button color="red" loading={isDeleting} onClick={confirmDelete}>Delete</Button>
+          <Button variant="default" onClick={() => setDeleting(null)}>
+            Cancel
+          </Button>
+          <Button color="red" loading={isDeleting} onClick={confirmDelete}>
+            Delete
+          </Button>
         </div>
       </Modal>
     </div>

@@ -1,11 +1,11 @@
+import { getGetApiMaterialsQueryKey, usePostApiMaterials } from '@api'
+import { MaterialTypeEnum } from '@api/schemas'
 import { ActionIcon, Button, NumberInput, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiArrowLeft } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router'
-import { getGetApiMaterialsQueryKey, usePostApiMaterials } from '../../../api'
-import { MaterialTypeEnum } from '../../../api/schemas'
 
 const MaterialCreate = () => {
   const queryClient = useQueryClient()

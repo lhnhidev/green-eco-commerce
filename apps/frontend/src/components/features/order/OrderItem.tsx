@@ -1,14 +1,14 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 
+import { getGetApiCartQueryKey, useDeleteApiCartItemsProductId } from '@api'
+import type { CartDto, CartItemDto } from '@api/schemas'
 import { Button, Modal, NumberInput } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { FaRegTrashCan } from 'react-icons/fa6'
 import { useNavigate } from 'react-router'
-import { getGetApiCartQueryKey, useDeleteApiCartItemsProductId } from '../../../api'
-import type { CartDto, CartItemDto } from '../../../api/schemas'
 
 const OrderItem = ({ product }: { product: CartItemDto }) => {
   const price = Number(product.productPrice) * Number(product.quantity)

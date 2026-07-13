@@ -1,3 +1,6 @@
+import { useGetApiCart } from '@api'
+import OrderItem from '@components/features/order/OrderItem'
+import Loading from '@components/ui/status/Loading'
 import { Anchor, Breadcrumbs, Button, Group, Input, Modal, Radio } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { useState } from 'react'
@@ -5,9 +8,6 @@ import { CiReceipt } from 'react-icons/ci'
 import { IoCartOutline } from 'react-icons/io5'
 import { LiaMoneyBillWaveSolid } from 'react-icons/lia'
 import { SlLocationPin } from 'react-icons/sl'
-import { useGetApiCart } from '../../../api'
-import OrderItem from '../../../components/features/order/OrderItem'
-import Loading from '../../../components/ui/status/Loading'
 import PaymentQr from './PaymentQr'
 
 const items = [

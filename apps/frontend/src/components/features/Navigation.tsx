@@ -1,10 +1,11 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
+
+import { useGetApiCart } from '@api'
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Badge, Button, Group, TextInput } from '@mantine/core'
 import { MagnifyingGlassIcon, ShoppingCartIcon } from '@phosphor-icons/react'
 import { Link, useLocation } from 'react-router'
-import { useGetApiCart } from '../../api'
-import { useAppDispatch } from '../../hooks/useAppDispatch'
 import Brand from '../ui/Brand'
 import ProfileUser from './auth/ProfileUser'
 import { setIsShow } from './cart/cart.slice'
@@ -34,7 +35,12 @@ export function Navigation() {
           <nav className="hidden md:flex items-center gap-2">
             {navigationItems.map((item) => (
               <Link key={item.path} to={item.path}>
-                <Button variant={isActive(item.path) ? 'filled' : 'subtle'} color="primary.8" radius="xl" className="transition-all hover:scale-105">
+                <Button
+                  variant={isActive(item.path) ? 'filled' : 'subtle'}
+                  color="primary.8"
+                  radius="xl"
+                  className="transition-all hover:scale-105"
+                >
                   {item.label}
                 </Button>
               </Link>

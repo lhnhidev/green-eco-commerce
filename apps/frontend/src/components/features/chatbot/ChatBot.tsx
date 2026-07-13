@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
-import { useAppSelector } from '../../../hooks/useAppSelector'
+import { useAppDispatch } from '@hooks/useAppDispatch'
+import { useAppSelector } from '@hooks/useAppSelector'
 import ChatComunication from './ChatComunication'
 import ChatIconComp from './ChatIconComp'
 import { setIsShow } from './chatbot.slice'

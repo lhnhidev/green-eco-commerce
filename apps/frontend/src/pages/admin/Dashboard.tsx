@@ -3,15 +3,15 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <> */
 /** biome-ignore-all lint/style/noNonNullAssertion: <> */
 
+import { useGetApiAdminAnalyst } from '@api'
+import CardDisplayNumber from '@components/features/cards/CardDisplayNumber'
+import Loading from '@components/ui/status/Loading'
 import { MonthPickerInput } from '@mantine/dates'
 import { useState } from 'react'
 import { FaMoneyBillAlt } from 'react-icons/fa'
 import { IoCartOutline } from 'react-icons/io5'
 import { LuUserPlus } from 'react-icons/lu'
 import { MdCo2 } from 'react-icons/md'
-import { useGetApiAdminAnalyst } from '../../api'
-import CardDisplayNumber from '../../components/features/cards/CardDisplayNumber'
-import Loading from '../../components/ui/status/Loading'
 
 const Dashboard = () => {
   // 1. Chuyển đổi State sang kiểu Date | string | null để tương thích hoàn toàn với prop `value` và `onChange`
@@ -43,7 +43,9 @@ const Dashboard = () => {
 
   return (
     <div className="w-full h-full">
-      <div className="italic text-muted-foreground mb-6 text-lg font-medium">Here is what happened with GreenEcoCommerce today</div>
+      <div className="italic text-muted-foreground mb-6 text-lg font-medium">
+        Here is what happened with GreenEcoCommerce today
+      </div>
 
       <div className="flex gap-7 mb-7 items-end">
         <CardDisplayNumber

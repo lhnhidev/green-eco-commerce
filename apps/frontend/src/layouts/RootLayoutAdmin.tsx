@@ -1,10 +1,10 @@
+import HeaderAdmin from '@components/features/header-admin/HeaderAdmin'
+import { type ActiveType, setActive } from '@components/features/navigation/navigation.slice'
+import TheNavigation from '@components/features/navigation/TheNavigation'
+import Loading from '@components/ui/status/Loading'
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Suspense, useEffect } from 'react'
 import { Outlet, useLocation } from 'react-router'
-import HeaderAdmin from '../components/features/header-admin/HeaderAdmin'
-import { type ActiveType, setActive } from '../components/features/navigation/navigation.slice'
-import TheNavigation from '../components/features/navigation/TheNavigation'
-import Loading from '../components/ui/status/Loading'
-import { useAppDispatch } from '../hooks/useAppDispatch'
 
 const RootLayoutAdmin = () => {
   const location = useLocation()

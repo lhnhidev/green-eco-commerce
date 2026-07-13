@@ -1,10 +1,10 @@
+import { getGetApiProductsAllQueryKey, usePostApiProducts } from '@api'
 import { Button, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate, Link } from 'react-router'
 import { FiArrowLeft } from 'react-icons/fi'
-import { getGetApiProductsAllQueryKey, usePostApiProducts } from '../../../api'
+import { Link, useNavigate } from 'react-router'
 
 const ProductCreate = () => {
   const queryClient = useQueryClient()
@@ -36,7 +36,7 @@ const ProductCreate = () => {
         onError: () => {
           notifications.show({ title: 'Error', message: 'Could not create product', color: 'red' })
         },
-      }
+      },
     )
   }
 
@@ -54,15 +54,28 @@ const ProductCreate = () => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-8">
         <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-6">
-          <TextInput label="Product Name" placeholder="e.g. Bamboo Toothbrush" withAsterisk {...form.getInputProps('name')} />
-          <TextInput label="Description" placeholder="Description of the product" {...form.getInputProps('description')} />
+          <TextInput
+            label="Product Name"
+            placeholder="e.g. Bamboo Toothbrush"
+            withAsterisk
+            {...form.getInputProps('name')}
+          />
+          <TextInput
+            label="Description"
+            placeholder="Description of the product"
+            {...form.getInputProps('description')}
+          />
           <div className="grid grid-cols-2 gap-6">
             <TextInput type="number" label="Price ($)" withAsterisk {...form.getInputProps('price')} />
             <TextInput type="number" label="Eco Score (0-100)" {...form.getInputProps('ecoScore')} />
           </div>
           <div className="flex justify-end gap-4 mt-4">
-            <Button component={Link} to="/admin/product" variant="default">Cancel</Button>
-            <Button type="submit" color="primary" loading={isPending}>Create Product</Button>
+            <Button component={Link} to="/admin/product" variant="default">
+              Cancel
+            </Button>
+            <Button type="submit" color="primary" loading={isPending}>
+              Create Product
+            </Button>
           </div>
         </form>
       </div>
