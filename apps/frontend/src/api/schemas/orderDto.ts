@@ -5,16 +5,14 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { RoleEnum } from './roleEnum';
+import type { OrderStatusEnum } from './orderStatusEnum';
 
-export interface UserProfileResponse {
+export interface OrderDto {
   id: string;
-  avatar: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  phone: string;
-  address: string;
-  role: RoleEnum;
+  userId: string;
+  status: OrderStatusEnum;
+  deliveryAddress: string;
+  discountAmount: number;
+  earnedPoints: number;
   createdAt: string;
 }
