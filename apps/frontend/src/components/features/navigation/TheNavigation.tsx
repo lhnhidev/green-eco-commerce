@@ -18,6 +18,11 @@ const navigateMems = [
     text: 'Dashboard',
   },
   {
+    id: 'product',
+    icon: MdCategory,
+    text: 'Product',
+  },
+  {
     id: 'category',
     icon: MdCategory,
     text: 'Category',
@@ -54,8 +59,8 @@ const TheNavigation = () => {
   const active = useAppSelector((state) => state.theNavigation.active)
 
   return (
-    <div className="w-75 flex flex-col flex- bg-(--color-background) border-r border-r-[#e5e7e0] h-screen px-4 py-5">
-      <div className="flex justify-center mb-6">
+    <div className="w-64 flex flex-col bg-white border-r border-primary/10 shadow-sm h-screen px-4 py-6 z-10">
+      <div className="flex justify-center mb-8">
         <Brand linkToHome={true} size="lg" />
       </div>
       <div className="flex flex-col gap-2">

@@ -3,31 +3,27 @@ import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
+import { Link } from 'react-router'
 import {
   getGetApiMaterialsQueryKey,
   useDeleteApiMaterialsId,
   useGetApiMaterials,
-} from '../../api'
-import type { MaterialItem } from '../../api/schemas'
-import MaterialFormModal from '../../components/features/material/MaterialFormModal'
-import Loading from '../../components/ui/status/Loading'
+} from '../../../api'
+import type { MaterialItem } from '../../../api/schemas'
+import Loading from '../../../components/ui/status/Loading'
 
-// Định dạng số tiền VND
 const formatVnd = (value: number | string) =>
   new Intl.NumberFormat('vi-VN').format(Number(value))
 
-const MaterialManagement = () => {
+const MaterialList = () => {
   const queryClient = useQueryClient()
   const { data: materials, isLoading } = useGetApiMaterials()
 
   const [search, setSearch] = useState('')
-  const [formOpened, setFormOpened] = useState(false)
-  const [editing, setEditing] = useState<MaterialItem | null>(null)
   const [deleting, setDeleting] = useState<MaterialItem | null>(null)
 
   const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteApiMaterialsId()
 
-  // Lọc theo tên hoặc SKU
   const filtered = useMemo(() => {
     if (!materials) return []
     const keyword = search.trim().toLowerCase()
@@ -39,7 +35,6 @@ const MaterialManagement = () => {
     )
   }, [materials, search])
 
-  // Vài chỉ số tổng hợp tính ở client (không cần API riêng)
   const stats = useMemo(() => {
     const list = materials ?? []
     const total = list.length
@@ -50,16 +45,6 @@ const MaterialManagement = () => {
     const lowStock = list.filter((m) => Number(m.stockQty) < 300).length
     return { total, avgEco, lowStock }
   }, [materials])
-
-  const openCreate = () => {
-    setEditing(null)
-    setFormOpened(true)
-  }
-
-  const openEdit = (material: MaterialItem) => {
-    setEditing(material)
-    setFormOpened(true)
-  }
 
   const confirmDelete = () => {
     if (!deleting) return
@@ -89,21 +74,17 @@ const MaterialManagement = () => {
   if (isLoading) return <Loading text="Loading materials..." />
 
   return (
-    <div className="px-8 py-5 bg-[#f9f9f9] min-h-full">
-      {/* Header */}
+    <div className="w-full h-full">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">Material management</h1>
-          <p className="text-gray-500 mt-1">
-            Track and manage your sustainable material sources.
-          </p>
+          <p className="text-gray-500 mt-1">Track and manage your sustainable material sources.</p>
         </div>
-        <Button color="green" leftSection={<FiPlus />} onClick={openCreate}>
+        <Button component={Link} to="/admin/material/create" color="green" leftSection={<FiPlus />}>
           Add new material
         </Button>
       </div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-3 gap-6 mb-6">
         <div className="bg-white rounded-xl p-5 border border-gray-100">
           <p className="text-gray-500 text-sm">Total materials</p>
@@ -119,7 +100,6 @@ const MaterialManagement = () => {
         </div>
       </div>
 
-      {/* Search */}
       <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4">
         <TextInput
           placeholder="Search by material name or SKU..."
@@ -129,7 +109,6 @@ const MaterialManagement = () => {
         />
       </div>
 
-      {/* Table */}
       <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
         <Table verticalSpacing="md" horizontalSpacing="lg" highlightOnHover>
           <Table.Thead>
@@ -170,20 +149,10 @@ const MaterialManagement = () => {
                   <Table.Td>{formatVnd(m.unitPrice)}</Table.Td>
                   <Table.Td>
                     <div className="flex gap-2">
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        onClick={() => openEdit(m)}
-                        aria-label="Edit"
-                      >
+                      <ActionIcon variant="subtle" color="gray" aria-label="Edit">
                         <FiEdit2 />
                       </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        onClick={() => setDeleting(m)}
-                        aria-label="Delete"
-                      >
+                      <ActionIcon variant="subtle" color="red" onClick={() => setDeleting(m)} aria-label="Delete">
                         <FiTrash2 />
                       </ActionIcon>
                     </div>
@@ -195,37 +164,17 @@ const MaterialManagement = () => {
         </Table>
       </div>
 
-      {/* Create / Edit modal */}
-      <MaterialFormModal
-        opened={formOpened}
-        onClose={() => setFormOpened(false)}
-        material={editing}
-      />
-
-      {/* Delete confirmation modal */}
-      <Modal
-        opened={deleting !== null}
-        onClose={() => setDeleting(null)}
-        title="Delete material"
-        centered
-        size="sm"
-      >
+      <Modal opened={deleting !== null} onClose={() => setDeleting(null)} title="Delete material" centered size="sm">
         <p className="text-gray-600">
-          Are you sure you want to delete{' '}
-          <span className="font-semibold">{deleting?.name}</span>? This action cannot be
-          undone.
+          Are you sure you want to delete <span className="font-semibold">{deleting?.name}</span>? This action cannot be undone.
         </p>
         <div className="flex justify-end gap-3 mt-5">
-          <Button variant="default" onClick={() => setDeleting(null)}>
-            Cancel
-          </Button>
-          <Button color="red" loading={isDeleting} onClick={confirmDelete}>
-            Delete
-          </Button>
+          <Button variant="default" onClick={() => setDeleting(null)}>Cancel</Button>
+          <Button color="red" loading={isDeleting} onClick={confirmDelete}>Delete</Button>
         </div>
       </Modal>
     </div>
   )
 }
 
-export default MaterialManagement
+export default MaterialList

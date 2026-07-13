@@ -42,8 +42,8 @@ const Dashboard = () => {
   if (isLoading) return <Loading text="Loading" />
 
   return (
-    <div className="px-8 py-5 bg-[#f9f9f9]">
-      <div className="italic text-gray-600 mb-4 text-lg">Here is what happen with GreenEcoCommerce today</div>
+    <div className="w-full h-full">
+      <div className="italic text-muted-foreground mb-6 text-lg font-medium">Here is what happened with GreenEcoCommerce today</div>
 
       <div className="flex gap-7 mb-7 items-end">
         <CardDisplayNumber
@@ -126,9 +126,13 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-12 gap-7">
-        <div className="col-span-8 bg-red-400">123</div>
-        <div className="col-span-4 bg-red-400">123</div>
+      <div className="grid grid-cols-12 gap-7 mt-8">
+        <div className="col-span-8 bg-white rounded-2xl shadow-sm border border-primary/10 p-6 min-h-[300px] flex items-center justify-center text-muted-foreground">
+          Revenue Chart Placeholder
+        </div>
+        <div className="col-span-4 bg-white rounded-2xl shadow-sm border border-primary/10 p-6 min-h-[300px] flex items-center justify-center text-muted-foreground">
+          Recent Activity Placeholder
+        </div>
       </div>
     </div>
   )
