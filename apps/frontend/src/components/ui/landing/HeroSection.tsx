@@ -19,12 +19,12 @@ const HeroSection = () => {
             </p>
             <div className="flex gap-4">
               <Link to="/products">
-                <Button size="lg" radius="xl" color="green.9">
+                <Button size="lg" radius="xl" color="primary.8" className="transition-all hover:scale-105">
                   Shop Sustainably
                 </Button>
               </Link>
               <Link to="/remedies">
-                <Button variant="outline" size="lg" radius="xl" color="green.9">
+                <Button variant="outline" size="lg" radius="xl" color="primary.8" className="transition-all hover:scale-105">
                   Our Impact Report
                 </Button>
               </Link>
@@ -32,8 +32,8 @@ const HeroSection = () => {
           </div>
           <div className="relative">
             <ImageWithFallback
-              src="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=600&h=600&fit=crop"
-              alt="Beautiful indoor plants collection"
+              src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&h=600&fit=crop"
+              alt="Sustainable and eco-friendly products"
               className="rounded-2xl w-full h-100 object-cover plant-shadow"
             />
           </div>

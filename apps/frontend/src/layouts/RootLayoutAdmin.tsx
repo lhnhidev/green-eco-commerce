@@ -17,6 +17,7 @@ const RootLayoutAdmin = () => {
     const pathToActiveMap: Record<string, ActiveType> = {
       admin: 'dashboard',
       dashboard: 'dashboard',
+      product: 'product',
       category: 'category',
       user: 'user',
       material: 'material',
@@ -36,12 +37,12 @@ const RootLayoutAdmin = () => {
     <div className="flex h-screen w-screen overflow-hidden">
       <TheNavigation />
 
-      <div className="flex flex-col flex-1 min-w-0">
-        <div className="px-8 pt-3 w-full h-15 bg-(--color-background) border-b border-b-[#e5e7e0] shrink-0">
+      <div className="flex flex-col flex-1 min-w-0 bg-muted/30">
+        <div className="px-8 pt-3 w-full h-15 bg-white border-b border-primary/10 shadow-sm shrink-0">
           <HeaderAdmin />
         </div>
 
-        <div className="flex-1 bg-gray-50 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto p-8">
           <Suspense fallback={<Loading text="Loading" />}>
             <Outlet></Outlet>
           </Suspense>

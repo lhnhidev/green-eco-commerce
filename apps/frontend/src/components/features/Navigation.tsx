@@ -25,7 +25,7 @@ export function Navigation() {
   const { data } = useGetApiCart()
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-backdrop-filter:bg-white/60">
+    <header className="sticky top-0 z-50 w-full border-b border-primary/10 shadow-sm bg-white/80 backdrop-blur-md supports-backdrop-filter:bg-white/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
@@ -34,7 +34,7 @@ export function Navigation() {
           <nav className="hidden md:flex items-center gap-2">
             {navigationItems.map((item) => (
               <Link key={item.path} to={item.path}>
-                <Button variant={isActive(item.path) ? 'filled' : 'subtle'} color="green.9" radius="xl">
+                <Button variant={isActive(item.path) ? 'filled' : 'subtle'} color="primary.8" radius="xl" className="transition-all hover:scale-105">
                   {item.label}
                 </Button>
               </Link>
@@ -44,7 +44,7 @@ export function Navigation() {
           {/* Search Bar - Desktop */}
           <div className="hidden md:flex flex-1 max-w-sm mx-8">
             <TextInput
-              placeholder="Search plants..."
+              placeholder="Search products..."
               leftSection={<MagnifyingGlassIcon className="h-4 w-4" />}
               radius="xl"
               className="w-full"
@@ -79,7 +79,7 @@ export function Navigation() {
               {data?.items?.length === undefined ? (
                 <div></div>
               ) : (
-                <Badge size="sm" circle color="green.9" className="absolute -top-2 -right-2">
+                <Badge size="sm" circle color="primary.8" className="absolute -top-2 -right-2 shadow-md animate-pulse">
                   {data?.items?.length}
                 </Badge>
               )}
@@ -95,7 +95,7 @@ export function Navigation() {
         {/* Mobile Navigation */}
         <div className="md:hidden pb-4">
           <TextInput
-            placeholder="Search plants..."
+            placeholder="Search products..."
             leftSection={<MagnifyingGlassIcon className="h-4 w-4" />}
             radius="xl"
             className="mb-4"
@@ -105,10 +105,11 @@ export function Navigation() {
               <Link to={item.path} key={item.path}>
                 <Button
                   variant={isActive(item.path) ? 'filled' : 'subtle'}
-                  color="green.9"
+                  color="primary.8"
                   size="xs"
                   // onClick={() => navigate(item.path)}
                   radius="xl"
+                  className="transition-all"
                 >
                   {item.label}
                 </Button>

@@ -7,11 +7,14 @@ namespace GreenEcoCommerce.Application.Features.Orders;
 
 public record CreateOrderCommandResponse(Guid Id, Guid UserId, OrderStatusEnum Status, string DeliveryAddress, decimal DiscountAmount, decimal EarnedPoints, DateTimeOffset CreatedAt);
 
+public record OrderDto(Guid Id, Guid UserId, OrderStatusEnum Status, string DeliveryAddress, decimal DiscountAmount, decimal EarnedPoints, DateTimeOffset CreatedAt);
+
 public class OrderProfie : Profile
 {
     public OrderProfie()
     {
         CreateMap<CreateOrderCommand, Order>();
         CreateMap<Order, CreateOrderCommandResponse>();
+        CreateMap<Order, OrderDto>();
     }
 }

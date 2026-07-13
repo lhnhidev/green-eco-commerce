@@ -10,29 +10,42 @@ import axios from 'axios'
 import { AuthBootstrap } from './components/features/AuthBootstrap.tsx'
 import { router } from './router/index.tsx'
 import { store } from './store/index.ts'
-import '@fontsource-variable/raleway/wght.css'
+import '@fontsource-variable/inter/wght.css'
 import 'animate.css'
 import '@mantine/dates/styles.css'
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const theme = createTheme({
-  fontFamily: 'Raleway Variable, Poppins, sans-serif',
-  primaryColor: 'green',
+  fontFamily: 'Inter Variable, sans-serif',
+  primaryColor: 'primary',
   colors: {
-    green: [
-      '#f0fdf4',
-      '#dcfce7',
-      '#bbf7d0',
-      '#86efac',
-      '#4ade80',
-      '#22c55e',
-      '#16a34a',
-      '#15803d',
-      '#166534',
-      '#2d5016',
+    primary: [
+      '#eefcf1',
+      '#d7f7de',
+      '#a8ecc2',
+      '#74dfa1',
+      '#4bd486',
+      '#30cc74',
+      '#1fc969',
+      '#10b157',
+      '#059d4c',
+      '#00883f',
     ],
   },
   defaultRadius: 'md',
+  components: {
+    Button: {
+      defaultProps: {
+        fw: 600,
+      },
+    },
+    Paper: {
+      defaultProps: {
+        radius: 'lg',
+        shadow: 'sm',
+      },
+    },
+  },
 })
 
 // Cấu hình URL gốc cho tất cả các lượt gọi API thông qua Axios

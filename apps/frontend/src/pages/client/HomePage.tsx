@@ -35,7 +35,7 @@ const GroupProductSliderWithButtonShowMore = () => {
       <ProductSlider products={products.items} delayTime={delayTime} percent={percent} />
       <div className="text-center mt-12">
         <Link to="/products">
-          <Button size="lg" variant="outline" radius="xl" color="green.9">
+          <Button size="lg" variant="outline" radius="xl" color="primary.8" className="transition-all hover:scale-105">
             View All Products
           </Button>
         </Link>
@@ -52,8 +52,8 @@ export function HomePage() {
 
       <div>
         <FeatureSection
-          title="Featured Plants"
-          description="Hand-picked plants perfect for beginners and plant enthusiasts alike"
+          title="Featured Eco-Friendly Products"
+          description="Hand-picked sustainable products perfect for a zero-waste lifestyle"
           contentComponent={<GroupProductSliderWithButtonShowMore />}
           backgroundColor={null}
         />
@@ -61,7 +61,7 @@ export function HomePage() {
 
       <FeatureSection
         title="Stay Updated"
-        description="Get plant care tips, new arrivals, and exclusive offers delivered to your inbox"
+        description="Get sustainable living tips, new arrivals, and exclusive offers delivered to your inbox"
         contentComponent={<FormSendEmail />}
         backgroundColor="plant-gradient"
       />

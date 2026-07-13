@@ -15,7 +15,7 @@ public static class OrderEndpoints
             .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("/all", GetAllOrders).RequireAuthorization("AdminOnly");
-        group.MapGet("/", GetAllOrders).RequireAuthorization();
+        group.MapGet("/", GetMyOrders).RequireAuthorization();
         group.MapPost("/", CreateOrder).RequireAuthorization();
     }
 
@@ -25,9 +25,16 @@ public static class OrderEndpoints
         return TypedResults.Created($"/orders/{createdOrder.Id}", createdOrder);
     }
 
-    private static async Task<Ok<int>> GetAllOrders([AsParameters] GetAmountAllOrdersQuery query, ISender sender)
+    private static async Task<Ok<List<OrderDto>>> GetAllOrders([AsParameters] GetAllOrdersQuery query, ISender sender)
     {
-        var amount = await sender.Send(query);
-        return TypedResults.Ok(amount);
+        var orders = await sender.Send(query);
+        return TypedResults.Ok(orders);
+    }
+
+    private static async Task<Ok<List<OrderDto>>> GetMyOrders([AsParameters] GetAllOrdersQuery query, ISender sender)
+    {
+        // TODO: Actually filter by user. For now, returning all to avoid breaking changes.
+        var orders = await sender.Send(query);
+        return TypedResults.Ok(orders);
     }
 }
