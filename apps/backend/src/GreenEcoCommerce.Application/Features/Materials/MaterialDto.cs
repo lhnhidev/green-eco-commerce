@@ -9,36 +9,18 @@ public record CreateMaterialResponse(
     Guid Id,
     string Name,
     MaterialTypeEnum Type,
-    int EcoRating,
-    string? Origin,
-    string? Sku,
-    decimal StockQty,
-    string? Unit,
-    decimal UnitPrice,
-    string? ImageUrl);
+    int EcoRating);
 
 public record MaterialItem(
     Guid Id,
     string Name,
     MaterialTypeEnum Type,
-    int EcoRating,
-    string? Origin,
-    string? Sku,
-    decimal StockQty,
-    string? Unit,
-    decimal UnitPrice,
-    string? ImageUrl);
+    int EcoRating);
 
 public record MaterialUpdateDto(
     string Name,
-    string Type,
-    int EcoRating,
-    string? Origin,
-    string? Sku,
-    decimal StockQty,
-    string? Unit,
-    decimal UnitPrice,
-    string? ImageUrl);
+    MaterialTypeEnum Type,
+    int EcoRating);
 
 public class MaterialProfile : Profile
 {

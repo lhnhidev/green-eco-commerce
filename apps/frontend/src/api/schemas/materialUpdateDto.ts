@@ -5,19 +5,10 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { MaterialTypeEnum } from './materialTypeEnum';
 
 export interface MaterialUpdateDto {
   name: string;
-  type: string;
+  type: MaterialTypeEnum;
   ecoRating: number;
-  /** @nullable */
-  origin: string | null;
-  /** @nullable */
-  sku: string | null;
-  stockQty: number;
-  /** @nullable */
-  unit: string | null;
-  unitPrice: number;
-  /** @nullable */
-  imageUrl: string | null;
 }

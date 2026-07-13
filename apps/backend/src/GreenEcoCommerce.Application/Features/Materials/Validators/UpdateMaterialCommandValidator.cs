@@ -17,9 +17,9 @@ public class UpdateMaterialCommandValidator : AbstractValidator<UpdateMaterialCo
             .MaximumLength(300).WithMessage("Material name cannot exceed 180 characters")
             .MinimumLength(2).WithMessage("Material name cannot exceed 3 characters");
 
-        RuleFor(c => c.Dto.Type)
-            .NotEmpty().WithMessage("Material type is required")
-            .IsEnumName(typeof(MaterialTypeEnum)).WithMessage("Type must be in enum (Natural, Synthetic, Recycled)");
+        // RuleFor(c => c.Dto.Type)
+        //     .NotEmpty().WithMessage("Material type is required")
+        //     .IsEnumName(typeof(MaterialTypeEnum)).WithMessage("Type must be in enum (Natural, Synthetic, Recycled)");
 
         RuleFor(c => c.Dto.EcoRating)
             .NotNull().WithMessage("EcoRating is required")
