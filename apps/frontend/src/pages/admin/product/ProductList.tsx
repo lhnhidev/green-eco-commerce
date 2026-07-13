@@ -1,9 +1,9 @@
+import { useGetApiProductsAll } from '@api'
 import { ActionIcon, Badge, Button, Table, TextInput } from '@mantine/core'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
-import { useGetApiProductsAll } from '../../../api'
 
 const ProductList = () => {
   const [search, setSearch] = useState('')

@@ -1,13 +1,14 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 /** biome-ignore-all lint/correctness/useJsxKeyInIterable: <> */
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
+
+import { useGetApiCart } from '@api'
+import { useAppDispatch } from '@hooks/useAppDispatch'
+import { useAppSelector } from '@hooks/useAppSelector'
 import { Button } from '@mantine/core'
+import Loading from '@ui/status/Loading'
 import { IoCart, IoCloseSharp } from 'react-icons/io5'
 import { useNavigate } from 'react-router'
-import { useGetApiCart } from '../../../api'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
-import { useAppSelector } from '../../../hooks/useAppSelector'
-import Loading from '../../ui/status/Loading'
 import CartItem from './CartItem'
 import { setIsShow } from './cart.slice'
 

@@ -1,10 +1,10 @@
-import { Button, TextInput, ActionIcon } from '@mantine/core'
+import { getGetApiCategoriesQueryKey, usePostApiCategories } from '@api'
+import { ActionIcon, Button, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate, Link } from 'react-router'
 import { FiArrowLeft } from 'react-icons/fi'
-import { getGetApiCategoriesQueryKey, usePostApiCategories } from '../../../api'
+import { Link, useNavigate } from 'react-router'
 
 const CategoryCreate = () => {
   const queryClient = useQueryClient()
@@ -33,7 +33,7 @@ const CategoryCreate = () => {
         onError: () => {
           notifications.show({ title: 'Error', message: 'Could not create category', color: 'red' })
         },
-      }
+      },
     )
   }
 
@@ -52,11 +52,19 @@ const CategoryCreate = () => {
       <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-8">
         <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-6">
           <TextInput label="Category Name" placeholder="e.g. Zero Waste" withAsterisk {...form.getInputProps('name')} />
-          <TextInput label="Description" placeholder="Description of the category" {...form.getInputProps('description')} />
-          
+          <TextInput
+            label="Description"
+            placeholder="Description of the category"
+            {...form.getInputProps('description')}
+          />
+
           <div className="flex justify-end gap-4 mt-4">
-            <Button component={Link} to="/admin/category" variant="default">Cancel</Button>
-            <Button type="submit" color="primary" loading={isPending}>Create Category</Button>
+            <Button component={Link} to="/admin/category" variant="default">
+              Cancel
+            </Button>
+            <Button type="submit" color="primary" loading={isPending}>
+              Create Category
+            </Button>
           </div>
         </form>
       </div>

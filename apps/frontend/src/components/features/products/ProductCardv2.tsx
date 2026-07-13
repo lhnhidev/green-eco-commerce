@@ -1,8 +1,8 @@
+import { getGetApiCartQueryKey, usePostApiCartItems } from '@api'
+import type { ProductDto } from '@api/schemas'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router'
-import { getGetApiCartQueryKey, usePostApiCartItems } from '../../../api'
-import type { ProductDto } from '../../../api/schemas'
 
 const ProductCardv2 = ({ product }: { product: ProductDto }) => {
   const { mutate } = usePostApiCartItems()

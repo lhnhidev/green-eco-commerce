@@ -1,5 +1,5 @@
+import { useGetApiProductsSome } from '@api'
 import { useState } from 'react'
-import { useGetApiProductsSome } from '../../../api'
 import ProductCard from './ProductCardv1'
 
 const ProductList = () => {

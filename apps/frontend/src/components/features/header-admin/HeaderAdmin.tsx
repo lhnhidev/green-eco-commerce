@@ -1,7 +1,7 @@
+import { useAppSelector } from '@hooks/useAppSelector'
 import { TextInput } from '@mantine/core'
 import { CiSearch } from 'react-icons/ci'
 import { FaRegBell } from 'react-icons/fa'
-import { useAppSelector } from '../../../hooks/useAppSelector'
 import ProfileUser from '../auth/ProfileUser'
 
 const HeaderAdmin = () => {

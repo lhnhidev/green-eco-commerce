@@ -1,7 +1,7 @@
-import AuthHeader from '../components/features/auth/AuthHeader'
-import LoginForm from '../components/features/auth/LoginForm'
-import RegisterForm from '../components/features/auth/RegisterForm'
-import { useAppSelector } from '../hooks/useAppSelector'
+import AuthHeader from '@components/features/auth/AuthHeader'
+import LoginForm from '@components/features/auth/LoginForm'
+import RegisterForm from '@components/features/auth/RegisterForm'
+import { useAppSelector } from '@hooks/useAppSelector'
 
 const AuthFormLayout = () => {
   const active = useAppSelector((state) => state.auth.active)

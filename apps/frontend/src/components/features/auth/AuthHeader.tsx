@@ -1,6 +1,6 @@
+import { useAppDispatch } from '@hooks/useAppDispatch'
+import { useAppSelector } from '@hooks/useAppSelector'
 import { SegmentedControl } from '@mantine/core'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
-import { useAppSelector } from '../../../hooks/useAppSelector'
 import { changeActive } from './auth.slice'
 
 type AuthHeaderType = {

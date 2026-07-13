@@ -1,4 +1,7 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
+
+import { getGetApiAuthMeQueryKey, usePostApiAuthLogout } from '@api'
+import { useAuth } from '@hooks/useAuth'
 import { Avatar, Divider, Group, Skeleton, Stack, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
@@ -7,8 +10,6 @@ import { BiLeaf } from 'react-icons/bi'
 import { FiHeart, FiLogOut, FiPackage, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi'
 import type { IconType } from 'react-icons/lib'
 import { Link, useNavigate } from 'react-router'
-import { getGetApiAuthMeQueryKey, usePostApiAuthLogout } from '../../../api'
-import { useAuth } from '../../../hooks/useAuth'
 import LoginComponent from './LoginComponent'
 
 type menuItemType = {

@@ -1,8 +1,9 @@
 /** biome-ignore-all lint/a11y/useButtonType: <> */
+
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Tooltip } from '@mantine/core'
 import { BiMessageRoundedAdd } from 'react-icons/bi'
 import { VscChromeMinimize } from 'react-icons/vsc'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
 import { setIsShow } from './chatbot.slice'
 
 const HeaderChatbot = () => {

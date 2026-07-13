@@ -1,7 +1,7 @@
-import { Badge, Button, Table, TextInput, ActionIcon } from '@mantine/core'
-import { useState, useMemo } from 'react'
-import { FiPlus, FiSearch, FiEdit2, FiTrash2 } from 'react-icons/fi'
-import { useGetApiCategories } from '../../../api'
+import { useGetApiCategories } from '@api'
+import { ActionIcon, Badge, Button, Table, TextInput } from '@mantine/core'
+import { useMemo, useState } from 'react'
+import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
 
 const CategoryList = () => {

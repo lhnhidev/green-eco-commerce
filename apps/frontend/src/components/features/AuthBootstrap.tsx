@@ -1,6 +1,6 @@
+import { useGetApiAuthMe } from '@api'
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useEffect } from 'react'
-import { useGetApiAuthMe } from '../../api'
-import { useAppDispatch } from '../../hooks/useAppDispatch'
 import { clearAuthUser, setAuthUser } from './auth/auth.slice'
 
 export function AuthBootstrap() {

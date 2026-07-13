@@ -1,7 +1,7 @@
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Carousel } from '@mantine/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import { useRef } from 'react'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
 import { changeImgSliderSliceActive } from './img-slider.slice'
 
 type ImgSliderProps = {

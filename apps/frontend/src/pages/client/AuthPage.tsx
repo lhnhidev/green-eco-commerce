@@ -1,5 +1,5 @@
-import Brand from '../../components/ui/Brand'
-import AuthFormLayout from '../../layouts/AuthFormLayout'
+import Brand from '@components/ui/Brand'
+import AuthFormLayout from '@layouts/AuthFormLayout'
 
 const AuthPage = () => {
   return (

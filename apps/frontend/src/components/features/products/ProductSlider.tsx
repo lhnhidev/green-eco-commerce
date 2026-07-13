@@ -2,9 +2,9 @@ import { Carousel } from '@mantine/carousel'
 import ProductCard from './ProductCardv1'
 import '@mantine/core/styles.css'
 import '@mantine/carousel/styles.css'
+import type { ProductDto } from '@api/schemas'
 import Autoplay from 'embla-carousel-autoplay'
 import { useRef } from 'react'
-import type { ProductDto } from '../../../api/schemas'
 
 type ProductSliderProps = {
   products: Array<ProductDto>

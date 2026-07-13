@@ -1,7 +1,7 @@
+import type { ProductDto } from '@api/schemas'
 import { Badge, Button, Card } from '@mantine/core'
 import { StarIcon } from '@phosphor-icons/react'
-import type { ProductDto } from '../../../api/schemas'
-import { ImageWithFallback } from '../../ui/status/ImageWithFallback'
+import { ImageWithFallback } from '@ui/status/ImageWithFallback'
 
 const ProductCardv1 = ({ product }: { product: ProductDto }) => {
   return (

@@ -1,8 +1,8 @@
+import { useGetApiOrdersAll } from '@api'
 import { ActionIcon, Badge, Button, Select, Table, TextInput } from '@mantine/core'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { FiDownload, FiEye, FiSearch } from 'react-icons/fi'
-import { useGetApiOrdersAll } from '../../../api'
 
 const OrderList = () => {
   const [search, setSearch] = useState('')

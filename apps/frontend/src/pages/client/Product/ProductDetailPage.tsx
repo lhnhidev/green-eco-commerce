@@ -1,15 +1,15 @@
+import { getGetApiCartQueryKey, useGetApiProductsId, usePostApiCartItems } from '@api'
+import ImgSlider from '@components/ui/img-slider/ImgSlider'
+import Loading from '@components/ui/status/Loading'
+import { useAppSelector } from '@hooks/useAppSelector'
 import { Anchor, Breadcrumbs, NumberInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
+import { formatParam } from '@utils/formatParam'
 import { useState } from 'react'
 import { GrFavorite } from 'react-icons/gr'
 import { IoBagHandleOutline } from 'react-icons/io5'
 import { useParams } from 'react-router'
-import { getGetApiCartQueryKey, useGetApiProductsId, usePostApiCartItems } from '../../../api'
-import ImgSlider from '../../../components/ui/img-slider/ImgSlider'
-import Loading from '../../../components/ui/status/Loading'
-import { useAppSelector } from '../../../hooks/useAppSelector'
-import { formatParam } from '../../../utils/formatParam'
 
 const ProductDetailPage = () => {
   const { id } = useParams()

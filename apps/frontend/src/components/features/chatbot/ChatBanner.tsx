@@ -1,6 +1,6 @@
+import { useAppSelector } from '@hooks/useAppSelector'
 import { RiRobot3Line } from 'react-icons/ri'
 import { Typewriter } from 'react-simple-typewriter'
-import { useAppSelector } from '../../../hooks/useAppSelector'
 
 const ChatBanner = () => {
   const fullName = useAppSelector((state) => {

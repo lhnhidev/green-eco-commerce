@@ -1,8 +1,8 @@
-import { Anchor, Breadcrumbs, Input, Select, Pagination, Checkbox, Skeleton } from '@mantine/core'
+import { useGetApiCategories, useGetApiProductsSome } from '@api'
+import ProductCardv2 from '@components/features/products/ProductCardv2'
+import { Anchor, Breadcrumbs, Checkbox, Input, Pagination, Select, Skeleton } from '@mantine/core'
 import { useState } from 'react'
 import { CiSearch } from 'react-icons/ci'
-import { useGetApiProductsSome, useGetApiCategories } from '../../../api'
-import ProductCardv2 from '../../../components/features/products/ProductCardv2'
 
 const items = [
   { id: 1, title: 'Home', href: '/' },

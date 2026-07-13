@@ -1,8 +1,9 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
+
+import type { CartItemDto } from '@api/schemas'
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useNavigate } from 'react-router'
-import type { CartItemDto } from '../../../api/schemas'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
 import { setIsShow } from './cart.slice'
 
 const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
