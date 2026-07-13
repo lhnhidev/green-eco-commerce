@@ -14,7 +14,7 @@ const Footer = () => {
               <span className="text-xl font-semibold">GreenCart</span>
             </div>
             <p className="text-white/80 text-sm">
-              Your trusted partner in bringing nature into your home with healthy, beautiful plants.
+              Your trusted partner in bringing sustainable, eco-friendly products into your everyday life.
             </p>
           </div>
           <div>
@@ -22,22 +22,22 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-white/80">
               <li>
                 <button type="button" onClick={() => navigate('/products')}>
-                  All Plants
+                  All Products
                 </button>
               </li>
               <li>
                 <button type="button" onClick={() => navigate('/products')}>
-                  Indoor Plants
+                  Zero Waste
                 </button>
               </li>
               <li>
                 <button type="button" onClick={() => navigate('/products')}>
-                  Outdoor Plants
+                  Home Essentials
                 </button>
               </li>
               <li>
                 <button type="button" onClick={() => navigate('/products')}>
-                  Plant Care
+                  Personal Care
                 </button>
               </li>
             </ul>
@@ -47,7 +47,7 @@ const Footer = () => {
             <ul className="space-y-2 text-sm text-white/80">
               <li>
                 <button type="button" onClick={() => navigate('/remedies')}>
-                  Plant Remedies
+                  Sustainability Guide
                 </button>
               </li>
               <li>

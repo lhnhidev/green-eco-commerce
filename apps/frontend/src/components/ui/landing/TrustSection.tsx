@@ -11,15 +11,15 @@ const TrustSection = () => {
     {
       id: '2',
       icon: ShieldCheckIcon,
-      title: 'Plant Guarantee',
-      description: '30-day health guarantee on all plants',
+      title: 'Quality Guarantee',
+      description: '30-day guarantee on all sustainable goods',
     },
     {
       id: '3',
       icon: HeadsetIcon,
 
-      title: 'Plant Care Support',
-      description: '24/7 expert plant care guidance',
+      title: 'Expert Support',
+      description: '24/7 expert eco-living guidance',
     },
     {
       id: '4',
