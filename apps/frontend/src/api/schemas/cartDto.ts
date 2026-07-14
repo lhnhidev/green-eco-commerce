@@ -8,8 +8,7 @@
 import type { CartItemDto } from './cartItemDto';
 
 export interface CartDto {
-  id?: string;
-  userId?: string;
-  items?: CartItemDto[];
-  totalPrice?: number;
+  id: string;
+  userId: string;
+  items: CartItemDto[];
 }

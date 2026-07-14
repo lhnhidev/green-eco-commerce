@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
 using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
@@ -20,6 +21,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using GreenEcoCommerce.WebAPI.Endpoints;
+using Microsoft.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,12 +69,12 @@ var auditingInterceptor = new AuditingInterceptor();
 // Đăng ký MediatR và quét toàn bộ Assembly chứa class cấu hình
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(GreenEcoCommerce.Application.Features.Auth.Login.LoginCommand).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
 // Đăng ký FluentValidation
-builder.Services.AddValidatorsFromAssembly(typeof(GreenEcoCommerce.Application.Features.Auth.Login.LoginCommand).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(LoginCommand).Assembly);
 
 // Cấu hình CORS (Cho phép React gọi API mà không bị chặn)
 builder.Services.AddCors(options =>
@@ -98,16 +100,43 @@ builder.Services.AddOpenApi(opt =>
 
         return Task.CompletedTask;
     });
+
+    opt.CreateSchemaReferenceId = typeInfo =>
+    {
+        var type = typeInfo.Type;
+
+        // Check if it's a nested class
+        if (type.IsNested)
+        {
+            // Start with the innermost class name (stripping generic backticks if present)
+            string schemaId = type.Name.Split('`')[0];
+            var currentType = type;
+
+            // Walk up the nested hierarchy and prepend parent class names
+            while (currentType.IsNested && currentType.DeclaringType != null)
+            {
+                currentType = currentType.DeclaringType;
+                string parentName = currentType.Name.Split('`')[0];
+
+                // Combine with a dot
+                schemaId = $"{parentName}.{schemaId}";
+            }
+
+            return schemaId; // Yields: OuterClass.InnerClass
+        }
+
+        // Use Microsoft's default behavior for all other types
+        return OpenApiOptions.CreateDefaultSchemaReferenceId(typeInfo);
+    };
 });
 
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
 builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
 {
     options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
-    )
-    .AddInterceptors(auditingInterceptor);
+                builder.Configuration.GetConnectionString("DefaultConnection"),
+                b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName))
+            .AddInterceptors(auditingInterceptor);
 });
 
 // Đăng ký dịch vụ Redis Distributed Cache của Microsoft
@@ -117,12 +146,11 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 // Đăng ký Controllers và cấu hình route convention
-builder.Services.AddControllers()
-        .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-            options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
-        });
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+});
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
@@ -137,12 +165,6 @@ builder.Services.Configure<RouteOptions>(opt =>
 // Đăng ký ExceptionHanlder
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
-
-// Đăng ký AutoMapper và quét qua tất cả các Profile nằm trong Assembly (Tầng Application)
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddMaps(typeof(GreenEcoCommerce.Application.Mapping.RegisterCommandToUserProfile));
-});
 
 // Đăng ký DI
 builder.Services.AddScoped<IJwtService, JwtService>();

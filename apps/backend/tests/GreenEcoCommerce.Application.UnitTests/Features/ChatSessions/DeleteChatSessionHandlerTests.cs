@@ -9,12 +9,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.ChatSessions;
 public class DeleteChatSessionHandlerTests
 {
     private readonly Mock<IChatSessionRepository> mockRepo;
-    private readonly DeleteChatSessionHandler handler;
+    private readonly DeleteChatSessionCommand.Handler handler;
 
     public DeleteChatSessionHandlerTests()
     {
         mockRepo = new Mock<IChatSessionRepository>();
-        handler = new DeleteChatSessionHandler(mockRepo.Object);
+        handler = new DeleteChatSessionCommand.Handler(mockRepo.Object);
     }
 
     [Fact]

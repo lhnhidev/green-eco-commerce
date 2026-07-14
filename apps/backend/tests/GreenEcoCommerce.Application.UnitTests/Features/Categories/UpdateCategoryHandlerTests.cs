@@ -1,4 +1,3 @@
-using AutoMapper;
 using GreenEcoCommerce.Application.Features.Categories;
 using GreenEcoCommerce.Application.Features.Categories.Commands;
 using GreenEcoCommerce.Domain.Entities;
@@ -11,14 +10,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.Categories;
 public class UpdateCategoryHandlerTests
 {
     private readonly Mock<ICategoryRepository> mockRepo;
-    private readonly Mock<IMapper> mockMapper;
-    private readonly UpdateCategoryHandler handler;
+    private readonly UpdateCategoryCommand.Handler handler;
 
     public UpdateCategoryHandlerTests()
     {
         mockRepo = new Mock<ICategoryRepository>();
-        mockMapper = new Mock<IMapper>();
-        handler = new UpdateCategoryHandler(mockRepo.Object, mockMapper.Object);
+        handler = new UpdateCategoryCommand.Handler(mockRepo.Object);
     }
 
     [Fact]
@@ -28,20 +25,11 @@ public class UpdateCategoryHandlerTests
         var categoryId = Guid.NewGuid();
         var dto = new CategoryPayloadDto("Updated Electronics", "Updated description");
         var command = new UpdateCategoryCommand(categoryId, dto);
-        var categoryEntity = new Category { Id = categoryId, Name = "Updated Electronics", Description = "Updated description" };
         var expectedDto = new CategoryDto(categoryId, "Updated Electronics", "Updated description");
 
-        mockMapper
-            .Setup(m => m.Map<Category>(command))
-            .Returns(categoryEntity);
-
         mockRepo
-            .Setup(r => r.UpdateAsync(categoryEntity, It.IsAny<CancellationToken>()))
+            .Setup(r => r.UpdateAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
-
-        mockMapper
-            .Setup(m => m.Map<CategoryDto>(command))
-            .Returns(expectedDto);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -50,6 +38,7 @@ public class UpdateCategoryHandlerTests
         Assert.NotNull(result);
         Assert.Equal(categoryId, result.Id);
         Assert.Equal("Updated Electronics", result.Name);
+        Assert.Equal(expectedDto, result);
     }
 
     [Fact]
@@ -60,10 +49,6 @@ public class UpdateCategoryHandlerTests
         var dto = new CategoryPayloadDto("Non-Existent");
         var command = new UpdateCategoryCommand(categoryId, dto);
         var categoryEntity = new Category { Id = categoryId, Name = "Non-Existent" };
-
-        mockMapper
-            .Setup(m => m.Map<Category>(command))
-            .Returns(categoryEntity);
 
         mockRepo
             .Setup(r => r.UpdateAsync(categoryEntity, It.IsAny<CancellationToken>()))
@@ -84,26 +69,18 @@ public class UpdateCategoryHandlerTests
         var categoryId = Guid.NewGuid();
         var dto = new CategoryPayloadDto("Clothing");
         var command = new UpdateCategoryCommand(categoryId, dto);
-        var categoryEntity = new Category { Id = categoryId, Name = "Clothing" };
         var expectedDto = new CategoryDto(categoryId, "Clothing");
 
-        mockMapper
-            .Setup(m => m.Map<Category>(command))
-            .Returns(categoryEntity);
-
         mockRepo
-            .Setup(r => r.UpdateAsync(categoryEntity, It.IsAny<CancellationToken>()))
+            .Setup(r => r.UpdateAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        mockMapper
-            .Setup(m => m.Map<CategoryDto>(command))
-            .Returns(expectedDto);
-
         // Act
-        await handler.Handle(command, CancellationToken.None);
+        var result = await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        mockRepo.Verify(r => r.UpdateAsync(categoryEntity, It.IsAny<CancellationToken>()), Times.Once);
+        mockRepo.Verify(r => r.UpdateAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.Equal(expectedDto, result);
     }
 
     [Fact]
@@ -116,9 +93,7 @@ public class UpdateCategoryHandlerTests
         var categoryEntity = new Category { Id = categoryId, Name = "Valid Name" };
         var expectedDto = new CategoryDto(categoryId, "Valid Name", "Valid desc");
 
-        mockMapper.Setup(m => m.Map<Category>(command)).Returns(categoryEntity);
-        mockRepo.Setup(r => r.UpdateAsync(categoryEntity, It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        mockMapper.Setup(m => m.Map<CategoryDto>(command)).Returns(expectedDto);
+        mockRepo.Setup(r => r.UpdateAsync(It.IsAny<Category>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
         // Act
         var exception = await Record.ExceptionAsync(() => handler.Handle(command, CancellationToken.None));

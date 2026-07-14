@@ -1,12 +1,11 @@
 using FluentValidation.TestHelper;
-using GreenEcoCommerce.Application.Features.Auth.Register;
-using GreenEcoCommerce.Application.Features.Auth.Validators;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class RegisterCommandValidatorTests
 {
-    private readonly RegisterCommandValidator validator = new();
+    private readonly RegisterCommand.Validator validator = new();
 
     // Creates a fully valid RegisterCommand; individual fields can be overridden.
     private static RegisterCommand CreateValidCommand(string firstName = "John", string lastName = "Doe",

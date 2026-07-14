@@ -33,7 +33,7 @@ public static class ChatSessionEndpoints
         return userId;
     }
 
-    private static async Task<Ok<List<ChatSessionDto>>> GetAllChatSessions(ClaimsPrincipal user, ISender sender)
+    private static async Task<Ok<ChatSessionDto[]>> GetAllChatSessions(ClaimsPrincipal user, ISender sender)
     {
         var userId = GetUserId(user);
         var sessions = await sender.Send(new GetAllChatSessionsQuery(userId));

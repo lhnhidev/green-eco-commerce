@@ -1,15 +1,10 @@
-using AutoMapper;
 using GreenEcoCommerce.Application.Features.Materials.Commands;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
+using MediatR;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.Materials;
-
-public record CreateMaterialResponse(
-    Guid Id,
-    string Name,
-    MaterialTypeEnum Type,
-    int EcoRating);
 
 public record MaterialItem(
     Guid Id,
@@ -17,20 +12,14 @@ public record MaterialItem(
     MaterialTypeEnum Type,
     int EcoRating);
 
-public record MaterialUpdateDto(
+public record MaterialPayloadDto(
     string Name,
     MaterialTypeEnum Type,
-    int EcoRating);
+    int EcoRating): IRequest<MaterialItem>;
 
-public class MaterialProfile : Profile
+[Mapper]
+public static partial class MaterialDtoMapper
 {
-    public MaterialProfile()
-    {
-        CreateMap<CreateMaterialCommand, Material>();
-        CreateMap<MaterialUpdateDto, Material>();
-        CreateMap<Material, CreateMaterialResponse>();
-        CreateMap<Material, MaterialItem>();
-        CreateMap<UpdateMaterialCommand, Material>()
-            .IncludeMembers(src => src.Dto);
-    }
+    public static partial MaterialItem ToDto(this Material material);
+    public static partial Material ToEntity(this MaterialPayloadDto dto);
 }

@@ -1,13 +1,11 @@
-using GreenEcoCommerce.Application.Features.Auth.GetMe;
-using GreenEcoCommerce.Application.Features.Auth.Login;
-using GreenEcoCommerce.Application.Features.Auth.Register;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using GreenEcoCommerce.Application.Features.Auth.Logout;
-using GreenEcoCommerce.Application.Features.Auth.RefreshToken;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
+using GreenEcoCommerce.Application.Features.Auth.Queries;
 using GreenEcoCommerce.Application.Interfaces.Security;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace GreenEcoCommerce.WebAPI.Controllers;
 
@@ -24,12 +22,12 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         RefreshToken
     }
 
-    private static Guid CheckUserIdClaim(ClaimsPrincipal user)
+    private static Guid? CheckUserIdClaim(ClaimsPrincipal user)
     {
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            throw new UnauthorizedAccessException("Invalid user ID in token");
+            return null;
         }
 
         return userId;
@@ -66,7 +64,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
                          }
                          ```
                          """)]
-    [ProducesResponseType<RegisterResponse>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
+    [ProducesResponseType<RegisterCommand.Response>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
     [ProducesResponseType(
         typeof(ProblemDetails),
         StatusCodes.Status400BadRequest,
@@ -82,59 +80,72 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
     }
 
     [HttpPost("login")]
-    [ProducesResponseType<UserInfoResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Login(LoginCommand command)
+    public async Task<Ok<UserInfoResponse>> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
         SetTokenCookie(response.Token, TokenType.AccessToken);
         SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
-        return Ok(response.UserInfo);
+        return TypedResults.Ok(response.UserInfo);
     }
 
     [HttpPost("logout")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Logout()
+    public async Task<Results<NoContent, BadRequest<ProblemDetails>>> Logout()
     {
         var userId = CheckUserIdClaim(User);
-        await sender.Send(new LogoutCommand(userId));
+        if (!userId.HasValue)
+        {
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Title = "Invalid User",
+                Detail = "Invalid user ID in token"
+            });
+        }
+
+        await sender.Send(new LogoutCommand(userId.Value));
 
         Response.Cookies.Delete("AccessToken");
         Response.Cookies.Delete("RefreshToken");
 
-        return NoContent();
+        return TypedResults.NoContent();
     }
 
     [HttpGet("me")]
     [Authorize]
-    [ProducesResponseType<UserProfileResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetMe()
+    public async Task<Results<Ok<UserProfileQuery.Response>, BadRequest<ProblemDetails>>> GetMe()
     {
         var userId = CheckUserIdClaim(User);
-        var response = await sender.Send(new GetMeQuery(userId));
-        return Ok(response);
+        if (!userId.HasValue)
+        {
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Title = "Invalid User",
+                Detail = "Invalid user ID in token"
+            });
+        }
+
+        var response = await sender.Send(new UserProfileQuery(userId.Value));
+        return TypedResults.Ok(response);
     }
 
     [HttpPost("refresh-token")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> RefreshToken()
+    public async Task<Results<NoContent, BadRequest<ProblemDetails>>> RefreshToken()
     {
-        var expiredToken = Request.Cookies["AccessToken"];
-        var refreshToken = Request.Cookies["RefreshToken"];
+        string? expiredToken = Request.Cookies["AccessToken"];
+        string? refreshToken = Request.Cookies["RefreshToken"];
 
-        foreach (var cookie in Request.Cookies)
+        foreach ((string key, string value) in Request.Cookies)
         {
-            string key = cookie.Key;
-            string value = cookie.Value;
-
             Console.WriteLine($"Key: {key} | Value: {value}");
         }
 
         if (string.IsNullOrEmpty(expiredToken) || string.IsNullOrEmpty(refreshToken))
         {
-            return Unauthorized("Invalid access token or refresh token");
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Token",
+                Detail = "Invalid access token or refresh token"
+            });
         }
 
         try
@@ -142,15 +153,28 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
             var claimsPrincipal = jwtService.ValidateToken(expiredToken, validateLifetime: false);
             var userId = CheckUserIdClaim(claimsPrincipal);
 
-            var result = await sender.Send(new RefreshTokenCommand(userId, refreshToken));
+            if (!userId.HasValue)
+            {
+                return TypedResults.BadRequest(new ProblemDetails
+                {
+                    Title = "Invalid User",
+                    Detail = "Invalid user ID in token"
+                });
+            }
+
+            var result = await sender.Send(new RefreshTokenCommand(userId.Value, refreshToken));
             SetTokenCookie(result.Token, TokenType.AccessToken);
             SetTokenCookie(result.RefreshToken, TokenType.RefreshToken);
 
-            return Ok();
+            return TypedResults.NoContent();
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized("Invalid token");
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Token",
+                Detail = "Invalid access token or refresh token"
+            });
         }
     }
 }

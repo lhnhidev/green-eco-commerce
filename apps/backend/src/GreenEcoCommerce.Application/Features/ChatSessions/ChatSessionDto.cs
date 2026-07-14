@@ -1,6 +1,5 @@
-using AutoMapper;
 using GreenEcoCommerce.Domain.Entities;
-using MediatR;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.ChatSessions;
 
@@ -13,11 +12,9 @@ public record ChatSessionDto(
     DateTimeOffset CreatedAt
 );
 
-public class ChatSessionDtoProfile : Profile
+[Mapper]
+public static partial class ChatSessionDtoMapper
 {
-    public ChatSessionDtoProfile()
-    {
-        CreateMap<ChatSessionPayloadDto, ChatSession>();
-        CreateMap<ChatSession, ChatSessionDto>();
-    }
+    public static partial ChatSessionDto ToDto(this ChatSession chatSession);
+    public static partial ChatSession ToEntity(this ChatSessionPayloadDto payload);
 }

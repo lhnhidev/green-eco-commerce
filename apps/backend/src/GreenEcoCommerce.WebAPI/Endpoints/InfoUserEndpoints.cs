@@ -1,4 +1,3 @@
-using GreenEcoCommerce.Application.Features.InfoUser;
 using GreenEcoCommerce.Application.Features.InfoUser.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -16,7 +15,7 @@ public static class InfoUserEndpoints
         group.MapPut("/{id:guid}", UpdateInfoUser).RequireAuthorization();
     }
 
-    private static async Task<Ok<UpdateInfoUserResponse>> UpdateInfoUser([FromRoute] Guid id, [FromBody] UpdateInfoUserDto dto, ISender sender)
+    private static async Task<Ok<UpdateInfoUserCommand.Response>> UpdateInfoUser([FromRoute] Guid id, [FromBody] UpdateInfoUserDto dto, ISender sender)
     {
         var command = new UpdateInfoUserCommand(id, dto);
         var infoUserUpdated = await sender.Send(command);

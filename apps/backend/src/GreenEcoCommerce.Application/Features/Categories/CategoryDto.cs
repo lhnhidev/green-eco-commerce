@@ -1,6 +1,6 @@
-﻿using AutoMapper;
-using GreenEcoCommerce.Domain.Entities;
+﻿using GreenEcoCommerce.Domain.Entities;
 using MediatR;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.Categories;
 
@@ -13,11 +13,9 @@ public record CategoryDto(
     Guid? ParentId = null
 ): CategoryPayloadDto(Name, Description, ParentId);
 
-public class CategoryDtoProfile : Profile
+[Mapper]
+public static partial class CategoryDtoMapper
 {
-    public CategoryDtoProfile()
-    {
-        CreateMap<CategoryPayloadDto, Category>();
-        CreateMap<Category, CategoryDto>();
-    }
+    public static partial CategoryDto ToDto(this Category category);
+    public static partial Category ToEntity(this CategoryPayloadDto payload);
 }

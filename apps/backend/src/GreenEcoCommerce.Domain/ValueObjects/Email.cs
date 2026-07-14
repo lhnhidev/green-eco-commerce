@@ -19,10 +19,7 @@ public readonly partial record struct Email
 
     private static Validation Validate(string value)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            return Validation.Invalid("Email must not be empty");
-        }
+        if (string.IsNullOrWhiteSpace(value)) { return Validation.Invalid("Email must not be empty"); }
 
         return !EmailRegex().IsMatch(value) ? Validation.Invalid("Invalid email") : Validation.Ok;
     }

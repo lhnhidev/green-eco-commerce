@@ -5,14 +5,14 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { Co2Saved } from './co2Saved';
-import type { Orders } from './orders';
-import type { Revenue } from './revenue';
-import type { Users } from './users';
+import type { GetInfoAnalystQueryCo2Saved } from './getInfoAnalystQueryCo2Saved';
+import type { GetInfoAnalystQueryOrders } from './getInfoAnalystQueryOrders';
+import type { GetInfoAnalystQueryRevenue } from './getInfoAnalystQueryRevenue';
+import type { GetInfoAnalystQueryUsers } from './getInfoAnalystQueryUsers';
 
 export interface GetInfoAnalystQueryResponse {
-  totalRevenue: Revenue;
-  amountOrders: Orders;
-  amountUsers: Users;
-  totalCo2Saved: Co2Saved;
+  totalRevenue: GetInfoAnalystQueryRevenue;
+  amountOrders: GetInfoAnalystQueryOrders;
+  amountUsers: GetInfoAnalystQueryUsers;
+  totalCo2Saved: GetInfoAnalystQueryCo2Saved;
 }

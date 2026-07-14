@@ -198,7 +198,7 @@ public sealed class UserRepositoryTests(PostgreSqlFixture fixture) : IAsyncLifet
         // Act
         var (ctx2, repo2) = CreateSut();
         await using var __ = ctx2;
-        var exists = await repo2.EmailUserExist("carol@example.com");
+        bool exists = await repo2.EmailUserExist("carol@example.com");
 
         // Assert
         Assert.True(exists);
@@ -212,7 +212,7 @@ public sealed class UserRepositoryTests(PostgreSqlFixture fixture) : IAsyncLifet
         await using var _ = ctx;
 
         // Act
-        var exists = await repo.EmailUserExist("ghost@example.com");
+        bool exists = await repo.EmailUserExist("ghost@example.com");
 
         // Assert
         Assert.False(exists);
@@ -234,7 +234,7 @@ public sealed class UserRepositoryTests(PostgreSqlFixture fixture) : IAsyncLifet
         // Act
         var (ctx2, repo2) = CreateSut();
         await using var __ = ctx2;
-        var exists = await repo2.PhoneNumberUserExist("0315555550");
+        bool exists = await repo2.PhoneNumberUserExist("0315555550");
 
         // Assert
         Assert.True(exists);
@@ -248,7 +248,7 @@ public sealed class UserRepositoryTests(PostgreSqlFixture fixture) : IAsyncLifet
         await using var _ = ctx;
 
         // Act
-        var exists = await repo.PhoneNumberUserExist("0318888880");
+        bool exists = await repo.PhoneNumberUserExist("0318888880");
 
         // Assert
         Assert.False(exists);

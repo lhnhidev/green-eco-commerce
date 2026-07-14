@@ -1,4 +1,4 @@
-using GreenEcoCommerce.Application.Features.Chatbot.Command;
+using GreenEcoCommerce.Application.Features.Chatbot.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +17,7 @@ public static class ChatbotEndpoints
 
     private static async Task<Ok<string>> AskChatbot([FromBody] GenerateContentCommand command, ISender sender)
     {
-        var response = await sender.Send(command);
+        string response = await sender.Send(command);
         return TypedResults.Ok(response);
     }
 }

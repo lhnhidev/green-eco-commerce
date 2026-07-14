@@ -21,7 +21,7 @@ public static class CategoryEndpoints
         group.MapDelete("/{id:guid}", DeleteCategory).RequireAuthorization("AdminOnly");
     }
 
-    private static async Task<Ok<List<CategoryDto>>> GetAllCategories(ISender sender)
+    private static async Task<Ok<CategoryDto[]>> GetAllCategories(ISender sender)
     {
         var categories = await sender.Send(new GetAllCategoriesQuery());
         return TypedResults.Ok(categories);
@@ -48,7 +48,6 @@ public static class CategoryEndpoints
     private static async Task<NoContent> DeleteCategory(Guid id, ISender sender)
     {
         await sender.Send(new DeleteCategoryCommand(id));
-
         return TypedResults.NoContent();
     }
 }

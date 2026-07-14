@@ -29,5 +29,5 @@ public interface IApplicationDbContext
     public DbSet<Document> Documents { get; }
     public DbSet<Embedding> Embeddings { get; }
 
-    public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+    public Task<int> SaveChangesAsync(CancellationToken ct = default);
 }

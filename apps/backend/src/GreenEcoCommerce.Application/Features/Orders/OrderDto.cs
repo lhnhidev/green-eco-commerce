@@ -1,20 +1,15 @@
-using AutoMapper;
-using GreenEcoCommerce.Application.Features.Orders.Command;
+using GreenEcoCommerce.Application.Features.Orders.Commands;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.Orders;
 
-public record CreateOrderCommandResponse(Guid Id, Guid UserId, OrderStatusEnum Status, string DeliveryAddress, decimal DiscountAmount, decimal EarnedPoints, DateTimeOffset CreatedAt);
-
 public record OrderDto(Guid Id, Guid UserId, OrderStatusEnum Status, string DeliveryAddress, decimal DiscountAmount, decimal EarnedPoints, DateTimeOffset CreatedAt);
 
-public class OrderProfie : Profile
+[Mapper]
+public static partial class OrderDtoMapper
 {
-    public OrderProfie()
-    {
-        CreateMap<CreateOrderCommand, Order>();
-        CreateMap<Order, CreateOrderCommandResponse>();
-        CreateMap<Order, OrderDto>();
-    }
+    public static partial OrderDto ToDto(this Order order);
+    public static partial Order ToEntity(this CreateOrderCommand command);
 }

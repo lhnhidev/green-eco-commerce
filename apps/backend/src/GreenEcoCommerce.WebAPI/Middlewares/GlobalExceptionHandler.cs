@@ -1,4 +1,3 @@
-using AutoMapper;
 using GreenEcoCommerce.Domain.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
@@ -8,10 +7,7 @@ namespace GreenEcoCommerce.WebAPI.Middlewares;
 
 public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
-    public async ValueTask<bool> TryHandleAsync(
-        HttpContext httpContext,
-        Exception exception,
-        CancellationToken ct)
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken ct)
     {
         // 1. Log lại lỗi chi tiết ở Server để Developer vào xem khi hệ thống gặp sự cố
         logger.LogError(exception, "Một lỗi xảy ra trong hệ thống: {Message}", exception.Message);
@@ -42,18 +38,6 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 await httpContext.Response.WriteAsJsonAsync(validationResponse, ct);
                 return true;
-
-            case AutoMapperMappingException { InnerException: InvalidEmailException invalidEmailEx }:
-                statusCode = HttpStatusCode.BadRequest; // 400
-                title = "Bad Request";
-                detail = invalidEmailEx.Message;
-                break;
-
-            case AutoMapperMappingException { InnerException: InvalidPhoneNumberException invalidPhoneEx }:
-                statusCode = HttpStatusCode.BadRequest; // 400
-                title = "Bad Request";
-                detail = invalidPhoneEx.Message;
-                break;
             // 3. Phân loại Exception để đổi mã lỗi HTTP tương ứng
             case NotFoundException notFoundEx:
                 statusCode = HttpStatusCode.NotFound; // 404

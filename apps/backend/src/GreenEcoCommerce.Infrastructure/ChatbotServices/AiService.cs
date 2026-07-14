@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text.Json;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Features.Chatbot;
 using GreenEcoCommerce.Domain.Exceptions;
@@ -36,7 +35,7 @@ public class AiService(HttpClient httpClient, IConfiguration configuration) : IA
 
         var body = new { contents };
 
-        var url = $"/v1beta/models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
+        string url = $"/v1beta/models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
 
         var response = await httpClient.PostAsJsonAsync(url, body, cancellationToken);
         response.EnsureSuccessStatusCode();

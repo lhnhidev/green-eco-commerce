@@ -1,6 +1,6 @@
-using AutoMapper;
-using GreenEcoCommerce.Application.Features.OrderItems.Command;
+using GreenEcoCommerce.Application.Features.OrderItems.Commands;
 using GreenEcoCommerce.Domain.Entities;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.OrderItems;
 
@@ -13,11 +13,9 @@ public record CreateOrderItemCommandResponse(
     float UnitCo2Saved
 );
 
-public class OrderItemsProfile : Profile
+[Mapper]
+public static partial class OrderItemsMapper
 {
-    public OrderItemsProfile()
-    {
-        CreateMap<CreateOrderItemCommand, OrderItem>();
-        CreateMap<OrderItem, CreateOrderItemCommandResponse>();
-    }
+    public static partial OrderItem ToEntity(this CreateOrderItemCommand command);
+    public static partial CreateOrderItemCommandResponse ToDto(this OrderItem orderItem);
 }

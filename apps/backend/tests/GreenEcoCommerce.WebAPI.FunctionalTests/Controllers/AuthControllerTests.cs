@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using GreenEcoCommerce.Application.Features.Auth.Register;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
 using GreenEcoCommerce.WebAPI.FunctionalTests.Shared;
 
 namespace GreenEcoCommerce.WebAPI.FunctionalTests.Controllers;

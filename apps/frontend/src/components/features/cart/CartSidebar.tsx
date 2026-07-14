@@ -3,10 +3,10 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 
 import { useGetApiCart } from '@api'
+import Loading from '@components/ui/status/Loading'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { Button } from '@mantine/core'
-import Loading from '@ui/status/Loading'
 import { IoCart, IoCloseSharp } from 'react-icons/io5'
 import { useNavigate } from 'react-router'
 import CartItem from './CartItem'

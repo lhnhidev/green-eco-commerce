@@ -1,5 +1,7 @@
+using GreenEcoCommerce.Application.Features.Users;
 using GreenEcoCommerce.Application.Features.Users.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace GreenEcoCommerce.WebAPI.Endpoints;
 
@@ -9,14 +11,16 @@ public static class UserEndpoints
     {
         var group = app.MapGroup("/api/users").WithTags("User")
             .ProducesProblem(StatusCodes.Status500InternalServerError)
-            .RequireAuthorization();
+            .ProducesProblem(StatusCodes.Status401Unauthorized)
+            .ProducesProblem(StatusCodes.Status403Forbidden)
+            .RequireAuthorization("AdminOnly");
 
-        group.MapGet("/amount-all", GetAmoutAllUser).RequireAuthorization("AdminOnly");
+        group.MapGet("/", GetAllUsers);
     }
 
-    private static async Task<int> GetAmoutAllUser([AsParameters] GetAmountAllUsersQuery query, ISender sender)
+    private static async Task<Ok<UserDto[]>> GetAllUsers([AsParameters] GetAllUsersQuery query, ISender sender)
     {
         var result = await sender.Send(query);
-        return result;
+        return TypedResults.Ok(result);
     }
 }

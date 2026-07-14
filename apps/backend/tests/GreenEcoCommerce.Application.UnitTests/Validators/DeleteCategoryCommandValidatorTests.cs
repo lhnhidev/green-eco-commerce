@@ -1,17 +1,15 @@
 using FluentValidation.TestHelper;
-using GreenEcoCommerce.Application.Features.Categories;
 using GreenEcoCommerce.Application.Features.Categories.Commands;
-using GreenEcoCommerce.Application.Features.Categories.Validators;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class DeleteCategoryCommandValidatorTests
 {
-    private readonly DeleteCategoryCommandValidator validator;
+    private readonly DeleteCategoryCommand.Validator validator;
 
     public DeleteCategoryCommandValidatorTests()
     {
-        validator = new DeleteCategoryCommandValidator();
+        validator = new DeleteCategoryCommand.Validator();
     }
 
     [Fact]

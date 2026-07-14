@@ -1,4 +1,3 @@
-using AutoMapper;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 using GreenEcoCommerce.Application.Common.Models;
@@ -18,35 +17,37 @@ public record GetSomeProductsQuery(
     bool? IsOrganic = null,
     bool? IsBiodegradable = null,
     bool? IsRecycled = null
-) : IRequest<PagedResultDto<ProductDto>>;
-
-public class GetSomeProductQueryHanlder(IProductRepository productRepository, IMapper mapper) : IRequestHandler<GetSomeProductsQuery, PagedResultDto<ProductDto>>
+) : IRequest<PagedResult<ProductDto>>
 {
-    public async Task<PagedResultDto<ProductDto>> Handle(GetSomeProductsQuery request, CancellationToken cancellationToken)
+    public class Handler(IProductRepository productRepository)
+            : IRequestHandler<GetSomeProductsQuery, PagedResult<ProductDto>>
     {
-        var filterParams = new ProductFilterParams
+        public async Task<PagedResult<ProductDto>> Handle(GetSomeProductsQuery request, CancellationToken ct)
         {
-            PageSize = request.PageSize,
-            PageNumber = request.PageNumber,
-            SearchTerm = request.SearchTerm,
-            CategoryId = request.CategoryId,
-            MinPrice = request.MinPrice,
-            MaxPrice = request.MaxPrice,
-            SortBy = request.SortBy,
-            IsDescending = request.IsDescending,
-            IsOrganic = request.IsOrganic,
-            IsBiodegradable = request.IsBiodegradable,
-            IsRecycled = request.IsRecycled
-        };
+            var filterParams = new ProductFilterParams
+            {
+                PageSize = request.PageSize,
+                PageNumber = request.PageNumber,
+                SearchTerm = request.SearchTerm,
+                CategoryId = request.CategoryId,
+                MinPrice = request.MinPrice,
+                MaxPrice = request.MaxPrice,
+                SortBy = request.SortBy,
+                IsDescending = request.IsDescending,
+                IsOrganic = request.IsOrganic,
+                IsBiodegradable = request.IsBiodegradable,
+                IsRecycled = request.IsRecycled
+            };
 
-        var result = await productRepository.GetSomeAsync(filterParams, cancellationToken);
+            var result = await productRepository.GetSomeAsync(filterParams, ct);
 
-        return new PagedResultDto<ProductDto>
-        {
-            Items = mapper.Map<List<ProductDto>>(result.Products),
-            TotalCount = result.TotalCount,
-            PageNumber = request.PageNumber,
-            PageSize = request.PageSize
-        };
+            return new PagedResult<ProductDto>
+            {
+                Items = result.Products.Select(ProductDtoMapper.ToDto).ToArray(),
+                TotalCount = result.TotalCount,
+                PageNumber = request.PageNumber,
+                PageSize = request.PageSize
+            };
+        }
     }
 }

@@ -1,6 +1,6 @@
 using GreenEcoCommerce.Application.Features.Payments;
-using GreenEcoCommerce.Application.Features.Payments.Command;
-using GreenEcoCommerce.Application.Features.Payments.Query;
+using GreenEcoCommerce.Application.Features.Payments.Commands;
+using GreenEcoCommerce.Application.Features.Payments.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +21,7 @@ public static class PaymentEndpoints
 
     private static async Task<Ok<decimal>> GetTotalRevenue([AsParameters] GetTotalRevenueQuery query, ISender sender)
     {
-        var total = await sender.Send(query);
+        decimal total = await sender.Send(query);
         return TypedResults.Ok(total);
     }
 

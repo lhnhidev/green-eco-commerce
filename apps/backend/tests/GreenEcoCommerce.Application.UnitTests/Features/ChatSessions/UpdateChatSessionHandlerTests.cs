@@ -11,12 +11,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.ChatSessions;
 public class UpdateChatSessionHandlerTests
 {
     private readonly Mock<IChatSessionRepository> mockRepo;
-    private readonly UpdateChatSessionHandler handler;
+    private readonly UpdateChatSessionCommand.Handler handler;
 
     public UpdateChatSessionHandlerTests()
     {
         mockRepo = new Mock<IChatSessionRepository>();
-        handler = new UpdateChatSessionHandler(mockRepo.Object);
+        handler = new UpdateChatSessionCommand.Handler(mockRepo.Object);
     }
 
     [Fact]

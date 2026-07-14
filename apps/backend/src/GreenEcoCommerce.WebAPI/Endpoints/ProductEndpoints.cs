@@ -25,13 +25,13 @@ public static class ProductEndpoints
         group.MapDelete("/{id:guid}", DeleteProduct).RequireAuthorization("AdminOnly");
     }
 
-    private static async Task<Ok<List<ProductDto>>> SearchProductByName([FromRoute] string name, ISender sender)
+    private static async Task<Ok<ProductDto[]>> SearchProductByName([FromRoute] string name, ISender sender)
     {
         var products = await sender.Send(new SearchProductQuery(name));
         return TypedResults.Ok(products);
     }
 
-    private static async Task<Results<Ok<List<ProductDto>>, Ok<PagedResultDto<ProductDto>>>> GetProducts([FromQuery] int? pageSize, [FromQuery] int? pageNumber, ISender sender)
+    private static async Task<Results<Ok<ProductDto[]>, Ok<PagedResult<ProductDto>>>> GetProducts([FromQuery] int? pageSize, [FromQuery] int? pageNumber, ISender sender)
     {
         if (pageNumber == null && pageSize == null)
         {
@@ -50,13 +50,13 @@ public static class ProductEndpoints
         return TypedResults.Ok(someProducts);
     }
 
-    private static async Task<Ok<List<ProductDto>>> GetAllProducts(ISender sender)
+    private static async Task<Ok<ProductDto[]>> GetAllProducts(ISender sender)
     {
         var products = await sender.Send(new GetAllProductsQuery());
         return TypedResults.Ok(products);
     }
 
-    private static async Task<Ok<Application.Common.Models.PagedResultDto<ProductDto>>> GetSomeProducts([AsParameters] GetSomeProductsQuery query, ISender sender)
+    private static async Task<Ok<PagedResult<ProductDto>>> GetSomeProducts([AsParameters] GetSomeProductsQuery query, ISender sender)
     {
         var products = await sender.Send(query);
         return TypedResults.Ok(products);

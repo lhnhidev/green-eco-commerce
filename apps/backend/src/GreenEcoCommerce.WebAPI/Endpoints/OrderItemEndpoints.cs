@@ -1,6 +1,6 @@
 using GreenEcoCommerce.Application.Features.OrderItems;
-using GreenEcoCommerce.Application.Features.OrderItems.Command;
-using GreenEcoCommerce.Application.Features.OrderItems.Query;
+using GreenEcoCommerce.Application.Features.OrderItems.Commands;
+using GreenEcoCommerce.Application.Features.OrderItems.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +21,7 @@ public static class OrderItemEndpoints
 
     private static async Task<Ok<float>> GetTotalCo2Saved([AsParameters] GetTotalCo2SavedQuery query, ISender sender)
     {
-        var total = await sender.Send(query);
+        float total = await sender.Send(query);
         return TypedResults.Ok(total);
     }
 
