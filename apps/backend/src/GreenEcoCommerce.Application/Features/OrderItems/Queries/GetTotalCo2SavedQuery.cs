@@ -1,7 +1,7 @@
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.OrderItems.Query;
+namespace GreenEcoCommerce.Application.Features.OrderItems.Queries;
 
 public record GetTotalCo2SavedQuery : IRequest<float>
 {

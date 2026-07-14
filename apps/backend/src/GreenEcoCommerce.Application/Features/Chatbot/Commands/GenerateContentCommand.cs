@@ -2,7 +2,7 @@ using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Domain.Exceptions;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Chatbot.Command;
+namespace GreenEcoCommerce.Application.Features.Chatbot.Commands;
 
 public record GenerateContentCommand(Guid? IdSectionMessage, string Prompt) : IRequest<string>;
 

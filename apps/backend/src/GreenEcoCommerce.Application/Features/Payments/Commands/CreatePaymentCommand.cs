@@ -1,7 +1,7 @@
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Payments.Command;
+namespace GreenEcoCommerce.Application.Features.Payments.Commands;
 
 public record CreatePaymentCommand(Guid OrderId, decimal Amount, string TransactionRef)
         : IRequest<CreatePaymentCommandResponse>

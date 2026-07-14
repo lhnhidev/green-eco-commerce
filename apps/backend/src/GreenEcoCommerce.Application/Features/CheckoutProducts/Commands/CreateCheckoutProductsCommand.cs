@@ -2,7 +2,7 @@ using GreenEcoCommerce.Domain.Exceptions;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.CheckoutProducts.Command;
+namespace GreenEcoCommerce.Application.Features.CheckoutProducts.Commands;
 
 public record CreateCheckoutProductsCommand(List<ProductInfo> ProductList) : IRequest<CreateCheckoutProductsCommandResponse>;
 

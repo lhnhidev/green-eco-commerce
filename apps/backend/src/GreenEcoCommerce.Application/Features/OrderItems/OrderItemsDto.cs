@@ -1,4 +1,4 @@
-using GreenEcoCommerce.Application.Features.OrderItems.Command;
+using GreenEcoCommerce.Application.Features.OrderItems.Commands;
 using GreenEcoCommerce.Domain.Entities;
 using Riok.Mapperly.Abstractions;
 

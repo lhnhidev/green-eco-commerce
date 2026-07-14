@@ -1,7 +1,7 @@
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Orders.Command;
+namespace GreenEcoCommerce.Application.Features.Orders.Commands;
 
 public record CreateOrderCommand(Guid UserId, string DeliveryAddress, decimal DiscountAmount, decimal EarnedPoints)
         : IRequest<OrderDto>

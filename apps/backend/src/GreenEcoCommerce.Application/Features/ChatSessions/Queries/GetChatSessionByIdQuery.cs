@@ -7,7 +7,7 @@ namespace GreenEcoCommerce.Application.Features.ChatSessions.Queries;
 
 public record GetChatSessionByIdQuery(Guid Id, Guid UserId) : IRequest<ChatSessionDto>
 {
-    public class GetChatSessionById(IChatSessionRepository chatSessionRepository)
+    public class Handler(IChatSessionRepository chatSessionRepository)
             : IRequestHandler<GetChatSessionByIdQuery, ChatSessionDto>
     {
         public async Task<ChatSessionDto> Handle(GetChatSessionByIdQuery request, CancellationToken ct)

@@ -1,4 +1,4 @@
-using GreenEcoCommerce.Application.Features.Chatbot.Command;
+using GreenEcoCommerce.Application.Features.Chatbot.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

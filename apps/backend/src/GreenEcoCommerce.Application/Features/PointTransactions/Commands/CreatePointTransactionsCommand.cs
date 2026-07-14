@@ -3,7 +3,7 @@ using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 using Riok.Mapperly.Abstractions;
 
-namespace GreenEcoCommerce.Application.Features.PointTransactions.Command;
+namespace GreenEcoCommerce.Application.Features.PointTransactions.Commands;
 
 public partial record CreatePointTransactionsCommand : IRequest<CreatePointTransactionsCommand.Response>
 {

@@ -1,4 +1,4 @@
-using GreenEcoCommerce.Application.Features.GreenWallets.Command;
+using GreenEcoCommerce.Application.Features.GreenWallets.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;

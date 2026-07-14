@@ -19,7 +19,7 @@ public record GetSomeProductsQuery(
     bool? IsRecycled = null
 ) : IRequest<PagedResult<ProductDto>>
 {
-    public class Hanlder(IProductRepository productRepository)
+    public class Handler(IProductRepository productRepository)
             : IRequestHandler<GetSomeProductsQuery, PagedResult<ProductDto>>
     {
         public async Task<PagedResult<ProductDto>> Handle(GetSomeProductsQuery request, CancellationToken ct)

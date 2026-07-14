@@ -1,7 +1,7 @@
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Orders.Query;
+namespace GreenEcoCommerce.Application.Features.Orders.Queries;
 
 public record GetAmountAllOrdersQuery : IRequest<int>
 {

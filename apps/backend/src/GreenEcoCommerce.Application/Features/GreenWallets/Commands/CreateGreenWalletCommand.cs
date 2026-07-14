@@ -3,7 +3,7 @@ using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 using Riok.Mapperly.Abstractions;
 
-namespace GreenEcoCommerce.Application.Features.GreenWallets.Command;
+namespace GreenEcoCommerce.Application.Features.GreenWallets.Commands;
 
 public partial record CreateGreenWalletCommand(Guid UserId) : IRequest<CreateGreenWalletCommand.Response>
 {

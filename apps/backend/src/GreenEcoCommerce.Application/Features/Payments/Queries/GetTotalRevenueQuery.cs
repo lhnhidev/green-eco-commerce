@@ -2,7 +2,7 @@ using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.Payments.Query;
+namespace GreenEcoCommerce.Application.Features.Payments.Queries;
 
 public record GetTotalRevenueQuery : IRequest<decimal>
 {

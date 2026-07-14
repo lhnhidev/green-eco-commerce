@@ -1,8 +1,7 @@
-using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
-namespace GreenEcoCommerce.Application.Features.OrderItems.Command;
+namespace GreenEcoCommerce.Application.Features.OrderItems.Commands;
 
 public record CreateOrderItemCommand(Guid OrderId, Guid ProductId, int Quantity, decimal UnitPrice, float UnitCo2Saved)
         : IRequest<CreateOrderItemCommandResponse>

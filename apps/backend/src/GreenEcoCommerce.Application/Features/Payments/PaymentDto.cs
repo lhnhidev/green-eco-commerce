@@ -1,4 +1,4 @@
-using GreenEcoCommerce.Application.Features.Payments.Command;
+using GreenEcoCommerce.Application.Features.Payments.Commands;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 using Riok.Mapperly.Abstractions;
