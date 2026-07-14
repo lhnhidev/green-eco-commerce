@@ -61,7 +61,7 @@ public class JwtService(IConfiguration config) : IJwtService
 
         try
         {
-            return tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+            return tokenHandler.ValidateToken(token, validationParameters, out _);
         }
         catch (SecurityTokenException ex)
         {

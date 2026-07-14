@@ -8,10 +8,7 @@ namespace GreenEcoCommerce.WebAPI.Middlewares;
 
 public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IExceptionHandler
 {
-    public async ValueTask<bool> TryHandleAsync(
-        HttpContext httpContext,
-        Exception exception,
-        CancellationToken ct)
+    public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken ct)
     {
         // 1. Log lại lỗi chi tiết ở Server để Developer vào xem khi hệ thống gặp sự cố
         logger.LogError(exception, "Một lỗi xảy ra trong hệ thống: {Message}", exception.Message);

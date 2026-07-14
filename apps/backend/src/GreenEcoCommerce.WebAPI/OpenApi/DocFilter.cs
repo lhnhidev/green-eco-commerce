@@ -57,8 +57,8 @@ public class DocFilter : IOpenApiOperationTransformer
 
         // Strategy B: Fallback to Controller/Action for traditional Controllers
         var routeValues = context.Description.ActionDescriptor.RouteValues;
-        if (routeValues.TryGetValue("controller", out var controller) &&
-            routeValues.TryGetValue("action", out var action))
+        if (routeValues.TryGetValue("controller", out string? controller) &&
+            routeValues.TryGetValue("action", out string? action))
         {
             return $"{controller}_{action}";
         }

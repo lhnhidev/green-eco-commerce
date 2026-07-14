@@ -36,7 +36,7 @@ public class AiService(HttpClient httpClient, IConfiguration configuration) : IA
 
         var body = new { contents };
 
-        var url = $"/v1beta/models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
+        string url = $"/v1beta/models/{_settings.Model}:generateContent?key={_settings.ApiKey}";
 
         var response = await httpClient.PostAsJsonAsync(url, body, cancellationToken);
         response.EnsureSuccessStatusCode();
