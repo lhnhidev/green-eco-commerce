@@ -7,10 +7,10 @@
  */
 
 export interface CartItemDto {
-  productId?: string;
-  productName?: string;
-  productPrice?: number;
-  productImageUrl?: string[];
-  quantity?: number;
-  currentStockQuantity?: number;
+  productId: string;
+  productName: string;
+  productPrice: number;
+  productImageUrl: string;
+  quantity: number;
+  currentStockQuantity: number;
 }

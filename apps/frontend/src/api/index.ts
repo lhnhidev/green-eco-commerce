@@ -32,10 +32,7 @@ import type {
   ChatSessionDto,
   ChatSessionPayloadDto,
   CreateGreenWalletCommandResponse,
-  CreateMaterialCommand,
-  CreateMaterialResponse,
   CreateOrderCommand,
-  CreateOrderCommandResponse,
   CreateOrderItemCommand,
   CreateOrderItemCommandResponse,
   CreatePaymentCommand,
@@ -47,19 +44,18 @@ import type {
   GetInfoAnalystQueryResponse,
   LoginCommand,
   MaterialItem,
-  MaterialUpdateDto,
+  MaterialPayloadDto,
   OrderDto,
-  PagedResultDtoOfProductDto,
+  PagedResultOfProductDto,
   ProblemDetails,
   ProductDto,
   ProductPayloadDto,
   RegisterCommand,
-  RegisterResponse,
+  RegisterCommandResponse,
   UpdateCartItemPayloadDto,
+  UpdateInfoUserCommandResponse,
   UpdateInfoUserDto,
-  UpdateInfoUserResponse,
-  UserInfoResponse,
-  UserProfileResponse
+  UserDto
 } from './schemas';
 
 import { customInstance } from '../lib/axios';
@@ -516,15 +512,15 @@ export function useGetApiMaterials<TData = Awaited<ReturnType<typeof getApiMater
 
 
 export const postApiMaterials = (
-    createMaterialCommand: CreateMaterialCommand,
+    materialPayloadDto: MaterialPayloadDto,
  signal?: AbortSignal
 ) => {
 
 
-      return customInstance<CreateMaterialResponse>(
+      return customInstance<MaterialItem>(
       {url: `/api/materials`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
-      data: createMaterialCommand, signal
+      data: materialPayloadDto, signal
     },
       );
     }
@@ -533,8 +529,8 @@ export const postApiMaterials = (
 
 
 export const getPostApiMaterialsMutationOptions = <TError = ProblemDetails,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiMaterials>>, TError,{data: CreateMaterialCommand}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof postApiMaterials>>, TError,{data: CreateMaterialCommand}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiMaterials>>, TError,{data: MaterialPayloadDto}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof postApiMaterials>>, TError,{data: MaterialPayloadDto}, TContext> => {
 
 const mutationKey = ['postApiMaterials'];
 const {mutation: mutationOptions} = options ?
@@ -546,7 +542,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiMaterials>>, {data: CreateMaterialCommand}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof postApiMaterials>>, {data: MaterialPayloadDto}> = (props) => {
           const {data} = props ?? {};
 
           return  postApiMaterials(data,)
@@ -560,15 +556,15 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PostApiMaterialsMutationResult = NonNullable<Awaited<ReturnType<typeof postApiMaterials>>>
-    export type PostApiMaterialsMutationBody = CreateMaterialCommand
+    export type PostApiMaterialsMutationBody = MaterialPayloadDto
     export type PostApiMaterialsMutationError = ProblemDetails
 
     export const usePostApiMaterials = <TError = ProblemDetails,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiMaterials>>, TError,{data: CreateMaterialCommand}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof postApiMaterials>>, TError,{data: MaterialPayloadDto}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof postApiMaterials>>,
         TError,
-        {data: CreateMaterialCommand},
+        {data: MaterialPayloadDto},
         TContext
       > => {
       return useMutation(getPostApiMaterialsMutationOptions(options), queryClient);
@@ -663,7 +659,7 @@ export function useGetApiMaterialsId<TData = Awaited<ReturnType<typeof getApiMat
 
 export const putApiMaterialsId = (
     id: string,
-    materialUpdateDto: MaterialUpdateDto,
+    materialPayloadDto: MaterialPayloadDto,
  signal?: AbortSignal
 ) => {
 
@@ -671,7 +667,7 @@ export const putApiMaterialsId = (
       return customInstance<MaterialItem>(
       {url: `/api/materials/${id}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
-      data: materialUpdateDto, signal
+      data: materialPayloadDto, signal
     },
       );
     }
@@ -680,8 +676,8 @@ export const putApiMaterialsId = (
 
 
 export const getPutApiMaterialsIdMutationOptions = <TError = ProblemDetails,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiMaterialsId>>, TError,{id: string;data: MaterialUpdateDto}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof putApiMaterialsId>>, TError,{id: string;data: MaterialUpdateDto}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiMaterialsId>>, TError,{id: string;data: MaterialPayloadDto}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof putApiMaterialsId>>, TError,{id: string;data: MaterialPayloadDto}, TContext> => {
 
 const mutationKey = ['putApiMaterialsId'];
 const {mutation: mutationOptions} = options ?
@@ -693,7 +689,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiMaterialsId>>, {id: string;data: MaterialUpdateDto}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof putApiMaterialsId>>, {id: string;data: MaterialPayloadDto}> = (props) => {
           const {id,data} = props ?? {};
 
           return  putApiMaterialsId(id,data,)
@@ -707,15 +703,15 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type PutApiMaterialsIdMutationResult = NonNullable<Awaited<ReturnType<typeof putApiMaterialsId>>>
-    export type PutApiMaterialsIdMutationBody = MaterialUpdateDto
+    export type PutApiMaterialsIdMutationBody = MaterialPayloadDto
     export type PutApiMaterialsIdMutationError = ProblemDetails
 
     export const usePutApiMaterialsId = <TError = ProblemDetails,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiMaterialsId>>, TError,{id: string;data: MaterialUpdateDto}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof putApiMaterialsId>>, TError,{id: string;data: MaterialPayloadDto}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof putApiMaterialsId>>,
         TError,
-        {id: string;data: MaterialUpdateDto},
+        {id: string;data: MaterialPayloadDto},
         TContext
       > => {
       return useMutation(getPutApiMaterialsIdMutationOptions(options), queryClient);
@@ -784,7 +780,7 @@ export const getApiProducts = (
 ) => {
 
 
-      return customInstance<PagedResultDtoOfProductDto>(
+      return customInstance<PagedResultOfProductDto>(
       {url: `/api/products`, method: 'GET',
         params, signal
     },
@@ -1105,7 +1101,7 @@ export const getApiProductsSome = (
 ) => {
 
 
-      return customInstance<PagedResultDtoOfProductDto>(
+      return customInstance<PagedResultOfProductDto>(
       {url: `/api/products/some`, method: 'GET',
         params, signal
     },
@@ -1398,7 +1394,7 @@ export const putApiInfoUserId = (
 ) => {
 
 
-      return customInstance<UpdateInfoUserResponse>(
+      return customInstance<UpdateInfoUserCommandResponse>(
       {url: `/api/info-user/${id}`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
       data: updateInfoUserDto, signal
@@ -2360,7 +2356,7 @@ export const postApiOrders = (
 ) => {
 
 
-      return customInstance<CreateOrderCommandResponse>(
+      return customInstance<OrderDto>(
       {url: `/api/orders`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: createOrderCommand, signal
@@ -2936,14 +2932,14 @@ const {mutation: mutationOptions} = options ?
       return useMutation(getPostApiGreenWalletsUserIdMutationOptions(options), queryClient);
     }
 
-export const getApiUsersAmountAll = (
+export const getApiUsers = (
 
  signal?: AbortSignal
 ) => {
 
 
-      return customInstance<number>(
-      {url: `/api/users/amount-all`, method: 'GET', signal
+      return customInstance<UserDto[]>(
+      {url: `/api/users`, method: 'GET', signal
     },
       );
     }
@@ -2951,66 +2947,66 @@ export const getApiUsersAmountAll = (
 
 
 
-export const getGetApiUsersAmountAllQueryKey = () => {
+export const getGetApiUsersQueryKey = () => {
     return [
-    `/api/users/amount-all`
+    `/api/users`
     ] as const;
     }
 
 
-export const getGetApiUsersAmountAllQueryOptions = <TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError = ProblemDetails>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>>, }
+export const getGetApiUsersQueryOptions = <TData = Awaited<ReturnType<typeof getApiUsers>>, TError = ProblemDetails>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsers>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetApiUsersAmountAllQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetApiUsersQueryKey();
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiUsersAmountAll>>> = ({ signal }) => getApiUsersAmountAll(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApiUsers>>> = ({ signal }) => getApiUsers(signal);
 
 
 
 
 
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApiUsers>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
 }
 
-export type GetApiUsersAmountAllQueryResult = NonNullable<Awaited<ReturnType<typeof getApiUsersAmountAll>>>
-export type GetApiUsersAmountAllQueryError = ProblemDetails
+export type GetApiUsersQueryResult = NonNullable<Awaited<ReturnType<typeof getApiUsers>>>
+export type GetApiUsersQueryError = ProblemDetails
 
 
-export function useGetApiUsersAmountAll<TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError = ProblemDetails>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>> & Pick<
+export function useGetApiUsers<TData = Awaited<ReturnType<typeof getApiUsers>>, TError = ProblemDetails>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsers>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+          Awaited<ReturnType<typeof getApiUsers>>,
           TError,
-          Awaited<ReturnType<typeof getApiUsersAmountAll>>
+          Awaited<ReturnType<typeof getApiUsers>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiUsersAmountAll<TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>> & Pick<
+export function useGetApiUsers<TData = Awaited<ReturnType<typeof getApiUsers>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsers>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof getApiUsersAmountAll>>,
+          Awaited<ReturnType<typeof getApiUsers>>,
           TError,
-          Awaited<ReturnType<typeof getApiUsersAmountAll>>
+          Awaited<ReturnType<typeof getApiUsers>>
         > , 'initialData'
       >, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useGetApiUsersAmountAll<TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>>, }
+export function useGetApiUsers<TData = Awaited<ReturnType<typeof getApiUsers>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsers>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
-export function useGetApiUsersAmountAll<TData = Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsersAmountAll>>, TError, TData>>, }
+export function useGetApiUsers<TData = Awaited<ReturnType<typeof getApiUsers>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApiUsers>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetApiUsersAmountAllQueryOptions(options)
+  const queryOptions = getGetApiUsersQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -3133,7 +3129,7 @@ export const postApiAuthRegister = (
 ) => {
 
 
-      return customInstance<RegisterResponse>(
+      return customInstance<RegisterCommandResponse>(
       {url: `/api/auth/register`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: registerCommand, signal
@@ -3192,7 +3188,7 @@ export const postApiAuthLogin = (
 ) => {
 
 
-      return customInstance<UserInfoResponse>(
+      return customInstance<unknown>(
       {url: `/api/auth/login`, method: 'POST',
       headers: {'Content-Type': 'application/json', },
       data: loginCommand, signal
@@ -3308,7 +3304,7 @@ export const getApiAuthMe = (
 ) => {
 
 
-      return customInstance<UserProfileResponse>(
+      return customInstance<unknown>(
       {url: `/api/auth/me`, method: 'GET', signal
     },
       );
@@ -3395,7 +3391,7 @@ export const postApiAuthRefreshToken = (
 ) => {
 
 
-      return customInstance<void>(
+      return customInstance<unknown | void>(
       {url: `/api/auth/refresh-token`, method: 'POST', signal
     },
       );

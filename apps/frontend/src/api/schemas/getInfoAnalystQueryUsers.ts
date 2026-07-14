@@ -5,10 +5,10 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { CartItemDto } from './cartItemDto';
 
-export interface CartDto {
-  id: string;
-  userId: string;
-  items: CartItemDto[];
+export interface GetInfoAnalystQueryUsers {
+  currentValue: number;
+  previousValue: number;
+  growthPercentage: number;
+  isGrowth: boolean;
 }

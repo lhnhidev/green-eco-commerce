@@ -8,18 +8,18 @@
 import type { MaterialItem } from './materialItem';
 
 export interface ProductDto {
-  id?: string;
-  name?: string;
+  id: string;
+  name: string;
   /** @nullable */
-  description?: string | null;
-  price?: number;
-  stockQty?: number;
-  categoryId?: string;
-  carbonIndex?: number;
-  baselineCarbonIndex?: number;
-  decomposePercent?: number;
-  recyclePercent?: number;
-  imageUrl?: string[];
-  materials?: MaterialItem[];
-  isActive?: boolean;
+  description: string | null;
+  price: number;
+  stockQty: number;
+  categoryId: string;
+  carbonIndex: number;
+  baselineCarbonIndex: number;
+  decomposePercent: number;
+  recyclePercent: number;
+  imageUrl: string[];
+  materials: MaterialItem[];
+  isActive: boolean;
 }
