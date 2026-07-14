@@ -1,17 +1,16 @@
-﻿using AutoMapper;
-using GreenEcoCommerce.Domain.Interfaces;
+﻿using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Categories.Queries;
 
-public record GetAllCategoriesQuery : IRequest<List<CategoryDto>>;
-
-public class GetAllCategoriesHandler(ICategoryRepository categoryRepository, IMapper mapper)
-        : IRequestHandler<GetAllCategoriesQuery, List<CategoryDto>>
+public record GetAllCategoriesQuery : IRequest<CategoryDto[]>
 {
-    public async Task<List<CategoryDto>> Handle(GetAllCategoriesQuery request, CancellationToken ct)
+    public class Handler(ICategoryRepository categoryRepository) : IRequestHandler<GetAllCategoriesQuery, CategoryDto[]>
     {
-        var categories = await categoryRepository.GetAllAsync(ct);
-        return mapper.Map<List<CategoryDto>>(categories);
+        public async Task<CategoryDto[]> Handle(GetAllCategoriesQuery request, CancellationToken ct)
+        {
+            var categories = await categoryRepository.GetAllAsync(ct);
+            return categories.Select(CategoryDtoMapper.ToDto).ToArray();
+        }
     }
 }

@@ -8,16 +8,16 @@ public record CreateCheckoutProductsCommand(List<ProductInfo> ProductList) : IRe
 
 public class CreateCheckoutProductsCommandHandler(IProductRepository productRepository) : IRequestHandler<CreateCheckoutProductsCommand, CreateCheckoutProductsCommandResponse>
 {
-    public async Task<CreateCheckoutProductsCommandResponse> Handle(CreateCheckoutProductsCommand command, CancellationToken cancellationToken)
+    public async Task<CreateCheckoutProductsCommandResponse> Handle(CreateCheckoutProductsCommand command, CancellationToken ct)
     {
-        if (!command.ProductList.Any())
+        if (command.ProductList.Count == 0)
         {
             return new CreateCheckoutProductsCommandResponse(0, 0, 0, new List<CheckoutItemDto>());
         }
 
         var productIds = command.ProductList.Select(p => p.ProductId).ToList();
 
-        var products = await productRepository.GetByIdsAsync(productIds, cancellationToken);
+        var products = await productRepository.GetByIdsAsync(productIds, ct);
 
         var productDict = products.ToDictionary(p => p.Id);
 

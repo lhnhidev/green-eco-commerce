@@ -14,8 +14,7 @@
 
   <ItemGroup>
     <Folder Include="Features\Admin\Commands\" />
-    <Folder Include="Features\Orders\Validators\" />
-    <Folder Include="Features\PointTransactions\Query\" />
+    <Folder Include="Features\PointTransactions\Queries\" />
   </ItemGroup>
 
   <PropertyGroup>

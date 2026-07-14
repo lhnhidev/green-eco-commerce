@@ -1,16 +1,16 @@
-using AutoMapper;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Orders.Query;
 
-public record GetAllOrdersQuery : IRequest<List<OrderDto>>;
+public record GetAllOrdersQuery : IRequest<OrderDto[]>;
 
-public class GetAllOrdersQueryHandler(IOrderRepository orderRepository, IMapper mapper) : IRequestHandler<GetAllOrdersQuery, List<OrderDto>>
+public class GetAllOrdersQueryHandler(IOrderRepository orderRepository)
+        : IRequestHandler<GetAllOrdersQuery, OrderDto[]>
 {
-    public async Task<List<OrderDto>> Handle(GetAllOrdersQuery request, CancellationToken cancellationToken)
+    public async Task<OrderDto[]> Handle(GetAllOrdersQuery request, CancellationToken ct)
     {
-        var orders = await orderRepository.GetAllOrders(cancellationToken);
-        return mapper.Map<List<OrderDto>>(orders);
+        var orders = await orderRepository.GetAllOrders(ct);
+        return orders.Select(OrderDtoMapper.ToDto).ToArray();
     }
 }

@@ -1,6 +1,5 @@
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
-using GreenEcoCommerce.Domain.Exceptions;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;

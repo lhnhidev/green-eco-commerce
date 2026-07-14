@@ -1,19 +1,29 @@
-using AutoMapper;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.GreenWallets.Command;
 
-public record CreateGreenWalletCommand(Guid UserId) : IRequest<CreateGreenWalletCommandResponse>;
-
-public class CreateGreenWalletCommandHandler(IGreenWalletRepository greenWalletRepository, IMapper mapper) : IRequestHandler<CreateGreenWalletCommand, CreateGreenWalletCommandResponse>
+public partial record CreateGreenWalletCommand(Guid UserId) : IRequest<CreateGreenWalletCommand.Response>
 {
-    public async Task<CreateGreenWalletCommandResponse> Handle(CreateGreenWalletCommand command,
-        CancellationToken cancellationToken)
+    public record Response(Guid Id, Guid UserId, decimal Balance, decimal EarnedTotal, DateTimeOffset? UpdatedAt);
+
+    public class Handler(IGreenWalletRepository greenWalletRepository)
+            : IRequestHandler<CreateGreenWalletCommand, Response>
     {
-        var greenWallet = mapper.Map<GreenWallet>(command);
-        await greenWalletRepository.AddGreenWalletAsync(greenWallet);
-        return mapper.Map<CreateGreenWalletCommandResponse>(greenWallet);
+        public async Task<Response> Handle(CreateGreenWalletCommand command, CancellationToken ct)
+        {
+            var greenWallet = Mapper.ToEntity(command);
+            await greenWalletRepository.AddGreenWalletAsync(greenWallet, ct);
+            return Mapper.ToDto(greenWallet);
+        }
+    }
+
+    [Mapper]
+    public static partial class Mapper
+    {
+        public static partial Response ToDto(GreenWallet greenWallet);
+        public static partial GreenWallet ToEntity(CreateGreenWalletCommand command);
     }
 }

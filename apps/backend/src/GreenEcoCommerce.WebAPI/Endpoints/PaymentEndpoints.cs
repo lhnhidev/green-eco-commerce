@@ -21,7 +21,7 @@ public static class PaymentEndpoints
 
     private static async Task<Ok<decimal>> GetTotalRevenue([AsParameters] GetTotalRevenueQuery query, ISender sender)
     {
-        var total = await sender.Send(query);
+        decimal total = await sender.Send(query);
         return TypedResults.Ok(total);
     }
 

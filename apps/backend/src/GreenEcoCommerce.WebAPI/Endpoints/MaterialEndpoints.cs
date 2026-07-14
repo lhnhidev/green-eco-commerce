@@ -21,7 +21,7 @@ public static class MaterialEndpoints
         group.MapDelete("/{id:guid}", DeleteMaterial).RequireAuthorization("AdminOnly");
     }
 
-    private static async Task<Ok<MaterialItem>> UpdateMaterial([FromRoute] Guid id, [FromBody] MaterialUpdateDto dto, ISender sender)
+    private static async Task<Ok<MaterialItem>> UpdateMaterial([FromRoute] Guid id, [FromBody] MaterialPayloadDto dto, ISender sender)
     {
         var command = new UpdateMaterialCommand(id, dto);
         var materialItem = await sender.Send(command);
@@ -40,13 +40,13 @@ public static class MaterialEndpoints
         return TypedResults.Ok(material);
     }
 
-    private static async Task<Ok<List<MaterialItem>>> GetAllMaterials([AsParameters] GetAllMaterialsQuery query, ISender sender)
+    private static async Task<Ok<MaterialItem[]>> GetAllMaterials([AsParameters] GetAllMaterialsQuery query, ISender sender)
     {
         var materials = await sender.Send(query);
         return TypedResults.Ok(materials);
     }
 
-    private static async Task<Created<CreateMaterialResponse>> CreateMaterial([FromBody] CreateMaterialCommand command, ISender sender)
+    private static async Task<Created<MaterialItem>> CreateMaterial([FromBody] MaterialPayloadDto command, ISender sender)
     {
         var createdMaterial = await sender.Send(command);
         return TypedResults.Created($"/materials/{createdMaterial.Id}", createdMaterial);

@@ -1,17 +1,26 @@
-﻿using GreenEcoCommerce.Domain.Interfaces;
+﻿using FluentValidation;
+using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Categories.Commands;
 
-public record DeleteCategoryCommand(Guid Id) : IRequest<Unit>;
-
-public class DeleteCategoryHandler(ICategoryRepository categoryRepository)
-        : IRequestHandler<DeleteCategoryCommand, Unit>
+public record DeleteCategoryCommand(Guid Id) : IRequest
 {
-    public async Task<Unit> Handle(DeleteCategoryCommand command, CancellationToken ct)
+    public class Handler(ICategoryRepository categoryRepository) : IRequestHandler<DeleteCategoryCommand>
     {
-        await categoryRepository.DeleteAsync(command.Id, ct);
+        public async Task Handle(DeleteCategoryCommand command, CancellationToken ct)
+        {
+            await categoryRepository.DeleteAsync(command.Id, ct);
+        }
+    }
 
-        return Unit.Value;
+    public class Validator : AbstractValidator<DeleteCategoryCommand>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Id)
+                    .NotEmpty().WithMessage("Category ID is required.")
+                    .Must(id => id != Guid.Empty).WithMessage("Category ID must be a valid GUID.");
+        }
     }
 }

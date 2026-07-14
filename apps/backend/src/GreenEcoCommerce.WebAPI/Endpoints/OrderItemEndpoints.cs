@@ -21,7 +21,7 @@ public static class OrderItemEndpoints
 
     private static async Task<Ok<float>> GetTotalCo2Saved([AsParameters] GetTotalCo2SavedQuery query, ISender sender)
     {
-        var total = await sender.Send(query);
+        float total = await sender.Send(query);
         return TypedResults.Ok(total);
     }
 

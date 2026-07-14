@@ -1,18 +1,28 @@
-﻿using AutoMapper;
-using GreenEcoCommerce.Domain.Exceptions;
+﻿using FluentValidation;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Categories.Queries;
 
-public record GetCategoryByIdQuery(Guid Id) : IRequest<CategoryDto>;
-
-public class GetCategoryById(ICategoryRepository categoryRepository, IMapper mapper) : IRequestHandler<GetCategoryByIdQuery, CategoryDto>
+public record GetCategoryByIdQuery(Guid Id) : IRequest<CategoryDto?>
 {
-    public async Task<CategoryDto> Handle(GetCategoryByIdQuery request, CancellationToken ct)
+    public class Handler(ICategoryRepository categoryRepository)
+            : IRequestHandler<GetCategoryByIdQuery, CategoryDto?>
     {
-        var category = await categoryRepository.GetByIdAsync(request.Id, ct);
+        public async Task<CategoryDto?> Handle(GetCategoryByIdQuery request, CancellationToken ct)
+        {
+            var category = await categoryRepository.GetByIdAsync(request.Id, ct);
+            return category?.ToDto();
+        }
+    }
 
-        return category != null ? mapper.Map<CategoryDto>(category) : throw new NotFoundException("Not found category");
+    public class Validator : AbstractValidator<GetCategoryByIdQuery>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Id)
+                    .NotEmpty().WithMessage("Category ID is required.")
+                    .Must(id => id != Guid.Empty).WithMessage("Category ID must be a valid GUID.");
+        }
     }
 }

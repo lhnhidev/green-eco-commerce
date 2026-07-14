@@ -21,7 +21,7 @@ public partial record RegisterCommand(
 {
     public record Response(Guid Id);
 
-    public class RegisterHandler(IUserRepository userRepository) : IRequestHandler<RegisterCommand, Response>
+    public class Handler(IUserRepository userRepository) : IRequestHandler<RegisterCommand, Response>
     {
         public async Task<Response> Handle(RegisterCommand request, CancellationToken ct)
         {

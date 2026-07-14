@@ -11,7 +11,7 @@ public record LoginCommand(string Email, string Password) : IRequest<LoginComman
 {
     public record Response(string Token, string RefreshToken, UserInfoResponse UserInfo);
 
-    public class LoginHandler(IUserRepository userRepository, IJwtService jwtService, ICacheService cacheService)
+    public class Handler(IUserRepository userRepository, IJwtService jwtService, ICacheService cacheService)
             : IRequestHandler<LoginCommand, Response>
     {
         public async Task<Response> Handle(LoginCommand request, CancellationToken ct)

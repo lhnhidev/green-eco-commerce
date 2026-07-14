@@ -19,19 +19,19 @@ public static class OrderEndpoints
         group.MapPost("/", CreateOrder).RequireAuthorization();
     }
 
-    private static async Task<Created<CreateOrderCommandResponse>> CreateOrder([FromBody] CreateOrderCommand command, ISender sender)
+    private static async Task<Created<OrderDto>> CreateOrder([FromBody] CreateOrderCommand command, ISender sender)
     {
         var createdOrder = await sender.Send(command);
         return TypedResults.Created($"/orders/{createdOrder.Id}", createdOrder);
     }
 
-    private static async Task<Ok<List<OrderDto>>> GetAllOrders([AsParameters] GetAllOrdersQuery query, ISender sender)
+    private static async Task<Ok<OrderDto[]>> GetAllOrders([AsParameters] GetAllOrdersQuery query, ISender sender)
     {
         var orders = await sender.Send(query);
         return TypedResults.Ok(orders);
     }
 
-    private static async Task<Ok<List<OrderDto>>> GetMyOrders([AsParameters] GetAllOrdersQuery query, ISender sender)
+    private static async Task<Ok<OrderDto[]>> GetMyOrders([AsParameters] GetAllOrdersQuery query, ISender sender)
     {
         // TODO: Actually filter by user. For now, returning all to avoid breaking changes.
         var orders = await sender.Send(query);

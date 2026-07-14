@@ -1,5 +1,4 @@
 using System.Net.Http.Json;
-using System.Text.Json;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Features.Chatbot;
 using GreenEcoCommerce.Domain.Exceptions;

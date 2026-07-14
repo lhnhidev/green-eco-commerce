@@ -1,20 +1,32 @@
-using AutoMapper;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.PointTransactions.Command;
 
-public record CreatePointTransactionsCommand : IRequest<CreatePointTransactionsCommandResponse>;
-
-public class CreatePointTransactionCommandHandler(IPointTransactionRepository pointTransactionRepository, IMapper mapper) : IRequestHandler<CreatePointTransactionsCommand, CreatePointTransactionsCommandResponse>
+public partial record CreatePointTransactionsCommand : IRequest<CreatePointTransactionsCommand.Response>
 {
-    public async Task<CreatePointTransactionsCommandResponse> Handle(CreatePointTransactionsCommand command,
-        CancellationToken cancellationToken)
-    {
-        var greenWalletTransaction = mapper.Map<PointTransaction>(command);
-        await pointTransactionRepository.AddPointTransactionAsync(greenWalletTransaction);
+    public record Response;
 
-        return mapper.Map<CreatePointTransactionsCommandResponse>(greenWalletTransaction);
+    public class Handler(IPointTransactionRepository pointTransactionRepository) : IRequestHandler<CreatePointTransactionsCommand, Response>
+    {
+        public async Task<Response> Handle(CreatePointTransactionsCommand command,
+                                           CancellationToken ct)
+        {
+            var greenWalletTransaction = Mapper.ToEntity(command);
+            await pointTransactionRepository.AddPointTransactionAsync(greenWalletTransaction, ct);
+
+            return Mapper.ToDto(greenWalletTransaction);
+        }
+    }
+
+    [Mapper]
+    public static partial class Mapper
+    {
+        public static partial PointTransaction ToEntity(CreatePointTransactionsCommand command);
+        public static partial Response ToDto(PointTransaction pointTransaction);
     }
 }
+
+

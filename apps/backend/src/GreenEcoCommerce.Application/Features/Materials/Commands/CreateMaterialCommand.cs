@@ -1,28 +1,36 @@
-using AutoMapper;
-using GreenEcoCommerce.Domain.Entities;
+using FluentValidation;
+using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Materials.Commands;
 
-public record CreateMaterialCommand(
-    string Name,
-    string Type,
-    int EcoRating,
-    string? Origin = null,
-    string? Sku = null,
-    decimal StockQty = 0,
-    string? Unit = null,
-    decimal UnitPrice = 0,
-    string? ImageUrl = null) : IRequest<CreateMaterialResponse>;
-
-public class CreateMaterialResponseHandler(IMaterialRepository materialRepository, IMapper mapper) : IRequestHandler<CreateMaterialCommand, CreateMaterialResponse>
+public class CreateMaterialCommandHandler(IMaterialRepository materialRepository) : IRequestHandler<MaterialPayloadDto, MaterialItem>
 {
-    public async Task<CreateMaterialResponse> Handle(CreateMaterialCommand command, CancellationToken cancellationToken)
+    public async Task<MaterialItem> Handle(MaterialPayloadDto command, CancellationToken ct)
     {
-        var material = mapper.Map<Material>(command);
-        await materialRepository.AddAsync(material, cancellationToken);
+        var material = command.ToEntity();
+        await materialRepository.AddAsync(material, ct);
 
-        return mapper.Map<CreateMaterialResponse>(material);
+        return material.ToDto();
+    }
+
+    public class Validator : AbstractValidator<MaterialPayloadDto>
+    {
+        public Validator()
+        {
+            RuleFor(p => p.Name)
+                    .NotEmpty().WithMessage("Name is required")
+                    .MaximumLength(100).WithMessage("Name must not exceed 100 characters");
+
+            RuleFor(p => p.EcoRating)
+                    .NotEmpty().WithMessage("EcoRating is required")
+                    .LessThanOrEqualTo(100).WithMessage("EcoRating must be greater than or equal to 100")
+                    .GreaterThanOrEqualTo(0).WithMessage("EcoRating must be less than or equal to 0");
+
+            // RuleFor(p => p.Type)
+            //         .NotEmpty().WithMessage("Type is required")
+            //         .IsEnumName(typeof(MaterialTypeEnum)).WithMessage("Type must be in enum");
+        }
     }
 }

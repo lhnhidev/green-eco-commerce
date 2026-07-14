@@ -14,7 +14,9 @@ public static class CartEndpoints
     {
         var group = app.MapGroup("/api/cart").WithTags("Cart")
                 .ProducesProblem(StatusCodes.Status500InternalServerError)
-                .RequireAuthorization();
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .RequireAuthorization("UserOnly");
 
         group.MapGet("/", GetCart);
         group.MapPost("/items", AddCartItem);
@@ -26,10 +28,12 @@ public static class CartEndpoints
     private static Guid GetUserId(ClaimsPrincipal user)
     {
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
             throw new UnauthorizedAccessException("Invalid user ID in token");
         }
+
         return userId;
     }
 
@@ -40,31 +44,23 @@ public static class CartEndpoints
         return TypedResults.Ok(cart);
     }
 
-    private static async Task<Ok<CartDto>> AddCartItem(
-        ClaimsPrincipal user,
-        [FromBody] AddCartItemPayloadDto payload,
-        ISender sender)
+    private static async Task<Ok<CartDto>> AddCartItem(ClaimsPrincipal user, [FromBody] AddCartItemPayloadDto payload,
+                                                       ISender sender)
     {
         var userId = GetUserId(user);
         var cart = await sender.Send(new AddCartItemCommand(userId, payload.ProductId, payload.Quantity));
         return TypedResults.Ok(cart);
     }
 
-    private static async Task<Ok<CartDto>> UpdateCartItem(
-        Guid productId,
-        ClaimsPrincipal user,
-        [FromBody] UpdateCartItemPayloadDto payload,
-        ISender sender)
+    private static async Task<Ok<CartDto>> UpdateCartItem(Guid productId, ClaimsPrincipal user,
+                                                          [FromBody] UpdateCartItemPayloadDto payload, ISender sender)
     {
         var userId = GetUserId(user);
         var cart = await sender.Send(new UpdateCartItemCommand(userId, productId, payload.Quantity));
         return TypedResults.Ok(cart);
     }
 
-    private static async Task<Ok<CartDto>> RemoveCartItem(
-        Guid productId,
-        ClaimsPrincipal user,
-        ISender sender)
+    private static async Task<Ok<CartDto>> RemoveCartItem(Guid productId, ClaimsPrincipal user, ISender sender)
     {
         var userId = GetUserId(user);
         var cart = await sender.Send(new RemoveCartItemCommand(userId, productId));

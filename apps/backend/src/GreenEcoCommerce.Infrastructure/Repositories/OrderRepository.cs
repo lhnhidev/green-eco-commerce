@@ -1,4 +1,3 @@
-using GreenEcoCommerce.Application.Features.Orders;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Interfaces;

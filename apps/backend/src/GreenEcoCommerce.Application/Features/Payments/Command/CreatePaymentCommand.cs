@@ -1,20 +1,20 @@
-
-using AutoMapper;
-using GreenEcoCommerce.Application.Features.Payments;
 using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Payments.Command;
 
-public record CreatePaymentCommand(Guid OrderId, decimal Amount, string TransactionRef) : IRequest<CreatePaymentCommandResponse>;
-
-public class CreatePaymentCommandHandler(IPaymentRepository paymentRepository, IMapper mapper) : IRequestHandler<CreatePaymentCommand, CreatePaymentCommandResponse>
+public record CreatePaymentCommand(Guid OrderId, decimal Amount, string TransactionRef)
+        : IRequest<CreatePaymentCommandResponse>
 {
-    public async Task<CreatePaymentCommandResponse> Handle(CreatePaymentCommand command, CancellationToken cancellationToken)
+    public class Handler(IPaymentRepository paymentRepository)
+            : IRequestHandler<CreatePaymentCommand, CreatePaymentCommandResponse>
     {
-        var payment = mapper.Map<Domain.Entities.Payment>(command);
-        await paymentRepository.AddPaymentAsync(payment);
+        public async Task<CreatePaymentCommandResponse> Handle(CreatePaymentCommand command, CancellationToken ct)
+        {
+            var payment = command.ToEntity();
+            await paymentRepository.AddPaymentAsync(payment, ct);
 
-        return mapper.Map<CreatePaymentCommandResponse>(payment);
+            return payment.ToDto();
+        }
     }
 }

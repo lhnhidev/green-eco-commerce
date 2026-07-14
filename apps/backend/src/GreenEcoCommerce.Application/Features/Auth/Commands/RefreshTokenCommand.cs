@@ -17,15 +17,15 @@ public record RefreshTokenCommand(Guid Id, string RefreshToken) : IRequest<Refre
         IJwtService jwtService
     ) : IRequestHandler<RefreshTokenCommand, Response>
     {
-        public async Task<Response> Handle(RefreshTokenCommand request, CancellationToken cancellationToken)
+        public async Task<Response> Handle(RefreshTokenCommand request, CancellationToken ct)
         {
-            bool isLive = await cacheService.IsLiveAsync($"refresh_token:{request.Id}", cancellationToken);
+            bool isLive = await cacheService.IsLiveAsync($"refresh_token:{request.Id}", ct);
 
             if (!isLive) { throw new UnauthorizedAccessException("Refresh token expired or not found"); }
 
             string? refreshToken = await cacheService.GetAsync<string>(
                 $"refresh_token:{request.Id}",
-                cancellationToken);
+                ct);
 
             if (string.IsNullOrEmpty(refreshToken) || refreshToken != request.RefreshToken)
             {
@@ -43,7 +43,7 @@ public record RefreshTokenCommand(Guid Id, string RefreshToken) : IRequest<Refre
                 $"refresh_token:{request.Id}",
                 newRefreshToken,
                 TimeSpan.FromDays(7),
-                cancellationToken);
+                ct);
 
             return new Response(newToken, newRefreshToken);
         }

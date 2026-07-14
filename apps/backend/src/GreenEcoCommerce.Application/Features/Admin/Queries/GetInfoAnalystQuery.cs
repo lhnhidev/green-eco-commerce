@@ -15,7 +15,7 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
 
     public class Handler(IUserRepository userRepository) : IRequestHandler<GetInfoAnalystQuery, Response>
     {
-        public async Task<Response> Handle(GetInfoAnalystQuery request, CancellationToken cancellationToken)
+        public async Task<Response> Handle(GetInfoAnalystQuery request, CancellationToken ct)
         {
             var users = await userRepository.GetAllUsersAsync();
             var orders = users.SelectMany(u => u.Orders).ToList();

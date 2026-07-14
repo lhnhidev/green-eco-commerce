@@ -17,7 +17,7 @@ public static class ChatbotEndpoints
 
     private static async Task<Ok<string>> AskChatbot([FromBody] GenerateContentCommand command, ISender sender)
     {
-        var response = await sender.Send(command);
+        string response = await sender.Send(command);
         return TypedResults.Ok(response);
     }
 }

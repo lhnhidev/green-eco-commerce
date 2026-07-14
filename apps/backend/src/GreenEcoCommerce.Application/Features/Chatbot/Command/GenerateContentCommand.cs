@@ -8,7 +8,7 @@ public record GenerateContentCommand(Guid? IdSectionMessage, string Prompt) : IR
 
 public class GenerateContentCommandHandler(IAiService aiService) : IRequestHandler<GenerateContentCommand, string>
 {
-    public async Task<string> Handle(GenerateContentCommand request, CancellationToken cancellationToken)
+    public async Task<string> Handle(GenerateContentCommand request, CancellationToken ct)
     {
         if (string.IsNullOrEmpty(request.Prompt))
         {
@@ -20,7 +20,7 @@ public class GenerateContentCommandHandler(IAiService aiService) : IRequestHandl
 
         try
         {
-            var text = await aiService.GenerateContentAsync(request.Prompt, historyChatInSection, cancellationToken);
+            string text = await aiService.GenerateContentAsync(request.Prompt, historyChatInSection, ct);
 
             // Sau này lưu vào db ở đây
 
