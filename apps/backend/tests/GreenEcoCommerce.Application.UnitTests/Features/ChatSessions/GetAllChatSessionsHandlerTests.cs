@@ -1,4 +1,3 @@
-using AutoMapper;
 using GreenEcoCommerce.Application.Features.ChatSessions;
 using GreenEcoCommerce.Application.Features.ChatSessions.Queries;
 using GreenEcoCommerce.Domain.Entities;
@@ -10,14 +9,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.ChatSessions;
 public class GetAllChatSessionsHandlerTests
 {
     private readonly Mock<IChatSessionRepository> mockRepo;
-    private readonly Mock<IMapper> mockMapper;
-    private readonly GetAllChatSessionsHandler handler;
+    private readonly GetAllChatSessionsQuery.Handler handler;
 
     public GetAllChatSessionsHandlerTests()
     {
         mockRepo = new Mock<IChatSessionRepository>();
-        mockMapper = new Mock<IMapper>();
-        handler = new GetAllChatSessionsHandler(mockRepo.Object, mockMapper.Object);
+        handler = new GetAllChatSessionsQuery.Handler(mockRepo.Object);
     }
 
     [Fact]
@@ -29,6 +26,7 @@ public class GetAllChatSessionsHandlerTests
             new() { Id = Guid.NewGuid(), UserId = userId, Title = "Chat 1" },
             new() { Id = Guid.NewGuid(), UserId = userId, Title = "Chat 2" }
         };
+
         var dtos = sessions
             .Select(s => new ChatSessionDto(s.Id, s.UserId, s.Title, s.CreatedAt))
             .ToList();
@@ -37,13 +35,10 @@ public class GetAllChatSessionsHandlerTests
             .Setup(r => r.GetAllByUserIdAsync(userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(sessions);
 
-        mockMapper
-            .Setup(m => m.Map<List<ChatSessionDto>>(sessions))
-            .Returns(dtos);
-
         var result = await handler.Handle(new GetAllChatSessionsQuery(userId), CancellationToken.None);
 
-        Assert.Equal(2, result.Count);
+        Assert.Equal(2, result.Length);
+        Assert.Equal(dtos, result);
     }
 
     [Fact]
@@ -53,11 +48,7 @@ public class GetAllChatSessionsHandlerTests
 
         mockRepo
             .Setup(r => r.GetAllByUserIdAsync(userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<ChatSession>());
-
-        mockMapper
-            .Setup(m => m.Map<List<ChatSessionDto>>(It.IsAny<List<ChatSession>>()))
-            .Returns(new List<ChatSessionDto>());
+            .ReturnsAsync([]);
 
         await handler.Handle(new GetAllChatSessionsQuery(userId), CancellationToken.None);
 

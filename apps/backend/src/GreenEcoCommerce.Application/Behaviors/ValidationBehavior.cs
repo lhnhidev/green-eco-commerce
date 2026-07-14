@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using ValidationException = GreenEcoCommerce.Domain.Exceptions.ValidationException;
 
 namespace GreenEcoCommerce.Application.Behaviors;
 
@@ -31,7 +30,7 @@ public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TReq
 
         if (failures.Count != 0)
         {
-            throw new ValidationException(failures);
+            throw new GreenEcoCommerce.Domain.Exceptions.ValidationException(failures);
         }
 
         return await next(ct);

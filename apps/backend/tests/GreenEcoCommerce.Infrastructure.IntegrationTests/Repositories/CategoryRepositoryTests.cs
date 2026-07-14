@@ -204,7 +204,7 @@ public sealed class CategoryRepositoryTests(PostgreSqlFixture fixture) : IAsyncL
         var updated = new Category { Id = category.Id, Name = "Toys & Games", Description = "Updated" };
         var (ctx2, repo2) = CreateSut();
         await using var __ = ctx2;
-        var result = await repo2.UpdateAsync(updated, CancellationToken.None);
+        bool result = await repo2.UpdateAsync(updated, CancellationToken.None);
 
         // Assert
         Assert.True(result);
@@ -219,7 +219,7 @@ public sealed class CategoryRepositoryTests(PostgreSqlFixture fixture) : IAsyncL
         var ghost = new Category { Id = Guid.NewGuid(), Name = "Ghost", Description = "Does not exist" };
 
         // Act
-        var result = await repo.UpdateAsync(ghost, CancellationToken.None);
+        bool result = await repo.UpdateAsync(ghost, CancellationToken.None);
 
         // Assert
         Assert.False(result);

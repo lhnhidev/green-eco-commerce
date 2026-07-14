@@ -6,7 +6,6 @@ using GreenEcoCommerce.Application.Features.Auth.Commands;
 using GreenEcoCommerce.Application.Features.Auth.Queries;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
-using RegisterCommand = GreenEcoCommerce.Application.Features.Auth.Commands.RegisterCommand;
 
 namespace GreenEcoCommerce.WebAPI.Controllers;
 

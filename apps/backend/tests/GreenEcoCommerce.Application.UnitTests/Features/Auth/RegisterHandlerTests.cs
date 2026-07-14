@@ -1,5 +1,4 @@
-using AutoMapper;
-using GreenEcoCommerce.Application.Features.Auth.Register;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.Exceptions;
@@ -12,14 +11,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.Auth;
 public class RegisterHandlerTests
 {
     private readonly Mock<IUserRepository> mockUserRepo;
-    private readonly Mock<IMapper> mockMapper;
-    private readonly RegisterHandler handler;
+    private readonly RegisterCommand.Handler handler;
 
     public RegisterHandlerTests()
     {
         mockUserRepo = new Mock<IUserRepository>();
-        mockMapper = new Mock<IMapper>();
-        handler = new RegisterHandler(mockUserRepo.Object, mockMapper.Object);
+        handler = new RegisterCommand.Handler(mockUserRepo.Object);
     }
 
     private static RegisterCommand CreateValidCommand(
@@ -49,8 +46,7 @@ public class RegisterHandlerTests
 
         mockUserRepo.Setup(r => r.EmailUserExist(command.Email)).ReturnsAsync(false);
         mockUserRepo.Setup(r => r.PhoneNumberUserExist(command.Phone)).ReturnsAsync(false);
-        mockMapper.Setup(m => m.Map<User>(command)).Returns(userEntity);
-        mockUserRepo.Setup(r => r.AddUserAsync(userEntity)).ReturnsAsync(expectedGuid);
+        mockUserRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).ReturnsAsync(expectedGuid);
 
         // Act
         var result = await handler.Handle(command, CancellationToken.None);
@@ -101,14 +97,13 @@ public class RegisterHandlerTests
 
         mockUserRepo.Setup(r => r.EmailUserExist(command.Email)).ReturnsAsync(false);
         mockUserRepo.Setup(r => r.PhoneNumberUserExist(command.Phone)).ReturnsAsync(false);
-        mockMapper.Setup(m => m.Map<User>(command)).Returns(userEntity);
-        mockUserRepo.Setup(r => r.AddUserAsync(userEntity)).ReturnsAsync(expectedGuid);
+        mockUserRepo.Setup(r => r.AddUserAsync(It.IsAny<User>())).ReturnsAsync(expectedGuid);
 
         // Act
         await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        mockUserRepo.Verify(r => r.AddUserAsync(userEntity), Times.Once);
+        mockUserRepo.Verify(r => r.AddUserAsync(It.IsAny<User>()), Times.Once);
     }
 
     [Fact]
@@ -156,25 +151,5 @@ public class RegisterHandlerTests
         await Assert.ThrowsAsync<BadRequestException>(() => handler.Handle(command, CancellationToken.None));
 
         mockUserRepo.Verify(r => r.AddUserAsync(It.IsAny<User>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldMapUserFromCommand_WhenNewUser()
-    {
-        // Arrange
-        var command = CreateValidCommand();
-        var userEntity = CreateValidUser();
-        var expectedGuid = Guid.NewGuid();
-
-        mockUserRepo.Setup(r => r.EmailUserExist(command.Email)).ReturnsAsync(false);
-        mockUserRepo.Setup(r => r.PhoneNumberUserExist(command.Phone)).ReturnsAsync(false);
-        mockMapper.Setup(m => m.Map<User>(command)).Returns(userEntity);
-        mockUserRepo.Setup(r => r.AddUserAsync(userEntity)).ReturnsAsync(expectedGuid);
-
-        // Act
-        await handler.Handle(command, CancellationToken.None);
-
-        // Assert
-        mockMapper.Verify(m => m.Map<User>(command), Times.Once);
     }
 }

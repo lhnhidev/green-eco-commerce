@@ -43,7 +43,7 @@ public partial record UpdateInfoUserCommand(Guid Id, UpdateInfoUserDto Dto) : IR
     public static partial class Mapper
     {
         [MapNestedProperties(nameof(Dto))]
-        [MapperIgnoreTarget(nameof(User.PasswordHash))]
+        [MapValue(nameof(User.PasswordHash), "")]
         public static partial User ToEntity(UpdateInfoUserCommand command);
 
         public static partial Response ToDto(User user);

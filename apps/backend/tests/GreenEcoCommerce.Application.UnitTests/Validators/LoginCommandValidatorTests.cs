@@ -1,16 +1,15 @@
 using FluentValidation.TestHelper;
-using GreenEcoCommerce.Application.Features.Auth.Login;
-using GreenEcoCommerce.Application.Features.Auth.Validators;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class LoginCommandValidatorTests
 {
-    private readonly LoginCommandValidator validator;
+    private readonly LoginCommand.Validator validator;
 
     public LoginCommandValidatorTests()
     {
-        validator = new LoginCommandValidator();
+        validator = new LoginCommand.Validator();
     }
 
     // ── Happy path ───────────────────────────────────────────────────────────

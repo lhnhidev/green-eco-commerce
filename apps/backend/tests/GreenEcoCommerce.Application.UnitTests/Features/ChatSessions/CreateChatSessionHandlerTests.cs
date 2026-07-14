@@ -1,4 +1,3 @@
-using AutoMapper;
 using GreenEcoCommerce.Application.Features.ChatSessions;
 using GreenEcoCommerce.Application.Features.ChatSessions.Commands;
 using GreenEcoCommerce.Domain.Entities;
@@ -10,14 +9,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.ChatSessions;
 public class CreateChatSessionHandlerTests
 {
     private readonly Mock<IChatSessionRepository> mockRepo;
-    private readonly Mock<IMapper> mockMapper;
-    private readonly CreateChatSessionHandler handler;
+    private readonly CreateChatSessionCommand.Handler handler;
 
     public CreateChatSessionHandlerTests()
     {
         mockRepo = new Mock<IChatSessionRepository>();
-        mockMapper = new Mock<IMapper>();
-        handler = new CreateChatSessionHandler(mockRepo.Object, mockMapper.Object);
+        handler = new CreateChatSessionCommand.Handler(mockRepo.Object);
     }
 
     [Fact]
@@ -34,16 +31,14 @@ public class CreateChatSessionHandlerTests
             .Setup(r => r.AddAsync(It.IsAny<ChatSession>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(savedSession);
 
-        mockMapper
-            .Setup(m => m.Map<ChatSessionDto>(savedSession))
-            .Returns(expectedDto);
-
         var result = await handler.Handle(command, CancellationToken.None);
 
         Assert.NotNull(result);
         Assert.Equal(savedId, result.Id);
         Assert.Equal(userId, result.UserId);
+        Assert.Equal(savedAt, result.CreatedAt);
         Assert.Equal("My first chat", result.Title);
+        Assert.Equal(expectedDto, result);
     }
 
     [Fact]
@@ -56,10 +51,6 @@ public class CreateChatSessionHandlerTests
         mockRepo
             .Setup(r => r.AddAsync(It.IsAny<ChatSession>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(savedSession);
-
-        mockMapper
-            .Setup(m => m.Map<ChatSessionDto>(savedSession))
-            .Returns(new ChatSessionDto(savedSession.Id, userId, "Session A", DateTimeOffset.UtcNow));
 
         await handler.Handle(command, CancellationToken.None);
 

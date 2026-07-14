@@ -1,17 +1,16 @@
 using FluentValidation.TestHelper;
 using GreenEcoCommerce.Application.Features.Categories;
 using GreenEcoCommerce.Application.Features.Categories.Commands;
-using GreenEcoCommerce.Application.Features.Categories.Validators;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class UpdateCategoryCommandValidatorTests
 {
-    private readonly UpdateCategoryCommandValidator validator;
+    private readonly UpdateCategoryCommand.Validator validator;
 
     public UpdateCategoryCommandValidatorTests()
     {
-        validator = new UpdateCategoryCommandValidator();
+        validator = new UpdateCategoryCommand.Validator();
     }
 
     private static UpdateCategoryCommand CreateValidCommand(
@@ -98,7 +97,7 @@ public class UpdateCategoryCommandValidatorTests
     public void Validate_ShouldFail_WhenNameIsTooLong()
     {
         // Arrange
-        var name = new string('A', 101);
+        string name = new string('A', 101);
         var command = CreateValidCommand(name: name);
 
         // Act

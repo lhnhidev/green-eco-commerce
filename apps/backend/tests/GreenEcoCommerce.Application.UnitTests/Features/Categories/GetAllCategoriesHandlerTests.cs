@@ -1,4 +1,3 @@
-using AutoMapper;
 using GreenEcoCommerce.Application.Features.Categories;
 using GreenEcoCommerce.Application.Features.Categories.Queries;
 using GreenEcoCommerce.Domain.Entities;
@@ -10,14 +9,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.Categories;
 public class GetAllCategoriesHandlerTests
 {
     private readonly Mock<ICategoryRepository> mockRepo;
-    private readonly Mock<IMapper> mockMapper;
-    private readonly GetAllCategoriesHandler handler;
+    private readonly GetAllCategoriesQuery.Handler handler;
 
     public GetAllCategoriesHandlerTests()
     {
         mockRepo = new Mock<ICategoryRepository>();
-        mockMapper = new Mock<IMapper>();
-        handler = new GetAllCategoriesHandler(mockRepo.Object, mockMapper.Object);
+        handler = new GetAllCategoriesQuery.Handler(mockRepo.Object);
     }
 
     [Fact]
@@ -25,15 +22,10 @@ public class GetAllCategoriesHandlerTests
     {
         // Arrange
         var emptyCategories = new List<Category>();
-        var emptyDtos = new List<CategoryDto>();
 
         mockRepo
             .Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(emptyCategories);
-
-        mockMapper
-            .Setup(m => m.Map<List<CategoryDto>>(emptyCategories))
-            .Returns(emptyDtos);
 
         var query = new GetAllCategoriesQuery();
 
@@ -58,15 +50,11 @@ public class GetAllCategoriesHandlerTests
 
         var categoryDtos = categories
             .Select(c => new CategoryDto(c.Id, c.Name))
-            .ToList();
+            .ToArray();
 
         mockRepo
             .Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
-
-        mockMapper
-            .Setup(m => m.Map<List<CategoryDto>>(categories))
-            .Returns(categoryDtos);
 
         var query = new GetAllCategoriesQuery();
 
@@ -75,10 +63,11 @@ public class GetAllCategoriesHandlerTests
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3, result.Count);
+        Assert.Equal(3, result.Length);
         Assert.Equal("Electronics", result[0].Name);
         Assert.Equal("Clothing", result[1].Name);
         Assert.Equal("Books", result[2].Name);
+        Assert.Equal(categoryDtos, result);
     }
 
     [Fact]
@@ -87,11 +76,7 @@ public class GetAllCategoriesHandlerTests
         // Arrange
         mockRepo
             .Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Category>());
-
-        mockMapper
-            .Setup(m => m.Map<List<CategoryDto>>(It.IsAny<List<Category>>()))
-            .Returns(new List<CategoryDto>());
+            .ReturnsAsync([]);
 
         var query = new GetAllCategoriesQuery();
 
@@ -100,31 +85,5 @@ public class GetAllCategoriesHandlerTests
 
         // Assert
         mockRepo.Verify(r => r.GetAllAsync(It.IsAny<CancellationToken>()), Times.Once);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldCallMapperOnce()
-    {
-        // Arrange
-        var categories = new List<Category>
-        {
-            new() { Name = "Category A" }
-        };
-
-        mockRepo
-            .Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(categories);
-
-        mockMapper
-            .Setup(m => m.Map<List<CategoryDto>>(categories))
-            .Returns(new List<CategoryDto> { new(Guid.NewGuid(), "Category A") });
-
-        var query = new GetAllCategoriesQuery();
-
-        // Act
-        await handler.Handle(query, CancellationToken.None);
-
-        // Assert
-        mockMapper.Verify(m => m.Map<List<CategoryDto>>(categories), Times.Once);
     }
 }

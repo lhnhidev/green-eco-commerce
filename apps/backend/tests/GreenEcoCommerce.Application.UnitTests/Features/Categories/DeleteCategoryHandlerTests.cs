@@ -1,7 +1,5 @@
-using GreenEcoCommerce.Application.Features.Categories;
 using GreenEcoCommerce.Application.Features.Categories.Commands;
 using GreenEcoCommerce.Domain.Interfaces;
-using MediatR;
 using Moq;
 
 namespace GreenEcoCommerce.Application.UnitTests.Features.Categories;
@@ -9,12 +7,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.Categories;
 public class DeleteCategoryHandlerTests
 {
     private readonly Mock<ICategoryRepository> mockRepo;
-    private readonly DeleteCategoryHandler handler;
+    private readonly DeleteCategoryCommand.Handler handler;
 
     public DeleteCategoryHandlerTests()
     {
         mockRepo = new Mock<ICategoryRepository>();
-        handler = new DeleteCategoryHandler(mockRepo.Object);
+        handler = new DeleteCategoryCommand.Handler(mockRepo.Object);
     }
 
     [Fact]
@@ -29,10 +27,9 @@ public class DeleteCategoryHandlerTests
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.Equal(Unit.Value, result);
         mockRepo.Verify(r => r.DeleteAsync(categoryId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -85,10 +82,9 @@ public class DeleteCategoryHandlerTests
             .Returns(Task.CompletedTask);
 
         // Act
-        var result = await handler.Handle(command, CancellationToken.None);
+        await handler.Handle(command, CancellationToken.None);
 
         // Assert
-        Assert.IsType<Unit>(result);
-        Assert.Equal(Unit.Value, result);
+        // No assertion needed as the method should return Task.CompletedTask
     }
 }

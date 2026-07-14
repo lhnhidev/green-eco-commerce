@@ -1,4 +1,3 @@
-using AutoMapper;
 using GreenEcoCommerce.Application.Features.ChatSessions;
 using GreenEcoCommerce.Application.Features.ChatSessions.Queries;
 using GreenEcoCommerce.Domain.Entities;
@@ -11,14 +10,12 @@ namespace GreenEcoCommerce.Application.UnitTests.Features.ChatSessions;
 public class GetChatSessionByIdHandlerTests
 {
     private readonly Mock<IChatSessionRepository> mockRepo;
-    private readonly Mock<IMapper> mockMapper;
-    private readonly GetChatSessionById handler;
+    private readonly GetChatSessionByIdQuery.Handler handler;
 
     public GetChatSessionByIdHandlerTests()
     {
         mockRepo = new Mock<IChatSessionRepository>();
-        mockMapper = new Mock<IMapper>();
-        handler = new GetChatSessionById(mockRepo.Object, mockMapper.Object);
+        handler = new GetChatSessionByIdQuery.Handler(mockRepo.Object);
     }
 
     [Fact]
@@ -32,10 +29,6 @@ public class GetChatSessionByIdHandlerTests
         mockRepo
             .Setup(r => r.GetByIdAsync(sessionId, userId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(session);
-
-        mockMapper
-            .Setup(m => m.Map<ChatSessionDto>(session))
-            .Returns(expectedDto);
 
         var result = await handler.Handle(new GetChatSessionByIdQuery(sessionId, userId), CancellationToken.None);
 
@@ -58,21 +51,5 @@ public class GetChatSessionByIdHandlerTests
             () => handler.Handle(new GetChatSessionByIdQuery(sessionId, userId), CancellationToken.None));
 
         Assert.Equal("Not found chat session", exception.Message);
-    }
-
-    [Fact]
-    public async Task Handle_ShouldNotCallMapper_WhenSessionDoesNotExist()
-    {
-        var userId = Guid.NewGuid();
-        var sessionId = Guid.NewGuid();
-
-        mockRepo
-            .Setup(r => r.GetByIdAsync(sessionId, userId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((ChatSession?)null);
-
-        await Assert.ThrowsAsync<NotFoundException>(
-            () => handler.Handle(new GetChatSessionByIdQuery(sessionId, userId), CancellationToken.None));
-
-        mockMapper.Verify(m => m.Map<ChatSessionDto>(It.IsAny<ChatSession>()), Times.Never);
     }
 }

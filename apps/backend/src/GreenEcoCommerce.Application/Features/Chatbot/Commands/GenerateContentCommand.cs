@@ -4,31 +4,26 @@ using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Chatbot.Commands;
 
-public record GenerateContentCommand(Guid? IdSectionMessage, string Prompt) : IRequest<string>;
-
-public class GenerateContentCommandHandler(IAiService aiService) : IRequestHandler<GenerateContentCommand, string>
+public record GenerateContentCommand(Guid? IdSectionMessage, string Prompt) : IRequest<string>
 {
-    public async Task<string> Handle(GenerateContentCommand request, CancellationToken ct)
+    public class Handler(IAiService aiService) : IRequestHandler<GenerateContentCommand, string>
     {
-        if (string.IsNullOrEmpty(request.Prompt))
+        public async Task<string> Handle(GenerateContentCommand request, CancellationToken ct)
         {
-            throw new BadRequestException("Prompt must not be empty.");
-        }
+            if (string.IsNullOrEmpty(request.Prompt)) { throw new BadRequestException("Prompt must not be empty."); }
 
-        // Sau này dùng repo lấy history, hiện tại để rỗng
-        var historyChatInSection = new List<HistoryChatInSection>();
+            // Sau này dùng repo lấy history, hiện tại để rỗng
+            var historyChatInSection = new List<HistoryChatInSection>();
 
-        try
-        {
-            string text = await aiService.GenerateContentAsync(request.Prompt, historyChatInSection, ct);
+            try
+            {
+                string text = await aiService.GenerateContentAsync(request.Prompt, historyChatInSection, ct);
 
-            // Sau này lưu vào db ở đây
+                // Sau này lưu vào db ở đây
 
-            return text;
-        }
-        catch (Exception ex)
-        {
-            throw new OverviewException($"Error generating content: {ex.Message}");
+                return text;
+            }
+            catch (Exception ex) { throw new OverviewException($"Error generating content: {ex.Message}"); }
         }
     }
 }

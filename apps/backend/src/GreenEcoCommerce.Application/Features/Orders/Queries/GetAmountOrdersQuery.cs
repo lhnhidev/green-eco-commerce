@@ -5,14 +5,12 @@ namespace GreenEcoCommerce.Application.Features.Orders.Queries;
 
 public record GetAmountAllOrdersQuery : IRequest<int>
 {
-
-}
-
-public class GetAmountAllOrdersQueryHandler(IOrderRepository orderRepository) : IRequestHandler<GetAmountAllOrdersQuery, int>
-{
-    public async Task<int> Handle(GetAmountAllOrdersQuery request, CancellationToken ct)
+    public class Handler(IOrderRepository orderRepository) : IRequestHandler<GetAmountAllOrdersQuery, int>
     {
-        var orders = await orderRepository.GetAllOrders(ct);
-        return orders.Count;
+        public async Task<int> Handle(GetAmountAllOrdersQuery request, CancellationToken ct)
+        {
+            var orders = await orderRepository.GetAllOrders(ct);
+            return orders.Count;
+        }
     }
 }

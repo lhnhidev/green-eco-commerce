@@ -9,7 +9,7 @@ namespace GreenEcoCommerce.Application.Features.Categories.Commands;
 
 public partial record UpdateCategoryCommand(Guid Id, CategoryPayloadDto Dto) : IRequest<CategoryDto>
 {
-    public class UpdateCategoryHandler(ICategoryRepository categoryRepository)
+    public class Handler(ICategoryRepository categoryRepository)
             : IRequestHandler<UpdateCategoryCommand, CategoryDto>
     {
         public async Task<CategoryDto> Handle(UpdateCategoryCommand command, CancellationToken ct)
