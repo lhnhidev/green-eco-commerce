@@ -8,23 +8,17 @@ const HeaderAdmin = () => {
   const headerName = useAppSelector((state) => state.theNavigation.active)
 
   return (
-    <div className="text-2xl flex justify-between tracking-widest uppercase font-bold text-primary">
-      <div>{headerName}</div>
-      <div className="flex items-center gap-4">
-        <div className="font-normal w-100 mr-10">
-          <TextInput
-            placeholder="Search your key work here..."
-            leftSection={<CiSearch />}
-            classNames={{ input: '!pl-12' }}
-          />
-        </div>
-        <div>
-          <FaRegBell />
-        </div>
-        <div className="font-normal text-gray-800">|</div>
-        <div className="font-normal">
-          <ProfileUser position="right" />
-        </div>
+    <div className="flex items-center justify-between h-full">
+      <div className="text-[18px] font-semibold capitalize text-[#18181b]">{headerName}</div>
+      <div className="flex items-center gap-3">
+        <TextInput
+          placeholder="Search..."
+          size="xs"
+          leftSection={<CiSearch size={14} />}
+          w={220}
+        />
+        <FaRegBell size={15} className="text-[#71717a]" />
+        <ProfileUser position="right" />
       </div>
     </div>
   )

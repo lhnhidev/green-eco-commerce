@@ -1,5 +1,5 @@
-import { useGetApiCategories } from '@api'
-import { ActionIcon, Badge, Button, Table, TextInput } from '@mantine/core'
+import { useGetApiCategories, useGetApiProductsAll } from '@api'
+import { ActionIcon, Button, Table, TextInput } from '@mantine/core'
 import { useMemo, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
@@ -7,74 +7,124 @@ import { Link } from 'react-router'
 const CategoryList = () => {
   const [search, setSearch] = useState('')
   const { data: categories, isLoading } = useGetApiCategories()
+  const { data: products } = useGetApiProductsAll()
 
-  const filteredCategories = useMemo(() => {
+  // Đếm số sản phẩm theo từng category
+  const productCount = useMemo(() => {
+    const map = new Map<string, number>()
+    for (const p of products ?? []) {
+      map.set(p.categoryId, (map.get(p.categoryId) ?? 0) + 1)
+    }
+    return map
+  }, [products])
+
+  // Map id -> tên để hiển thị category cha
+  const nameById = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const c of categories ?? []) map.set(c.id, c.name)
+    return map
+  }, [categories])
+
+  // Sắp xếp: cha trước, con ngay dưới cha
+  const sortedCategories = useMemo(() => {
     if (!categories) return []
-    return categories.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
+    const filtered = categories.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
+    if (search) return filtered
+
+    const roots = categories.filter((c) => !c.parentId)
+    const result: typeof categories = []
+    for (const root of roots) {
+      result.push(root)
+      result.push(...categories.filter((c) => c.parentId === root.id))
+    }
+    // Category con mà cha không tồn tại (dữ liệu lỗi) vẫn phải hiện
+    for (const c of categories) {
+      if (!result.includes(c)) result.push(c)
+    }
+    return result
   }, [categories, search])
 
   return (
     <div className="w-full h-full">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-800">Category Management</h1>
-          <p className="text-gray-500 mt-1">Organize and manage your eco-friendly product categories.</p>
-        </div>
-        <Button component={Link} to="/admin/category/create" color="primary" leftSection={<FiPlus />}>
-          Add New Category
+      <div className="flex items-center gap-2.5 mb-2.5">
+        <TextInput
+          placeholder="Search categories..."
+          size="xs"
+          leftSection={<FiSearch size={13} />}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          w={220}
+        />
+        <span className="text-[11px] text-[#71717a]">
+          {sortedCategories.length} of {categories?.length ?? 0} shown
+        </span>
+        <div className="flex-1" />
+        <Button
+          component={Link}
+          to="/admin/category/create"
+          color="primary"
+          size="xs"
+          leftSection={<FiPlus size={13} />}
+        >
+          Add new category
         </Button>
       </div>
 
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-primary/10 mb-6">
-        <TextInput
-          placeholder="Search categories..."
-          leftSection={<FiSearch className="text-muted-foreground" />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          radius="xl"
-        />
-      </div>
-
-      <div className="bg-white rounded-2xl shadow-sm border border-primary/10 overflow-hidden">
-        <Table verticalSpacing="md" horizontalSpacing="lg" highlightOnHover>
+      <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
+        <Table
+          verticalSpacing={6}
+          horizontalSpacing={8}
+          highlightOnHover
+          classNames={{
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-[#71717a] !bg-[#fafafa]',
+            td: '!text-[12px]',
+          }}
+        >
           <Table.Thead>
             <Table.Tr>
-              <Table.Th>Category Name</Table.Th>
+              <Table.Th w={220}>Category name</Table.Th>
               <Table.Th>Description</Table.Th>
-              <Table.Th>Status</Table.Th>
-              <Table.Th>Actions</Table.Th>
+              <Table.Th w={160}>Parent</Table.Th>
+              <Table.Th w={90} ta="right">
+                Products
+              </Table.Th>
+              <Table.Th w={70} ta="right">
+                Actions
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {isLoading ? (
               <Table.Tr>
-                <Table.Td colSpan={4}>
-                  <div className="text-center py-12 text-muted-foreground">Loading categories...</div>
+                <Table.Td colSpan={5}>
+                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading categories…</div>
                 </Table.Td>
               </Table.Tr>
-            ) : filteredCategories.length === 0 ? (
+            ) : sortedCategories.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={4}>
-                  <div className="text-center py-12 text-muted-foreground">No categories found.</div>
+                <Table.Td colSpan={5}>
+                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No categories found.</div>
                 </Table.Td>
               </Table.Tr>
             ) : (
-              filteredCategories.map((cat) => (
+              sortedCategories.map((cat) => (
                 <Table.Tr key={cat.id}>
-                  <Table.Td className="font-medium text-gray-800">{cat.name}</Table.Td>
-                  <Table.Td>{cat.description}</Table.Td>
-                  <Table.Td>
-                    <Badge color={cat.isActive ? 'green' : 'gray'} variant="light">
-                      {cat.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
+                  <Table.Td className="!font-medium">
+                    {cat.parentId && <span className="text-[#d4d4d8] mr-1.5">└</span>}
+                    {cat.name}
                   </Table.Td>
+                  <Table.Td className="!text-[#71717a]">{cat.description || '—'}</Table.Td>
+                  <Table.Td className="!text-[#71717a]">
+                    {cat.parentId ? (nameById.get(cat.parentId) ?? '—') : <span className="text-[#d4d4d8]">—</span>}
+                  </Table.Td>
+                  <Table.Td ta="right">{productCount.get(cat.id) ?? 0}</Table.Td>
                   <Table.Td>
-                    <div className="flex gap-2">
-                      <ActionIcon variant="subtle" color="gray">
-                        <FiEdit2 />
+                    <div className="flex gap-0.5 justify-end">
+                      <ActionIcon variant="subtle" color="gray" size="sm">
+                        <FiEdit2 size={13} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red">
-                        <FiTrash2 />
+                      <ActionIcon variant="subtle" color="red" size="sm">
+                        <FiTrash2 size={13} />
                       </ActionIcon>
                     </div>
                   </Table.Td>

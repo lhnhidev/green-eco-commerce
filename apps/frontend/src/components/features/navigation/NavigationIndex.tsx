@@ -1,15 +1,20 @@
 type NavigationIndexType = {
   text: string
-  icon: React.ComponentType
+  icon: React.ComponentType<{ className?: string; size?: number }>
   isActive: boolean
 }
 
 const NavigationIndex = ({ text, isActive, icon: Icon }: NavigationIndexType) => {
   return (
     <div
-      className={`px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 ${isActive ? 'bg-primary text-white shadow-md' : 'text-muted-foreground hover:cursor-pointer hover:bg-secondary/50 hover:text-foreground'}`}
+      className={`px-2.5 py-1.5 rounded-lg transition-colors duration-150 flex items-center gap-2 text-[13px] ${
+        isActive
+          ? 'bg-primary text-white font-medium'
+          : 'text-[#71717a] hover:cursor-pointer hover:bg-[#f4f4f5] hover:text-[#18181b]'
+      }`}
     >
-      <Icon className="text-xl" /> <span className="font-medium">{text}</span>
+      <Icon size={15} />
+      <span>{text}</span>
     </div>
   )
 }
