@@ -1,18 +1,19 @@
 ﻿using FluentValidation;
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Categories.Queries;
 
 public record GetCategoryByIdQuery(Guid Id) : IRequest<CategoryDto?>
 {
-    public class Handler(ICategoryRepository categoryRepository)
-            : IRequestHandler<GetCategoryByIdQuery, CategoryDto?>
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<GetCategoryByIdQuery, CategoryDto?>
     {
         public async Task<CategoryDto?> Handle(GetCategoryByIdQuery request, CancellationToken ct)
         {
-            var category = await categoryRepository.GetByIdAsync(request.Id, ct);
-            return category?.ToDto();
+            var category = await dbContext.Categories.Where(c => c.Id == request.Id).ProjectToDto()
+                    .FirstOrDefaultAsync(ct);
+            return category;
         }
     }
 
@@ -21,8 +22,7 @@ public record GetCategoryByIdQuery(Guid Id) : IRequest<CategoryDto?>
         public Validator()
         {
             RuleFor(x => x.Id)
-                    .NotEmpty().WithMessage("Category ID is required.")
-                    .Must(id => id != Guid.Empty).WithMessage("Category ID must be a valid GUID.");
+                    .NotEmpty().WithMessage("Category ID must be a valid GUID.");
         }
     }
 }
