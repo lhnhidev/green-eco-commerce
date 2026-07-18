@@ -1,16 +1,17 @@
-﻿using GreenEcoCommerce.Domain.Interfaces;
+﻿using GreenEcoCommerce.Application.Interfaces.Persistence;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Categories.Queries;
 
 public record GetAllCategoriesQuery : IRequest<CategoryDto[]>
 {
-    public class Handler(ICategoryRepository categoryRepository) : IRequestHandler<GetAllCategoriesQuery, CategoryDto[]>
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<GetAllCategoriesQuery, CategoryDto[]>
     {
         public async Task<CategoryDto[]> Handle(GetAllCategoriesQuery request, CancellationToken ct)
         {
-            var categories = await categoryRepository.GetAllAsync(ct);
-            return categories.Select(CategoryDtoMapper.ToDto).ToArray();
+            var categories = await dbContext.Categories.ProjectToDto().ToArrayAsync(ct);
+            return categories;
         }
     }
 }

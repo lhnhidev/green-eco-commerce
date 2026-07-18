@@ -1,6 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using System.Text.Json.Serialization;
+using EntityFramework.Exceptions.PostgreSQL;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
 using GreenEcoCommerce.Application.Features.Auth.Commands;
@@ -136,7 +137,7 @@ builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(optio
     options.UseNpgsql(
                 builder.Configuration.GetConnectionString("DefaultConnection"),
                 b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName))
-            .AddInterceptors(auditingInterceptor);
+            .AddInterceptors(auditingInterceptor).UseExceptionProcessor();
 });
 
 // Đăng ký dịch vụ Redis Distributed Cache của Microsoft
