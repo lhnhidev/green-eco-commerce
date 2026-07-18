@@ -1,4 +1,4 @@
-import { Badge, Button, Table, TextInput, FileInput } from '@mantine/core'
+import { Button, Table, TextInput, FileInput } from '@mantine/core'
 import { useState } from 'react'
 import { FiSearch, FiUploadCloud } from 'react-icons/fi'
 

@@ -1,12 +1,20 @@
-import { getGetApiMaterialsQueryKey, useDeleteApiMaterialsId, useGetApiMaterials } from '@api'
-import type { MaterialItem } from '@api/schemas'
+import {
+  getGetApiMaterialsQueryKey,
+  useDeleteApiMaterialsId,
+  useGetApiMaterials,
+  usePutApiMaterialsId,
+} from '@api'
+import { MaterialTypeEnum, type MaterialItem } from '@api/schemas'
 import Loading from '@components/ui/status/Loading'
-import { ActionIcon, Badge, Button, Modal, Table, TextInput } from '@mantine/core'
+import { ActionIcon, Badge, Button, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
+import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
+
+const typeOptions = Object.values(MaterialTypeEnum).map((t) => ({ value: t, label: t }))
 
 const MaterialList = () => {
   const queryClient = useQueryClient()
@@ -14,8 +22,49 @@ const MaterialList = () => {
 
   const [search, setSearch] = useState('')
   const [deleting, setDeleting] = useState<MaterialItem | null>(null)
+  const [editing, setEditing] = useState<MaterialItem | null>(null)
 
   const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteApiMaterialsId()
+  const { mutate: updateMaterial, isPending: isUpdating } = usePutApiMaterialsId()
+
+  const form = useForm({
+    initialValues: {
+      name: '',
+      type: MaterialTypeEnum.Recycled as MaterialTypeEnum,
+      ecoRating: 50,
+    },
+    validate: {
+      name: (val) => (val.trim().length === 0 ? 'Name is required' : null),
+    },
+  })
+
+  const openEdit = (m: MaterialItem) => {
+    form.setValues({ name: m.name, type: m.type, ecoRating: Number(m.ecoRating) })
+    form.resetDirty()
+    setEditing(m)
+  }
+
+  const closeEdit = () => {
+    setEditing(null)
+    form.reset()
+  }
+
+  const handleUpdate = (values: typeof form.values) => {
+    if (!editing) return
+    updateMaterial(
+      { id: editing.id, data: values },
+      {
+        onSuccess: () => {
+          notifications.show({ title: 'Updated', message: 'Material updated successfully.', color: 'green' })
+          queryClient.invalidateQueries({ queryKey: getGetApiMaterialsQueryKey() })
+          closeEdit()
+        },
+        onError: () => {
+          notifications.show({ title: 'Update failed', message: 'Could not update this material.', color: 'red' })
+        },
+      },
+    )
+  }
 
   const filtered = useMemo(() => {
     if (!materials) return []
@@ -37,20 +86,12 @@ const MaterialList = () => {
       { id: deleting.id },
       {
         onSuccess: () => {
-          notifications.show({
-            title: 'Deleted',
-            message: 'Material deleted successfully.',
-            color: 'green',
-          })
+          notifications.show({ title: 'Deleted', message: 'Material deleted successfully.', color: 'green' })
           queryClient.invalidateQueries({ queryKey: getGetApiMaterialsQueryKey() })
           setDeleting(null)
         },
         onError: () => {
-          notifications.show({
-            title: 'Delete failed',
-            message: 'Could not delete this material.',
-            color: 'red',
-          })
+          notifications.show({ title: 'Delete failed', message: 'Could not delete this material.', color: 'red' })
         },
       },
     )
@@ -60,72 +101,115 @@ const MaterialList = () => {
 
   return (
     <div className="w-full h-full">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-800">Material management</h1>
-          <p className="text-gray-500 mt-1">Track and manage your sustainable material sources.</p>
+      <div className="flex gap-2.5 mb-2.5">
+        <div className="w-52 bg-white border border-[#ececee] rounded-xl shadow-[0_1px_2px_rgba(24,24,27,0.04)] px-3.5 py-2.5">
+          <p className="text-[11px] text-[#71717a]">Total materials</p>
+          <p className="text-[20px] font-bold text-[#18181b] leading-tight mt-0.5">{stats.total}</p>
         </div>
-        <Button component={Link} to="/admin/material/create" color="green" leftSection={<FiPlus />}>
+        <div className="w-52 bg-white border border-[#ececee] rounded-xl shadow-[0_1px_2px_rgba(24,24,27,0.04)] px-3.5 py-2.5">
+          <p className="text-[11px] text-[#71717a]">Average eco rating</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-[20px] font-bold text-[#18181b] leading-tight">
+              {stats.avgEco}
+              <span className="text-[12px] font-medium text-[#71717a]">/100</span>
+            </p>
+            <div className="flex-1 h-[5px] rounded-full bg-[#f4f4f5] overflow-hidden">
+              <div className="h-full bg-primary rounded-full" style={{ width: `${stats.avgEco}%` }} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2.5 mb-2.5">
+        <TextInput
+          placeholder="Search materials..."
+          size="xs"
+          leftSection={<FiSearch size={13} />}
+          value={search}
+          onChange={(e) => setSearch(e.currentTarget.value)}
+          w={220}
+        />
+        <span className="text-[11px] text-[#71717a]">
+          {filtered.length} of {materials?.length ?? 0} shown
+        </span>
+        <div className="flex-1" />
+        <Button
+          component={Link}
+          to="/admin/material/create"
+          color="primary"
+          size="xs"
+          leftSection={<FiPlus size={13} />}
+        >
           Add new material
         </Button>
       </div>
 
-      <div className="grid grid-cols-3 gap-6 mb-6">
-        <div className="bg-white rounded-xl p-5 border border-gray-100">
-          <p className="text-gray-500 text-sm">Total materials</p>
-          <p className="text-3xl font-bold text-gray-800 mt-2">{stats.total}</p>
-        </div>
-        <div className="bg-white rounded-xl p-5 border border-gray-100">
-          <p className="text-gray-500 text-sm">Average eco rating</p>
-          <p className="text-3xl font-bold text-gray-800 mt-2">{stats.avgEco}/100</p>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-xl p-4 border border-gray-100 mb-4">
-        <TextInput
-          placeholder="Search by material name..."
-          leftSection={<FiSearch />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-        />
-      </div>
-
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <Table verticalSpacing="md" horizontalSpacing="lg" highlightOnHover>
+      <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
+        <Table
+          verticalSpacing={6}
+          horizontalSpacing={8}
+          highlightOnHover
+          classNames={{
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-[#71717a] !bg-[#fafafa]',
+            td: '!text-[12px]',
+          }}
+        >
           <Table.Thead>
             <Table.Tr>
               <Table.Th>Material</Table.Th>
-              <Table.Th>Type</Table.Th>
-              <Table.Th>Eco rating</Table.Th>
-              <Table.Th>Actions</Table.Th>
+              <Table.Th w={140}>Type</Table.Th>
+              <Table.Th w={200}>Eco rating</Table.Th>
+              <Table.Th w={70} ta="right">
+                Actions
+              </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {filtered.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
-                  <p className="text-center text-gray-400 py-6">No materials found.</p>
+                <Table.Td colSpan={4}>
+                  <p className="text-center text-[12px] text-[#a1a1aa] py-8">No materials found.</p>
                 </Table.Td>
               </Table.Tr>
             ) : (
               filtered.map((m) => (
                 <Table.Tr key={m.id}>
+                  <Table.Td className="!font-medium">{m.name}</Table.Td>
                   <Table.Td>
-                    <div className="font-medium text-gray-800">{m.name}</div>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge color="green" variant="light">
+                    <Badge size="xs" variant="light" color="primary" radius="xl">
                       {m.type}
                     </Badge>
                   </Table.Td>
-                  <Table.Td>{Number(m.ecoRating)}/100</Table.Td>
                   <Table.Td>
-                    <div className="flex gap-2">
-                      <ActionIcon variant="subtle" color="gray" aria-label="Edit">
-                        <FiEdit2 />
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 max-w-[120px] h-[5px] rounded-full bg-[#f4f4f5] overflow-hidden">
+                        <div
+                          className="h-full bg-primary rounded-full"
+                          style={{ width: `${Math.min(Number(m.ecoRating), 100)}%` }}
+                        />
+                      </div>
+                      <span className="text-[11px] text-[#71717a] whitespace-nowrap">{Number(m.ecoRating)}/100</span>
+                    </div>
+                  </Table.Td>
+                  <Table.Td>
+                    <div className="flex gap-0.5 justify-end">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        onClick={() => openEdit(m)}
+                        aria-label="Edit"
+                      >
+                        <FiEdit2 size={13} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" onClick={() => setDeleting(m)} aria-label="Delete">
-                        <FiTrash2 />
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        size="sm"
+                        onClick={() => setDeleting(m)}
+                        aria-label="Delete"
+                      >
+                        <FiTrash2 size={13} />
                       </ActionIcon>
                     </div>
                   </Table.Td>
@@ -136,16 +220,32 @@ const MaterialList = () => {
         </Table>
       </div>
 
+      <Modal opened={editing !== null} onClose={closeEdit} title="Edit material" centered size="sm">
+        <form onSubmit={form.onSubmit(handleUpdate)} className="flex flex-col gap-3">
+          <TextInput label="Name" size="xs" withAsterisk {...form.getInputProps('name')} />
+          <Select label="Type" size="xs" data={typeOptions} allowDeselect={false} {...form.getInputProps('type')} />
+          <NumberInput label="Eco rating" size="xs" min={0} max={100} {...form.getInputProps('ecoRating')} />
+          <div className="flex justify-end gap-2 mt-2">
+            <Button variant="default" size="xs" onClick={closeEdit}>
+              Cancel
+            </Button>
+            <Button type="submit" color="primary" size="xs" loading={isUpdating}>
+              Save changes
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
       <Modal opened={deleting !== null} onClose={() => setDeleting(null)} title="Delete material" centered size="sm">
-        <p className="text-gray-600">
-          Are you sure you want to delete <span className="font-semibold">{deleting?.name}</span>? This action cannot be
-          undone.
+        <p className="text-[13px] text-[#71717a]">
+          Are you sure you want to delete <span className="font-semibold text-[#18181b]">{deleting?.name}</span>? This
+          action cannot be undone.
         </p>
-        <div className="flex justify-end gap-3 mt-5">
-          <Button variant="default" onClick={() => setDeleting(null)}>
+        <div className="flex justify-end gap-2 mt-4">
+          <Button variant="default" size="xs" onClick={() => setDeleting(null)}>
             Cancel
           </Button>
-          <Button color="red" loading={isDeleting} onClick={confirmDelete}>
+          <Button color="red" size="xs" loading={isDeleting} onClick={confirmDelete}>
             Delete
           </Button>
         </div>

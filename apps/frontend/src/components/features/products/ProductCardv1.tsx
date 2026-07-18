@@ -1,9 +1,12 @@
 import type { ProductDto } from '@api/schemas'
 import { ImageWithFallback } from '@components/ui/status/ImageWithFallback'
 import { Badge, Button, Card } from '@mantine/core'
-import { StarIcon } from '@phosphor-icons/react'
+import { LeafIcon } from '@phosphor-icons/react'
 
 const ProductCardv1 = ({ product }: { product: ProductDto }) => {
+  const co2Saved = Number(product.baselineCarbonIndex ?? 0) - Number(product.carbonIndex ?? 0)
+  const outOfStock = product.stockQty <= 0
+
   return (
     <Card
       key={product.id}
@@ -21,39 +24,40 @@ const ProductCardv1 = ({ product }: { product: ProductDto }) => {
           alt={product.name}
           className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
         />
-        <Badge color="green.9" className="absolute top-2 left-2">
-          {/* {product.badge} */}
-          Air Purifier
-        </Badge>
+        {product.materials?.length > 0 && (
+          <Badge color="green.9" className="absolute top-2 left-2">
+            {product.materials[0].name}
+          </Badge>
+        )}
+        {outOfStock && (
+          <Badge color="gray" className="absolute top-2 right-2">
+            Out of stock
+          </Badge>
+        )}
 
         <div className="absolute inset-0 bg-black/15 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <div className="bg-white/90 hover:bg-(--color-primary)  hover:text-white text-(--color-primary) font-medium px-4 py-2 rounded-full shadow-md transform scale-90 hover:cursor-pointer group-hover:scale-100 transition-all duration-300 text-sm">
+          <div className="bg-white/90 hover:bg-(--color-primary) hover:text-white text-(--color-primary) font-medium px-4 py-2 rounded-full shadow-md transform scale-90 hover:cursor-pointer group-hover:scale-100 transition-all duration-300 text-sm">
             Quick More
           </div>
         </div>
       </div>
       <div className="p-4">
-        <h3 className="font-semibold mb-2">{product.name}</h3>
-        <div className="flex items-center gap-1 mb-2">
-          <StarIcon className="h-4 w-4 text-yellow-400" weight="fill" />
-          <span className="text-sm font-medium">
-            {/* {product.rating} */}
-            4.5
-          </span>
-          <span className="text-sm text-gray-500">
-            {/* ({product.reviews}) */}
-            67
-          </span>
+        <h3 className="font-semibold mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h3>
+
+        <div className="flex items-center gap-1.5 mb-2">
+          {co2Saved > 0 ? (
+            <>
+              <LeafIcon className="h-4 w-4 text-primary" weight="fill" />
+              <span className="text-sm font-medium text-primary">{co2Saved.toFixed(2)} kg CO₂ saved</span>
+            </>
+          ) : (
+            <span className="text-sm text-gray-400">{product.recyclePercent}% recyclable</span>
+          )}
         </div>
+
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-primary">${product.price}</span>
-            {/* {product.originalPrice && (
-                    <span className="text-sm text-gray-500 line-through">${product.originalPrice}</span>
-                  )} */}
-            100
-          </div>
-          <Button size="xs" radius="xl" color="green.9">
+          <span className="text-lg font-semibold text-primary">${Number(product.price).toFixed(2)}</span>
+          <Button size="xs" radius="xl" color="green.9" disabled={outOfStock}>
             Add to Cart
           </Button>
         </div>

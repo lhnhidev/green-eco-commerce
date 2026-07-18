@@ -5,6 +5,8 @@
 
 import { useGetApiAdminAnalyst } from '@api'
 import CardDisplayNumber from '@components/features/cards/CardDisplayNumber'
+import LowStockProducts from '@components/features/dashboard/LowStockProducts'
+import RecentOrders from '@components/features/dashboard/RecentOrders'
 import Loading from '@components/ui/status/Loading'
 import { MonthPickerInput } from '@mantine/dates'
 import { useState } from 'react'
@@ -39,101 +41,79 @@ const Dashboard = () => {
     setValue(newValue)
   }
 
-  if (isLoading) return <Loading text="Loading" />
+if (isLoading) return <Loading text="Loading" />
+
+  const getGrowth = (m: { isGrowth?: boolean; growthPercentage?: number }) =>
+    m.isGrowth === true ? 'up' : Number(m.growthPercentage).toFixed(0) === '0' ? 'balance' : 'down'
 
   return (
     <div className="w-full h-full">
-      <div className="italic text-muted-foreground mb-6 text-lg font-medium">
-        Here is what happened with GreenEcoCommerce today
+      <div className="flex items-center justify-between mb-3">
+        <div className="text-[13px] text-[#71717a]">Overview of store performance</div>
+        <MonthPickerInput
+          placeholder="Chọn tháng..."
+          value={value as any}
+          onChange={handleDateChange}
+          clearable
+          size="xs"
+          dropdownType="popover"
+          valueFormat="MM/YYYY"
+          w={140}
+        />
       </div>
 
-      <div className="flex gap-7 mb-7 items-end">
+      <div className="flex gap-2.5 mb-2.5">
         <CardDisplayNumber
           icon={<FaMoneyBillAlt />}
           title="Total Revenue"
-          currentData={Number(analysted!.totalRevenue.currentValue).toFixed(2)}
+          currentData={Number(analysted!.totalRevenue.currentValue).toLocaleString('en-US', {
+            maximumFractionDigits: 0,
+          })}
           previousData={Number(analysted!.totalRevenue.previousValue).toFixed(2)}
-          isGrowth={
-            analysted!.totalRevenue.isGrowth === true
-              ? 'up'
-              : Number(analysted!.totalRevenue.growthPercentage).toFixed(0) === '0'
-                ? 'balance'
-                : 'down'
-          }
+          isGrowth={getGrowth(analysted!.totalRevenue)}
           showDolarIcon={true}
           showPercentIcon={true}
-          growthValue={Number(analysted!.totalRevenue.growthPercentage).toFixed(0)}
+          growthValue={Number(analysted!.totalRevenue.growthPercentage).toFixed(1)}
         />
         <CardDisplayNumber
           icon={<IoCartOutline />}
           title="Total Orders"
-          currentData={Number(analysted!.amountOrders.currentValue).toFixed(2)}
-          previousData={Number(analysted!.amountOrders.previousValue).toFixed(2)}
-          isGrowth={
-            analysted!.amountOrders.isGrowth === true
-              ? 'up'
-              : Number(analysted!.amountOrders.growthPercentage).toFixed(0) === '0'
-                ? 'balance'
-                : 'down'
-          }
+          currentData={Number(analysted!.amountOrders.currentValue).toFixed(0)}
+          previousData={Number(analysted!.amountOrders.previousValue).toFixed(0)}
+          isGrowth={getGrowth(analysted!.amountOrders)}
           showDolarIcon={false}
           showPercentIcon={true}
-          growthValue={Number(analysted!.amountOrders.growthPercentage).toFixed(0)}
+          growthValue={Number(analysted!.amountOrders.growthPercentage).toFixed(1)}
         />
         <CardDisplayNumber
           icon={<LuUserPlus />}
-          title="Total Customers"
-          currentData={Number(analysted!.amountUsers.currentValue).toFixed(2)}
-          previousData={Number(analysted!.amountUsers.previousValue).toFixed(2)}
-          isGrowth={
-            analysted!.amountUsers.isGrowth === true
-              ? 'up'
-              : Number(analysted!.amountUsers.growthPercentage).toFixed(0) === '0'
-                ? 'balance'
-                : 'down'
-          }
+          title="New Users"
+          currentData={Number(analysted!.amountUsers.currentValue).toFixed(0)}
+          previousData={Number(analysted!.amountUsers.previousValue).toFixed(0)}
+          isGrowth={getGrowth(analysted!.amountUsers)}
           showDolarIcon={false}
           showPercentIcon={true}
-          growthValue={Number(analysted!.amountUsers.growthPercentage).toFixed(0)}
+          growthValue={Number(analysted!.amountUsers.growthPercentage).toFixed(1)}
         />
         <CardDisplayNumber
           icon={<MdCo2 />}
-          title="Carbon Offset"
-          currentData={Number(analysted!.totalCo2Saved.currentValue).toFixed(2)}
-          previousData={Number(analysted!.totalCo2Saved.previousValue).toFixed(2)}
-          isGrowth={
-            analysted!.totalCo2Saved.isGrowth === true
-              ? 'up'
-              : Number(analysted!.totalCo2Saved.growthPercentage).toFixed(0) === '0'
-                ? 'balance'
-                : 'down'
-          }
+          title="CO₂ Saved"
+          currentData={Number(analysted!.totalCo2Saved.currentValue).toFixed(1)}
+          previousData={Number(analysted!.totalCo2Saved.previousValue).toFixed(1)}
+          isGrowth={getGrowth(analysted!.totalCo2Saved)}
           showDolarIcon={false}
           showPercentIcon={true}
-          growthValue={Number(analysted!.totalCo2Saved.growthPercentage).toFixed(0)}
-        />
-
-        <MonthPickerInput
-          label="Choose time analyst"
-          placeholder="Bấm để chọn..."
-          classNames={{
-            label: '!mb-2',
-          }}
-          value={value as any} // Ép kiểu cục bộ tại component để dập tắt cảnh báo của TypeScript
-          onChange={handleDateChange}
-          clearable
-          dropdownType="popover"
-          valueFormat="MM/YYYY"
-          w={250}
+          growthValue={Number(analysted!.totalCo2Saved.growthPercentage).toFixed(1)}
+          unit="kg"
         />
       </div>
 
-      <div className="grid grid-cols-12 gap-7 mt-8">
-        <div className="col-span-8 bg-white rounded-2xl shadow-sm border border-primary/10 p-6 min-h-[300px] flex items-center justify-center text-muted-foreground">
-          Revenue Chart Placeholder
+      <div className="grid grid-cols-12 gap-2.5">
+        <div className="col-span-8">
+          <RecentOrders />
         </div>
-        <div className="col-span-4 bg-white rounded-2xl shadow-sm border border-primary/10 p-6 min-h-[300px] flex items-center justify-center text-muted-foreground">
-          Recent Activity Placeholder
+        <div className="col-span-4">
+          <LowStockProducts />
         </div>
       </div>
     </div>

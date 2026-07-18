@@ -59,11 +59,11 @@ const TheNavigation = () => {
   const active = useAppSelector((state) => state.theNavigation.active)
 
   return (
-    <div className="w-64 flex flex-col bg-white border-r border-primary/10 shadow-sm h-screen px-4 py-6 z-10">
-      <div className="flex justify-center mb-8">
-        <Brand linkToHome={true} size="lg" />
+    <div className="w-[220px] flex flex-col bg-white border-r border-[#ececee] h-screen px-2 py-3 z-10">
+      <div className="flex justify-center mb-4">
+        <Brand linkToHome={true} size="md" />
       </div>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-px">
         {navigateMems.map((item) => (
           <Link
             to={`${item.id}`}
@@ -76,7 +76,7 @@ const TheNavigation = () => {
         ))}
       </div>
 
-      <div className="mt-auto">
+     <div className="mt-auto pt-1.5 border-t border-[#ececee]">
         <button type="button" onClick={() => dispatch(setActive('setting'))} className="w-full text-left">
           <NavigationIndex icon={IoIosSettings} text="Setting" isActive={active === 'setting'} />
         </button>
