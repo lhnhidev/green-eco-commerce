@@ -9,13 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Swagger\**" />
-    <Content Remove="Swagger\**" />
-    <EmbeddedResource Remove="Swagger\**" />
-    <None Remove="Swagger\**" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="13.4.6" />
+    <PackageReference Include="Aspire.StackExchange.Redis" Version="13.4.6" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.4.6" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
     <PackageReference Include="MediatR" Version="14.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.9" />
@@ -25,9 +21,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.OpenApi" Version="2.11.0" />
     <PackageReference Include="Scalar.AspNetCore" Version="2.16.11" />
   </ItemGroup>
-    
+
   <PropertyGroup>
     <SpaRoot>..\..\..\frontend\</SpaRoot>
     <SpaProxyServerUrl>http://localhost:5173</SpaProxyServerUrl>
@@ -37,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\GreenEcoCommerce.Application\GreenEcoCommerce.Application.csproj" />
     <ProjectReference Include="..\GreenEcoCommerce.Infrastructure\GreenEcoCommerce.Infrastructure.csproj" />
+    <ProjectReference Include="..\GreenEcoCommerce.ServiceDefaults\GreenEcoCommerce.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>

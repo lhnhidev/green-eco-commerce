@@ -1,8 +1,10 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/GreenEcoCommerce.AppHost/GreenEcoCommerce.AppHost.csproj" />
     <Project Path="src/GreenEcoCommerce.Application/GreenEcoCommerce.Application.csproj" />
     <Project Path="src/GreenEcoCommerce.Domain/GreenEcoCommerce.Domain.csproj" />
     <Project Path="src/GreenEcoCommerce.Infrastructure/GreenEcoCommerce.Infrastructure.csproj" />
+    <Project Path="src/GreenEcoCommerce.ServiceDefaults/GreenEcoCommerce.ServiceDefaults.csproj" />
     <Project Path="src/GreenEcoCommerce.WebAPI/GreenEcoCommerce.WebAPI.csproj" />
   </Folder>
   <Folder Name="/tests/">
