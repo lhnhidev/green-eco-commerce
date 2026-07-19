@@ -1,19 +1,17 @@
-using GreenEcoCommerce.Domain.Enums;
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Payments.Queries;
 
 public record GetTotalRevenueQuery : IRequest<decimal>
 {
-    public class Handler(IPaymentRepository paymentRepository) : IRequestHandler<GetTotalRevenueQuery, decimal>
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<GetTotalRevenueQuery, decimal>
     {
         public async Task<decimal> Handle(GetTotalRevenueQuery request, CancellationToken ct)
         {
-            var payments = await paymentRepository.GetAllAsync(ct);
-
-            decimal totalRevenue = payments.Where(p => p.Status.Equals(PaymentStatusEnum.Paid)).Sum(p => p.Amount);
-
+            var totalRevenue = await dbContext.Payments.IsPaid().SumAsync(p => p.Amount, ct);
             return totalRevenue;
         }
     }
