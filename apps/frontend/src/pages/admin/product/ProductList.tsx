@@ -1,17 +1,24 @@
-import { useGetApiProductsAll } from '@api'
-import { ActionIcon, Badge, Button, Table, TextInput } from '@mantine/core'
-import { useMemo, useState } from 'react'
+import { useGetAllProducts } from '@api'
+import { ActionIcon, Badge, Button, Pagination, Table, TextInput } from '@mantine/core'
+import { useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
 
+const PAGE_SIZE = 20
+
 const ProductList = () => {
   const [search, setSearch] = useState('')
-  const { data: products, isLoading } = useGetApiProductsAll()
+  const [page, setPage] = useState(1)
 
-  const filteredProducts = useMemo(() => {
-    if (!products) return []
-    return products.filter((p) => p.name?.toLowerCase().includes(search.toLowerCase()))
-  }, [products, search])
+  const { data, isLoading } = useGetAllProducts({
+    PageNumber: page,
+    PageSize: PAGE_SIZE,
+    Search: search || undefined,
+  })
+
+  const products = data?.items ?? []
+  const totalCount = data?.totalCount ?? 0
+  const totalPages = data?.totalPages ?? 1
 
   return (
     <div className="w-full h-full">
@@ -21,12 +28,13 @@ const ProductList = () => {
           size="xs"
           leftSection={<FiSearch size={13} />}
           value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
+          onChange={(e) => {
+            setSearch(e.currentTarget.value)
+            setPage(1)
+          }}
           w={220}
         />
-        <span className="text-[11px] text-[#71717a]">
-          {filteredProducts.length} of {products?.length ?? 0} shown
-        </span>
+        <span className="text-[11px] text-muted-foreground">{totalCount} products total</span>
         <div className="flex-1" />
         <Button
           component={Link}
@@ -45,7 +53,7 @@ const ProductList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-[#71717a] !bg-[#fafafa]',
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -70,16 +78,16 @@ const ProductList = () => {
                   <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading products…</div>
                 </Table.Td>
               </Table.Tr>
-            ) : filteredProducts.length === 0 ? (
+            ) : products.length === 0 ? (
               <Table.Tr>
                 <Table.Td colSpan={8}>
                   <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No products found.</div>
                 </Table.Td>
               </Table.Tr>
             ) : (
-              filteredProducts.map((p) => (
+              products.map((p) => (
                 <Table.Tr key={p.id}>
-                  <Table.Td className="!font-medium">{p.name}</Table.Td>
+                  <Table.Td className="font-medium!">{p.name}</Table.Td>
                   <Table.Td>${p.price?.toFixed(2)}</Table.Td>
                   <Table.Td>
                     <span className={p.stockQty < 20 ? 'text-red-500 font-semibold' : ''}>{p.stockQty}</span>
@@ -97,11 +105,11 @@ const ProductList = () => {
                     </div>
                   </Table.Td>
                   <Table.Td>
-                    <span className="text-[#71717a]">
+                    <span className="text-muted-foreground">
                       {p.carbonIndex} <span className="text-[#a1a1aa]">/ {p.baselineCarbonIndex}</span>
                     </span>
                   </Table.Td>
-                  <Table.Td className="!text-[#71717a]">{p.recyclePercent}%</Table.Td>
+                  <Table.Td className="text-muted-foreground!">{p.recyclePercent}%</Table.Td>
                   <Table.Td>
                     <Badge size="xs" variant="light" color={p.isActive ? 'primary' : 'gray'} radius="xl">
                       {p.isActive ? 'Active' : 'Inactive'}
@@ -123,6 +131,12 @@ const ProductList = () => {
           </Table.Tbody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-end mt-3">
+          <Pagination total={totalPages} value={page} onChange={setPage} size="xs" />
+        </div>
+      )}
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import type { UserProfileResponse } from '@api/schemas'
+import type { UserProfileDto } from '@api/schemas'
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 import type { AuthState } from '@types'
 
@@ -14,7 +14,7 @@ const authSlice = createSlice({
     changeActive: (state, action: PayloadAction<'login' | 'register'>) => {
       state.active = action.payload
     },
-    setAuthUser: (state, action: PayloadAction<UserProfileResponse>) => {
+    setAuthUser: (state, action: PayloadAction<UserProfileDto>) => {
       state.user = action.payload
     },
     clearAuthUser: (state) => {

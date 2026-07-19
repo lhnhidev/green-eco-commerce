@@ -1,4 +1,4 @@
-import { usePostApiAuthRegister } from '@api'
+import { useRegister } from '@api'
 import type { ProblemDetails } from '@api/schemas'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Button } from '@mantine/core'
@@ -39,7 +39,7 @@ const RegisterForm = () => {
     },
   })
 
-  const { mutate, isPending } = usePostApiAuthRegister()
+  const { mutate, isPending } = useRegister()
 
   const onSubmit = (formData: LocalRegisterFormValues) => {
     const { ...data } = formData

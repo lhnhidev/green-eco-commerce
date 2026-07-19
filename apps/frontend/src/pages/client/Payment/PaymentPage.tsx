@@ -1,4 +1,4 @@
-import { useGetApiCart } from '@api'
+import { useGetCart } from '@api'
 import OrderItem from '@components/features/order/OrderItem'
 import Loading from '@components/ui/status/Loading'
 import { Anchor, Breadcrumbs, Button, Group, Input, Modal, Radio } from '@mantine/core'
@@ -20,7 +20,7 @@ const items = [
 ))
 
 const PaymentPage = () => {
-  const { data, isLoading } = useGetApiCart()
+  const { data, isLoading } = useGetCart()
 
   const [addressType, setAddressType] = useState<'default' | 'new'>('default')
   const [paymentManner, setPaymentManner] = useState<'cod' | 'bank' | 'momo'>('bank')
@@ -28,7 +28,7 @@ const PaymentPage = () => {
 
   if (isLoading) return <Loading text="Loading" />
 
-  const totalPrice = Number(data?.totalPrice) || 0
+  const totalPrice = data?.items.reduce((acc, item) => acc + item.productPrice * item.quantity, 0) || 0
 
   const tax = Number((totalPrice * 0.02).toFixed(2))
   const total = Number((totalPrice * 1.02).toFixed(2))
@@ -62,7 +62,7 @@ const PaymentPage = () => {
             <div className="flex flex-col gap-y-2">
               <div className="flex justify-between">
                 <p>Subtotal:</p>
-                <p>${data?.totalPrice}</p>
+                <p>${totalPrice}</p>
               </div>
               <div className="flex justify-between">
                 <p>Tax:</p>

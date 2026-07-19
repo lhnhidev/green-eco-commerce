@@ -1,11 +1,11 @@
-import { getGetApiCartQueryKey, usePostApiCartItems } from '@api'
+import { getGetCartQueryKey, useAddCartItem } from '@api'
 import type { ProductDto } from '@api/schemas'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { Link } from 'react-router'
 
 const ProductCardv2 = ({ product }: { product: ProductDto }) => {
-  const { mutate } = usePostApiCartItems()
+  const { mutate } = useAddCartItem()
   const queryClient = useQueryClient()
 
   const handleAddToCart = (productId: string | undefined, quantity: number) => {
@@ -20,7 +20,7 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetApiCartQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
 
           notifications.show({
             title: 'Add Product Sucessed!',

@@ -10,7 +10,7 @@ const AuthPage = () => {
         </div>
 
         <div className="bg-white py-4 px-6 rounded-lg shadow-md">
-          <AuthFormLayout></AuthFormLayout>
+          <AuthFormLayout />
         </div>
       </div>
     </div>

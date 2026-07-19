@@ -1,4 +1,4 @@
-import { useGetApiProductsSome } from '@api'
+import { useGetAllProducts } from '@api'
 import FormSendEmail from '@components/features/FormSendEmail'
 import { ProductSlider } from '@components/features/products/ProductSlider'
 import FeatureSection from '@components/ui/landing/FeatureSection'
@@ -17,8 +17,7 @@ const GroupProductSliderWithButtonShowMore = () => {
     data: products,
     isLoading,
     isError,
-  } = useGetApiProductsSome({
-    PageNumber: 1,
+  } = useGetAllProducts({
     PageSize: productTotal,
   })
 

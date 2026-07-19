@@ -1,4 +1,4 @@
-import { useGetApiCategories, useGetApiProductsAll } from '@api'
+import { useGetAllCategories, useGetAllProducts } from '@api'
 import { ActionIcon, Button, Table, TextInput } from '@mantine/core'
 import { useMemo, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
@@ -6,26 +6,27 @@ import { Link } from 'react-router'
 
 const CategoryList = () => {
   const [search, setSearch] = useState('')
-  const { data: categories, isLoading } = useGetApiCategories()
-  const { data: products } = useGetApiProductsAll()
+  const { data: categories, isLoading } = useGetAllCategories()
+  const { data: productsPage } = useGetAllProducts()
+  const products = productsPage?.items ?? []
 
-  // Đếm số sản phẩm theo từng category
+  // Count products per category
   const productCount = useMemo(() => {
     const map = new Map<string, number>()
-    for (const p of products ?? []) {
+    for (const p of products) {
       map.set(p.categoryId, (map.get(p.categoryId) ?? 0) + 1)
     }
     return map
   }, [products])
 
-  // Map id -> tên để hiển thị category cha
+  // Map id -> name for parent category display
   const nameById = useMemo(() => {
     const map = new Map<string, string>()
     for (const c of categories ?? []) map.set(c.id, c.name)
     return map
   }, [categories])
 
-  // Sắp xếp: cha trước, con ngay dưới cha
+  // Sort: parents first, children immediately after their parent
   const sortedCategories = useMemo(() => {
     if (!categories) return []
     const filtered = categories.filter((c) => c.name.toLowerCase().includes(search.toLowerCase()))
@@ -37,7 +38,7 @@ const CategoryList = () => {
       result.push(root)
       result.push(...categories.filter((c) => c.parentId === root.id))
     }
-    // Category con mà cha không tồn tại (dữ liệu lỗi) vẫn phải hiện
+    // Orphaned children (data error) still shown
     for (const c of categories) {
       if (!result.includes(c)) result.push(c)
     }
@@ -55,7 +56,7 @@ const CategoryList = () => {
           onChange={(e) => setSearch(e.currentTarget.value)}
           w={220}
         />
-        <span className="text-[11px] text-[#71717a]">
+        <span className="text-[11px] text-muted-foreground">
           {sortedCategories.length} of {categories?.length ?? 0} shown
         </span>
         <div className="flex-1" />
@@ -76,7 +77,7 @@ const CategoryList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-[#71717a] !bg-[#fafafa]',
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -113,8 +114,8 @@ const CategoryList = () => {
                     {cat.parentId && <span className="text-[#d4d4d8] mr-1.5">└</span>}
                     {cat.name}
                   </Table.Td>
-                  <Table.Td className="!text-[#71717a]">{cat.description || '—'}</Table.Td>
-                  <Table.Td className="!text-[#71717a]">
+                  <Table.Td className="!text-muted-foreground">{cat.description || '—'}</Table.Td>
+                  <Table.Td className="!text-muted-foreground">
                     {cat.parentId ? (nameById.get(cat.parentId) ?? '—') : <span className="text-[#d4d4d8]">—</span>}
                   </Table.Td>
                   <Table.Td ta="right">{productCount.get(cat.id) ?? 0}</Table.Td>

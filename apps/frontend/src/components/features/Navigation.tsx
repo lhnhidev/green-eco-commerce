@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 
-import { useGetApiCart } from '@api'
+import { useGetCart } from '@api'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Badge, Button, Group, TextInput } from '@mantine/core'
 import { MagnifyingGlassIcon, ShoppingCartIcon } from '@phosphor-icons/react'
@@ -23,7 +23,7 @@ export function Navigation() {
 
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
 
-  const { data } = useGetApiCart()
+  const { data } = useGetCart()
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-primary/10 shadow-sm bg-white/80 backdrop-blur-md supports-backdrop-filter:bg-white/60">

@@ -1,4 +1,4 @@
-import { getGetApiCartQueryKey, useGetApiProductsId, usePostApiCartItems } from '@api'
+import { getGetCartQueryKey, useGetProductById, useAddCartItem } from '@api'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
 import Loading from '@components/ui/status/Loading'
 import { useAppSelector } from '@hooks/useAppSelector'
@@ -22,7 +22,7 @@ const ProductDetailPage = () => {
     isLoading,
     isError,
     // biome-ignore lint/style/noNonNullAssertion: <>
-  } = useGetApiProductsId(id!, {
+  } = useGetProductById(id!, {
     query: {
       enabled: !!id, // Chỉ fetch khi id tồn tại
     },
@@ -31,7 +31,7 @@ const ProductDetailPage = () => {
   const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
 
-  const { mutate } = usePostApiCartItems()
+  const { mutate } = useAddCartItem()
 
   const queryClient = useQueryClient()
 
@@ -47,7 +47,7 @@ const ProductDetailPage = () => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetApiCartQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
 
           notifications.show({
             title: 'Add Product Sucessed!',

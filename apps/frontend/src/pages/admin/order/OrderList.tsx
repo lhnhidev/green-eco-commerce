@@ -1,8 +1,8 @@
-import { useGetApiOrdersAll } from '@api'
+import { useGetAllOrders } from '@api'
 import { OrderStatusEnum } from '@api/schemas'
-import { ActionIcon, Badge, Select, Table, TextInput } from '@mantine/core'
+import { ActionIcon, Badge, Pagination, Select, Table, TextInput } from '@mantine/core'
 import dayjs from 'dayjs'
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { FiEye, FiSearch } from 'react-icons/fi'
 
 const statusColor: Record<string, string> = {
@@ -13,26 +13,31 @@ const statusColor: Record<string, string> = {
   Cancelled: 'red',
 }
 
+const PAGE_SIZE = 20
+
 const OrderList = () => {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
 
-  const { data: orders, isLoading } = useGetApiOrdersAll()
+  const { data, isLoading } = useGetAllOrders({ PageNumber: page, PageSize: PAGE_SIZE })
 
-  const filteredOrders = useMemo(() => {
-    if (!orders) return []
-    const keyword = search.trim().toLowerCase()
-    return orders
-      .filter((o) => {
-        const matchSearch =
-          !keyword ||
-          (o.id?.toLowerCase() || '').includes(keyword) ||
-          (o.deliveryAddress?.toLowerCase() || '').includes(keyword)
-        const matchStatus = statusFilter ? o.status === statusFilter : true
-        return matchSearch && matchStatus
-      })
-      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  }, [orders, search, statusFilter])
+  const allOrders = data?.items ?? []
+  const totalCount = data?.totalCount ?? 0
+  const totalPages = data?.totalPages ?? 1
+
+  // Client-side filter for search and status (server-side doesn't support these filters)
+  const filteredOrders = allOrders
+    .filter((o) => {
+      const keyword = search.trim().toLowerCase()
+      const matchSearch =
+        !keyword ||
+        (o.id?.toLowerCase() || '').includes(keyword) ||
+        (o.deliveryAddress?.toLowerCase() || '').includes(keyword)
+      const matchStatus = statusFilter ? o.status === statusFilter : true
+      return matchSearch && matchStatus
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
 
   return (
     <div className="w-full h-full">
@@ -54,9 +59,7 @@ const OrderList = () => {
           clearable
           w={140}
         />
-        <span className="text-[11px] text-[#71717a]">
-          {filteredOrders.length} of {orders?.length ?? 0} shown
-        </span>
+        <span className="text-[11px] text-muted-foreground">{totalCount} orders total</span>
       </div>
 
       <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
@@ -65,7 +68,7 @@ const OrderList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-[#71717a] !bg-[#fafafa]',
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -103,8 +106,8 @@ const OrderList = () => {
               filteredOrders.map((order) => (
                 <Table.Tr key={order.id}>
                   <Table.Td className="!font-medium">#{order.id?.substring(0, 8)}</Table.Td>
-                  <Table.Td className="!text-[#71717a]">{order.deliveryAddress || '—'}</Table.Td>
-                  <Table.Td className="!text-[#71717a]">
+                  <Table.Td className="!text-muted-foreground">{order.deliveryAddress || '—'}</Table.Td>
+                  <Table.Td className="!text-muted-foreground">
                     {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
                   </Table.Td>
                   <Table.Td>
@@ -113,7 +116,7 @@ const OrderList = () => {
                     </Badge>
                   </Table.Td>
                   <Table.Td ta="right">{order.earnedPoints}</Table.Td>
-                  <Table.Td ta="right" className="!text-[#71717a]">
+                  <Table.Td ta="right" className="!text-muted-foreground">
                     ${Number(order.discountAmount).toFixed(2)}
                   </Table.Td>
                   <Table.Td>
@@ -129,6 +132,12 @@ const OrderList = () => {
           </Table.Tbody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-end mt-3">
+          <Pagination total={totalPages} value={page} onChange={setPage} size="xs" />
+        </div>
+      )}
     </div>
   )
 }

@@ -1,13 +1,22 @@
-import { useGetApiUsers } from '@api'
-import { ActionIcon, Avatar, Badge, Table, TextInput } from '@mantine/core'
+import { useGetAllUsers } from '@api'
+import { ActionIcon, Avatar, Badge, Pagination, Table, TextInput } from '@mantine/core'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
 import { FiEdit2, FiSearch } from 'react-icons/fi'
 
+const PAGE_SIZE = 20
+
 const UserList = () => {
   const [search, setSearch] = useState('')
-  const { data: users, isLoading } = useGetApiUsers()
+  const [page, setPage] = useState(1)
 
+  const { data, isLoading } = useGetAllUsers({ PageNumber: page, PageSize: PAGE_SIZE, Search: search || undefined })
+
+  const users = data?.items ?? []
+  const totalCount = data?.totalCount ?? 0
+  const totalPages = data?.totalPages ?? 1
+
+  // Client-side name filter (Search param already handles server-side)
   const filtered = useMemo(() => {
     if (!users) return []
     const keyword = search.trim().toLowerCase()
@@ -27,12 +36,13 @@ const UserList = () => {
           size="xs"
           leftSection={<FiSearch size={13} />}
           value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
+          onChange={(e) => {
+            setSearch(e.currentTarget.value)
+            setPage(1)
+          }}
           w={240}
         />
-        <span className="text-[11px] text-[#71717a]">
-          {filtered.length} of {users?.length ?? 0} shown
-        </span>
+        <span className="text-[11px] text-muted-foreground">{totalCount} users total</span>
       </div>
 
       <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
@@ -41,7 +51,7 @@ const UserList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-[#71717a] !bg-[#fafafa]',
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -85,15 +95,15 @@ const UserList = () => {
                       </span>
                     </div>
                   </Table.Td>
-                  <Table.Td className="!text-[#71717a]">{u.email}</Table.Td>
-                  <Table.Td className="!text-[#71717a]">{u.phone || '—'}</Table.Td>
-                  <Table.Td className="!text-[#71717a]">{u.address || '—'}</Table.Td>
+                  <Table.Td className="!text-muted-foreground">{u.email}</Table.Td>
+                  <Table.Td className="!text-muted-foreground">{u.phone || '—'}</Table.Td>
+                  <Table.Td className="!text-muted-foreground">{u.address || '—'}</Table.Td>
                   <Table.Td>
                     <Badge size="xs" variant="light" color={u.role === 'Admin' ? 'primary' : 'gray'} radius="xl">
                       {u.role}
                     </Badge>
                   </Table.Td>
-                  <Table.Td className="!text-[#71717a]">
+                  <Table.Td className="!text-muted-foreground">
                     {u.createdAt ? dayjs(u.createdAt).format('DD/MM/YYYY') : '—'}
                   </Table.Td>
                   <Table.Td>
@@ -109,6 +119,12 @@ const UserList = () => {
           </Table.Tbody>
         </Table>
       </div>
+
+      {totalPages > 1 && (
+        <div className="flex justify-end mt-3">
+          <Pagination total={totalPages} value={page} onChange={setPage} size="xs" />
+        </div>
+      )}
     </div>
   )
 }

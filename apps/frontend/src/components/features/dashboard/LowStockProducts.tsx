@@ -1,12 +1,12 @@
-import { useGetApiProductsAll } from '@api'
+import { useGetAllProducts } from '@api'
 import { Progress } from '@mantine/core'
 
 const LOW_STOCK_WARN = 20
 
 const LowStockProducts = () => {
-  const { data, isLoading } = useGetApiProductsAll()
+  const { data, isLoading } = useGetAllProducts()
 
-  const rows = [...(data ?? [])]
+  const rows = [...(data?.items ?? [])]
     .filter((p) => p.isActive)
     .sort((a, b) => a.stockQty - b.stockQty)
     .slice(0, 7)
@@ -29,7 +29,7 @@ const LowStockProducts = () => {
                 <span className="text-[12px] font-medium truncate">{p.name}</span>
                 <span
                   className={`text-[11px] font-semibold shrink-0 ${
-                    p.stockQty < LOW_STOCK_WARN ? 'text-red-500' : 'text-[#71717a]'
+                    p.stockQty < LOW_STOCK_WARN ? 'text-red-500' : 'text-muted-foreground'
                   }`}
                 >
                   {p.stockQty}

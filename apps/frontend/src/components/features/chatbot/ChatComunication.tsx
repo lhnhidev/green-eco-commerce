@@ -1,4 +1,4 @@
-import { usePostApiChatbot } from '@api'
+import { useAskChatbot } from '@api'
 import { TextInput, Tooltip } from '@mantine/core'
 import { useEffect, useRef, useState } from 'react'
 import { IoIosSend } from 'react-icons/io'
@@ -50,7 +50,7 @@ const ChatComunication = () => {
   const [inputValue, setInputValue] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { mutate: askChatbot, isPending } = usePostApiChatbot()
+  const { mutate: askChatbot, isPending } = useAskChatbot()
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {

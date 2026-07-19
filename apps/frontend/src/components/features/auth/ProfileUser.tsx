@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 
-import { getGetApiAuthMeQueryKey, usePostApiAuthLogout } from '@api'
+import { getGetMeQueryKey, useLogout } from '@api'
 import { useAuth } from '@hooks/useAuth'
 import { Avatar, Divider, Group, Skeleton, Stack, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
@@ -65,7 +65,7 @@ type ProfileUserType = {
 const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
   const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false)
   const queryClient = useQueryClient()
-  const { mutate: logout } = usePostApiAuthLogout()
+  const { mutate: logout } = useLogout()
 
   const navigate = useNavigate()
 
@@ -86,7 +86,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
       onSuccess: () => {
         queryClient.clear()
 
-        queryClient.removeQueries({ queryKey: getGetApiAuthMeQueryKey() })
+        queryClient.removeQueries({ queryKey: getGetMeQueryKey() })
         setShowProfileMenu(false)
         navigate('/')
         notifications.show({

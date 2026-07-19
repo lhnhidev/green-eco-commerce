@@ -1,5 +1,5 @@
-import { getGetApiProductsAllQueryKey, usePostApiProducts } from '@api'
-import { Button, TextInput } from '@mantine/core'
+import { getGetAllProductsQueryKey, useGetAllCategories, useGetAllMaterials, useCreateProduct } from '@api'
+import { ActionIcon, Button, MultiSelect, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
@@ -9,28 +9,55 @@ import { Link, useNavigate } from 'react-router'
 const ProductCreate = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { mutate: createProduct, isPending } = usePostApiProducts()
+  const { mutate: createProduct, isPending } = useCreateProduct()
+  const { data: categories } = useGetAllCategories()
+  const { data: materials } = useGetAllMaterials()
+
+  const categoryOptions = (categories ?? []).map((c) => ({ value: c.id, label: c.name }))
+  const materialOptions = (materials ?? []).map((m) => ({ value: m.id, label: m.name }))
 
   const form = useForm({
     initialValues: {
       name: '',
       description: '',
       price: 0,
-      ecoScore: 0,
+      stockQty: 0,
+      categoryId: '',
+      carbonIndex: 0,
+      baselineCarbonIndex: 0,
+      decomposePercent: 0,
+      recyclePercent: 0,
+      imageUrl: [] as string[],
+      materialIds: [] as string[],
     },
     validate: {
       name: (value) => (value.length < 2 ? 'Name must have at least 2 letters' : null),
       price: (value) => (value <= 0 ? 'Price must be greater than 0' : null),
+      categoryId: (value) => (!value ? 'Category is required' : null),
     },
   })
 
   const handleSubmit = (values: typeof form.values) => {
     createProduct(
-      { data: values },
+      {
+        data: {
+          name: values.name,
+          description: values.description || null,
+          price: values.price,
+          stockQty: values.stockQty,
+          categoryId: values.categoryId,
+          carbonIndex: values.carbonIndex,
+          baselineCarbonIndex: values.baselineCarbonIndex,
+          decomposePercent: values.decomposePercent,
+          recyclePercent: values.recyclePercent,
+          imageUrl: values.imageUrl,
+          materialIds: values.materialIds,
+        },
+      },
       {
         onSuccess: () => {
           notifications.show({ title: 'Success', message: 'Product created', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetApiProductsAllQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
           navigate('/admin/product')
         },
         onError: () => {
@@ -60,15 +87,68 @@ const ProductCreate = () => {
             withAsterisk
             {...form.getInputProps('name')}
           />
-          <TextInput
+          <Textarea
             label="Description"
             placeholder="Description of the product"
+            autosize
+            minRows={2}
             {...form.getInputProps('description')}
           />
+
           <div className="grid grid-cols-2 gap-6">
-            <TextInput type="number" label="Price ($)" withAsterisk {...form.getInputProps('price')} />
-            <TextInput type="number" label="Eco Score (0-100)" {...form.getInputProps('ecoScore')} />
+            <NumberInput label="Price ($)" withAsterisk min={0} decimalScale={2} {...form.getInputProps('price')} />
+            <NumberInput label="Stock Qty" min={0} {...form.getInputProps('stockQty')} />
           </div>
+
+          <Select
+            label="Category"
+            placeholder="Select a category"
+            data={categoryOptions}
+            withAsterisk
+            searchable
+            {...form.getInputProps('categoryId')}
+          />
+
+          <MultiSelect
+            label="Materials"
+            placeholder="Select materials"
+            data={materialOptions}
+            searchable
+            {...form.getInputProps('materialIds')}
+          />
+
+          <div className="grid grid-cols-2 gap-6">
+            <NumberInput
+              label="Carbon Index (kg CO₂)"
+              min={0}
+              decimalScale={2}
+              {...form.getInputProps('carbonIndex')}
+            />
+            <NumberInput
+              label="Baseline Carbon Index (kg CO₂)"
+              min={0}
+              decimalScale={2}
+              {...form.getInputProps('baselineCarbonIndex')}
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-6">
+            <NumberInput
+              label="Decompose %"
+              min={0}
+              max={100}
+              suffix="%"
+              {...form.getInputProps('decomposePercent')}
+            />
+            <NumberInput
+              label="Recycle %"
+              min={0}
+              max={100}
+              suffix="%"
+              {...form.getInputProps('recyclePercent')}
+            />
+          </div>
+
           <div className="flex justify-end gap-4 mt-4">
             <Button component={Link} to="/admin/product" variant="default">
               Cancel
@@ -83,5 +163,4 @@ const ProductCreate = () => {
   )
 }
 
-import { ActionIcon } from '@mantine/core'
 export default ProductCreate
