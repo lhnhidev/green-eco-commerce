@@ -1,9 +1,10 @@
 using FluentValidation;
 using GreenEcoCommerce.Application.Interfaces.Caching;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Exceptions;
-using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Auth.Commands;
 
@@ -11,11 +12,8 @@ public record RefreshTokenCommand(Guid Id, string RefreshToken) : IRequest<Refre
 {
     public record Response(string Token, string RefreshToken);
 
-    public class RefreshTokenCommandHanlder(
-        IUserRepository userRepository,
-        ICacheService cacheService,
-        IJwtService jwtService
-    ) : IRequestHandler<RefreshTokenCommand, Response>
+    public class Handler(IApplicationDbContext dbContext, ICacheService cacheService, IJwtService jwtService)
+            : IRequestHandler<RefreshTokenCommand, Response>
     {
         public async Task<Response> Handle(RefreshTokenCommand request, CancellationToken ct)
         {
@@ -23,27 +21,21 @@ public record RefreshTokenCommand(Guid Id, string RefreshToken) : IRequest<Refre
 
             if (!isLive) { throw new UnauthorizedAccessException("Refresh token expired or not found"); }
 
-            string? refreshToken = await cacheService.GetAsync<string>(
-                $"refresh_token:{request.Id}",
-                ct);
+            string? refreshToken = await cacheService.GetAsync<string>($"refresh_token:{request.Id}", ct);
 
             if (string.IsNullOrEmpty(refreshToken) || refreshToken != request.RefreshToken)
             {
                 throw new UnauthorizedAccessException("Invalid refresh token");
             }
 
-            var user = await userRepository.GetUserByIdAsync(request.Id);
+            var user = await dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == request.Id, ct);
 
             if (user == null) { throw new NotFoundException("User not found"); }
 
-            string newToken = jwtService.GenerateToken(user, minutesExprired: 15);
+            string newToken = jwtService.GenerateToken(user, minutesExpired: 15);
             string newRefreshToken = jwtService.GenerateRefreshToken();
 
-            await cacheService.SetAsync(
-                $"refresh_token:{request.Id}",
-                newRefreshToken,
-                TimeSpan.FromDays(7),
-                ct);
+            await cacheService.SetAsync($"refresh_token:{request.Id}", newRefreshToken, TimeSpan.FromDays(7), ct);
 
             return new Response(newToken, newRefreshToken);
         }
