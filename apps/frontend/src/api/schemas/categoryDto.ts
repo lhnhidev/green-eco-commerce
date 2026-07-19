@@ -8,6 +8,7 @@
 
 export interface CategoryDto {
   id: string;
+  productCount: number;
   name: string;
   /** @nullable */
   description?: string | null;

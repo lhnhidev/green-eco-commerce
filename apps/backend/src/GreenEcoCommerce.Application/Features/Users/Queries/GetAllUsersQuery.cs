@@ -1,16 +1,61 @@
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Common.Models;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
+using GreenEcoCommerce.Domain.Entities;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Users.Queries;
 
-public record GetAllUsersQuery : IRequest<UserDto[]>
+public enum UserSortBy
 {
-    public class GetAmountAllUsersQueryHandler(IUserRepository userRepository) : IRequestHandler<GetAllUsersQuery, UserDto[]>
+    FirstName,
+    LastName,
+    Points
+}
+
+public record GetAllUsersQuery(GetAllUsersQuery.Parameters Query) : IRequest<PagedResult<UserDto>>
+{
+    public class GetAmountAllUsersQueryHandler(IApplicationDbContext dbContext)
+            : IRequestHandler<GetAllUsersQuery, PagedResult<UserDto>>
     {
-        public async Task<UserDto[]> Handle(GetAllUsersQuery request, CancellationToken ct)
+        public async Task<PagedResult<UserDto>> Handle(GetAllUsersQuery request, CancellationToken ct)
         {
-            var users = await userRepository.GetAllUsersAsync();
-            return users.Select(UserDtoMapper.ToDto).ToArray();
+            var userQuery = dbContext.Users.IsNotDeleted();
+            return await request.Query.ApplyAsync(userQuery, UserDtoMapper.ProjectToDto, ct);
+        }
+    }
+
+    public class Parameters : QueryParameters<User>, ISortParameters<User>, ISearchParameters<User>,
+                              IFilterParameters<User>
+    {
+        public UserSortBy? SortBy { get; init; } = UserSortBy.FirstName;
+        public bool? SortDescending { get; init; }
+
+        public string? Search { get; init; } = string.Empty;
+
+        public IQueryable<User> ApplySearching(IQueryable<User> query)
+        {
+            if (string.IsNullOrWhiteSpace(Search)) return query;
+
+            string search = Search.ToLower();
+
+            return query.Where(p =>
+                    (p.LastName + " " + p.FirstName).ToLower().Contains(search) ||
+                    (p.FirstName + " " + p.LastName).ToLower().Contains(search) ||
+                    p.Email.ToString().Contains(search) || p.Phone.ToString().Contains(search));
+        }
+
+        public IQueryable<User> ApplyFiltering(IQueryable<User> query) { return query; }
+
+        public IQueryable<User> ApplySorting(IQueryable<User> query)
+        {
+            return SortBy switch
+            {
+                UserSortBy.FirstName => query.ApplySorting(p => p.FirstName, SortDescending),
+                UserSortBy.LastName => query.ApplySorting(p => p.LastName, SortDescending),
+                UserSortBy.Points => query.ApplySorting(p => p.GreenWallet.EarnedTotal, SortDescending),
+                _ => query.ApplySorting(p => p.Id, SortDescending) // default
+            };
         }
     }
 }

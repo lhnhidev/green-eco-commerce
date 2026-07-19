@@ -10,7 +10,7 @@ const NavigationIndex = ({ text, isActive, icon: Icon }: NavigationIndexType) =>
       className={`px-2.5 py-1.5 rounded-lg transition-colors duration-150 flex items-center gap-2 text-[13px] ${
         isActive
           ? 'bg-primary text-white font-medium'
-          : 'text-[#71717a] hover:cursor-pointer hover:bg-[#f4f4f5] hover:text-[#18181b]'
+          : 'text-muted-foreground hover:cursor-pointer hover:bg-[#f4f4f5] hover:text-[#18181b]'
       }`}
     >
       <Icon size={15} />

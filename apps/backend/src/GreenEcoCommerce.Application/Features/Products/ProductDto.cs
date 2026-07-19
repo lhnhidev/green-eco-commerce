@@ -1,3 +1,4 @@
+using FluentValidation;
 using GreenEcoCommerce.Application.Features.Materials;
 using GreenEcoCommerce.Domain.Entities;
 using MediatR;
@@ -15,9 +16,42 @@ public record ProductPayloadDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    ICollection<string> ImageUrl,
-    ICollection<Guid> MaterialIds
-) : IRequest<ProductDto>;
+    string[] ImageUrl,
+    Guid[] MaterialIds
+) : IRequest<ProductDto>
+{
+    public class Validator : AbstractValidator<ProductPayloadDto>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Product name is required.")
+                    .MaximumLength(255).WithMessage("Product name must not exceed 255 characters.");
+
+            RuleFor(x => x.Price)
+                    .GreaterThan(0).WithMessage("Price must be greater than 0.");
+
+            RuleFor(x => x.StockQty)
+                    .GreaterThanOrEqualTo(0).WithMessage("Stock quantity cannot be negative.");
+
+            RuleFor(x => x.CategoryId)
+                    .NotEmpty().WithMessage("Category ID is required.");
+
+            RuleFor(x => x.CarbonIndex)
+                    .GreaterThan(0).WithMessage("Carbon index must be greater than 0.")
+                    .LessThan(10000).WithMessage("Carbon index must be less than 10000.");
+
+            RuleFor(x => x.BaselineCarbonIndex)
+                    .GreaterThan(0).WithMessage("Baseline carbon index must be greater than 0.");
+
+            RuleFor(x => x.DecomposePercent)
+                    .InclusiveBetween(0, 100).WithMessage("Decompose percent must be between 0 and 100.");
+
+            RuleFor(x => x.RecyclePercent)
+                    .InclusiveBetween(0, 100).WithMessage("Recycle percent must be between 0 and 100.");
+        }
+    }
+}
 
 public record ProductDto(
     Guid Id,
@@ -30,15 +64,20 @@ public record ProductDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    ICollection<string> ImageUrl,
-    ICollection<MaterialItem> Materials,
+    string[] ImageUrl,
+    MaterialDto[] Materials,
     bool IsActive
 );
 
-[Mapper]
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class ProductDtoMapper
 {
+    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
     public static partial ProductDto ToDto(this Product product);
-    [MapperIgnoreSource(nameof(ProductDto.Materials))]
+    public static partial IQueryable<ProductDto> ProjectToDto(this IQueryable<Product> products);
+
+    [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
     public static partial Product ToEntity(this ProductPayloadDto payload);
+    [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
+    public static partial void ApplyUpdate([MappingTarget] this Product product, ProductPayloadDto payload);
 }

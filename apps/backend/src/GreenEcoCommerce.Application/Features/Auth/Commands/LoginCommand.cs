@@ -1,42 +1,43 @@
 using FluentValidation;
+using GreenEcoCommerce.Application.Features.Profile;
 using GreenEcoCommerce.Application.Interfaces.Caching;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
+using GreenEcoCommerce.Application.Queries;
 using GreenEcoCommerce.Domain.Exceptions;
-using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Auth.Commands;
 
 public record LoginCommand(string Email, string Password) : IRequest<LoginCommand.Response>
 {
-    public record Response(string Token, string RefreshToken, UserInfoResponse UserInfo);
+    public record Response(string Token, string RefreshToken, UserProfileDto UserProfile);
 
-    public class Handler(IUserRepository userRepository, IJwtService jwtService, ICacheService cacheService)
+    public class Handler(IApplicationDbContext dbContext, IJwtService jwtService, ICacheService cacheService)
             : IRequestHandler<LoginCommand, Response>
     {
         public async Task<Response> Handle(LoginCommand request, CancellationToken ct)
         {
-            var user = await userRepository.GetUserByEmailAsync(request.Email);
+            var user = await dbContext.Users.AsNoTracking().WithEmail(request.Email).FirstOrDefaultAsync(ct);
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (user == null)
             {
-                throw new NotFoundException("Not found user, email or password is wrong");
+                throw new NotFoundException("User not found.");
             }
 
-            string token = jwtService.GenerateToken(user, minutesExprired: 15);
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                throw new BadRequestException("Invalid credentials.");
+            }
+
+            string token = jwtService.GenerateToken(user, minutesExpired: 15);
             string refreshToken = jwtService.GenerateRefreshToken();
 
             await cacheService.SetAsync($"refresh_token:{user.Id}", refreshToken, TimeSpan.FromDays(7), ct);
 
-            var userInfo = new UserInfoResponse(
-                user.Avatar,
-                user.FirstName,
-                user.LastName,
-                user.Email,
-                user.Phone,
-                user.Address);
-
-            return new Response(token, refreshToken, userInfo);
+            var userProfile = user.ToProfileDto();
+            return new Response(token, refreshToken, userProfile);
         }
     }
 
@@ -44,20 +45,13 @@ public record LoginCommand(string Email, string Password) : IRequest<LoginComman
     {
         public Validator()
         {
-            RuleFor(x => x.Email).NotEmpty().WithMessage("Email is required.")
+            RuleFor(x => x.Email)
+                    .NotEmpty().WithMessage("Email is required.")
                     .Must(emailStr => Domain.ValueObjects.Email.TryFrom(emailStr, out _))
                     .WithMessage("Email must be a valid email address.");
 
-            RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required.");
+            RuleFor(x => x.Password)
+                    .NotEmpty().WithMessage("Password is required.");
         }
     }
 }
-
-public record UserInfoResponse(
-    string Avatar,
-    string FirstName,
-    string LastName,
-    string Email,
-    string Phone,
-    string Address
-);

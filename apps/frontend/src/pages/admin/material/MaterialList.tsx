@@ -1,10 +1,5 @@
-import {
-  getGetApiMaterialsQueryKey,
-  useDeleteApiMaterialsId,
-  useGetApiMaterials,
-  usePutApiMaterialsId,
-} from '@api'
-import { MaterialTypeEnum, type MaterialItem } from '@api/schemas'
+import { getGetAllMaterialsQueryKey, useDeleteMaterial, useGetAllMaterials, useUpdateMaterial } from '@api'
+import { type MaterialDto, MaterialTypeEnum } from '@api/schemas'
 import Loading from '@components/ui/status/Loading'
 import { ActionIcon, Badge, Button, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -18,14 +13,14 @@ const typeOptions = Object.values(MaterialTypeEnum).map((t) => ({ value: t, labe
 
 const MaterialList = () => {
   const queryClient = useQueryClient()
-  const { data: materials, isLoading } = useGetApiMaterials()
+  const { data: materials, isLoading } = useGetAllMaterials()
 
   const [search, setSearch] = useState('')
-  const [deleting, setDeleting] = useState<MaterialItem | null>(null)
-  const [editing, setEditing] = useState<MaterialItem | null>(null)
+  const [deleting, setDeleting] = useState<MaterialDto | null>(null)
+  const [editing, setEditing] = useState<MaterialDto | null>(null)
 
-  const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteApiMaterialsId()
-  const { mutate: updateMaterial, isPending: isUpdating } = usePutApiMaterialsId()
+  const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteMaterial()
+  const { mutate: updateMaterial, isPending: isUpdating } = useUpdateMaterial()
 
   const form = useForm({
     initialValues: {
@@ -38,7 +33,7 @@ const MaterialList = () => {
     },
   })
 
-  const openEdit = (m: MaterialItem) => {
+  const openEdit = (m: MaterialDto) => {
     form.setValues({ name: m.name, type: m.type, ecoRating: Number(m.ecoRating) })
     form.resetDirty()
     setEditing(m)
@@ -56,7 +51,7 @@ const MaterialList = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Updated', message: 'Material updated successfully.', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetApiMaterialsQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
           closeEdit()
         },
         onError: () => {
@@ -87,7 +82,7 @@ const MaterialList = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Deleted', message: 'Material deleted successfully.', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetApiMaterialsQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
           setDeleting(null)
         },
         onError: () => {
@@ -103,15 +98,15 @@ const MaterialList = () => {
     <div className="w-full h-full">
       <div className="flex gap-2.5 mb-2.5">
         <div className="w-52 bg-white border border-[#ececee] rounded-xl shadow-[0_1px_2px_rgba(24,24,27,0.04)] px-3.5 py-2.5">
-          <p className="text-[11px] text-[#71717a]">Total materials</p>
+          <p className="text-[11px] text-muted-foreground">Total materials</p>
           <p className="text-[20px] font-bold text-[#18181b] leading-tight mt-0.5">{stats.total}</p>
         </div>
         <div className="w-52 bg-white border border-[#ececee] rounded-xl shadow-[0_1px_2px_rgba(24,24,27,0.04)] px-3.5 py-2.5">
-          <p className="text-[11px] text-[#71717a]">Average eco rating</p>
+          <p className="text-[11px] text-muted-foreground">Average eco rating</p>
           <div className="flex items-center gap-2 mt-0.5">
             <p className="text-[20px] font-bold text-[#18181b] leading-tight">
               {stats.avgEco}
-              <span className="text-[12px] font-medium text-[#71717a]">/100</span>
+              <span className="text-[12px] font-medium text-muted-foreground">/100</span>
             </p>
             <div className="flex-1 h-[5px] rounded-full bg-[#f4f4f5] overflow-hidden">
               <div className="h-full bg-primary rounded-full" style={{ width: `${stats.avgEco}%` }} />
@@ -129,7 +124,7 @@ const MaterialList = () => {
           onChange={(e) => setSearch(e.currentTarget.value)}
           w={220}
         />
-        <span className="text-[11px] text-[#71717a]">
+        <span className="text-[11px] text-muted-foreground">
           {filtered.length} of {materials?.length ?? 0} shown
         </span>
         <div className="flex-1" />
@@ -150,7 +145,7 @@ const MaterialList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-[#71717a] !bg-[#fafafa]',
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -188,18 +183,14 @@ const MaterialList = () => {
                           style={{ width: `${Math.min(Number(m.ecoRating), 100)}%` }}
                         />
                       </div>
-                      <span className="text-[11px] text-[#71717a] whitespace-nowrap">{Number(m.ecoRating)}/100</span>
+                      <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                        {Number(m.ecoRating)}/100
+                      </span>
                     </div>
                   </Table.Td>
                   <Table.Td>
                     <div className="flex gap-0.5 justify-end">
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        size="sm"
-                        onClick={() => openEdit(m)}
-                        aria-label="Edit"
-                      >
+                      <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(m)} aria-label="Edit">
                         <FiEdit2 size={13} />
                       </ActionIcon>
                       <ActionIcon
@@ -237,7 +228,7 @@ const MaterialList = () => {
       </Modal>
 
       <Modal opened={deleting !== null} onClose={() => setDeleting(null)} title="Delete material" centered size="sm">
-        <p className="text-[13px] text-[#71717a]">
+        <p className="text-[13px] text-muted-foreground">
           Are you sure you want to delete <span className="font-semibold text-[#18181b]">{deleting?.name}</span>? This
           action cannot be undone.
         </p>

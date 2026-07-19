@@ -1,4 +1,4 @@
-import { useGetApiOrdersAll } from '@api'
+import { useGetAllOrders } from '@api'
 import type { OrderStatusEnum } from '@api/schemas/orderStatusEnum'
 import { Badge } from '@mantine/core'
 
@@ -11,9 +11,9 @@ const statusColor: Record<OrderStatusEnum, string> = {
 }
 
 const RecentOrders = () => {
-  const { data, isLoading } = useGetApiOrdersAll()
+  const { data, isLoading } = useGetAllOrders()
 
-  const rows = [...(data ?? [])]
+  const rows = [...(data?.items ?? [])]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
     .slice(0, 7)
 
@@ -29,7 +29,7 @@ const RecentOrders = () => {
         <div className="p-6 text-center text-[12px] text-[#a1a1aa]">No orders yet</div>
       ) : (
         <>
-          <div className="grid grid-cols-[1.2fr_1.2fr_100px_90px_90px] bg-[#fafafa] border-b border-[#ececee] text-[11px] font-semibold uppercase tracking-[0.04em] text-[#71717a]">
+          <div className="grid grid-cols-[1.2fr_1.2fr_100px_90px_90px] bg-[#fafafa] border-b border-[#ececee] text-[11px] font-semibold uppercase tracking-[0.04em] text-muted-foreground">
             <div className="px-2 py-1.5">Order</div>
             <div className="px-2 py-1.5">Created</div>
             <div className="px-2 py-1.5">Status</div>
@@ -42,7 +42,7 @@ const RecentOrders = () => {
               className="grid grid-cols-[1.2fr_1.2fr_100px_90px_90px] border-b border-[#f4f4f5] last:border-0 hover:bg-[#f7fdf9] text-[12px]"
             >
               <div className="px-2 py-1.5 font-medium truncate">#{o.id.slice(0, 8)}</div>
-              <div className="px-2 py-1.5 text-[#71717a]">
+              <div className="px-2 py-1.5 text-muted-foreground">
                 {new Date(o.createdAt).toLocaleDateString('vi-VN')}
               </div>
               <div className="px-2 py-1">
@@ -51,9 +51,7 @@ const RecentOrders = () => {
                 </Badge>
               </div>
               <div className="px-2 py-1.5 text-right">{o.earnedPoints}</div>
-              <div className="px-2 py-1.5 text-right text-[#71717a]">
-                ${Number(o.discountAmount).toFixed(2)}
-              </div>
+              <div className="px-2 py-1.5 text-right text-muted-foreground">${Number(o.discountAmount).toFixed(2)}</div>
             </div>
           ))}
         </>

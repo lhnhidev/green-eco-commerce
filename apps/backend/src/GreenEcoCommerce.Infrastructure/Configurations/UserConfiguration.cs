@@ -23,6 +23,9 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(t => t.Role).HasColumnName("role").HasConversion<string>().HasMaxLength(15).IsRequired();
 
+        builder.Property(x => x.IsActive).HasColumnName("is_active").IsRequired();
+        builder.Property(x => x.IsDeleted).HasColumnName("is_deleted").IsRequired();
+
         builder.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 

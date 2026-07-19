@@ -11,7 +11,6 @@ export interface UserDto {
   id: string;
   avatar: string;
   email: string;
-  passwordHash: string;
   firstName: string;
   lastName: string;
   phone: string;

@@ -11,13 +11,8 @@ const HeaderAdmin = () => {
     <div className="flex items-center justify-between h-full">
       <div className="text-[18px] font-semibold capitalize text-[#18181b]">{headerName}</div>
       <div className="flex items-center gap-3">
-        <TextInput
-          placeholder="Search..."
-          size="xs"
-          leftSection={<CiSearch size={14} />}
-          w={220}
-        />
-        <FaRegBell size={15} className="text-[#71717a]" />
+        <TextInput placeholder="Search..." size="xs" leftSection={<CiSearch size={14} />} w={220} />
+        <FaRegBell size={15} className="text-muted-foreground" />
         <ProfileUser position="right" />
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { useGetApiAuthMe } from '@api'
+import { useGetMe } from '@api'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useEffect } from 'react'
 import { clearAuthUser, setAuthUser } from './auth/auth.slice'
@@ -6,7 +6,7 @@ import { clearAuthUser, setAuthUser } from './auth/auth.slice'
 export function AuthBootstrap() {
   const dispatch = useAppDispatch()
 
-  const { data, isError } = useGetApiAuthMe({
+  const { data, isError } = useGetMe({
     query: {
       retry: false,
       staleTime: 1000 * 60 * 10, // 10 phút - data được coi là "mới"

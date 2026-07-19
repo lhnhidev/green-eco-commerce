@@ -1,26 +1,17 @@
-using FluentValidation;
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Materials.Commands;
 
 public record DeleteMaterialCommand(Guid Id) : IRequest
 {
-    public class Handler(IMaterialRepository materialRepository) : IRequestHandler<DeleteMaterialCommand>
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<DeleteMaterialCommand>
     {
-        public async Task Handle(DeleteMaterialCommand request, CancellationToken ct)
+        public async Task Handle(DeleteMaterialCommand command, CancellationToken ct)
         {
-            await materialRepository.DeleteAsync(request.Id, ct);
-        }
-    }
-
-    public class Validator : AbstractValidator<DeleteMaterialCommand>
-    {
-        public Validator()
-        {
-            RuleFor(command => command.Id)
-                    .NotEmpty().WithMessage("Material id is required")
-                    .Must(id => id != Guid.Empty).WithMessage("Material id cannot be empty");
+            await dbContext.Materials.WithId(command.Id).ExecuteDeleteAsync(ct);
         }
     }
 }

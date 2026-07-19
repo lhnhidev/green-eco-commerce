@@ -24,14 +24,13 @@ const CardDisplayNumber = ({
   growthValue,
   unit,
 }: CardDisplayNumberType) => {
-  const growthColor =
-    isGrowth === 'up' ? 'text-primary' : isGrowth === 'down' ? 'text-red-500' : 'text-gray-500'
+  const growthColor = isGrowth === 'up' ? 'text-primary' : isGrowth === 'down' ? 'text-red-500' : 'text-gray-500'
 
   return (
     <div className="flex-1 min-w-0 bg-white border border-[#ececee] rounded-xl shadow-[0_1px_2px_rgba(24,24,27,0.04)] px-3.5 py-3">
       <div className="flex items-center gap-2 mb-1.5">
-        <span className="text-[#71717a] text-[13px]">{icon}</span>
-        <span className="text-[11px] text-[#71717a] truncate">{title}</span>
+        <span className="text-muted-foreground text-[13px]">{icon}</span>
+        <span className="text-[11px] text-muted-foreground truncate">{title}</span>
       </div>
 
       <div className="text-[20px] font-bold leading-tight text-[#18181b] truncate">

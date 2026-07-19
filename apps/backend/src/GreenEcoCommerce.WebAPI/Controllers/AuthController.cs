@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using GreenEcoCommerce.Application.Features.Auth.Commands;
-using GreenEcoCommerce.Application.Features.Auth.Queries;
+using GreenEcoCommerce.Application.Features.Profile;
+using GreenEcoCommerce.Application.Features.Profile.Queries;
+using GreenEcoCommerce.Application.Features.Users;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -11,7 +13,6 @@ namespace GreenEcoCommerce.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
 public class AuthController(ISender sender, IJwtService jwtService) : ControllerBase
@@ -47,7 +48,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         Response.Cookies.Append(type.ToString(), token, cookieOptions);
     }
 
-    [HttpPost("register")]
+    [HttpPost("register", Name = nameof(Register))]
     [EndpointDescription("""
                          Đăng ký tài khoản dựa vào thông tin gửi lên. Đăng ký thành công thì gửi về một id của người dùng đã đăng ký
 
@@ -64,7 +65,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
                          }
                          ```
                          """)]
-    [ProducesResponseType<RegisterCommand.Response>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
+    [ProducesResponseType<UserDto>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
     [ProducesResponseType(
         typeof(ProblemDetails),
         StatusCodes.Status400BadRequest,
@@ -73,22 +74,22 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         typeof(ProblemDetails),
         StatusCodes.Status500InternalServerError,
         Description = "Lỗi hệ thống.")]
-    public async Task<IActionResult> Register(RegisterCommand command)
+    public async Task<Results<Ok<UserDto>, BadRequest<ProblemDetails>>> Register(RegisterPayload payload)
     {
-        var response = await sender.Send(command);
-        return Ok(response);
+        var response = await sender.Send(payload.ToUserPayloadDto());
+        return TypedResults.Ok(response);
     }
 
-    [HttpPost("login")]
-    public async Task<Ok<UserInfoResponse>> Login(LoginCommand command)
+    [HttpPost("login", Name = nameof(Login))]
+    public async Task<Results<Ok<UserProfileDto>, BadRequest<ProblemDetails>>> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
         SetTokenCookie(response.Token, TokenType.AccessToken);
         SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
-        return TypedResults.Ok(response.UserInfo);
+        return TypedResults.Ok(response.UserProfile);
     }
 
-    [HttpPost("logout")]
+    [HttpPost("logout", Name = nameof(Logout))]
     [Authorize]
     public async Task<Results<NoContent, BadRequest<ProblemDetails>>> Logout()
     {
@@ -110,9 +111,9 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         return TypedResults.NoContent();
     }
 
-    [HttpGet("me")]
+    [HttpGet("me", Name = nameof(GetMe))]
     [Authorize]
-    public async Task<Results<Ok<UserProfileQuery.Response>, BadRequest<ProblemDetails>>> GetMe()
+    public async Task<Results<Ok<UserProfileDto>, NotFound, BadRequest<ProblemDetails>>> GetMe()
     {
         var userId = CheckUserIdClaim(User);
         if (!userId.HasValue)
@@ -124,11 +125,11 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
             });
         }
 
-        var response = await sender.Send(new UserProfileQuery(userId.Value));
-        return TypedResults.Ok(response);
+        var response = await sender.Send(new GetUserProfileQuery(userId.Value));
+        return response != null ? TypedResults.Ok(response) : TypedResults.NotFound();
     }
 
-    [HttpPost("refresh-token")]
+    [HttpPost("refresh-token", Name = nameof(RefreshToken))]
     public async Task<Results<NoContent, BadRequest<ProblemDetails>>> RefreshToken()
     {
         string? expiredToken = Request.Cookies["AccessToken"];

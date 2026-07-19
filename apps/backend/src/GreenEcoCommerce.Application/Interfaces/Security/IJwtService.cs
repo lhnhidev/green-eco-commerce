@@ -5,7 +5,7 @@ namespace GreenEcoCommerce.Application.Interfaces.Security;
 
 public interface IJwtService
 {
-    string GenerateToken(User user, int minutesExprired);
+    string GenerateToken(User user, int minutesExpired);
     string GenerateRefreshToken();
     ClaimsPrincipal ValidateToken(string token, bool validateLifetime = true);
 }

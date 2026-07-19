@@ -2,9 +2,9 @@ namespace GreenEcoCommerce.Application.Common.Models;
 
 public class PagedResult<T>
 {
-    public T[] Items { get; set; } = [];
-    public int TotalCount { get; set; }
-    public int PageNumber { get; set; }
-    public int PageSize { get; set; }
+    public required T[] Items { get; init; } = [];
+    public required int TotalCount { get; init; }
+    public required int PageNumber { get; init; }
+    public required int PageSize { get; init; }
     public int TotalPages => PageSize > 0 ? (int)Math.Ceiling(TotalCount / (double)PageSize) : 0;
 }

@@ -13,9 +13,11 @@ public class GreenWalletConfiguration : IEntityTypeConfiguration<GreenWallet>
 
         builder.Property(x => x.Id).HasColumnName("id");
         builder.Property(x => x.UserId).HasColumnName("user_id");
-        builder.Property(x => x.Balance).HasColumnName("balance").HasPrecision(15, 2);
-        builder.Property(x => x.EarnedTotal).HasColumnName("earned_total").HasPrecision(15, 2);
+        builder.Property(x => x.Balance).HasColumnName("balance");
+        builder.Property(x => x.EarnedTotal).HasColumnName("earned_total");
 
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+
+        builder.HasIndex(x => x.UserId).IsUnique();
     }
 }

@@ -27,23 +27,19 @@ public record CategoryPayloadDto(string Name, string? Description = null, Guid? 
     }
 }
 
-public record CategoryDto(
-    Guid Id,
-    string Name,
-    int ProductCount,
-    string? Description = null,
-    Guid? ParentId = null
-): CategoryPayloadDto(Name, Description, ParentId);
+public record CategoryDto(Guid Id, string Name, int ProductCount, string? Description = null, Guid? ParentId = null)
+        : CategoryPayloadDto(Name, Description, ParentId);
 
-[Mapper]
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class CategoryDtoMapper
 {
+    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
     [MapProperty(nameof(Category.Products), nameof(CategoryDto.ProductCount), Use = nameof(MapProductsToProductCount))]
     public static partial CategoryDto ToDto(this Category category);
-
     public static partial IQueryable<CategoryDto> ProjectToDto(this IQueryable<Category> q);
 
-    private static int MapProductsToProductCount(ICollection<Product> products) => products.Count;
+    private static int MapProductsToProductCount(ICollection<Product> products) => products.Count(p => p.IsActive);
 
     public static partial Category ToEntity(this CategoryPayloadDto payload);
+    public static partial void ApplyUpdate([MappingTarget] this Category category, CategoryPayloadDto payload);
 }

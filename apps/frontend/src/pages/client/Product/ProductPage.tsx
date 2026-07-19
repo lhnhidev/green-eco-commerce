@@ -1,8 +1,9 @@
-import { useGetApiCategories, useGetApiProductsSome } from '@api'
+import { useGetAllCategories, useGetAllProducts } from '@api'
 import ProductCardv2 from '@components/features/products/ProductCardv2'
 import { Anchor, Breadcrumbs, Checkbox, Input, Pagination, Select, Skeleton } from '@mantine/core'
 import { useState } from 'react'
 import { CiSearch } from 'react-icons/ci'
+import { ProductSortBy } from '@/api/schemas'
 
 const items = [
   { id: 1, title: 'Home', href: '/' },
@@ -21,7 +22,8 @@ const ProductPage = () => {
   const [triggerSearch, setTriggerSearch] = useState<string>('')
 
   const [categoryId, setCategoryId] = useState<string>('')
-  const [sortBy, setSortBy] = useState<string>('')
+  const [sortBy, setSortBy] = useState<ProductSortBy>(ProductSortBy.Name)
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
 
   const [minPrice, setMinPrice] = useState<number>(0)
   const [maxPrice, setMaxPrice] = useState<number>(1000)
@@ -30,24 +32,24 @@ const ProductPage = () => {
   const [isBiodegradable, setIsBiodegradable] = useState(false)
   const [isRecycled, setIsRecycled] = useState(false)
 
-  const { data: categoriesData } = useGetApiCategories()
+  const { data: categoriesData } = useGetAllCategories()
 
   const {
     data: productsData,
     isLoading,
     isError,
-  } = useGetApiProductsSome({
+  } = useGetAllProducts({
     PageNumber: pageNumber,
     PageSize: productsAmount,
-    SearchTerm: triggerSearch || undefined,
-    CategoryId: categoryId || undefined,
+    Search: triggerSearch || undefined,
+    CategoryIds: categoryId !== '' ? [categoryId] : [],
     MinPrice: minPrice,
     MaxPrice: maxPrice === 1000 ? undefined : maxPrice,
-    SortBy: sortBy ? sortBy.split('|')[0] : undefined,
-    IsDescending: sortBy ? sortBy.split('|')[1] === 'desc' : undefined,
-    IsOrganic: isOrganic || undefined,
-    IsBiodegradable: isBiodegradable || undefined,
-    IsRecycled: isRecycled || undefined,
+    SortBy: sortBy,
+    SortDescending: sortOrder === 'desc',
+    IsOrganic: isOrganic,
+    IsBiodegradable: isBiodegradable,
+    IsRecycled: isRecycled,
   })
 
   const handleSearch = () => {
@@ -59,7 +61,8 @@ const ProductPage = () => {
     setTriggerSearch('')
     setSearchName('')
     setCategoryId('')
-    setSortBy('')
+    setSortBy(ProductSortBy.Name)
+    setSortOrder('asc')
     setMinPrice(0)
     setMaxPrice(1000)
     setIsOrganic(false)
@@ -76,7 +79,7 @@ const ProductPage = () => {
   return (
     <div className="bg-gray-50/50 min-h-screen pb-20">
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-green-900 via-green-800 to-green-600 text-white py-20 px-4 relative overflow-hidden">
+      <div className="bg-linear-to-br from-green-900 via-green-800 to-green-600 text-white py-20 px-4 relative overflow-hidden">
         {/* Subtle background circles for premium feel */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" />
@@ -135,16 +138,18 @@ const ProductPage = () => {
             placeholder="Sort by"
             value={sortBy}
             onChange={(val) => {
-              setSortBy(val || '')
+              const [sortBy, sortOrder] = (val || '').split('|')
+              setSortBy(sortBy as ProductSortBy)
+              setSortOrder(sortOrder as 'asc' | 'desc')
               setPageNumber(1)
             }}
             data={[
-              { value: 'name|asc', label: 'Name (A-Z)' },
-              { value: 'name|desc', label: 'Name (Z-A)' },
-              { value: 'price|asc', label: 'Price (Low to High)' },
-              { value: 'price|desc', label: 'Price (High to Low)' },
-              { value: 'carbon|asc', label: 'Carbon Index (Low to High)' },
-              { value: 'carbon|desc', label: 'Carbon Index (High to Low)' },
+              { value: `${ProductSortBy.Name}|asc`, label: 'Name (A-Z)' },
+              { value: `${ProductSortBy.Name}|desc`, label: 'Name (Z-A)' },
+              { value: `${ProductSortBy.Price}|asc`, label: 'Price (Low to High)' },
+              { value: `${ProductSortBy.Price}|desc`, label: 'Price (High to Low)' },
+              { value: `${ProductSortBy.CarbonIndex}|asc`, label: 'Carbon Index (Low to High)' },
+              { value: `${ProductSortBy.CarbonIndex}|desc`, label: 'Carbon Index (High to Low)' },
             ]}
             classNames={{
               input:
@@ -302,6 +307,7 @@ const ProductPage = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div
+                    // biome-ignore lint/suspicious/noArrayIndexKey: Skeleton loader.
                     key={i}
                     className="flex flex-col gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm"
                   >

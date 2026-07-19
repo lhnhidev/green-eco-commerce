@@ -2,6 +2,7 @@ using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Infrastructure.Converters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GreenEcoCommerce.Infrastructure.Persistence.Context;
 
@@ -32,6 +33,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<Embedding> Embeddings => Set<Embedding>();
+
+    // Settings & Config
+    public DbSet<AppConfiguration> AppConfigurations => Set<AppConfiguration>();
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
+            Database.BeginTransactionAsync(ct);
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

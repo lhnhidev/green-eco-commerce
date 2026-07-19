@@ -1,17 +1,15 @@
-import { getGetApiAuthMeQueryOptions, usePostApiAuthLogin } from '@api'
-import type { ProblemDetails } from '@api/schemas'
+import { useLogin } from '@api'
+import type { LoginCommand, ProblemDetails } from '@api/schemas'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Button } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import type { LocalLoginFormValues } from '@types/index'
 import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
 import { FaFacebook, FaGoogle, FaRegEnvelope } from 'react-icons/fa'
 import { MdLockOutline } from 'react-icons/md'
 import { useNavigate } from 'react-router'
 import FormField from '../form-field'
-import CheckboxInput from '../form-field/checkbox-input'
 import EmailInput from '../form-field/email-input'
 import PasswordInputV2 from '../form-field/password-input'
 import { setAuthUser } from './auth.slice'
@@ -25,33 +23,24 @@ const LoginForm = () => {
     handleSubmit,
     control,
     formState: { errors },
-  } = useForm<LocalLoginFormValues>({
+  } = useForm<LoginCommand>({
     defaultValues: {
       email: '',
       password: '',
-      remember: false,
     },
   })
 
-  const { mutate, isPending } = usePostApiAuthLogin()
+  const { mutate, isPending } = useLogin()
 
-  const onSubmit = (formData: LocalLoginFormValues) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { remember, ...data } = formData
+  const onSubmit = (formData: LoginCommand) => {
     mutate(
-      { data: data },
+      { data: formData },
       {
-        onSuccess: async () => {
+        onSuccess: async (profile) => {
           queryClient.clear()
 
-          const profile = await queryClient.fetchQuery(getGetApiAuthMeQueryOptions())
           dispatch(setAuthUser(profile))
-
-          if (profile.role === 'User') {
-            navigate('/')
-          } else {
-            navigate('/admin/dashboard')
-          }
+          navigate(profile.role === 'Admin' ? '/admin/dashboard' : '/')
 
           notifications.show({
             title: 'Login sucessed!',
@@ -75,7 +64,7 @@ const LoginForm = () => {
     <div className="text-xs mt-6">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="space-y-5">
-          <FormField<LocalLoginFormValues>
+          <FormField<LoginCommand>
             name="email"
             control={control}
             label="Email"
@@ -85,7 +74,7 @@ const LoginForm = () => {
             Component={EmailInput}
           />
 
-          <FormField<LocalLoginFormValues>
+          <FormField<LoginCommand>
             name="password"
             control={control}
             rules={{ required: 'Password is required' }}
@@ -98,7 +87,7 @@ const LoginForm = () => {
         </div>
 
         <div className="flex justify-between">
-          <FormField name="remember" control={control} rules={{}} label="Remember me" Component={CheckboxInput} />
+          {/* <FormField name="remember" control={control} rules={{}} label="Remember me" Component={CheckboxInput} /> */}
 
           <a href="/forgot-password" className="text-primary font-medium hover:underline hover:opacity-90">
             Forget password?

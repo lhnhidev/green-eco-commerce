@@ -1,4 +1,4 @@
-import { getGetApiMaterialsQueryKey, usePostApiMaterials } from '@api'
+import { getGetAllMaterialsQueryKey, useCreateMaterial } from '@api'
 import { MaterialTypeEnum } from '@api/schemas'
 import { ActionIcon, Button, NumberInput, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -10,15 +10,13 @@ import { Link, useNavigate } from 'react-router'
 const MaterialCreate = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { mutate: createMaterial, isPending } = usePostApiMaterials()
+  const { mutate: createMaterial, isPending } = useCreateMaterial()
 
   const form = useForm({
     initialValues: {
       name: '',
       type: MaterialTypeEnum.Recycled,
       ecoRating: 50,
-      unit: 'kg',
-      notes: '',
     },
     validate: {
       name: (val) => (val.trim().length === 0 ? 'Name is required' : null),
@@ -31,7 +29,7 @@ const MaterialCreate = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Success', message: 'Material created successfully', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetApiMaterialsQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
           navigate('/admin/material')
         },
         onError: () => {
@@ -55,9 +53,7 @@ const MaterialCreate = () => {
 
       <div className="bg-white rounded-2xl shadow-sm border border-primary/10 p-8">
         <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-6">
-          <div className="grid grid-cols-1 gap-6">
-            <TextInput label="Name" placeholder="Bamboo Fiber" withAsterisk {...form.getInputProps('name')} />
-          </div>
+          <TextInput label="Name" placeholder="Bamboo Fiber" withAsterisk {...form.getInputProps('name')} />
 
           <div className="grid grid-cols-2 gap-6">
             <Select
@@ -70,11 +66,6 @@ const MaterialCreate = () => {
               {...form.getInputProps('type')}
             />
             <NumberInput label="Eco Rating" min={0} max={100} {...form.getInputProps('ecoRating')} />
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <TextInput label="Unit" placeholder="kg, meters..." {...form.getInputProps('unit')} />
-            <TextInput label="Notes" placeholder="Additional details..." {...form.getInputProps('notes')} />
           </div>
 
           <div className="flex justify-end gap-4 mt-4">

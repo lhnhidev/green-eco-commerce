@@ -1,33 +1,41 @@
 using GreenEcoCommerce.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GreenEcoCommerce.Application.Interfaces.Persistence;
 
 public interface IApplicationDbContext
 {
-    public DbSet<User> Users { get; }
+    DbSet<User> Users { get; }
 
     // Catalog
-    public DbSet<Category> Categories { get; }
-    public DbSet<Product> Products { get; }
-    public DbSet<Material> Materials { get; }
+    DbSet<Category> Categories { get; }
+    DbSet<Product> Products { get; }
+    DbSet<Material> Materials { get; }
 
     // Sales
-    public DbSet<Cart> Carts { get; }
-    public DbSet<CartItem> CartItems { get; }
-    public DbSet<Order> Orders { get; }
-    public DbSet<OrderItem> OrderItems { get; }
-    public DbSet<Payment> Payments { get; }
+    DbSet<Cart> Carts { get; }
+    DbSet<CartItem> CartItems { get; }
+    DbSet<Order> Orders { get; }
+    DbSet<OrderItem> OrderItems { get; }
+    DbSet<Payment> Payments { get; }
 
     // Eco Rewards
-    public DbSet<GreenWallet> GreenWallets { get; }
-    public DbSet<PointTransaction> PointTransactions { get; }
+    DbSet<GreenWallet> GreenWallets { get; }
+    DbSet<PointTransaction> PointTransactions { get; }
 
     // AI Chat & RAG
-    public DbSet<ChatSession> ChatSessions { get; }
-    public DbSet<ChatMessage> ChatMessages { get; }
-    public DbSet<Document> Documents { get; }
-    public DbSet<Embedding> Embeddings { get; }
+    DbSet<ChatSession> ChatSessions { get; }
+    DbSet<ChatMessage> ChatMessages { get; }
+    DbSet<Document> Documents { get; }
+    DbSet<Embedding> Embeddings { get; }
 
-    public Task<int> SaveChangesAsync(CancellationToken ct = default);
+    // Settings & Config
+    DbSet<AppConfiguration> AppConfigurations { get; }
+
+    // Automatic transaction
+    Task<int> SaveChangesAsync(CancellationToken ct = default);
+
+    // Manual transaction
+    Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);
 }

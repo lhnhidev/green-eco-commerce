@@ -2,7 +2,7 @@
 /** biome-ignore-all lint/correctness/useJsxKeyInIterable: <> */
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 
-import { useGetApiCart } from '@api'
+import { useGetCart } from '@api'
 import Loading from '@components/ui/status/Loading'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
@@ -17,7 +17,7 @@ const CartSidebar = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
 
-  const { data, isLoading, isError } = useGetApiCart()
+  const { data, isLoading, isError } = useGetCart()
 
   // console.log(data)
 

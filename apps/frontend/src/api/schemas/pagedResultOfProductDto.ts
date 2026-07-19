@@ -8,9 +8,9 @@
 import type { ProductDto } from './productDto';
 
 export interface PagedResultOfProductDto {
-  items?: ProductDto[];
-  totalCount?: number;
-  pageNumber?: number;
-  pageSize?: number;
-  totalPages?: number;
+  items: ProductDto[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  readonly totalPages: number;
 }

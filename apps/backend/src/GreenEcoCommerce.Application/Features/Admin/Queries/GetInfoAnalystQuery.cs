@@ -1,6 +1,8 @@
+using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
 using GreenEcoCommerce.Domain.Enums;
-using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Admin.Queries;
 
@@ -9,26 +11,29 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
     public record Response(Revenue TotalRevenue, Orders AmountOrders, Users AmountUsers, Co2Saved TotalCo2Saved);
 
     public record Revenue(decimal CurrentValue, decimal PreviousValue, decimal GrowthPercentage, bool IsGrowth);
-    public record Orders(int CurrentValue, int PreviousValue, decimal GrowthPercentage, bool IsGrowth);
-    public record Users(int CurrentValue, int PreviousValue, decimal GrowthPercentage, bool IsGrowth);
-    public record Co2Saved(float CurrentValue, float PreviousValue, float GrowthPercentage, bool IsGrowth);
 
-    public class Handler(IUserRepository userRepository) : IRequestHandler<GetInfoAnalystQuery, Response>
+    public record Orders(int CurrentValue, int PreviousValue, decimal GrowthPercentage, bool IsGrowth);
+
+    public record Users(int CurrentValue, int PreviousValue, decimal GrowthPercentage, bool IsGrowth);
+
+    public record Co2Saved(decimal CurrentValue, decimal PreviousValue, float GrowthPercentage, bool IsGrowth);
+
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<GetInfoAnalystQuery, Response>
     {
         public async Task<Response> Handle(GetInfoAnalystQuery request, CancellationToken ct)
         {
-            var users = await userRepository.GetAllUsersAsync();
+            var users = await dbContext.Users.IsNotDeleted().ToListAsync(ct);
             var orders = users.SelectMany(u => u.Orders).ToList();
 
             decimal currentRevenue = 0m;
             int currentOrders = 0;
             int currentUsers = 0;
-            float currentCo2Saved = 0f;
+            decimal currentCo2Saved = 0m;
 
             decimal previousRevenue = 0m;
             int previousOrders = 0;
             int previousUsers = 0;
-            float previousCo2Saved = 0f;
+            decimal previousCo2Saved = 0m;
 
             int monthToday = DateTime.Today.Month;
             int yearToday = DateTime.Today.Year;
@@ -44,7 +49,7 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
                 int month = o.Payment.CreatedAt.Month;
                 int year = o.Payment.CreatedAt.Year;
 
-                float co2Saved = o.OrderItems.Sum(oi => oi.UnitCo2Saved * oi.Quantity);
+                decimal co2Saved = o.OrderItems.Sum(oi => oi.UnitCo2Saved * oi.Quantity);
 
                 if (month == monthToday && year == yearToday)
                 {
@@ -100,8 +105,11 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
 
             float co2Growth;
 
-            if (previousCo2Saved != 0) { co2Growth = (currentCo2Saved - previousCo2Saved) / previousCo2Saved * 100; }
-            else { co2Growth = 100f; }
+            if (previousCo2Saved != 0)
+            {
+                co2Growth = (float)(currentCo2Saved - previousCo2Saved) / (float)previousCo2Saved * 100;
+            }
+            else { co2Growth = 100; }
 
             bool isCo2Growth = currentCo2Saved > previousCo2Saved;
             var co2SavedRecord = new Co2Saved(currentCo2Saved, previousCo2Saved, co2Growth, isCo2Growth);

@@ -1,20 +1,27 @@
-import { getGetApiCategoriesQueryKey, usePostApiCategories } from '@api'
-import { ActionIcon, Button, TextInput } from '@mantine/core'
+import { getGetAllCategoriesQueryKey, useCreateCategory } from '@api'
+import { ActionIcon, Button, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiArrowLeft } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router'
+import { useGetAllCategories } from '@api'
 
 const CategoryCreate = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { mutate: createCategory, isPending } = usePostApiCategories()
+  const { mutate: createCategory, isPending } = useCreateCategory()
+  const { data: categories } = useGetAllCategories()
+
+  const parentOptions = (categories ?? [])
+    .filter((c) => !c.parentId) // only root categories as parent options
+    .map((c) => ({ value: c.id, label: c.name }))
 
   const form = useForm({
     initialValues: {
       name: '',
       description: '',
+      parentId: null as string | null,
     },
     validate: {
       name: (value) => (value.length < 2 ? 'Name must have at least 2 letters' : null),
@@ -23,11 +30,17 @@ const CategoryCreate = () => {
 
   const handleSubmit = (values: typeof form.values) => {
     createCategory(
-      { data: values },
+      {
+        data: {
+          name: values.name,
+          description: values.description || null,
+          parentId: values.parentId || null,
+        },
+      },
       {
         onSuccess: () => {
           notifications.show({ title: 'Success', message: 'Category created', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetApiCategoriesQueryKey() })
+          queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
           navigate('/admin/category')
         },
         onError: () => {
@@ -56,6 +69,13 @@ const CategoryCreate = () => {
             label="Description"
             placeholder="Description of the category"
             {...form.getInputProps('description')}
+          />
+          <Select
+            label="Parent Category"
+            placeholder="None (top-level)"
+            data={parentOptions}
+            clearable
+            {...form.getInputProps('parentId')}
           />
 
           <div className="flex justify-end gap-4 mt-4">

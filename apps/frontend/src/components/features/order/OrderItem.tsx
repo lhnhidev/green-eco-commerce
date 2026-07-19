@@ -1,7 +1,7 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 
-import { getGetApiCartQueryKey, useDeleteApiCartItemsProductId } from '@api'
+import { getGetCartQueryKey, useRemoveCartItem } from '@api'
 import type { CartDto, CartItemDto } from '@api/schemas'
 import { Button, Modal, NumberInput } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
@@ -17,10 +17,10 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
 
   const queryClient = useQueryClient()
 
-  const { mutate: removeProductFromCart } = useDeleteApiCartItemsProductId({
+  const { mutate: removeProductFromCart } = useRemoveCartItem({
     mutation: {
       onMutate: async (variables) => {
-        const cartQueryKey = getGetApiCartQueryKey()
+        const cartQueryKey = getGetCartQueryKey()
         await queryClient.cancelQueries({ queryKey: cartQueryKey })
 
         const previousCart = queryClient.getQueryData(cartQueryKey)
@@ -35,7 +35,7 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
         return { previousCart }
       },
       onError: (_err, _variables, context) => {
-        const cartQueryKey = getGetApiCartQueryKey()
+        const cartQueryKey = getGetCartQueryKey()
 
         if (context?.previousCart) {
           queryClient.setQueryData(cartQueryKey, context.previousCart)
@@ -48,7 +48,7 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
         })
       },
       onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: getGetApiCartQueryKey() })
+        queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
       },
     },
   })

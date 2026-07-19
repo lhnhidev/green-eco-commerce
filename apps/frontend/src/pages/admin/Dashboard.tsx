@@ -3,7 +3,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <> */
 /** biome-ignore-all lint/style/noNonNullAssertion: <> */
 
-import { useGetApiAdminAnalyst } from '@api'
+import { useGetInfoAnalyst } from '@api'
 import CardDisplayNumber from '@components/features/cards/CardDisplayNumber'
 import LowStockProducts from '@components/features/dashboard/LowStockProducts'
 import RecentOrders from '@components/features/dashboard/RecentOrders'
@@ -30,7 +30,7 @@ const Dashboard = () => {
   const activeDate = getDateObject(value)
 
   // 3. Truyền tháng/năm chuẩn vào API thông qua biến activeDate đã parse
-  const { data: analysted, isLoading } = useGetApiAdminAnalyst({
+  const { data: analysted, isLoading } = useGetInfoAnalyst({
     Month: activeDate.getMonth() + 1,
     Year: activeDate.getFullYear(),
   })
@@ -41,7 +41,7 @@ const Dashboard = () => {
     setValue(newValue)
   }
 
-if (isLoading) return <Loading text="Loading" />
+  if (isLoading) return <Loading text="Loading" />
 
   const getGrowth = (m: { isGrowth?: boolean; growthPercentage?: number }) =>
     m.isGrowth === true ? 'up' : Number(m.growthPercentage).toFixed(0) === '0' ? 'balance' : 'down'
@@ -49,7 +49,7 @@ if (isLoading) return <Loading text="Loading" />
   return (
     <div className="w-full h-full">
       <div className="flex items-center justify-between mb-3">
-        <div className="text-[13px] text-[#71717a]">Overview of store performance</div>
+        <div className="text-[13px] text-muted-foreground">Overview of store performance</div>
         <MonthPickerInput
           placeholder="Chọn tháng..."
           value={value as any}

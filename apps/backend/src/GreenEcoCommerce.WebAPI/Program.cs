@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using EntityFramework.Exceptions.PostgreSQL;
@@ -7,11 +8,13 @@ using GreenEcoCommerce.Application.Behaviors;
 using GreenEcoCommerce.Application.Features.Auth.Commands;
 using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
+using GreenEcoCommerce.Application.Interfaces.Configuration;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Infrastructure.Caching;
 using GreenEcoCommerce.Infrastructure.ChatbotServices;
+using GreenEcoCommerce.Infrastructure.Configuration;
 using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
@@ -22,9 +25,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using GreenEcoCommerce.WebAPI.Endpoints;
+using GreenEcoCommerce.WebAPI.OpenApi;
 using Microsoft.AspNetCore.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 // Khi tạo JWT sẽ giữ nguyên tên gốc, không tự ý map sang URI dài của XML
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -102,6 +108,22 @@ builder.Services.AddOpenApi(opt =>
         return Task.CompletedTask;
     });
 
+    opt.AddSchemaTransformer<EnforceRequiredSchemaTransformer>();
+
+    opt.AddOperationTransformer((operation, context, _) =>
+    {
+        // Find the method name from the endpoint metadata
+        var endpointMetadata = context.Description.ActionDescriptor.EndpointMetadata;
+        var methodInfo = endpointMetadata.OfType<MethodInfo>().FirstOrDefault();
+
+        if (methodInfo != null)
+        {
+            operation.OperationId = methodInfo.Name;
+        }
+
+        return Task.CompletedTask;
+    });
+
     opt.CreateSchemaReferenceId = typeInfo =>
     {
         var type = typeInfo.Type;
@@ -114,7 +136,7 @@ builder.Services.AddOpenApi(opt =>
             var currentType = type;
 
             // Walk up the nested hierarchy and prepend parent class names
-            while (currentType.IsNested && currentType.DeclaringType != null)
+            while (currentType is { IsNested: true, DeclaringType: not null })
             {
                 currentType = currentType.DeclaringType;
                 string parentName = currentType.Name.Split('`')[0];
@@ -132,19 +154,21 @@ builder.Services.AddOpenApi(opt =>
 });
 
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
-builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
-{
-    options.UseNpgsql(
-                builder.Configuration.GetConnectionString("DefaultConnection"),
-                b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName))
-            .AddInterceptors(auditingInterceptor).UseExceptionProcessor();
-});
+builder.AddNpgsqlDbContext<ApplicationDbContext>(
+    "GreenEcoCommerce-DB",
+    null,
+    options =>
+    {
+        options.UseNpgsql(npgsqlOptions =>
+        {
+            npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
+        }).AddInterceptors(auditingInterceptor).UseExceptionProcessor();
+    });
+builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>(provider =>
+        provider.GetRequiredService<ApplicationDbContext>());
 
 // Đăng ký dịch vụ Redis Distributed Cache của Microsoft
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-});
+builder.AddRedisDistributedCache("cache");
 
 // Đăng ký Controllers và cấu hình route convention
 builder.Services.AddControllers().AddJsonOptions(options =>
@@ -176,26 +200,30 @@ builder.Services.AddHttpClient<IAiService, AiService>(client =>
     client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
 });
 
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
-builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-builder.Services.AddScoped<IGreenWalletRepository, GreenWalletRepository>();
-builder.Services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAppConfigurationRepository, AppConfigurationRepository>();
+builder.Services.AddScoped<IApplicationConfiguration, ApplicationConfiguration>();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+
+    if (app.Environment.IsDevelopment())
+    {
+        await DbSeeder.SeedAsync(dbContext);
+    }
 }
 
 app.UseDefaultFiles();
@@ -214,16 +242,16 @@ app.MapControllers();
 app.MapCategoryEndpoints();
 app.MapMaterialEndpoints();
 app.MapProductEndpoints();
-app.MapInfoUserEndpoints();
+app.MapProfileEndpoints();
 app.MapChatbotEndpoints();
 app.MapCartEndpoints();
 app.MapChatSessionEndpoints();
 app.MapOrderEndpoints();
 app.MapPaymentEndpoints();
-app.MapOrderItemEndpoints();
 app.MapGreenWalletEndpoints();
 app.MapUserEndpoints();
 app.MapAdminEndpoints();
+app.MapCheckoutEndpoints();
 
 app.MapFallbackToFile("index.html");
 
