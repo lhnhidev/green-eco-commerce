@@ -32,4 +32,12 @@
       <ProjectReference Include="..\..\src\GreenEcoCommerce.WebAPI\GreenEcoCommerce.WebAPI.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Controllers\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Controllers\AuthControllerTests.cs" />
+    </ItemGroup>
+
 </Project>

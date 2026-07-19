@@ -5,12 +5,7 @@ namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class LoginCommandValidatorTests
 {
-    private readonly LoginCommand.Validator validator;
-
-    public LoginCommandValidatorTests()
-    {
-        validator = new LoginCommand.Validator();
-    }
+    private readonly LoginCommand.Validator validator = new();
 
     // ── Happy path ───────────────────────────────────────────────────────────
 

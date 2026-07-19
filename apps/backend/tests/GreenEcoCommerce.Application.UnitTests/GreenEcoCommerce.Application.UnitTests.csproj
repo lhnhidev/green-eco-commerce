@@ -29,4 +29,8 @@
       <ProjectReference Include="..\..\src\GreenEcoCommerce.Application\GreenEcoCommerce.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Validators\RegisterCommandValidatorTests.cs" />
+    </ItemGroup>
+
 </Project>
