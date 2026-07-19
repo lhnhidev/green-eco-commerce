@@ -1,21 +1,16 @@
-using GreenEcoCommerce.Domain.Exceptions;
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Carts.Commands;
 
-public record ClearCartCommand(Guid UserId) : IRequest<Unit>
+public record ClearCartCommand(Guid UserId) : IRequest
 {
-    public class Handler(ICartRepository cartRepository) : IRequestHandler<ClearCartCommand, Unit>
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<ClearCartCommand>
     {
-        public async Task<Unit> Handle(ClearCartCommand command, CancellationToken ct)
+        public async Task Handle(ClearCartCommand command, CancellationToken ct)
         {
-            var cart = await cartRepository.GetByUserIdAsync(command.UserId, ct) ??
-                       throw new NotFoundException("Cart not found.");
-
-            await cartRepository.ClearCartAsync(cart.Id, ct);
-
-            return Unit.Value;
+            await dbContext.Carts.ClearAsync(command.UserId, ct);
         }
     }
 }
