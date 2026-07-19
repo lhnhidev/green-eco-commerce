@@ -3,7 +3,6 @@ using GreenEcoCommerce.Application.Features.Categories.Commands;
 using GreenEcoCommerce.Application.Features.Categories.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace GreenEcoCommerce.WebAPI.Endpoints;
 
@@ -29,20 +28,21 @@ public static class CategoryEndpoints
 
     private static async Task<Results<Ok<CategoryDto>, NotFound>> GetCategoryById(Guid id, ISender sender)
     {
-        var categories = await sender.Send(new GetCategoryByIdQuery(id));
-        return TypedResults.Ok(categories);
+        var category = await sender.Send(new GetCategoryByIdQuery(id));
+        return category != null ? TypedResults.Ok(category) : TypedResults.NotFound();
     }
 
-    private static async Task<Created<CategoryDto>> CreateCategory([FromBody] CategoryPayloadDto category, ISender sender)
+    private static async Task<Created<CategoryDto>> CreateCategory(CategoryPayloadDto payload, ISender sender)
     {
-        var createdCategory = await sender.Send(category);
-        return TypedResults.Created($"/categories/{createdCategory.Id}", createdCategory);
+        var category = await sender.Send(payload);
+        return TypedResults.Created($"/api/categories/{category.Id}", category);
     }
 
-    private static async Task<Results<Ok<CategoryDto>, NotFound>> UpdateCategory(Guid id, [FromBody] CategoryPayloadDto category, ISender sender)
+    private static async Task<Results<NoContent, NotFound>> UpdateCategory(
+        Guid id, CategoryPayloadDto payload, ISender sender)
     {
-        var updatedCategory = await sender.Send(new UpdateCategoryCommand(id, category));
-        return TypedResults.Ok(updatedCategory);
+        await sender.Send(new UpdateCategoryCommand(id, payload));
+        return TypedResults.NoContent();
     }
 
     private static async Task<NoContent> DeleteCategory(Guid id, ISender sender)

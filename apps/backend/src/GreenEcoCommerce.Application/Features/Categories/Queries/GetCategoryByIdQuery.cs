@@ -1,5 +1,5 @@
-﻿using FluentValidation;
-using GreenEcoCommerce.Application.Interfaces.Persistence;
+﻿using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,18 +11,8 @@ public record GetCategoryByIdQuery(Guid Id) : IRequest<CategoryDto?>
     {
         public async Task<CategoryDto?> Handle(GetCategoryByIdQuery request, CancellationToken ct)
         {
-            var category = await dbContext.Categories.Where(c => c.Id == request.Id).ProjectToDto()
-                    .FirstOrDefaultAsync(ct);
+            var category = await dbContext.Categories.WithId(request.Id).ProjectToDto().FirstOrDefaultAsync(ct);
             return category;
-        }
-    }
-
-    public class Validator : AbstractValidator<GetCategoryByIdQuery>
-    {
-        public Validator()
-        {
-            RuleFor(x => x.Id)
-                    .NotEmpty().WithMessage("Category ID must be a valid GUID.");
         }
     }
 }
