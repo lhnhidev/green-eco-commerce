@@ -8,10 +8,10 @@ public class Product
     public string? Description { get; set; }
     public decimal Price { get; set; }
     public int StockQty { get; set; }
-    public float CarbonIndex { get; set; }
-    public float BaselineCarbonIndex { get; set; }
-    public float DecomposePercent { get; set; }
-    public float RecyclePercent { get; set; }
+    public decimal CarbonIndex { get; set; }
+    public decimal BaselineCarbonIndex { get; set; }
+    public decimal DecomposePercent { get; set; }
+    public decimal RecyclePercent { get; set; }
     public string[] ImageUrl { get; set; } = [];
     public bool IsActive { get; set; } = true;
 

@@ -16,6 +16,6 @@ public class Order: IHasCreatedAt
     // Navigation Properties
     public User User { get; set; } = null!;
     public PointTransaction PointTransaction { get; set; } = null!;
-    public Payment? Payment { get; set; } = null!;
+    public Payment? Payment { get; set; }
     public ICollection<OrderItem> OrderItems { get; set; } = new HashSet<OrderItem>();
 }

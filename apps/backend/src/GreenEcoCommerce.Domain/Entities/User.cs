@@ -7,7 +7,7 @@ namespace GreenEcoCommerce.Domain.Entities;
 public class User: IHasCreatedAt, IHasUpdatedAt
 {
     public Guid Id { get; init; } = Guid.CreateVersion7();
-    public string Avatar { get; set; } = string.Empty!;
+    public string Avatar { get; set; } = string.Empty;
     public required Email Email { get; set; }
     public required string PasswordHash { get; set; }
     public required string FirstName { get; set; }
@@ -15,6 +15,8 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public required PhoneNumber Phone { get; set; }
     public required string Address { get; set; }
     public RoleEnum Role { get; set; } = RoleEnum.User;
+    public bool IsActive { get; set; } = true;
+    public bool IsDeleted { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
 
