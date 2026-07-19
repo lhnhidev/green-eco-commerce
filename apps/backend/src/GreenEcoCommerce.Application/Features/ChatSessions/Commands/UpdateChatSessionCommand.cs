@@ -6,11 +6,11 @@ using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.ChatSessions.Commands;
 
-public record UpdateChatSessionCommand(Guid Id, Guid UserId, ChatSessionPayloadDto Dto) : IRequest<Unit>
+public record UpdateChatSessionCommand(Guid Id, Guid UserId, ChatSessionPayloadDto Dto) : IRequest
 {
-    public class Handler(IChatSessionRepository chatSessionRepository) : IRequestHandler<UpdateChatSessionCommand, Unit>
+    public class Handler(IChatSessionRepository chatSessionRepository) : IRequestHandler<UpdateChatSessionCommand>
     {
-        public async Task<Unit> Handle(UpdateChatSessionCommand command, CancellationToken ct)
+        public async Task Handle(UpdateChatSessionCommand command, CancellationToken ct)
         {
             var session = new ChatSession
             {
@@ -21,7 +21,7 @@ public record UpdateChatSessionCommand(Guid Id, Guid UserId, ChatSessionPayloadD
 
             bool found = await chatSessionRepository.UpdateAsync(session, ct);
 
-            return found ? Unit.Value : throw new NotFoundException($"Chat session with ID {command.Id} not found.");
+            if (!found) { throw new NotFoundException($"Chat session with ID {command.Id} not found."); }
         }
     }
 
@@ -30,17 +30,12 @@ public record UpdateChatSessionCommand(Guid Id, Guid UserId, ChatSessionPayloadD
         public Validator()
         {
             RuleFor(x => x.Id)
-                    .NotEmpty().WithMessage("Chat session ID is required.")
-                    .Must(id => id != Guid.Empty).WithMessage("Chat session ID must be a valid GUID.");
+                    .NotEmpty().WithMessage("Chat session ID must be a valid GUID.");
 
             RuleFor(x => x.UserId)
-                    .NotEmpty().WithMessage("User ID is required.")
-                    .Must(id => id != Guid.Empty).WithMessage("User ID must be a valid GUID.");
+                    .NotEmpty().WithMessage("User ID must be a valid GUID.");
 
-            RuleFor(x => x.Dto.Title)
-                    .NotEmpty().WithMessage("Chat session title is required.")
-                    .MinimumLength(2).WithMessage("Chat session title must be at least 2 characters long.")
-                    .MaximumLength(255).WithMessage("Chat session title must not exceed 255 characters.");
+            RuleFor(x => x.Dto).SetValidator(new ChatSessionPayloadDto.Validator());
         }
     }
 

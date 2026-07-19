@@ -5,15 +5,15 @@ using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.ChatSessions.Commands;
 
-public record DeleteChatSessionCommand(Guid Id, Guid UserId) : IRequest<Unit>
+public record DeleteChatSessionCommand(Guid Id, Guid UserId) : IRequest
 {
-    public class Handler(IChatSessionRepository chatSessionRepository) : IRequestHandler<DeleteChatSessionCommand, Unit>
+    public class Handler(IChatSessionRepository chatSessionRepository) : IRequestHandler<DeleteChatSessionCommand>
     {
-        public async Task<Unit> Handle(DeleteChatSessionCommand command, CancellationToken ct)
+        public async Task Handle(DeleteChatSessionCommand command, CancellationToken ct)
         {
             bool found = await chatSessionRepository.DeleteAsync(command.Id, command.UserId, ct);
 
-            return found ? Unit.Value : throw new NotFoundException($"Chat session with ID {command.Id} not found.");
+            if (!found) { throw new NotFoundException($"Chat session with ID {command.Id} not found."); }
         }
     }
 
@@ -22,12 +22,10 @@ public record DeleteChatSessionCommand(Guid Id, Guid UserId) : IRequest<Unit>
         public Validator()
         {
             RuleFor(x => x.Id)
-                    .NotEmpty().WithMessage("Chat session ID is required.")
-                    .Must(id => id != Guid.Empty).WithMessage("Chat session ID must be a valid GUID.");
+                    .NotEmpty().WithMessage("Chat session ID must be a valid GUID.");
 
             RuleFor(x => x.UserId)
-                    .NotEmpty().WithMessage("User ID is required.")
-                    .Must(id => id != Guid.Empty).WithMessage("User ID must be a valid GUID.");
+                    .NotEmpty().WithMessage("User ID must be a valid GUID.");
         }
     }
 
