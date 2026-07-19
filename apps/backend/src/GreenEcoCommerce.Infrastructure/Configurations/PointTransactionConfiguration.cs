@@ -15,7 +15,7 @@ public class PointTransactionConfiguration : IEntityTypeConfiguration<PointTrans
         builder.Property(x => x.WalletId).HasColumnName("wallet_id");
         builder.Property(x => x.OrderId).HasColumnName("order_id");
         builder.Property(x => x.Type).HasColumnName("type").HasConversion<string>().HasMaxLength(50);
-        builder.Property(x => x.Amount).HasColumnName("amount").HasPrecision(15, 2);
+        builder.Property(x => x.Amount).HasColumnName("amount");
         builder.Property(x => x.Description).HasColumnName("description").HasMaxLength(500);
 
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");

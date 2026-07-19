@@ -18,11 +18,11 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.Description).HasColumnName("description");
         builder.Property(x => x.Price).HasColumnName("price").HasPrecision(18, 2);
         builder.Property(x => x.StockQty).HasColumnName("stock_qty");
-        builder.Property(x => x.CarbonIndex).HasColumnName("carbon_index");
-        builder.Property(x => x.BaselineCarbonIndex).HasColumnName("baseline_carbon_index");
-        builder.Property(x => x.DecomposePercent).HasColumnName("decompose_percent");
-        builder.Property(x => x.RecyclePercent).HasColumnName("recycle_percent");
-        builder.Property(x => x.ImageUrl).HasColumnName("image_url").HasMaxLength(10000);
+        builder.Property(x => x.CarbonIndex).HasColumnName("carbon_index").HasPrecision(6, 2);
+        builder.Property(x => x.BaselineCarbonIndex).HasColumnName("baseline_carbon_index").HasPrecision(6, 2);
+        builder.Property(x => x.DecomposePercent).HasColumnName("decompose_percent").HasPrecision(5, 2);
+        builder.Property(x => x.RecyclePercent).HasColumnName("recycle_percent").HasPrecision(5, 2);
+        builder.Property(x => x.ImageUrl).HasColumnName("image_url").HasColumnType("text[]");
         builder.Property(x => x.IsActive).HasColumnName("is_active");
 
         builder.HasOne(x => x.Category)

@@ -16,7 +16,7 @@ public class OrderItemConfiguration : IEntityTypeConfiguration<OrderItem>
         builder.Property(x => x.ProductId).HasColumnName("product_id");
         builder.Property(x => x.Quantity).HasColumnName("quantity");
         builder.Property(x => x.UnitPrice).HasColumnName("unit_price").HasPrecision(18, 2);
-        builder.Property(x => x.UnitCo2Saved).HasColumnName("unit_co2_saved");
+        builder.Property(x => x.UnitCo2Saved).HasColumnName("unit_co2_saved").HasPrecision(6, 2);
 
         builder.HasOne(x => x.Order)
                 .WithMany(x => x.OrderItems)
