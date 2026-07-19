@@ -32,9 +32,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\GreenEcoCommerce.ServiceDefaults\GreenEcoCommerce.ServiceDefaults.csproj" />
     <ProjectReference Include="..\GreenEcoCommerce.Application\GreenEcoCommerce.Application.csproj" />
     <ProjectReference Include="..\GreenEcoCommerce.Infrastructure\GreenEcoCommerce.Infrastructure.csproj" />
-    <ProjectReference Include="..\GreenEcoCommerce.ServiceDefaults\GreenEcoCommerce.ServiceDefaults.csproj" />
   </ItemGroup>
 
 </Project>
