@@ -1,16 +1,17 @@
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Materials.Queries;
 
-public record GetAllMaterialsQuery : IRequest<MaterialItem[]>
+public record GetAllMaterialsQuery : IRequest<MaterialDto[]>
 {
-    public class Handler(IMaterialRepository materialRepository) : IRequestHandler<GetAllMaterialsQuery, MaterialItem[]>
+    public class Handler(IApplicationDbContext context) : IRequestHandler<GetAllMaterialsQuery, MaterialDto[]>
     {
-        public async Task<MaterialItem[]> Handle(GetAllMaterialsQuery request, CancellationToken ct)
+        public async Task<MaterialDto[]> Handle(GetAllMaterialsQuery request, CancellationToken ct)
         {
-            var materials = await materialRepository.GetAllAsync(ct);
-            return materials.Select(MaterialDtoMapper.ToDto).ToArray();
+            var materials = await context.Materials.ProjectToDto().ToArrayAsync(ct);
+            return materials;
         }
     }
 }
