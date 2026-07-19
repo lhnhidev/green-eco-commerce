@@ -11,8 +11,6 @@ export interface RegisterCommand {
   lastName: string;
   phone: string;
   address: string;
-  /** @nullable */
-  role: string | null;
   email: string;
   password: string;
 }

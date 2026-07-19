@@ -5,13 +5,10 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { PaymentMethodEnum } from './paymentMethodEnum';
 
-export interface CategoryDto {
-  id: string;
-  productCount: number;
-  name: string;
-  /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  parentId?: string | null;
+export interface CheckoutRequest {
+  pointsToRedeem: number;
+  deliveryAddress: string;
+  paymentMethod: PaymentMethodEnum;
 }

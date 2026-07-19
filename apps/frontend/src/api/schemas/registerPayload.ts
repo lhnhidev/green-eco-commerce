@@ -6,12 +6,12 @@
  * OpenAPI spec version: v1
  */
 
-export interface CategoryDto {
-  id: string;
-  productCount: number;
-  name: string;
-  /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  parentId?: string | null;
+export interface RegisterPayload {
+  avatar: string;
+  firstName: string;
+  lastName: string;
+  phone: string;
+  address: string;
+  email: string;
+  password: string;
 }

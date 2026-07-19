@@ -7,12 +7,11 @@
  */
 import type { RoleEnum } from './roleEnum';
 
-export interface UserDto {
-  id: string;
+export interface UserProfileDto {
   avatar: string;
-  email: string;
   firstName: string;
   lastName: string;
+  email: string;
   phone: string;
   address: string;
   role: RoleEnum;

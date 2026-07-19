@@ -7,14 +7,13 @@
  */
 import type { RoleEnum } from './roleEnum';
 
-export interface UserDto {
-  id: string;
+export interface UserPayloadDto {
   avatar: string;
   email: string;
+  password: string;
   firstName: string;
   lastName: string;
   phone: string;
   address: string;
   role: RoleEnum;
-  createdAt: string;
 }

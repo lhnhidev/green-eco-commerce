@@ -5,6 +5,7 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { OrderItemDto } from './orderItemDto';
 import type { OrderStatusEnum } from './orderStatusEnum';
 
 export interface OrderDto {
@@ -12,7 +13,10 @@ export interface OrderDto {
   userId: string;
   status: OrderStatusEnum;
   deliveryAddress: string;
+  totalAmount: number;
   discountAmount: number;
+  totalCo2Saved: number;
   earnedPoints: number;
+  items: OrderItemDto[];
   createdAt: string;
 }

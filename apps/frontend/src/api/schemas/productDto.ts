@@ -5,7 +5,7 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { MaterialItem } from './materialItem';
+import type { MaterialDto } from './materialDto';
 
 export interface ProductDto {
   id: string;
@@ -20,6 +20,6 @@ export interface ProductDto {
   decomposePercent: number;
   recyclePercent: number;
   imageUrl: string[];
-  materials: MaterialItem[];
+  materials: MaterialDto[];
   isActive: boolean;
 }

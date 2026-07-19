@@ -5,13 +5,10 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { PointTransactionDto } from './pointTransactionDto';
 
-export interface CategoryDto {
-  id: string;
-  productCount: number;
-  name: string;
-  /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  parentId?: string | null;
+export interface GreenWalletDto {
+  balance: number;
+  earnedTotal: number;
+  transactions: PointTransactionDto[];
 }

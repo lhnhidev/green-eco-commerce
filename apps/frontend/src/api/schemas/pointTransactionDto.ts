@@ -6,12 +6,11 @@
  * OpenAPI spec version: v1
  */
 
-export interface CategoryDto {
+export interface PointTransactionDto {
   id: string;
-  productCount: number;
-  name: string;
+  amount: number;
+  description: string;
   /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  parentId?: string | null;
+  orderId: string | null;
+  createdAt: string;
 }

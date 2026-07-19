@@ -5,18 +5,12 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { ProductSortBy } from './productSortBy';
+import type { UserSortBy } from './userSortBy';
 
-export type GetApiProductsParams = {
-SortBy?: ProductSortBy;
+export type GetApiUsersParams = {
+SortBy?: UserSortBy;
 SortDescending?: boolean;
 Search?: string;
-CategoryIds?: string[];
-IsOrganic?: boolean;
-IsBiodegradable?: boolean;
-IsRecycled?: boolean;
-MinPrice?: number;
-MaxPrice?: number;
 PageNumber?: number;
 PageSize?: number;
 };

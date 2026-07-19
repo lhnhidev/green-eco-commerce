@@ -5,10 +5,10 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { ProductDto } from './productDto';
+import type { OrderDto } from './orderDto';
 
-export interface PagedResultOfProductDto {
-  items: ProductDto[];
+export interface PagedResultOfOrderDto {
+  items: OrderDto[];
   totalCount: number;
   pageNumber: number;
   pageSize: number;

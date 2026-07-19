@@ -7,7 +7,7 @@
  */
 import type { ProductSortBy } from './productSortBy';
 
-export type GetApiProductsParams = {
+export type GetAllProductsParams = {
 SortBy?: ProductSortBy;
 SortDescending?: boolean;
 Search?: string;

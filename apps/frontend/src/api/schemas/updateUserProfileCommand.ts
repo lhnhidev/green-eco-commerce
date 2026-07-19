@@ -6,12 +6,12 @@
  * OpenAPI spec version: v1
  */
 
-export interface CategoryDto {
+export interface UpdateUserProfileCommand {
   id: string;
-  productCount: number;
-  name: string;
-  /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  parentId?: string | null;
+  avatar: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  phone: string;
+  address: string;
 }

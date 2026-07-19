@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using EntityFramework.Exceptions.PostgreSQL;
@@ -108,6 +109,20 @@ builder.Services.AddOpenApi(opt =>
     });
 
     opt.AddSchemaTransformer<EnforceRequiredSchemaTransformer>();
+
+    opt.AddOperationTransformer((operation, context, _) =>
+    {
+        // Find the method name from the endpoint metadata
+        var endpointMetadata = context.Description.ActionDescriptor.EndpointMetadata;
+        var methodInfo = endpointMetadata.OfType<MethodInfo>().FirstOrDefault();
+
+        if (methodInfo != null)
+        {
+            operation.OperationId = methodInfo.Name;
+        }
+
+        return Task.CompletedTask;
+    });
 
     opt.CreateSchemaReferenceId = typeInfo =>
     {

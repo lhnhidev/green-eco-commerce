@@ -48,7 +48,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         Response.Cookies.Append(type.ToString(), token, cookieOptions);
     }
 
-    [HttpPost("register")]
+    [HttpPost("register", Name = nameof(Register))]
     [EndpointDescription("""
                          Đăng ký tài khoản dựa vào thông tin gửi lên. Đăng ký thành công thì gửi về một id của người dùng đã đăng ký
 
@@ -80,7 +80,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         return TypedResults.Ok(response);
     }
 
-    [HttpPost("login")]
+    [HttpPost("login", Name = nameof(Login))]
     public async Task<Results<Ok<UserProfileDto>, BadRequest<ProblemDetails>>> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
@@ -89,7 +89,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         return TypedResults.Ok(response.UserProfile);
     }
 
-    [HttpPost("logout")]
+    [HttpPost("logout", Name = nameof(Logout))]
     [Authorize]
     public async Task<Results<NoContent, BadRequest<ProblemDetails>>> Logout()
     {
@@ -111,7 +111,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         return TypedResults.NoContent();
     }
 
-    [HttpGet("me")]
+    [HttpGet("me", Name = nameof(GetMe))]
     [Authorize]
     public async Task<Results<Ok<UserProfileDto>, NotFound, BadRequest<ProblemDetails>>> GetMe()
     {
@@ -129,7 +129,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         return response != null ? TypedResults.Ok(response) : TypedResults.NotFound();
     }
 
-    [HttpPost("refresh-token")]
+    [HttpPost("refresh-token", Name = nameof(RefreshToken))]
     public async Task<Results<NoContent, BadRequest<ProblemDetails>>> RefreshToken()
     {
         string? expiredToken = Request.Cookies["AccessToken"];

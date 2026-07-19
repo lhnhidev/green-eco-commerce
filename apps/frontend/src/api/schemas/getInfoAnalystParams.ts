@@ -6,12 +6,7 @@
  * OpenAPI spec version: v1
  */
 
-export interface CategoryDto {
-  id: string;
-  productCount: number;
-  name: string;
-  /** @nullable */
-  description?: string | null;
-  /** @nullable */
-  parentId?: string | null;
-}
+export type GetInfoAnalystParams = {
+Month: number;
+Year: number;
+};
