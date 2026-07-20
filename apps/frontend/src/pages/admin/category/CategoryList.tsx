@@ -1,14 +1,89 @@
-import { useGetAllCategories, useGetAllProducts } from '@api'
-import { ActionIcon, Button, Table, TextInput } from '@mantine/core'
-import { useMemo, useState } from 'react'
+import {
+  getGetAllCategoriesQueryKey,
+  useDeleteCategory,
+  useGetAllCategories,
+  useGetAllProducts,
+  useUpdateCategory,
+} from '@api'
+import type { CategoryDto } from '@api/schemas'
+import { ActionIcon, Button, Modal, Table, Text, Textarea, TextInput } from '@mantine/core'
+import { useForm } from '@mantine/form'
+import { useDisclosure } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
+import { useQueryClient } from '@tanstack/react-query'
+import { useMemo, useRef, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
 
 const CategoryList = () => {
   const [search, setSearch] = useState('')
+  const queryClient = useQueryClient()
   const { data: categories, isLoading } = useGetAllCategories()
   const { data: productsPage } = useGetAllProducts()
   const products = productsPage?.items ?? []
+
+  // Edit modal state
+  const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false)
+  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
+  const deletingRef = useRef<{ id: string; name: string }>({ id: '', name: '' })
+
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory()
+  const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory()
+
+  const editForm = useForm({
+    initialValues: { id: '', name: '', description: '', parentId: '' as string | null },
+    validate: { name: (v) => (v.trim().length < 1 ? 'Name is required' : null) },
+  })
+
+  const handleEditClick = (cat: CategoryDto) => {
+    editForm.setValues({
+      id: cat.id,
+      name: cat.name,
+      description: cat.description ?? '',
+      parentId: cat.parentId ?? null,
+    })
+    openEdit()
+  }
+
+  const handleEditSubmit = (values: typeof editForm.values) => {
+    updateCategory(
+      {
+        id: values.id,
+        data: { name: values.name, description: values.description || null, parentId: values.parentId || null },
+      },
+      {
+        onSuccess: () => {
+          notifications.show({ title: 'Updated', message: 'Category has been updated.', color: 'green' })
+          queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
+          closeEdit()
+        },
+        onError: () => {
+          notifications.show({ title: 'Error', message: 'Could not update category.', color: 'red' })
+        },
+      },
+    )
+  }
+
+  const handleDeleteClick = (id: string, name: string) => {
+    deletingRef.current = { id, name }
+    openDelete()
+  }
+
+  const handleConfirmDelete = () => {
+    deleteCategory(
+      { id: deletingRef.current.id },
+      {
+        onSuccess: () => {
+          notifications.show({ title: 'Deleted', message: 'Category removed.', color: 'green' })
+          queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
+          closeDelete()
+        },
+        onError: () => {
+          notifications.show({ title: 'Error', message: 'Could not delete category.', color: 'red' })
+        },
+      },
+    )
+  }
 
   // Count products per category
   const productCount = useMemo(() => {
@@ -38,7 +113,6 @@ const CategoryList = () => {
       result.push(root)
       result.push(...categories.filter((c) => c.parentId === root.id))
     }
-    // Orphaned children (data error) still shown
     for (const c of categories) {
       if (!result.includes(c)) result.push(c)
     }
@@ -47,6 +121,38 @@ const CategoryList = () => {
 
   return (
     <div className="w-full h-full">
+      {/* Edit Modal */}
+      <Modal opened={editOpened} onClose={closeEdit} title="Edit Category" centered>
+        <form onSubmit={editForm.onSubmit(handleEditSubmit)} className="flex flex-col gap-4">
+          <TextInput label="Name" withAsterisk {...editForm.getInputProps('name')} />
+          <Textarea label="Description" autosize minRows={2} {...editForm.getInputProps('description')} />
+          <div className="flex justify-end gap-2 mt-2">
+            <Button variant="default" size="xs" type="button" onClick={closeEdit}>
+              Cancel
+            </Button>
+            <Button color="primary" size="xs" type="submit" loading={isUpdating}>
+              Save
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal opened={deleteOpened} onClose={closeDelete} title="Delete Category" centered size="sm">
+        <Text size="sm" c="dimmed" mb="lg">
+          Are you sure you want to delete <strong className="text-gray-700">{deletingRef.current.name}</strong>? This
+          cannot be undone.
+        </Text>
+        <div className="flex justify-end gap-2">
+          <Button variant="default" size="xs" onClick={closeDelete}>
+            Cancel
+          </Button>
+          <Button color="red" size="xs" loading={isDeleting} onClick={handleConfirmDelete}>
+            Delete
+          </Button>
+        </div>
+      </Modal>
+
       <div className="flex items-center gap-2.5 mb-2.5">
         <TextInput
           placeholder="Search categories..."
@@ -77,7 +183,7 @@ const CategoryList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
+            th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -110,21 +216,33 @@ const CategoryList = () => {
             ) : (
               sortedCategories.map((cat) => (
                 <Table.Tr key={cat.id}>
-                  <Table.Td className="!font-medium">
+                  <Table.Td className="font-medium!">
                     {cat.parentId && <span className="text-[#d4d4d8] mr-1.5">└</span>}
                     {cat.name}
                   </Table.Td>
-                  <Table.Td className="!text-muted-foreground">{cat.description || '—'}</Table.Td>
-                  <Table.Td className="!text-muted-foreground">
+                  <Table.Td className="text-muted-foreground!">{cat.description || '—'}</Table.Td>
+                  <Table.Td className="text-muted-foreground!">
                     {cat.parentId ? (nameById.get(cat.parentId) ?? '—') : <span className="text-[#d4d4d8]">—</span>}
                   </Table.Td>
                   <Table.Td ta="right">{productCount.get(cat.id) ?? 0}</Table.Td>
                   <Table.Td>
                     <div className="flex gap-0.5 justify-end">
-                      <ActionIcon variant="subtle" color="gray" size="sm">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        onClick={() => handleEditClick(cat)}
+                        aria-label="Edit"
+                      >
                         <FiEdit2 size={13} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" size="sm">
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        size="sm"
+                        onClick={() => handleDeleteClick(cat.id, cat.name)}
+                        aria-label="Delete"
+                      >
                         <FiTrash2 size={13} />
                       </ActionIcon>
                     </div>

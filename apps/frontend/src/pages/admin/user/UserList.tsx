@@ -51,7 +51,7 @@ const UserList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
+            th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -95,15 +95,15 @@ const UserList = () => {
                       </span>
                     </div>
                   </Table.Td>
-                  <Table.Td className="!text-muted-foreground">{u.email}</Table.Td>
-                  <Table.Td className="!text-muted-foreground">{u.phone || '—'}</Table.Td>
-                  <Table.Td className="!text-muted-foreground">{u.address || '—'}</Table.Td>
+                  <Table.Td className="text-muted-foreground!">{u.email}</Table.Td>
+                  <Table.Td className="text-muted-foreground!">{u.phone || '—'}</Table.Td>
+                  <Table.Td className="text-muted-foreground!">{u.address || '—'}</Table.Td>
                   <Table.Td>
                     <Badge size="xs" variant="light" color={u.role === 'Admin' ? 'primary' : 'gray'} radius="xl">
                       {u.role}
                     </Badge>
                   </Table.Td>
-                  <Table.Td className="!text-muted-foreground">
+                  <Table.Td className="text-muted-foreground!">
                     {u.createdAt ? dayjs(u.createdAt).format('DD/MM/YYYY') : '—'}
                   </Table.Td>
                   <Table.Td>

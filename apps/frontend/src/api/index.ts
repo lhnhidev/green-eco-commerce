@@ -51,11 +51,12 @@ import type {
   ProductDto,
   ProductPayloadDto,
   RegisterPayload,
+  UpdateOrderStatusRequest,
   UpdatePaymentStatusCommand,
-  UpdateUserProfileCommand,
   UserDto,
   UserPayloadDto,
-  UserProfileDto
+  UserProfileDto,
+  UserProfilePayloadDto
 } from './schemas';
 
 import { customInstance } from '../lib/axios';
@@ -1126,7 +1127,7 @@ const {mutation: mutationOptions} = options ?
     }
 
 export const updateUserProfile = (
-    updateUserProfileCommand: UpdateUserProfileCommand,
+    userProfilePayloadDto: UserProfilePayloadDto,
  signal?: AbortSignal
 ) => {
 
@@ -1134,7 +1135,7 @@ export const updateUserProfile = (
       return customInstance<UserProfileDto>(
       {url: `/api/users`, method: 'PUT',
       headers: {'Content-Type': 'application/json', },
-      data: updateUserProfileCommand, signal
+      data: userProfilePayloadDto, signal
     },
       );
     }
@@ -1143,8 +1144,8 @@ export const updateUserProfile = (
 
 
 export const getUpdateUserProfileMutationOptions = <TError = ProblemDetails | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUserProfile>>, TError,{data: UpdateUserProfileCommand}, TContext>, }
-): UseMutationOptions<Awaited<ReturnType<typeof updateUserProfile>>, TError,{data: UpdateUserProfileCommand}, TContext> => {
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUserProfile>>, TError,{data: UserProfilePayloadDto}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateUserProfile>>, TError,{data: UserProfilePayloadDto}, TContext> => {
 
 const mutationKey = ['updateUserProfile'];
 const {mutation: mutationOptions} = options ?
@@ -1156,7 +1157,7 @@ const {mutation: mutationOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateUserProfile>>, {data: UpdateUserProfileCommand}> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateUserProfile>>, {data: UserProfilePayloadDto}> = (props) => {
           const {data} = props ?? {};
 
           return  updateUserProfile(data,)
@@ -1170,15 +1171,15 @@ const {mutation: mutationOptions} = options ?
   return  { mutationFn, ...mutationOptions }}
 
     export type UpdateUserProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateUserProfile>>>
-    export type UpdateUserProfileMutationBody = UpdateUserProfileCommand
+    export type UpdateUserProfileMutationBody = UserProfilePayloadDto
     export type UpdateUserProfileMutationError = ProblemDetails | void
 
     export const useUpdateUserProfile = <TError = ProblemDetails | void,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUserProfile>>, TError,{data: UpdateUserProfileCommand}, TContext>, }
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateUserProfile>>, TError,{data: UserProfilePayloadDto}, TContext>, }
  , queryClient?: QueryClient): UseMutationResult<
         Awaited<ReturnType<typeof updateUserProfile>>,
         TError,
-        {data: UpdateUserProfileCommand},
+        {data: UserProfilePayloadDto},
         TContext
       > => {
       return useMutation(getUpdateUserProfileMutationOptions(options), queryClient);
@@ -2146,6 +2147,66 @@ export function useGetAllOrders<TData = Awaited<ReturnType<typeof getAllOrders>>
 
 
 
+
+export const updateOrderStatus = (
+    id: string,
+    updateOrderStatusRequest: UpdateOrderStatusRequest,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<void>(
+      {url: `/api/orders/${id}/status`, method: 'PATCH',
+      headers: {'Content-Type': 'application/json', },
+      data: updateOrderStatusRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getUpdateOrderStatusMutationOptions = <TError = void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateOrderStatus>>, TError,{id: string;data: UpdateOrderStatusRequest}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateOrderStatus>>, TError,{id: string;data: UpdateOrderStatusRequest}, TContext> => {
+
+const mutationKey = ['updateOrderStatus'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateOrderStatus>>, {id: string;data: UpdateOrderStatusRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateOrderStatus(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateOrderStatusMutationResult = NonNullable<Awaited<ReturnType<typeof updateOrderStatus>>>
+    export type UpdateOrderStatusMutationBody = UpdateOrderStatusRequest
+    export type UpdateOrderStatusMutationError = void | ProblemDetails
+
+    export const useUpdateOrderStatus = <TError = void | ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateOrderStatus>>, TError,{id: string;data: UpdateOrderStatusRequest}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateOrderStatus>>,
+        TError,
+        {id: string;data: UpdateOrderStatusRequest},
+        TContext
+      > => {
+      return useMutation(getUpdateOrderStatusMutationOptions(options), queryClient);
+    }
 
 export const getMyOrders = (
     params?: GetMyOrdersParams,

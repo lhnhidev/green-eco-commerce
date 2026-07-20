@@ -1,6 +1,8 @@
-import { useGetAllOrders } from '@api'
+import { getGetAllOrdersQueryKey, useGetAllOrders, useUpdateOrderStatus } from '@api'
 import { OrderStatusEnum } from '@api/schemas'
 import { ActionIcon, Badge, Pagination, Select, Table, TextInput } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
+import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { FiEye, FiSearch } from 'react-icons/fi'
@@ -13,6 +15,7 @@ const statusColor: Record<string, string> = {
   Cancelled: 'red',
 }
 
+const STATUS_OPTIONS = Object.values(OrderStatusEnum).map((s) => ({ value: s, label: s }))
 const PAGE_SIZE = 20
 
 const OrderList = () => {
@@ -20,13 +23,25 @@ const OrderList = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [page, setPage] = useState(1)
 
+  const queryClient = useQueryClient()
   const { data, isLoading } = useGetAllOrders({ PageNumber: page, PageSize: PAGE_SIZE })
+
+  const { mutate: changeStatus, variables: pendingChange } = useUpdateOrderStatus({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetAllOrdersQueryKey() })
+        notifications.show({ title: 'Updated', message: 'Order status changed.', color: 'green' })
+      },
+      onError: () => {
+        notifications.show({ title: 'Error', message: 'Could not update status.', color: 'red' })
+      },
+    },
+  })
 
   const allOrders = data?.items ?? []
   const totalCount = data?.totalCount ?? 0
   const totalPages = data?.totalPages ?? 1
 
-  // Client-side filter for search and status (server-side doesn't support these filters)
   const filteredOrders = allOrders
     .filter((o) => {
       const keyword = search.trim().toLowerCase()
@@ -68,7 +83,7 @@ const OrderList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
+            th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -77,57 +92,79 @@ const OrderList = () => {
               <Table.Th w={110}>Order ID</Table.Th>
               <Table.Th>Delivery address</Table.Th>
               <Table.Th w={110}>Created</Table.Th>
-              <Table.Th w={110}>Status</Table.Th>
+              <Table.Th w={80} ta="right">
+                Total
+              </Table.Th>
               <Table.Th w={90} ta="right">
                 Points
               </Table.Th>
               <Table.Th w={90} ta="right">
                 Discount
               </Table.Th>
-              <Table.Th w={60} ta="right">
-                Actions
+              <Table.Th w={170}>Status</Table.Th>
+              <Table.Th w={50} ta="right">
+                View
               </Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
             {isLoading ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
+                <Table.Td colSpan={8}>
                   <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading orders…</div>
                 </Table.Td>
               </Table.Tr>
             ) : filteredOrders.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
+                <Table.Td colSpan={8}>
                   <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No orders found.</div>
                 </Table.Td>
               </Table.Tr>
             ) : (
-              filteredOrders.map((order) => (
-                <Table.Tr key={order.id}>
-                  <Table.Td className="!font-medium">#{order.id?.substring(0, 8)}</Table.Td>
-                  <Table.Td className="!text-muted-foreground">{order.deliveryAddress || '—'}</Table.Td>
-                  <Table.Td className="!text-muted-foreground">
-                    {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge size="xs" variant="light" color={statusColor[order.status] ?? 'gray'} radius="xl">
-                      {order.status}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td ta="right">{order.earnedPoints}</Table.Td>
-                  <Table.Td ta="right" className="!text-muted-foreground">
-                    ${Number(order.discountAmount).toFixed(2)}
-                  </Table.Td>
-                  <Table.Td>
-                    <div className="flex justify-end">
-                      <ActionIcon variant="subtle" color="gray" size="sm" aria-label="View">
-                        <FiEye size={13} />
-                      </ActionIcon>
-                    </div>
-                  </Table.Td>
-                </Table.Tr>
-              ))
+              filteredOrders.map((order) => {
+                const isUpdating = pendingChange?.id === order.id
+                return (
+                  <Table.Tr key={order.id}>
+                    <Table.Td className="font-medium!">#{order.id?.substring(0, 8)}</Table.Td>
+                    <Table.Td className="text-muted-foreground!">{order.deliveryAddress || '—'}</Table.Td>
+                    <Table.Td className="text-muted-foreground!">
+                      {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
+                    </Table.Td>
+                    <Table.Td ta="right" className="font-semibold!">
+                      ${Number(order.totalAmount ?? 0).toFixed(2)}
+                    </Table.Td>
+                    <Table.Td ta="right">{order.earnedPoints}</Table.Td>
+                    <Table.Td ta="right" className="text-muted-foreground!">
+                      ${Number(order.discountAmount).toFixed(2)}
+                    </Table.Td>
+                    <Table.Td>
+                      <Select
+                        size="xs"
+                        data={STATUS_OPTIONS}
+                        value={order.status}
+                        disabled={isUpdating}
+                        onChange={(val) => {
+                          if (val && val !== order.status) {
+                            changeStatus({ id: order.id, data: { status: val as OrderStatusEnum } })
+                          }
+                        }}
+                        leftSection={
+                          <Badge size="xs" variant="dot" color={statusColor[order.status] ?? 'gray'} p={0} />
+                        }
+                        w={160}
+                        comboboxProps={{ withinPortal: true }}
+                      />
+                    </Table.Td>
+                    <Table.Td>
+                      <div className="flex justify-end">
+                        <ActionIcon variant="subtle" color="gray" size="sm" aria-label="View">
+                          <FiEye size={13} />
+                        </ActionIcon>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                )
+              })
             )}
           </Table.Tbody>
         </Table>

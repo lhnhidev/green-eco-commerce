@@ -26,7 +26,7 @@ const AuthHeader = ({ title, description }: AuthHeaderType) => {
           classNames={{
             root: '!rounded-4xl !w-full !bg-[var(--color-muted)]',
             indicator: '!rounded-4xl',
-            innerLabel: '!font-medium !text-xs',
+            innerLabel: 'font-medium! !text-xs',
           }}
           data={[
             { label: 'Login', value: 'login' },
