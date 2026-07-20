@@ -1,19 +1,18 @@
 using FluentValidation.TestHelper;
-using GreenEcoCommerce.Application.Features.Profile.Commands;
+using GreenEcoCommerce.Application.Features.Profile;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class UpdateUserProfileCommandValidatorTests
 {
-    private readonly UpdateUserProfileCommand.Validator validator = new();
+    private readonly UserProfilePayloadDto.Validator validator = new();
 
-    private static UpdateUserProfileCommand ValidCommand(
+    private static UserProfilePayloadDto ValidCommand(
         string? firstName = null,
         string? lastName = null,
         string? phone = null,
         string? address = null) =>
         new(
-            Id: Guid.NewGuid(),
             Avatar: "https://example.com/avatar.png",
             FirstName: firstName ?? "Nguyen",
             LastName: lastName ?? "Van A",

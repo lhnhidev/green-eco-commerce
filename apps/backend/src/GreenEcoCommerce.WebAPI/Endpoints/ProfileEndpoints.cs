@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using GreenEcoCommerce.Application.Features.Profile;
 using GreenEcoCommerce.Application.Features.Profile.Commands;
 using MediatR;
@@ -20,9 +20,13 @@ public static class ProfileEndpoints
     }
 
     private static async Task<Results<Ok<UserProfileDto>, NotFound>> UpdateUserProfile(
-        ClaimsPrincipal user, UpdateUserProfileCommand payload, ISender sender)
+        ClaimsPrincipal user, UserProfilePayloadDto payload, ISender sender)
     {
-        var result = await sender.Send(payload);
+        string? userIdStr = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdStr, out var userId)) return TypedResults.NotFound();
+
+        var result = await sender.Send(new UpdateUserProfileCommand(userId, payload));
         return TypedResults.Ok(result);
     }
 }
+

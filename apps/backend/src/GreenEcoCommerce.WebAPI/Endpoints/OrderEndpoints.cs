@@ -1,6 +1,8 @@
 using GreenEcoCommerce.Application.Common.Models;
 using GreenEcoCommerce.Application.Features.Orders;
+using GreenEcoCommerce.Application.Features.Orders.Commands;
 using GreenEcoCommerce.Application.Features.Orders.Queries;
+using GreenEcoCommerce.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -16,6 +18,7 @@ public static class OrderEndpoints
                 .RequireAuthorization("AdminOnly");
 
         adminGroup.MapGet("/", GetAllOrders);
+        adminGroup.MapPatch("/{id:guid}/status", UpdateOrderStatus);
 
         var userGroup = app.MapGroup("/api/me/orders")
                 .WithTags("My Orders")
@@ -36,4 +39,12 @@ public static class OrderEndpoints
         var orders = await sender.Send(new GetAllOrdersQuery(query));
         return TypedResults.Ok(orders);
     }
+
+    private static async Task<Results<NoContent, NotFound>> UpdateOrderStatus(Guid id, UpdateOrderStatusRequest body, ISender sender)
+    {
+        await sender.Send(new UpdateOrderStatusCommand(id, body.Status));
+        return TypedResults.NoContent();
+    }
 }
+
+public record UpdateOrderStatusRequest(OrderStatusEnum Status);
