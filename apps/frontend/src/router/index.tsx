@@ -8,14 +8,19 @@ import MaterialCreate from '@pages/admin/material/MaterialCreate'
 import MaterialList from '@pages/admin/material/MaterialList'
 import OrderList from '@pages/admin/order/OrderList'
 import ProductCreate from '@pages/admin/product/ProductCreate'
+import ProductEdit from '@pages/admin/product/ProductEdit'
 import ProductList from '@pages/admin/product/ProductList'
 import UserList from '@pages/admin/user/UserList'
 import AuthPage from '@pages/client/AuthPage'
 import { HomePage } from '@pages/client/HomePage'
+import MyOrdersPage from '@pages/client/Order/MyOrdersPage'
 import PaymentPage from '@pages/client/Payment/PaymentPage'
 import ProductDetailPage from '@pages/client/Product/ProductDetailPage'
 import ProductPage from '@pages/client/Product/ProductPage'
+import ProfilePage from '@pages/client/Profile/ProfilePage'
+import GreenWalletPage from '@pages/client/Wallet/GreenWalletPage'
 import { createBrowserRouter } from 'react-router'
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -49,6 +54,18 @@ export const router = createBrowserRouter([
         path: '/cart',
         element: <></>,
       },
+      {
+        path: '/my-orders',
+        element: <MyOrdersPage />,
+      },
+      {
+        path: '/profile',
+        element: <ProfilePage />,
+      },
+      {
+        path: '/green-wallet',
+        element: <GreenWalletPage />,
+      },
     ],
   },
   {
@@ -66,6 +83,10 @@ export const router = createBrowserRouter([
       {
         path: 'product/create',
         element: <ProductCreate />,
+      },
+      {
+        path: 'product/:id/edit',
+        element: <ProductEdit />,
       },
       {
         path: 'category',

@@ -1,8 +1,29 @@
 import { useGetAllCategories, useGetAllProducts } from '@api'
 import ProductCardv2 from '@components/features/products/ProductCardv2'
-import { Anchor, Breadcrumbs, Checkbox, Input, Pagination, Select, Skeleton } from '@mantine/core'
-import { useState } from 'react'
-import { CiSearch } from 'react-icons/ci'
+import {
+  Anchor,
+  Breadcrumbs,
+  Checkbox,
+  Input,
+  Pagination,
+  Select,
+  Skeleton,
+  Slider,
+  type TreeNodeData,
+  TreeSelect,
+} from '@mantine/core'
+import {
+  CurrencyDollarIcon,
+  DropIcon,
+  LeafIcon,
+  ListDashesIcon,
+  MagnifyingGlassIcon,
+  PlantIcon,
+  RecycleIcon,
+  WarningCircleIcon,
+  XCircleIcon,
+} from '@phosphor-icons/react'
+import { useMemo, useState } from 'react'
 import { ProductSortBy } from '@/api/schemas'
 
 const items = [
@@ -33,6 +54,47 @@ const ProductPage = () => {
   const [isRecycled, setIsRecycled] = useState(false)
 
   const { data: categoriesData } = useGetAllCategories()
+
+  const treeSelectData = useMemo(() => {
+    if (!categoriesData) return []
+
+    const nodeMap = new Map<string, TreeNodeData>()
+    const roots: TreeNodeData[] = []
+
+    // First pass: create node objects
+    categoriesData.forEach((cat) => {
+      nodeMap.set(cat.id, { label: cat.name, value: cat.id, children: [] })
+    })
+
+    // Second pass: attach to parents
+    categoriesData.forEach((cat) => {
+      const node = nodeMap.get(cat.id)
+      if (!node) return
+
+      if (cat.parentId && nodeMap.has(cat.parentId)) {
+        const parent = nodeMap.get(cat.parentId)
+        if (parent?.children) {
+          parent.children.push(node)
+        }
+      } else {
+        roots.push(node)
+      }
+    })
+
+    // Clean up empty children arrays
+    const cleanEmptyChildren = (nodes: TreeNodeData[]) => {
+      nodes.forEach((node) => {
+        if (node.children && node.children.length === 0) {
+          delete node.children
+        } else if (node.children) {
+          cleanEmptyChildren(node.children)
+        }
+      })
+    }
+    cleanEmptyChildren(roots)
+
+    return roots
+  }, [categoriesData])
 
   const {
     data: productsData,
@@ -77,41 +139,46 @@ const ProductPage = () => {
   }
 
   return (
-    <div className="bg-gray-50/50 min-h-screen pb-20">
+    <div className="bg-gray-50/50 min-h-screen pb-16">
       {/* Hero Section */}
-      <div className="bg-linear-to-br from-green-900 via-green-800 to-green-600 text-white py-20 px-4 relative overflow-hidden">
+      <div className="bg-linear-to-br from-green-950 via-green-900 to-emerald-800 text-white py-16 px-4 relative overflow-hidden">
         {/* Subtle background circles for premium feel */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0">
-          <div className="absolute -top-24 -right-24 w-96 h-96 bg-green-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse" />
+        <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
+          <div className="absolute -top-32 -right-32 w-[400px] h-[400px] bg-green-500/20 rounded-full blur-[80px] animate-pulse" />
           <div
-            className="absolute top-24 -left-24 w-72 h-72 bg-green-400 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse"
+            className="absolute -bottom-32 -left-32 w-[400px] h-[400px] bg-emerald-400/20 rounded-full blur-[90px] animate-pulse"
             style={{ animationDelay: '2s' }}
           />
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-50" />
         </div>
 
-        <div className="container mx-auto relative z-10">
+        <div className="container mx-auto relative z-10 flex flex-col items-center text-center">
           <Breadcrumbs
             className="mb-6"
+            separator="›"
             classNames={{
-              breadcrumb: 'text-green-100 hover:text-white transition-colors text-sm font-medium',
-              separator: 'text-white!',
+              breadcrumb:
+                'text-green-200/70 hover:text-white transition-colors text-[11px] font-bold tracking-widest uppercase',
+              separator: 'text-white/30',
             }}
           >
             {items}
           </Breadcrumbs>
           <div className="max-w-3xl">
-            <h1 className="font-extrabold text-5xl md:text-6xl mb-6 tracking-tight drop-shadow-sm">Green Product</h1>
-            <p className="text-lg md:text-xl text-green-50 max-w-2xl leading-relaxed font-light">
-              Discover everyday essentials designed with the planet in mind. Every item in our collection meets rigorous
-              environmental standards.
+            <h1 className="font-extrabold text-4xl md:text-5xl mb-4 tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-green-100 drop-shadow-sm">
+              Sustainable Essentials
+            </h1>
+            <p className="text-base md:text-lg text-green-100/90 max-w-xl mx-auto leading-relaxed font-light">
+              Discover everyday items designed with the planet in mind. Zero compromise on quality, 100% committed to
+              nature.
             </p>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 -mt-10 relative z-20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         {/* Search & Sort Bar */}
-        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-lg border border-white/50 p-5 mb-10 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-xl">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-2xl">
           <form
             onSubmit={(e) => {
               e.preventDefault()
@@ -124,11 +191,11 @@ const ProductPage = () => {
               radius="xl"
               value={searchName}
               onChange={(event) => setSearchName(event.currentTarget.value)}
-              placeholder="Search your eco-friendly product..."
-              leftSection={<CiSearch size={20} className="text-gray-400" />}
+              placeholder="Search eco-friendly products..."
+              leftSection={<MagnifyingGlassIcon size={20} className="text-gray-400" />}
               classNames={{
                 input:
-                  'border-gray-200 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all bg-gray-50/50 hover:bg-white',
+                  'border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all bg-gray-50/50 hover:bg-white text-gray-700 font-medium placeholder:text-gray-400 placeholder:font-normal',
               }}
             />
           </form>
@@ -136,11 +203,11 @@ const ProductPage = () => {
             size="md"
             radius="xl"
             placeholder="Sort by"
-            value={sortBy}
+            value={`${sortBy}|${sortOrder}`}
             onChange={(val) => {
-              const [sortBy, sortOrder] = (val || '').split('|')
-              setSortBy(sortBy as ProductSortBy)
-              setSortOrder(sortOrder as 'asc' | 'desc')
+              const [newSortBy, newSortOrder] = (val || '').split('|')
+              setSortBy(newSortBy as ProductSortBy)
+              setSortOrder(newSortOrder as 'asc' | 'desc')
               setPageNumber(1)
             }}
             data={[
@@ -148,59 +215,60 @@ const ProductPage = () => {
               { value: `${ProductSortBy.Name}|desc`, label: 'Name (Z-A)' },
               { value: `${ProductSortBy.Price}|asc`, label: 'Price (Low to High)' },
               { value: `${ProductSortBy.Price}|desc`, label: 'Price (High to Low)' },
-              { value: `${ProductSortBy.CarbonIndex}|asc`, label: 'Carbon Index (Low to High)' },
-              { value: `${ProductSortBy.CarbonIndex}|desc`, label: 'Carbon Index (High to Low)' },
+              { value: `${ProductSortBy.CarbonIndex}|asc`, label: 'Carbon Impact (Low to High)' },
+              { value: `${ProductSortBy.CarbonIndex}|desc`, label: 'Carbon Impact (High to Low)' },
             ]}
             classNames={{
               input:
-                'border-gray-200 focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all w-full md:w-56 bg-gray-50/50 hover:bg-white',
+                'border-gray-200 focus:border-green-500 focus:ring-2 focus:ring-green-500/20 transition-all w-full md:w-56 bg-gray-50/50 hover:bg-white text-gray-700 font-medium',
             }}
           />
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-10">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar Filters */}
-          <aside className="w-full lg:w-72 shrink-0 space-y-8">
-            <div className="bg-white p-7 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full" />
-                Category
+          <aside className="w-full lg:w-64 shrink-0 space-y-4">
+            <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
+                <div className="bg-green-100 p-1 rounded text-green-700">
+                  <ListDashesIcon weight="bold" size={14} />
+                </div>
+                Categories
               </h3>
-              <div className="space-y-1.5">
-                <button
-                  type="button"
-                  className={`w-full text-left px-4 py-2.5 rounded-xl transition-all duration-200 text-sm ${categoryId === '' ? 'bg-green-50 text-green-700 font-bold shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-green-600 font-medium'}`}
-                  onClick={() => {
-                    setCategoryId('')
-                    setPageNumber(1)
-                  }}
-                >
-                  All Essentials
-                </button>
-                {categoriesData?.map((cat) => (
-                  <button
-                    type="button"
-                    key={cat.id}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl transition-all duration-200 text-sm ${categoryId === cat.id ? 'bg-green-50 text-green-700 font-bold shadow-sm' : 'text-gray-600 hover:bg-gray-50 hover:text-green-600 font-medium'}`}
-                    onClick={() => {
-                      setCategoryId(cat.id)
-                      setPageNumber(1)
-                    }}
-                  >
-                    {cat.name}
-                  </button>
-                ))}
-              </div>
+              <TreeSelect
+                data={treeSelectData}
+                value={categoryId}
+                onChange={(val) => {
+                  setCategoryId(val || '')
+                  setPageNumber(1)
+                }}
+                placeholder="All Essentials"
+                clearable
+                searchable
+                size="sm"
+                radius="md"
+                classNames={{
+                  input:
+                    'border-gray-200 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 bg-gray-50/50 hover:bg-white transition-all text-gray-700 font-medium',
+                }}
+              />
             </div>
 
-            <div className="bg-white p-7 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full" />
+            <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
+                <div className="bg-emerald-100 p-1 rounded text-emerald-700">
+                  <LeafIcon weight="fill" size={14} />
+                </div>
                 Sustainability
               </h3>
               <div className="space-y-4 px-1">
                 <Checkbox
-                  label="Organic"
+                  label={
+                    <div className="flex items-center gap-2">
+                      <PlantIcon size={16} className="text-green-600" />
+                      <span className="text-sm">Organic</span>
+                    </div>
+                  }
                   checked={isOrganic}
                   onChange={(e) => {
                     setIsOrganic(e.currentTarget.checked)
@@ -209,12 +277,17 @@ const ProductPage = () => {
                   color="green.6"
                   size="sm"
                   classNames={{
-                    label: 'text-gray-700 font-medium cursor-pointer',
-                    input: 'cursor-pointer transition-colors',
+                    label: 'text-gray-700 font-medium cursor-pointer ml-2',
+                    input: 'cursor-pointer transition-colors hover:border-green-400',
                   }}
                 />
                 <Checkbox
-                  label="Biodegradable"
+                  label={
+                    <div className="flex items-center gap-2">
+                      <DropIcon size={16} className="text-blue-500" />
+                      <span className="text-sm">Biodegradable</span>
+                    </div>
+                  }
                   checked={isBiodegradable}
                   onChange={(e) => {
                     setIsBiodegradable(e.currentTarget.checked)
@@ -223,12 +296,17 @@ const ProductPage = () => {
                   color="green.6"
                   size="sm"
                   classNames={{
-                    label: 'text-gray-700 font-medium cursor-pointer',
-                    input: 'cursor-pointer transition-colors',
+                    label: 'text-gray-700 font-medium cursor-pointer ml-2',
+                    input: 'cursor-pointer transition-colors hover:border-green-400',
                   }}
                 />
                 <Checkbox
-                  label="Recycled"
+                  label={
+                    <div className="flex items-center gap-2">
+                      <RecycleIcon size={16} className="text-emerald-500" />
+                      <span className="text-sm">Recycled</span>
+                    </div>
+                  }
                   checked={isRecycled}
                   onChange={(e) => {
                     setIsRecycled(e.currentTarget.checked)
@@ -237,46 +315,54 @@ const ProductPage = () => {
                   color="green.6"
                   size="sm"
                   classNames={{
-                    label: 'text-gray-700 font-medium cursor-pointer',
-                    input: 'cursor-pointer transition-colors',
+                    label: 'text-gray-700 font-medium cursor-pointer ml-2',
+                    input: 'cursor-pointer transition-colors hover:border-green-400',
                   }}
                 />
               </div>
             </div>
 
-            <div className="bg-white p-7 rounded-3xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-xs mb-6 flex items-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full" />
+            <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 pb-8">
+              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
+                <div className="bg-blue-100 p-1 rounded text-blue-700">
+                  <CurrencyDollarIcon weight="bold" size={14} />
+                </div>
                 Price Range
               </h3>
-              <div className="space-y-5 px-1">
-                <div className="text-green-700 font-bold text-xl tracking-tight">
+              <div className="space-y-4 px-2">
+                <div className="text-green-700 font-bold text-xl tracking-tight text-center">
                   Up to ${maxPrice === 1000 ? '1000+' : maxPrice}
                 </div>
-                <input
-                  className="w-full h-2 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-green-600 hover:accent-green-500 transition-colors"
-                  type="range"
+                <Slider
+                  color="green.6"
+                  size="sm"
+                  radius="xl"
                   min={0}
                   max={1000}
                   step={10}
                   value={maxPrice}
-                  onChange={(e) => {
-                    setMaxPrice(Number(e.target.value))
+                  onChange={(val) => {
+                    setMaxPrice(val)
                     setPageNumber(1)
                   }}
+                  marks={[
+                    { value: 0, label: '$0' },
+                    { value: 1000, label: '$1000+' },
+                  ]}
+                  classNames={{
+                    markLabel: 'text-[10px] font-bold tracking-wider text-gray-400 mt-2',
+                    thumb: 'border-2 border-white shadow-sm',
+                  }}
                 />
-                <div className="flex justify-between text-xs text-gray-400 font-semibold tracking-wider">
-                  <span>$0</span>
-                  <span>$1000+</span>
-                </div>
               </div>
             </div>
 
             <button
               type="button"
               onClick={handleClearFilters}
-              className="w-full py-4 px-6 bg-white border-2 border-gray-100 text-gray-600 font-bold rounded-2xl hover:border-green-600 hover:text-green-700 hover:bg-green-50/50 transition-all duration-300 shadow-sm active:scale-95"
+              className="w-full py-2.5 px-4 bg-white border border-gray-200 text-gray-500 font-bold text-sm rounded-xl hover:border-red-200 hover:text-red-600 hover:bg-red-50/50 transition-all duration-300 shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
             >
+              <XCircleIcon weight="fill" size={18} />
               Clear All Filters
             </button>
           </aside>
@@ -284,10 +370,11 @@ const ProductPage = () => {
           {/* Main Content */}
           <div className="flex-1 flex flex-col">
             {triggerSearch && (
-              <div className="bg-green-50/80 backdrop-blur-sm text-green-900 px-6 py-4 rounded-2xl flex items-center justify-between mb-8 shadow-sm border border-green-100/50">
-                <p className="font-medium">
-                  Search results for: <span className="font-bold text-green-700">"{triggerSearch}"</span> (
-                  {productsData?.totalCount ?? 0} products)
+              <div className="bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl flex items-center justify-between mb-6 shadow-sm border border-gray-100">
+                <p className="font-medium text-sm text-gray-700 flex items-center gap-2">
+                  <MagnifyingGlassIcon size={18} className="text-green-600" />
+                  Search results for: <span className="font-black text-green-700">"{triggerSearch}"</span>
+                  <span className="text-gray-400 font-normal ml-1">({productsData?.totalCount ?? 0} products)</span>
                 </p>
                 <button
                   type="button"
@@ -296,9 +383,10 @@ const ProductPage = () => {
                     setSearchName('')
                     setPageNumber(1)
                   }}
-                  className="text-sm font-bold text-green-600 hover:text-green-800 underline decoration-2 underline-offset-4 transition-colors"
+                  className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1 bg-gray-50 hover:bg-red-50 px-3 py-1.5 rounded-full"
                 >
-                  Clear search
+                  <XCircleIcon weight="fill" size={14} />
+                  Clear
                 </button>
               </div>
             )}
@@ -309,50 +397,51 @@ const ProductPage = () => {
                   <div
                     // biome-ignore lint/suspicious/noArrayIndexKey: Skeleton loader.
                     key={i}
-                    className="flex flex-col gap-4 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm"
+                    className="flex flex-col gap-3 bg-white p-4 rounded-2xl border border-gray-100 shadow-sm"
                   >
-                    <Skeleton height={240} radius="xl" className="w-full" />
-                    <Skeleton height={28} radius="xl" className="w-3/4 mt-2" />
-                    <Skeleton height={16} radius="xl" className="w-full" />
-                    <Skeleton height={16} radius="xl" className="w-5/6" />
+                    <Skeleton height={200} radius="xl" className="w-full" />
+                    <Skeleton height={24} radius="xl" className="w-3/4 mt-3" />
+                    <Skeleton height={14} radius="xl" className="w-full mt-1" />
+                    <Skeleton height={14} radius="xl" className="w-4/5" />
                     <div className="flex justify-between items-center mt-4">
-                      <Skeleton height={24} width={80} radius="xl" />
-                      <Skeleton height={40} width={40} radius="full" />
+                      <Skeleton height={28} width={80} radius="xl" />
+                      <Skeleton height={40} width={40} radius="xl" />
                     </div>
                   </div>
                 ))}
               </div>
             ) : isError ? (
-              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white rounded-3xl shadow-sm border border-red-100 h-full">
-                <div className="w-24 h-24 bg-red-50 rounded-full flex items-center justify-center mb-6">
-                  <span className="text-4xl">⚠️</span>
+              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-red-100 h-full">
+                <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5 shadow-inner">
+                  <WarningCircleIcon weight="fill" size={40} className="text-red-500" />
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 mb-2">Oops! Something went wrong</h3>
-                <p className="text-gray-500 max-w-md mb-6">
+                <h3 className="text-2xl font-bold text-gray-900 mb-2">Oops! Something went wrong</h3>
+                <p className="text-gray-500 text-sm max-w-sm mb-6">
                   We couldn't load the products at this time. Please try refreshing the page.
                 </p>
                 <button
                   type="button"
                   onClick={() => window.location.reload()}
-                  className="py-3 px-8 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition-colors shadow-md hover:shadow-lg transform duration-200"
+                  className="py-3 px-6 text-sm bg-linear-to-r from-red-600 to-red-500 text-white font-bold rounded-xl hover:shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-0.5 transition-all duration-300"
                 >
                   Refresh Page
                 </button>
               </div>
             ) : !productsData?.items || productsData.items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white rounded-3xl shadow-sm border border-gray-100 h-full">
-                <div className="w-28 h-28 bg-gray-50 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                  <CiSearch size={56} className="text-gray-300" />
+              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 h-full">
+                <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-5 shadow-inner border border-gray-100">
+                  <MagnifyingGlassIcon weight="duotone" size={48} className="text-gray-400" />
                 </div>
-                <h3 className="text-3xl font-bold text-gray-800 mb-3 tracking-tight">No products found</h3>
-                <p className="text-gray-500 max-w-md text-lg leading-relaxed">
+                <h3 className="text-2xl font-extrabold text-gray-900 mb-3 tracking-tight">No products found</h3>
+                <p className="text-gray-500 max-w-sm text-sm leading-relaxed mb-6">
                   We couldn't find any products matching your current filters. Try adjusting your search criteria.
                 </p>
                 <button
                   type="button"
                   onClick={handleClearFilters}
-                  className="mt-8 py-3 px-8 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors shadow-lg hover:shadow-xl hover:-translate-y-0.5 transform duration-200"
+                  className="py-3 px-6 text-sm bg-linear-to-r from-green-600 to-emerald-500 text-white font-bold rounded-xl hover:shadow-md hover:shadow-green-500/20 transform hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2"
                 >
+                  <XCircleIcon weight="fill" size={18} />
                   Clear All Filters
                 </button>
               </div>
@@ -367,17 +456,18 @@ const ProductPage = () => {
                 </div>
 
                 {productsData.totalPages > 1 && (
-                  <div className="mt-14 flex justify-center pb-8">
+                  <div className="mt-10 flex justify-center pb-6">
                     <Pagination
                       total={productsData.totalPages}
                       value={pageNumber}
                       onChange={handlePageChange}
-                      color="green"
-                      size="lg"
+                      color="green.6"
+                      size="md"
                       radius="xl"
                       withEdges
                       classNames={{
-                        control: 'border-none shadow-sm hover:shadow-md transition-shadow bg-white font-medium',
+                        control:
+                          'border-none shadow-sm hover:shadow-md transition-all bg-white font-bold text-gray-600 hover:text-green-600',
                         dots: 'text-gray-400',
                       }}
                     />

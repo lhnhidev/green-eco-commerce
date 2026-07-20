@@ -20,7 +20,7 @@ function EmailInput<T extends FieldValues>({
       size={size ?? 'xs'}
       leftSection={Icon ? <Icon className="text-gray-600" /> : undefined}
       classNames={{
-        label: '!font-medium !text-[13px] !mb-[5px]',
+        label: 'font-medium! !text-[13px] !mb-[5px]',
         input: '!bg-[var(--color-input-muted)] !border-none',
       }}
       error={errorMessage ?? ''}

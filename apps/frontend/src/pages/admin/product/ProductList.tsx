@@ -1,14 +1,24 @@
-import { useGetAllProducts } from '@api'
-import { ActionIcon, Badge, Button, Pagination, Table, TextInput } from '@mantine/core'
-import { useState } from 'react'
+import { getGetAllProductsQueryKey, useDeleteProduct, useGetAllProducts } from '@api'
+import { ActionIcon, Badge, Button, Modal, Pagination, Table, Text, TextInput } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
+import { notifications } from '@mantine/notifications'
+import { useQueryClient } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 
 const PAGE_SIZE = 20
 
 const ProductList = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [opened, { open, close }] = useDisclosure(false)
+  const deletingNameRef = useRef('')
+
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct()
 
   const { data, isLoading } = useGetAllProducts({
     PageNumber: page,
@@ -20,8 +30,48 @@ const ProductList = () => {
   const totalCount = data?.totalCount ?? 0
   const totalPages = data?.totalPages ?? 1
 
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteId(id)
+    deletingNameRef.current = name
+    open()
+  }
+
+  const handleConfirmDelete = () => {
+    if (!deleteId) return
+    deleteProduct(
+      { id: deleteId },
+      {
+        onSuccess: () => {
+          notifications.show({ title: 'Deleted', message: 'Product has been removed.', color: 'green' })
+          queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
+          close()
+          setDeleteId(null)
+        },
+        onError: () => {
+          notifications.show({ title: 'Error', message: 'Could not delete product.', color: 'red' })
+        },
+      },
+    )
+  }
+
   return (
     <div className="w-full h-full">
+      {/* Delete Confirmation Modal */}
+      <Modal opened={opened} onClose={close} title="Delete Product" centered size="sm">
+        <Text size="sm" c="dimmed" mb="lg">
+          Are you sure you want to delete <strong className="text-gray-700">{deletingNameRef.current}</strong>? This
+          action cannot be undone.
+        </Text>
+        <div className="flex justify-end gap-2">
+          <Button variant="default" size="xs" onClick={close}>
+            Cancel
+          </Button>
+          <Button color="red" size="xs" loading={isDeleting} onClick={handleConfirmDelete}>
+            Delete
+          </Button>
+        </div>
+      </Modal>
+
       <div className="flex items-center gap-2.5 mb-2.5">
         <TextInput
           placeholder="Search products..."
@@ -53,7 +103,7 @@ const ProductList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
+            th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -117,10 +167,22 @@ const ProductList = () => {
                   </Table.Td>
                   <Table.Td>
                     <div className="flex gap-0.5 justify-end">
-                      <ActionIcon variant="subtle" color="gray" size="sm">
+                      <ActionIcon
+                        variant="subtle"
+                        color="gray"
+                        size="sm"
+                        onClick={() => navigate(`/admin/product/${p.id}/edit`)}
+                        aria-label="Edit"
+                      >
                         <FiEdit2 size={13} />
                       </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" size="sm">
+                      <ActionIcon
+                        variant="subtle"
+                        color="red"
+                        size="sm"
+                        onClick={() => handleDeleteClick(p.id, p.name)}
+                        aria-label="Delete"
+                      >
                         <FiTrash2 size={13} />
                       </ActionIcon>
                     </div>

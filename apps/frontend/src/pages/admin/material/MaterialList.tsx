@@ -145,8 +145,8 @@ const MaterialList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
-            td: '!text-[12px]',
+            th: 'text-[11px]! font-semibold! uppercase! tracking-[0.04em]! text-muted-foreground! bg-[#fafafa]!',
+            td: 'text-[12px]!',
           }}
         >
           <Table.Thead>
@@ -169,7 +169,7 @@ const MaterialList = () => {
             ) : (
               filtered.map((m) => (
                 <Table.Tr key={m.id}>
-                  <Table.Td className="!font-medium">{m.name}</Table.Td>
+                  <Table.Td className="font-medium!">{m.name}</Table.Td>
                   <Table.Td>
                     <Badge size="xs" variant="light" color="primary" radius="xl">
                       {m.type}
