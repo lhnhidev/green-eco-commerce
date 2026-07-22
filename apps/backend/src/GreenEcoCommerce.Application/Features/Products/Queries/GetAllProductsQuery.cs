@@ -48,9 +48,11 @@ public record GetAllProductsQuery(GetAllProductsQuery.Parameters Query)
 
         public IQueryable<Product> ApplyFiltering(IQueryable<Product> query)
         {
-            if (CategoryIds != null && CategoryIds.Length != 0)
+            if (CategoryIds is { Length: > 0 })
             {
-                query = query.Where(p => ((IEnumerable<Guid>)CategoryIds).Contains(p.CategoryId));
+                query = query.Where(p =>
+                        ((IEnumerable<Guid>)CategoryIds).Contains(p.CategoryId) || (p.Category.ParentId.HasValue &&
+                            ((IEnumerable<Guid>)CategoryIds).Contains(p.Category.ParentId.Value)));
             }
 
             if (MinPrice.HasValue) { query = query.Where(p => p.Price >= MinPrice.Value); }
