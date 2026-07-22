@@ -5,6 +5,9 @@ import Axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 
 export const axiosInstance = Axios.create({
   baseURL: 'http://localhost:5244',
   withCredentials: true, // ← Tương đương credentials: "include"
+  paramsSerializer: {
+    indexes: null // Removes the [] brackets
+  }
 })
 
 let isRefreshing = false

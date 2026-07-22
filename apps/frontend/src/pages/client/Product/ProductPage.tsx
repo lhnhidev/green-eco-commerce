@@ -23,7 +23,8 @@ import {
   WarningCircleIcon,
   XCircleIcon,
 } from '@phosphor-icons/react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { ProductSortBy } from '@/api/schemas'
 
 const items = [
@@ -36,11 +37,27 @@ const items = [
 ))
 
 const ProductPage = () => {
-  const productsAmount = 8
+  const [searchParams, setSearchParams] = useSearchParams()
+  const initialSearch = searchParams.get('search') || ''
+
+  const productsAmount = 12
 
   const [pageNumber, setPageNumber] = useState(1)
-  const [searchName, setSearchName] = useState<string>('')
-  const [triggerSearch, setTriggerSearch] = useState<string>('')
+  const [searchName, setSearchName] = useState<string>(initialSearch)
+  const [triggerSearch, setTriggerSearch] = useState<string>(initialSearch)
+
+  useEffect(() => {
+    const search = searchParams.get('search')
+    if (search !== null && search !== triggerSearch) {
+      setSearchName(search)
+      setTriggerSearch(search)
+      setPageNumber(1)
+    } else if (search === null && triggerSearch !== '') {
+      setSearchName('')
+      setTriggerSearch('')
+      setPageNumber(1)
+    }
+  }, [searchParams, triggerSearch])
 
   const [categoryId, setCategoryId] = useState<string>('')
   const [sortBy, setSortBy] = useState<ProductSortBy>(ProductSortBy.Name)
@@ -63,7 +80,7 @@ const ProductPage = () => {
 
     // First pass: create node objects
     categoriesData.forEach((cat) => {
-      nodeMap.set(cat.id, { label: cat.name, value: cat.id, children: [] })
+      nodeMap.set(cat.id, { label: `${cat.name} (${cat.productCount})`, value: cat.id, children: [] })
     })
 
     // Second pass: attach to parents
@@ -115,8 +132,14 @@ const ProductPage = () => {
   })
 
   const handleSearch = () => {
-    setTriggerSearch(searchName.trim())
+    const trimmed = searchName.trim()
+    setTriggerSearch(trimmed)
     setPageNumber(1)
+    if (trimmed) {
+      setSearchParams({ search: trimmed })
+    } else {
+      setSearchParams({})
+    }
   }
 
   const handleClearFilters = () => {
@@ -131,6 +154,7 @@ const ProductPage = () => {
     setIsBiodegradable(false)
     setIsRecycled(false)
     setPageNumber(1)
+    setSearchParams({})
   }
 
   const handlePageChange = (page: number) => {
@@ -382,6 +406,7 @@ const ProductPage = () => {
                     setTriggerSearch('')
                     setSearchName('')
                     setPageNumber(1)
+                    setSearchParams({})
                   }}
                   className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1 bg-gray-50 hover:bg-red-50 px-3 py-1.5 rounded-full"
                 >
@@ -447,7 +472,7 @@ const ProductPage = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {productsData.items.map((product) => (
                     <div key={product.id} className="animate__animated animate__fadeIn">
                       <ProductCardv2 product={product} />

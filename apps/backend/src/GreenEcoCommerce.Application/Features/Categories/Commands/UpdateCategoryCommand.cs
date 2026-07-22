@@ -12,6 +12,17 @@ public record UpdateCategoryCommand(Guid Id, CategoryPayloadDto Dto) : IRequest<
     {
         public async Task<CategoryDto> Handle(UpdateCategoryCommand command, CancellationToken ct)
         {
+            if (command.Dto.ParentId.HasValue)
+            {
+                var parentCategory = await dbContext.Categories.FindAsync([command.Dto.ParentId.Value], ct) ??
+                                     throw new NotFoundException($"Parent category with ID {command.Dto.ParentId.Value} not found.");
+
+                if (parentCategory.ParentId.HasValue)
+                {
+                    throw new BadRequestException("Parent category must be a top-level category.");
+                }
+            }
+
             var category = await dbContext.Categories.FindAsync([command.Id], ct) ??
                            throw new NotFoundException($"Category with ID {command.Id} not found.");
 
