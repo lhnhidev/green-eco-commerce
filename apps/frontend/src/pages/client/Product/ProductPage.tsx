@@ -80,7 +80,7 @@ const ProductPage = () => {
 
     // First pass: create node objects
     categoriesData.forEach((cat) => {
-      nodeMap.set(cat.id, { label: cat.name, value: cat.id, children: [] })
+      nodeMap.set(cat.id, { label: `${cat.name} (${cat.productCount})`, value: cat.id, children: [] })
     })
 
     // Second pass: attach to parents
@@ -472,7 +472,7 @@ const ProductPage = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {productsData.items.map((product) => (
                     <div key={product.id} className="animate__animated animate__fadeIn">
                       <ProductCardv2 product={product} />
