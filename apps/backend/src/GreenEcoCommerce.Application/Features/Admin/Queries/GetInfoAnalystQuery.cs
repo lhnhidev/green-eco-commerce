@@ -22,7 +22,14 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
     {
         public async Task<Response> Handle(GetInfoAnalystQuery request, CancellationToken ct)
         {
-            var users = await dbContext.Users.IsNotDeleted().ToListAsync(ct);
+            // Orders/Payment/OrderItems không bật lazy loading nên bắt buộc phải Include,
+            // nếu không u.Orders luôn rỗng và mọi chỉ số theo đơn hàng đều bằng 0.
+            var users = await dbContext.Users
+                .IsNotDeleted()
+                .Include(u => u.Orders).ThenInclude(o => o.Payment)
+                .Include(u => u.Orders).ThenInclude(o => o.OrderItems)
+                .ToListAsync(ct);
+
             var orders = users.SelectMany(u => u.Orders).ToList();
 
             decimal currentRevenue = 0m;
@@ -35,8 +42,10 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
             int previousUsers = 0;
             decimal previousCo2Saved = 0m;
 
-            int monthToday = DateTime.Today.Month;
-            int yearToday = DateTime.Today.Year;
+            // Kỳ hiện tại là tháng được yêu cầu, kỳ trước là tháng liền kề trước đó.
+            var previousPeriod = new DateTime(request.Year, request.Month, 1).AddMonths(-1);
+            int previousMonth = previousPeriod.Month;
+            int previousYear = previousPeriod.Year;
 
             foreach (var o in orders)
             {
@@ -44,21 +53,19 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
 
                 if (o.Payment.Status != PaymentStatusEnum.Paid) continue;
 
-                Console.WriteLine(o.Id);
-                Console.WriteLine(o.OrderItems.Count);
                 int month = o.Payment.CreatedAt.Month;
                 int year = o.Payment.CreatedAt.Year;
 
                 decimal co2Saved = o.OrderItems.Sum(oi => oi.UnitCo2Saved * oi.Quantity);
 
-                if (month == monthToday && year == yearToday)
+                if (month == request.Month && year == request.Year)
                 {
                     currentRevenue += o.Payment.Amount;
                     currentOrders++;
                     currentCo2Saved += co2Saved;
                 }
 
-                if (month == request.Month && year == request.Year)
+                if (month == previousMonth && year == previousYear)
                 {
                     previousRevenue += o.Payment.Amount;
                     previousOrders++;
@@ -71,9 +78,9 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
                 int month = u.CreatedAt.Month;
                 int year = u.CreatedAt.Year;
 
-                if (month == monthToday && year == yearToday) currentUsers++;
+                if (month == request.Month && year == request.Year) currentUsers++;
 
-                if (month == request.Month && year == request.Year) previousUsers++;
+                if (month == previousMonth && year == previousYear) previousUsers++;
             }
 
             decimal revenueGrowth;
