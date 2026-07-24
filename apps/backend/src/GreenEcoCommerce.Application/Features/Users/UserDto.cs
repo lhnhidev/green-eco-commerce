@@ -18,7 +18,11 @@ public record UserPayloadDto(
     RoleEnum Role
 ): UserProfilePayloadDto(Avatar, FirstName, LastName, Password, Phone, Address), IRequest<UserDto>
 {
-    public new class Validator : AbstractValidator<UserPayloadDto>
+    // Kế thừa validator generic của UserProfilePayloadDto để tái sử dụng đầy đủ rule
+    // FirstName/LastName/Phone/Address/Password, rồi bổ sung thêm rule Email + Role.
+    // Nhờ vậy luồng đăng ký (RegisterPayload -> UserPayloadDto) và admin tạo/sửa user
+    // đều được validate đầy đủ, không còn bỏ sót như trước.
+    public new class Validator : UserProfilePayloadDto.Validator<UserPayloadDto>
     {
         public Validator()
         {

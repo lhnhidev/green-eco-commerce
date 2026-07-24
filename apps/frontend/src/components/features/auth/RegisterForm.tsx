@@ -31,8 +31,6 @@ const RegisterForm = () => {
       lastName: '',
       phone: '',
       address: '',
-      /** @nullable */
-      role: 'User',
       email: '',
       password: '',
       repeatPassword: '',

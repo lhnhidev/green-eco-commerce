@@ -16,7 +16,12 @@ public record UserProfilePayloadDto(
     string Address
 )
 {
-    public class Validator : AbstractValidator<UserProfilePayloadDto>
+    // Validator không tham số, giữ nguyên cho các nơi đang dùng (cập nhật profile, cập nhật user).
+    public class Validator : Validator<UserProfilePayloadDto>;
+
+    // Validator generic để các payload kế thừa (vd UserPayloadDto khi đăng ký) dùng lại
+    // đúng bộ rule cho FirstName/LastName/Phone/Address/Password.
+    public class Validator<T> : AbstractValidator<T> where T : UserProfilePayloadDto
     {
         public Validator()
         {
