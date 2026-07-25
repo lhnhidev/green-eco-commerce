@@ -11,9 +11,9 @@ import SpendingChart from './SpendingChart'
 import StatusChart from './StatusChart'
 
 const MONTH_OPTIONS = [
-  { label: '3 tháng', value: '3' },
-  { label: '6 tháng', value: '6' },
-  { label: '12 tháng', value: '12' },
+  { label: '3 months', value: '3' },
+  { label: '6 months', value: '6' },
+  { label: '12 months', value: '12' },
 ]
 
 const formatVnd = (value: number) => `${value.toLocaleString('vi-VN')} ₫`
@@ -65,7 +65,7 @@ const ChartCard = ({ title, isEmpty, children }: ChartCardProps) => (
     {isEmpty ? (
       <Center h={200}>
         <Text size="sm" c="dimmed">
-          Chưa có dữ liệu
+          No data yet
         </Text>
       </Center>
     ) : (
@@ -78,25 +78,25 @@ const StatisticsTab = () => {
   const [months, setMonths] = useState('6')
   const { data, isLoading, isError, refetch } = useMyStatistics(Number(months))
 
-  if (isLoading) return <Loading text="Đang tải thống kê" />
+  if (isLoading) return <Loading text="Loading statistics" />
 
   if (isError || !data) {
     return (
       <Alert
         icon={<FiAlertCircle />}
         color="red"
-        title="Không tải được thống kê"
+        title="Couldn't load statistics"
         variant="light"
       >
         <Text size="sm" mb="sm">
-          Đã xảy ra lỗi khi lấy dữ liệu thống kê của bạn.
+          Something went wrong while loading your statistics.
         </Text>
         <button
           type="button"
           onClick={() => refetch()}
           className="text-sm font-semibold text-primary hover:underline"
         >
-          Thử lại
+          Try again
         </button>
       </Alert>
     )
@@ -109,10 +109,10 @@ const StatisticsTab = () => {
       <Center className="flex-col py-16 text-center">
         <FiInbox className="text-4xl text-gray-300 mb-3" />
         <Text fw={600} className="text-gray-600">
-          Bạn chưa có đơn hàng nào
+          You have no orders yet
         </Text>
         <Text size="sm" c="dimmed" mt={4}>
-          Hãy mua sắm sản phẩm xanh để bắt đầu theo dõi thống kê của mình.
+          Shop green products to start tracking your statistics.
         </Text>
       </Center>
     )
@@ -121,7 +121,7 @@ const StatisticsTab = () => {
   return (
     <Stack gap="lg">
       <Group justify="space-between" align="center">
-        <Text fw={600}>Thống kê mua sắm của bạn</Text>
+        <Text fw={600}>Your shopping statistics</Text>
         <SegmentedControl
           size="xs"
           value={months}
@@ -133,38 +133,38 @@ const StatisticsTab = () => {
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="sm">
         <StatCard
           icon={<IoCartOutline />}
-          title="Tổng đơn hàng"
+          title="Total orders"
           value={formatNumber(summary.totalOrders)}
         />
         <StatCard
           icon={<LuWallet />}
-          title="Tổng chi tiêu"
-          tooltip="Tổng giá trị các đơn chưa huỷ. Không tính đơn đã huỷ."
+          title="Total spending"
+          tooltip="Total value of orders that aren't cancelled. Cancelled orders are excluded."
           value={formatVnd(summary.totalSpending)}
           hint={
             <>
-              <div>Đã thanh toán: {formatVnd(summary.paidSpending)}</div>
-              <div>Chờ thanh toán (COD): {formatVnd(summary.pendingSpending)}</div>
+              <div>Paid: {formatVnd(summary.paidSpending)}</div>
+              <div>Awaiting payment (COD): {formatVnd(summary.pendingSpending)}</div>
             </>
           }
         />
         <StatCard
           icon={<IoLeafOutline />}
-          title="CO₂ tiết kiệm"
+          title="CO₂ saved"
           value={`${formatNumber(Number(summary.totalCo2Saved.toFixed(1)))} kg`}
         />
         <StatCard
           icon={<LuCoins />}
-          title="Điểm khả dụng"
-          tooltip="Điểm khả dụng dùng để giảm giá khi mua. Tổng tích luỹ là toàn bộ điểm bạn từng nhận."
+          title="Available points"
+          tooltip="Available points can be redeemed for discounts at checkout. Lifetime is every point you've ever earned."
           value={formatNumber(summary.currentPoints)}
-          hint={`Đã tích luỹ: ${formatNumber(summary.lifetimePoints)} · Đã đổi: ${formatNumber(Math.max(0, summary.lifetimePoints - summary.currentPoints))}`}
+          hint={`Lifetime: ${formatNumber(summary.lifetimePoints)} · Redeemed: ${formatNumber(Math.max(0, summary.lifetimePoints - summary.currentPoints))}`}
         />
       </SimpleGrid>
 
       {summary.refundPendingSpending > 0 && (
         <Tooltip
-          label="Tiền đã thanh toán cho đơn đã huỷ, đang chờ hoàn lại."
+          label="Money paid for cancelled orders, awaiting refund."
           withArrow
           multiline
           w={240}
@@ -172,23 +172,23 @@ const StatisticsTab = () => {
         >
           <div className="inline-flex items-center gap-1.5 self-start rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 cursor-help">
             <FiClock size={13} />
-            Đang chờ hoàn: {formatVnd(summary.refundPendingSpending)}
+            Pending refund: {formatVnd(summary.refundPendingSpending)}
             <FiInfo size={12} className="text-amber-500" />
           </div>
         </Tooltip>
       )}
 
-      <ChartCard title="Chi tiêu theo tháng" isEmpty={monthlySpending.every((p) => p.amount === 0)}>
+      <ChartCard title="Monthly spending" isEmpty={monthlySpending.every((p) => p.amount === 0)}>
         <SpendingChart data={monthlySpending} />
       </ChartCard>
 
       <SimpleGrid cols={{ base: 1, md: 2 }} spacing="md">
-        <ChartCard title="Chi tiêu theo danh mục" isEmpty={categoryBreakdown.length === 0}>
+        <ChartCard title="Spending by category" isEmpty={categoryBreakdown.length === 0}>
           <Center>
             <CategoryChart data={categoryBreakdown} />
           </Center>
         </ChartCard>
-        <ChartCard title="Đơn hàng theo trạng thái" isEmpty={statusBreakdown.length === 0}>
+        <ChartCard title="Orders by status" isEmpty={statusBreakdown.length === 0}>
           <Center>
             <StatusChart data={statusBreakdown} />
           </Center>

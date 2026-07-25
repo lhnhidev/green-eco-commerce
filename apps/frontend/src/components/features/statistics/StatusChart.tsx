@@ -3,11 +3,11 @@ import type { StatusSlice } from '@hooks/useMyStatistics'
 import { DonutChart } from '@mantine/charts'
 
 const STATUS_META: Record<OrderStatusEnum, { label: string; color: string }> = {
-  [OrderStatusEnum.Pending]: { label: 'Chờ xử lý', color: 'gray.5' },
-  [OrderStatusEnum.Packing]: { label: 'Đang đóng gói', color: 'yellow.6' },
-  [OrderStatusEnum.Delivering]: { label: 'Đang giao', color: 'blue.6' },
-  [OrderStatusEnum.Delivered]: { label: 'Đã giao', color: 'teal.6' },
-  [OrderStatusEnum.Cancelled]: { label: 'Đã huỷ', color: 'red.6' },
+  [OrderStatusEnum.Pending]: { label: 'Pending', color: 'gray.5' },
+  [OrderStatusEnum.Packing]: { label: 'Packing', color: 'yellow.6' },
+  [OrderStatusEnum.Delivering]: { label: 'Delivering', color: 'blue.6' },
+  [OrderStatusEnum.Delivered]: { label: 'Delivered', color: 'teal.6' },
+  [OrderStatusEnum.Cancelled]: { label: 'Cancelled', color: 'red.6' },
 }
 
 type StatusChartProps = {
@@ -32,7 +32,7 @@ const StatusChart = ({ data }: StatusChartProps) => {
       withTooltip
       tooltipDataSource="segment"
       withLegend
-      valueFormatter={(value) => `${value} đơn`}
+      valueFormatter={(value) => `${value} ${value === 1 ? 'order' : 'orders'}`}
     />
   )
 }

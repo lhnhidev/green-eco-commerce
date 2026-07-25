@@ -92,10 +92,10 @@ const ProfilePage = () => {
       <Tabs defaultValue="profile" keepMounted={false}>
         <Tabs.List mb="lg">
           <Tabs.Tab value="profile" leftSection={<FiUser />}>
-            Hồ sơ
+            Profile
           </Tabs.Tab>
           <Tabs.Tab value="stats" leftSection={<FiBarChart2 />}>
-            Thống kê
+            Statistics
           </Tabs.Tab>
         </Tabs.List>
 
