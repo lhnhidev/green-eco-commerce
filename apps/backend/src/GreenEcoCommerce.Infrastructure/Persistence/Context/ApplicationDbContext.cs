@@ -16,6 +16,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Category> Categories => Set<Category>();
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Material> Materials => Set<Material>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     // Sales
     public DbSet<Cart> Carts => Set<Cart>();

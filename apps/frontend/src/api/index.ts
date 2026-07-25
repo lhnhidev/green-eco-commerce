@@ -33,6 +33,7 @@ import type {
   ChatSessionPayloadDto,
   CheckoutCommandResponse,
   CheckoutRequest,
+  CreateReviewPayloadDto,
   GenerateContentCommand,
   GetAllOrdersParams,
   GetAllProductsParams,
@@ -40,17 +41,20 @@ import type {
   GetInfoAnalystParams,
   GetInfoAnalystQueryResponse,
   GetMyOrdersParams,
+  GetProductReviewsParams,
   GreenWalletDto,
   LoginCommand,
   MaterialDto,
   MaterialPayloadDto,
   PagedResultOfOrderDto,
   PagedResultOfProductDto,
+  PagedResultOfReviewDto,
   PagedResultOfUserDto,
   ProblemDetails,
   ProductDto,
   ProductPayloadDto,
   RegisterPayload,
+  ReviewDto,
   UpdateOrderStatusRequest,
   UpdatePaymentStatusCommand,
   UserDto,
@@ -1124,6 +1128,161 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getDeleteProductMutationOptions(options), queryClient);
+    }
+
+export const getProductReviews = (
+    productId: string,
+    params?: GetProductReviewsParams,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<PagedResultOfReviewDto>(
+      {url: `/api/products/${productId}/reviews`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getGetProductReviewsQueryKey = (productId: string,
+    params?: GetProductReviewsParams,) => {
+    return [
+    `/api/products/${productId}/reviews`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetProductReviewsQueryOptions = <TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductReviewsQueryKey(productId,params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductReviews>>> = ({ signal }) => getProductReviews(productId,params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: productId !== null && productId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductReviewsQueryResult = NonNullable<Awaited<ReturnType<typeof getProductReviews>>>
+export type GetProductReviewsQueryError = ProblemDetails
+
+
+export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
+ productId: string,
+    params: undefined |  GetProductReviewsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductReviews>>,
+          TError,
+          Awaited<ReturnType<typeof getProductReviews>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
+ productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductReviews>>,
+          TError,
+          Awaited<ReturnType<typeof getProductReviews>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
+ productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
+ productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductReviewsQueryOptions(productId,params,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const createReview = (
+    productId: string,
+    createReviewPayloadDto: CreateReviewPayloadDto,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<ReviewDto>(
+      {url: `/api/products/${productId}/reviews`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: createReviewPayloadDto, signal
+    },
+      );
+    }
+
+
+
+
+export const getCreateReviewMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReview>>, TError,{productId: string;data: CreateReviewPayloadDto}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createReview>>, TError,{productId: string;data: CreateReviewPayloadDto}, TContext> => {
+
+const mutationKey = ['createReview'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createReview>>, {productId: string;data: CreateReviewPayloadDto}> = (props) => {
+          const {productId,data} = props ?? {};
+
+          return  createReview(productId,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateReviewMutationResult = NonNullable<Awaited<ReturnType<typeof createReview>>>
+    export type CreateReviewMutationBody = CreateReviewPayloadDto
+    export type CreateReviewMutationError = ProblemDetails
+
+    export const useCreateReview = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createReview>>, TError,{productId: string;data: CreateReviewPayloadDto}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createReview>>,
+        TError,
+        {productId: string;data: CreateReviewPayloadDto},
+        TContext
+      > => {
+      return useMutation(getCreateReviewMutationOptions(options), queryClient);
     }
 
 export const updateUserProfile = (

@@ -242,6 +242,7 @@ app.MapControllers();
 app.MapCategoryEndpoints();
 app.MapMaterialEndpoints();
 app.MapProductEndpoints();
+app.MapReviewEndpoints();
 app.MapProfileEndpoints();
 app.MapChatbotEndpoints();
 app.MapCartEndpoints();

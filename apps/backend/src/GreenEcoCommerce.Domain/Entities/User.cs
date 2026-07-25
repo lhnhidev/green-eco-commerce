@@ -26,4 +26,5 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public ICollection<Order> Orders { get; set; } = new HashSet<Order>();
     public ICollection<ChatSession> ChatSessions { get; set; } = new HashSet<ChatSession>();
     public ICollection<Document> Documents { get; set; } = new HashSet<Document>();
+    public ICollection<Review> Reviews { get; set; } = new HashSet<Review>();
 }

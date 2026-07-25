@@ -1,10 +1,14 @@
-import { getGetCartQueryKey, useAddCartItem, useGetProductById } from '@api'
+// TODO: run `bun run orval` (backend must be running on http://localhost:5244) to generate
+// `useGetProductReviews` used by the review components below.
+import { getGetCartQueryKey, useAddCartItem, useGetProductById, useGetProductReviews } from '@api'
+import ReviewForm from '@components/features/products/ReviewForm'
+import ReviewList from '@components/features/products/ReviewList'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
 import Loading from '@components/ui/status/Loading'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { Anchor, Breadcrumbs, NumberInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { HeartIcon, LeafIcon, ShieldCheckIcon, ShoppingCartIcon, StarIcon, TreeIcon } from '@phosphor-icons/react'
+import { HeartIcon, LeafIcon, ShieldCheckIcon, ShoppingCartIcon, TreeIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatParam } from '@utils/formatParam'
 import { useState } from 'react'
@@ -26,6 +30,22 @@ const ProductDetailPage = () => {
       enabled: !!id,
     },
   })
+
+  const authUser = useAppSelector((state) => state.auth.user)
+
+  // TODO(#new-issue): /api/me/orders is not user-scoped; proper purchase-based gating
+  // blocked until that repo bug is fixed. Backend still enforces the 403.
+  const canReview = authUser?.role === 'User'
+
+  // Only the total is needed here; ReviewList owns its own paginated query.
+  const { data: reviewSummary } = useGetProductReviews(
+    // biome-ignore lint/style/noNonNullAssertion: <>
+    id!,
+    { PageNumber: 1, PageSize: 1 },
+    { query: { enabled: !!id } },
+  )
+
+  const reviewCount = reviewSummary?.totalCount ?? 0
 
   const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
@@ -146,18 +166,12 @@ const ProductDetailPage = () => {
                   ${product.price.toFixed(2)}
                 </div>
                 <div className="h-6 w-px bg-gray-200" />
-                <div className="flex items-center gap-2">
-                  <div className="flex text-yellow-400 text-lg">
-                    <StarIcon weight="fill" />
-                    <StarIcon weight="fill" />
-                    <StarIcon weight="fill" />
-                    <StarIcon weight="fill" />
-                    <StarIcon weight="thin" />
-                  </div>
-                  <span className="text-sm font-medium text-gray-500 hover:text-primary cursor-pointer transition-colors border-b border-dashed border-gray-400">
-                    48 Reviews
-                  </span>
-                </div>
+                <a
+                  href="#reviews"
+                  className="text-sm font-medium text-gray-500 hover:text-primary transition-colors border-b border-dashed border-gray-400"
+                >
+                  {reviewCount === 1 ? '1 Review' : `${reviewCount} Reviews`}
+                </a>
               </div>
 
               {/* Eco Impact Premium Card */}
@@ -300,6 +314,24 @@ const ProductDetailPage = () => {
             </div>
           </div>
         </div>
+
+        {/* Reviews */}
+        <section id="reviews" className="mt-16 scroll-mt-24">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">
+            Customer Reviews {reviewCount > 0 && <span className="text-gray-400 font-medium">({reviewCount})</span>}
+          </h2>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-7">
+              {/* biome-ignore lint/style/noNonNullAssertion: <> */}
+              <ReviewList productId={id!} />
+            </div>
+            <div className="lg:col-span-5">
+              {/* biome-ignore lint/style/noNonNullAssertion: <> */}
+              <ReviewForm productId={id!} canReview={canReview} />
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )
