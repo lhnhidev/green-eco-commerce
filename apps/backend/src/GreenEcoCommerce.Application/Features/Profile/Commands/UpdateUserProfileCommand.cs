@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Exceptions;
-using GreenEcoCommerce.Domain.ValueObjects;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Profile.Commands;

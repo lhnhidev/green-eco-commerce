@@ -218,7 +218,7 @@ if (app.Environment.IsDevelopment())
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
+    await dbContext.Database.MigrateAsync();
 
     if (app.Environment.IsDevelopment())
     {
