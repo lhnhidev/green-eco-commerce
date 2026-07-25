@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using GreenEcoCommerce.Application.Features.Users;
 using GreenEcoCommerce.WebAPI.FunctionalTests.Shared;
 
 namespace GreenEcoCommerce.WebAPI.FunctionalTests.Controllers;
@@ -441,12 +442,12 @@ public sealed class AuthControllerTests(CustomWebApplicationFactory factory)
     /// Builds a valid registration payload, with optional field overrides for
     /// negative-path test cases.
     /// </summary>
-    private static CreateUserCommand BuildRegisterPayload(string? firstName = null, string? lastName = null,
+    private static RegisterPayload BuildRegisterPayload(string? firstName = null, string? lastName = null,
                                                         string? phone = null, string? address = null,
                                                         string? email = null,
                                                         string? password = null)
     {
-        return new CreateUserCommand(
+        return new RegisterPayload(
             firstName ?? ValidFirstName,
             lastName ?? ValidLastName,
             phone ?? ValidPhone,

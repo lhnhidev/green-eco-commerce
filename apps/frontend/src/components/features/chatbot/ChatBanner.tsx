@@ -4,9 +4,9 @@ import { Typewriter } from 'react-simple-typewriter'
 
 const ChatBanner = () => {
   const fullName = useAppSelector((state) => {
-    if (state.auth.user?.firstName === undefined || state.auth.user?.lastName === undefined) return 'bạn'
+    if (state.auth.user?.firstName === undefined || state.auth.user?.lastName === undefined) return 'there'
 
-    return `${state.auth.user?.firstName || ''} ${state.auth.user?.lastName || ''}`.trim() || 'bạn'
+    return `${state.auth.user?.firstName || ''} ${state.auth.user?.lastName || ''}`.trim() || 'there'
   })
 
   return (
@@ -21,7 +21,7 @@ const ChatBanner = () => {
         {/* Khu vực chữ chạy hiệu ứng Typing */}
         <div className="text-lg font-medium min-w-80">
           <Typewriter
-            words={[`Chào ${fullName}!`, 'Hôm nay tôi có thể giúp gì cho bạn?']}
+            words={[`Hi ${fullName}!`, 'How can I help you today?']}
             loop={0} // Số 0 nghĩa là lặp lại vô hạn (infinite)
             cursor
             cursorStyle="_"

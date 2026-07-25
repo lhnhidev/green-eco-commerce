@@ -7,11 +7,12 @@
  */
 
 export interface RegisterPayload {
-  avatar: string;
   firstName: string;
   lastName: string;
   phone: string;
   address: string;
   email: string;
   password: string;
+  /** @nullable */
+  avatar?: string | null;
 }

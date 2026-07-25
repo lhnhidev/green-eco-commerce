@@ -26,9 +26,11 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
         const previousCart = queryClient.getQueryData(cartQueryKey)
 
         queryClient.setQueryData<CartDto>(cartQueryKey, (oldData) => {
+          if (!oldData) return oldData
+
           return {
             ...oldData,
-            items: oldData?.items?.filter((item) => item.productId !== variables.productId),
+            items: oldData.items.filter((item) => item.productId !== variables.productId),
           }
         })
 

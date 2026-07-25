@@ -13,6 +13,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.7.0" />
+        <!-- Pin EF Core Relational to match GreenEcoCommerce.Infrastructure (10.0.9);
+             without this the test host unifies to a transitive 10.0.5 and fails to load
+             the 10.0.9 assembly the Infrastructure project was compiled against. -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.9" />
         <PackageReference Include="Testcontainers" Version="4.13.0" />
         <PackageReference Include="Testcontainers.PostgreSql" Version="4.13.0" />
         <PackageReference Include="Testcontainers.Redis" Version="4.13.0" />

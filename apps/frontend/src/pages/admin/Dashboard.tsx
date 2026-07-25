@@ -6,6 +6,7 @@
 import { useGetInfoAnalyst } from '@api'
 import CardDisplayNumber from '@components/features/cards/CardDisplayNumber'
 import LowStockProducts from '@components/features/dashboard/LowStockProducts'
+import MonthlyStatisticsChart from '@components/features/dashboard/MonthlyStatisticsChart'
 import RecentOrders from '@components/features/dashboard/RecentOrders'
 import Loading from '@components/ui/status/Loading'
 import { MonthPickerInput } from '@mantine/dates'
@@ -51,7 +52,7 @@ const Dashboard = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="text-[13px] text-muted-foreground">Overview of store performance</div>
         <MonthPickerInput
-          placeholder="Chọn tháng..."
+          placeholder="Select month..."
           value={value as any}
           onChange={handleDateChange}
           clearable
@@ -108,7 +109,7 @@ const Dashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-12 gap-2.5">
+      <div className="grid grid-cols-12 gap-2.5 mb-2.5">
         <div className="col-span-8">
           <RecentOrders />
         </div>
@@ -116,6 +117,8 @@ const Dashboard = () => {
           <LowStockProducts />
         </div>
       </div>
+
+      <MonthlyStatisticsChart year={activeDate.getFullYear()} />
     </div>
   )
 }

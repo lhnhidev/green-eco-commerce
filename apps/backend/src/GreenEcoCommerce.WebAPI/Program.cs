@@ -247,6 +247,7 @@ app.MapChatbotEndpoints();
 app.MapCartEndpoints();
 app.MapChatSessionEndpoints();
 app.MapOrderEndpoints();
+app.MapMeStatisticsEndpoints();
 app.MapPaymentEndpoints();
 app.MapGreenWalletEndpoints();
 app.MapUserEndpoints();
