@@ -1,5 +1,6 @@
 using FluentValidation;
 using GreenEcoCommerce.Application.Features.Materials;
+using GreenEcoCommerce.Application.Features.Reviews;
 using GreenEcoCommerce.Domain.Entities;
 using MediatR;
 using Riok.Mapperly.Abstractions;
@@ -66,15 +67,27 @@ public record ProductDto(
     float RecyclePercent,
     string[] ImageUrl,
     MaterialDto[] Materials,
+    ReviewDto[] Reviews,
     bool IsActive
 );
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class ProductDtoMapper
 {
-    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
+    [MapperRequiredMapping(RequiredMappingStrategy.None)]
     public static partial ProductDto ToDto(this Product product);
     public static partial IQueryable<ProductDto> ProjectToDto(this IQueryable<Product> products);
+
+    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
+    [MapProperty(nameof(Review.User), nameof(ReviewDto.UserName), Use = nameof(MapUserToUserName))]
+    public static partial ReviewDto ToDto(this Review review);
+
+    [UserMapping(Default = false)]
+    private static string MapUserToUserName(User user) => $"{user.FirstName} {user.LastName}";
+
+    private static ReviewDto[] MapReviews(ICollection<Review> reviews)
+        => reviews.Where(x => x.IsApproved && !x.IsHidden)
+                .OrderByDescending(x => x.CreatedAt).Select(x => ToDto(x)).ToArray();
 
     [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
     public static partial Product ToEntity(this ProductPayloadDto payload);
