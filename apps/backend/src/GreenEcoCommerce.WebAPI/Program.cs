@@ -253,6 +253,7 @@ app.MapGreenWalletEndpoints();
 app.MapUserEndpoints();
 app.MapAdminEndpoints();
 app.MapCheckoutEndpoints();
+app.MapReviewEndpoints();
 
 app.MapFallbackToFile("index.html");
 
