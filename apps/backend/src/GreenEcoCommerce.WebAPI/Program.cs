@@ -254,6 +254,7 @@ app.MapUserEndpoints();
 app.MapAdminEndpoints();
 app.MapCheckoutEndpoints();
 app.MapReviewEndpoints();
+app.MapCouponEndpoints();
 
 app.MapFallbackToFile("index.html");
 
