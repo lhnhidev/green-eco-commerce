@@ -18,7 +18,11 @@ public record UserPayloadDto(
     RoleEnum Role
 ): UserProfilePayloadDto(Avatar, FirstName, LastName, Password, Phone, Address), IRequest<UserDto>
 {
-    public new class Validator : AbstractValidator<UserPayloadDto>
+    // Kế thừa validator generic của UserProfilePayloadDto để tái sử dụng đầy đủ rule
+    // FirstName/LastName/Phone/Address/Password, rồi bổ sung thêm rule Email + Role.
+    // Nhờ vậy luồng đăng ký (RegisterPayload -> UserPayloadDto) và admin tạo/sửa user
+    // đều được validate đầy đủ, không còn bỏ sót như trước.
+    public new class Validator : UserProfilePayloadDto.Validator<UserPayloadDto>
     {
         public Validator()
         {
@@ -33,7 +37,9 @@ public record UserPayloadDto(
     }
 }
 
-public record RegisterPayload(string Avatar, string FirstName, string LastName, string Phone, string Address, string Email, string Password);
+// Avatar không bắt buộc khi đăng ký. Phải khai báo nullable thì bộ sinh OpenAPI mới
+// loại nó khỏi "required" — chỉ đặt giá trị mặc định là không đủ.
+public record RegisterPayload(string FirstName, string LastName, string Phone, string Address, string Email, string Password, string? Avatar = null);
 
 public record UserDto(
     Guid Id,
@@ -60,7 +66,12 @@ public static partial class UserDtoMapper
     public static partial User ToEntity(this UserPayloadDto request);
 
     [MapValue(nameof(UserPayloadDto.Role), RoleEnum.User)]
+    [MapProperty(nameof(RegisterPayload.Avatar), nameof(UserPayloadDto.Avatar), Use = nameof(AvatarOrEmpty))]
     public static partial UserPayloadDto ToUserPayloadDto(this RegisterPayload request);
+
+    // Avatar là tuỳ chọn khi đăng ký; entity User mặc định dùng chuỗi rỗng.
+    [UserMapping(Default = false)]
+    public static string AvatarOrEmpty(string? avatar) => avatar ?? string.Empty;
 
     [UserMapping(Default = false)]
     public static void UpdatePasswordHash([MappingTarget] ref string passwordHash, string? password)

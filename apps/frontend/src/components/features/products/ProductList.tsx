@@ -3,8 +3,8 @@ import { useState } from 'react'
 import ProductCard from './ProductCardv1'
 
 const ProductList = () => {
-  const [pageNumber, setPageNumber] = useState<number>(1)
-  const [pageSize, setPageSize] = useState<number>(4)
+  const [pageNumber] = useState<number>(1)
+  const [pageSize] = useState<number>(4)
 
   const { data: products } = useGetAllProducts({ PageNumber: pageNumber, PageSize: pageSize })
 

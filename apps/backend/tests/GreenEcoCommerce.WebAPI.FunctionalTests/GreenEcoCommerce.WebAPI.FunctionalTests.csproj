@@ -36,8 +36,4 @@
       <Folder Include="Controllers\" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Compile Remove="Controllers\AuthControllerTests.cs" />
-    </ItemGroup>
-
 </Project>

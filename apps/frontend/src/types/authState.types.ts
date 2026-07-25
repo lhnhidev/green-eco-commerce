@@ -1,6 +1,6 @@
-import type { UserProfileResponse } from '@api/schemas'
+import type { UserProfileDto } from '@api/schemas'
 
 export type AuthState = {
   active: 'login' | 'register'
-  user: UserProfileResponse | null
+  user: UserProfileDto | null
 }
