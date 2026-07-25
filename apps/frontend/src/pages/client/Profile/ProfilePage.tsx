@@ -1,11 +1,12 @@
 import { useGetMe, useUpdateUserProfile } from '@api'
 import { setAuthUser } from '@components/features/auth/auth.slice'
+import StatisticsTab from '@components/features/statistics/StatisticsTab'
 import { useAppDispatch } from '@hooks/useAppDispatch'
-import { Anchor, Avatar, Breadcrumbs, Button, Divider, PasswordInput, TextInput } from '@mantine/core'
+import { Anchor, Avatar, Breadcrumbs, Button, Divider, PasswordInput, Tabs, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useEffect } from 'react'
-import { FiUser } from 'react-icons/fi'
+import { FiBarChart2, FiUser } from 'react-icons/fi'
 
 const breadcrumbItems = [
   { title: 'Home', href: '/' },
@@ -80,7 +81,7 @@ const ProfilePage = () => {
   const initials = user ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() : ''
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-2xl">
+    <div className="container mx-auto px-4 py-8 max-w-4xl">
       <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
 
       <div className="flex items-center gap-3 mb-6">
@@ -88,7 +89,18 @@ const ProfilePage = () => {
         <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+      <Tabs defaultValue="profile" keepMounted={false}>
+        <Tabs.List mb="lg">
+          <Tabs.Tab value="profile" leftSection={<FiUser />}>
+            Profile
+          </Tabs.Tab>
+          <Tabs.Tab value="stats" leftSection={<FiBarChart2 />}>
+            Statistics
+          </Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="profile">
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
         {/* Avatar section */}
         <div className="flex items-center gap-4 mb-6">
           <Avatar src={user?.avatar || null} size={72} radius="xl" color="green">
@@ -153,7 +165,13 @@ const ProfilePage = () => {
             </div>
           </form>
         )}
-      </div>
+          </div>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="stats">
+          <StatisticsTab />
+        </Tabs.Panel>
+      </Tabs>
     </div>
   )
 }
