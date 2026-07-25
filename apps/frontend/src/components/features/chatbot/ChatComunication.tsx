@@ -42,7 +42,7 @@ type Message = {
 //   },
 // ]
 
-const formatTime = () => new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })
+const formatTime = () => new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 
 const ChatComunication = () => {
   const [messages, setMessages] = useState<Message[]>([])
@@ -123,7 +123,7 @@ const ChatComunication = () => {
                   className="px-4 py-2 rounded-lg rounded-bl-sm text-xs text-gray-400"
                   style={{ backgroundColor: '#f1f3f5' }}
                 >
-                  Đang trả lời
+                  Typing
                   <span className="animate-pulse">...</span>
                 </div>
               </div>

@@ -51,7 +51,7 @@ const Dashboard = () => {
       <div className="flex items-center justify-between mb-3">
         <div className="text-[13px] text-muted-foreground">Overview of store performance</div>
         <MonthPickerInput
-          placeholder="Chọn tháng..."
+          placeholder="Select month..."
           value={value as any}
           onChange={handleDateChange}
           clearable

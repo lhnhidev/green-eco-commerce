@@ -12,9 +12,9 @@ const HeaderChatbot = () => {
   return (
     <header className="flex justify-between">
       <select name="communication" id="communication" className="cursor-pointer">
-        <option value="1">Cuộc trò chuyện 1</option>
-        <option value="2">Cuộc trò chuyện 2</option>
-        <option value="3">Cuộc trò chuyện 3</option>
+        <option value="1">Conversation 1</option>
+        <option value="2">Conversation 2</option>
+        <option value="3">Conversation 3</option>
       </select>
 
       <div className="flex items-center gap-2">
