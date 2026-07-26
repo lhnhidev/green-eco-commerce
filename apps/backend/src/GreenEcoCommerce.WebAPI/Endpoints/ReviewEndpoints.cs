@@ -11,6 +11,11 @@ public static class ReviewEndpoints
 {
     public static void MapReviewEndpoints(this WebApplication app)
     {
+        // Public: view approved reviews for a product
+        app.MapGet("/api/products/{productId:guid}/reviews", GetProductReviews)
+           .WithTags("Reviews")
+           .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         // Authenticated user: submit/update a review
         app.MapPost("/api/products/{productId:guid}/reviews", CreateReview)
                 .WithTags("Reviews").RequireAuthorization("UserOnly")
@@ -26,6 +31,9 @@ public static class ReviewEndpoints
         adminGroup.MapPatch("/{id:guid}/hide", HideReview);
         adminGroup.MapDelete("/{id:guid}", DeleteReview);
     }
+
+    private static async Task<Ok<ReviewDto[]>> GetProductReviews(Guid productId, ISender sender) =>
+            TypedResults.Ok(await sender.Send(new GetProductReviewsQuery(productId)));
 
     private static async Task<Ok<ReviewDto>> CreateReview(Guid productId, ReviewPayloadDto body,
                                                           ClaimsPrincipal user, ISender sender)
