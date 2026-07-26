@@ -1,8 +1,10 @@
-import { useGetAllUsers } from '@api'
-import { ActionIcon, Avatar, Badge, Pagination, Table, TextInput } from '@mantine/core'
+import { getGetAllUsersQueryKey, useActivateUser, useDeactivateUser, useGetAllUsers } from '@api'
+import { ActionIcon, Avatar, Badge, Pagination, Table, TextInput, Tooltip } from '@mantine/core'
+import { notifications } from '@mantine/notifications'
+import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
-import { FiEdit2, FiSearch } from 'react-icons/fi'
+import { FiSearch, FiUserCheck, FiUserX } from 'react-icons/fi'
 
 const PAGE_SIZE = 20
 
@@ -10,13 +12,31 @@ const UserList = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useGetAllUsers({ PageNumber: page, PageSize: PAGE_SIZE, Search: search || undefined })
+  const queryClient = useQueryClient()
+  const { data, isLoading } = useGetAllUsers({ pageNumber: page, pageSize: PAGE_SIZE, search: search || undefined })
+  const { mutate: activateUser, variables: activatingVar } = useActivateUser({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() })
+        notifications.show({ title: 'Activated', message: 'User account has been activated.', color: 'green' })
+      },
+      onError: () => notifications.show({ title: 'Error', message: 'Could not activate user.', color: 'red' }),
+    },
+  })
+  const { mutate: deactivateUser, variables: deactivatingVar } = useDeactivateUser({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() })
+        notifications.show({ title: 'Deactivated', message: 'User account has been deactivated.', color: 'yellow' })
+      },
+      onError: () => notifications.show({ title: 'Error', message: 'Could not deactivate user.', color: 'red' }),
+    },
+  })
 
-  const users = data?.items ?? []
+  const users = useMemo(() => data?.items ?? [], [data])
   const totalCount = data?.totalCount ?? 0
   const totalPages = data?.totalPages ?? 1
 
-  // Client-side name filter (Search param already handles server-side)
   const filtered = useMemo(() => {
     if (!users) return []
     const keyword = search.trim().toLowerCase()
@@ -51,7 +71,7 @@ const UserList = () => {
           horizontalSpacing={8}
           highlightOnHover
           classNames={{
-            th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
+            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
             td: '!text-[12px]',
           }}
         >
@@ -61,9 +81,10 @@ const UserList = () => {
               <Table.Th w={220}>Email</Table.Th>
               <Table.Th w={120}>Phone</Table.Th>
               <Table.Th>Address</Table.Th>
-              <Table.Th w={90}>Role</Table.Th>
+              <Table.Th w={70}>Role</Table.Th>
+              <Table.Th w={80}>Status</Table.Th>
               <Table.Th w={100}>Joined</Table.Th>
-              <Table.Th w={60} ta="right">
+              <Table.Th w={70} ta="right">
                 Actions
               </Table.Th>
             </Table.Tr>
@@ -71,50 +92,83 @@ const UserList = () => {
           <Table.Tbody>
             {isLoading ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
+                <Table.Td colSpan={8}>
                   <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading users…</div>
                 </Table.Td>
               </Table.Tr>
             ) : filtered.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
+                <Table.Td colSpan={8}>
                   <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No users found.</div>
                 </Table.Td>
               </Table.Tr>
             ) : (
-              filtered.map((u) => (
-                <Table.Tr key={u.id}>
-                  <Table.Td>
-                    <div className="flex items-center gap-2">
-                      <Avatar src={u.avatar || null} size={22} radius="xl">
-                        {u.firstName?.[0]}
-                        {u.lastName?.[0]}
-                      </Avatar>
-                      <span className="font-medium">
-                        {u.firstName} {u.lastName}
-                      </span>
-                    </div>
-                  </Table.Td>
-                  <Table.Td className="text-muted-foreground!">{u.email}</Table.Td>
-                  <Table.Td className="text-muted-foreground!">{u.phone || '—'}</Table.Td>
-                  <Table.Td className="text-muted-foreground!">{u.address || '—'}</Table.Td>
-                  <Table.Td>
-                    <Badge size="xs" variant="light" color={u.role === 'Admin' ? 'primary' : 'gray'} radius="xl">
-                      {u.role}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td className="text-muted-foreground!">
-                    {u.createdAt ? dayjs(u.createdAt).format('DD/MM/YYYY') : '—'}
-                  </Table.Td>
-                  <Table.Td>
-                    <div className="flex justify-end">
-                      <ActionIcon variant="subtle" color="gray" size="sm" aria-label="Edit">
-                        <FiEdit2 size={13} />
-                      </ActionIcon>
-                    </div>
-                  </Table.Td>
-                </Table.Tr>
-              ))
+              filtered.map((u) => {
+                const isTogglingThis = activatingVar?.id === u.id || deactivatingVar?.id === u.id
+
+                return (
+                  <Table.Tr key={u.id}>
+                    <Table.Td>
+                      <div className="flex items-center gap-2">
+                        <Avatar src={u.avatar || null} size={22} radius="xl">
+                          {u.firstName?.[0]}
+                          {u.lastName?.[0]}
+                        </Avatar>
+                        <span className="font-medium">
+                          {u.firstName} {u.lastName}
+                        </span>
+                      </div>
+                    </Table.Td>
+                    <Table.Td className="text-muted-foreground!">{u.email}</Table.Td>
+                    <Table.Td className="text-muted-foreground!">{u.phone || '—'}</Table.Td>
+                    <Table.Td className="text-muted-foreground!">{u.address || '—'}</Table.Td>
+                    <Table.Td>
+                      <Badge size="xs" variant="light" color={u.role === 'Admin' ? 'primary' : 'gray'} radius="xl">
+                        {u.role}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge size="xs" variant="dot" color={u.isActive ? 'green' : 'red'} radius="xl">
+                        {u.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td className="text-muted-foreground!">
+                      {u.createdAt ? dayjs(u.createdAt).format('DD/MM/YYYY') : '—'}
+                    </Table.Td>
+                    <Table.Td>
+                      <div className="flex gap-0.5 justify-end">
+                        {u.isActive ? (
+                          <Tooltip label="Deactivate account" withArrow position="left">
+                            <ActionIcon
+                              variant="subtle"
+                              color="red"
+                              size="sm"
+                              loading={isTogglingThis}
+                              aria-label="Deactivate"
+                              onClick={() => deactivateUser({ id: u.id })}
+                            >
+                              <FiUserX size={13} />
+                            </ActionIcon>
+                          </Tooltip>
+                        ) : (
+                          <Tooltip label="Activate account" withArrow position="left">
+                            <ActionIcon
+                              variant="subtle"
+                              color="green"
+                              size="sm"
+                              loading={isTogglingThis}
+                              aria-label="Activate"
+                              onClick={() => activateUser({ id: u.id })}
+                            >
+                              <FiUserCheck size={13} />
+                            </ActionIcon>
+                          </Tooltip>
+                        )}
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                )
+              })
             )}
           </Table.Tbody>
         </Table>

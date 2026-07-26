@@ -76,7 +76,7 @@ const TheNavigation = () => {
         ))}
       </div>
 
-     <div className="mt-auto pt-1.5 border-t border-[#ececee]">
+      <div className="mt-auto pt-1.5 border-t border-[#ececee]">
         <button type="button" onClick={() => dispatch(setActive('setting'))} className="w-full text-left">
           <NavigationIndex icon={IoIosSettings} text="Setting" isActive={active === 'setting'} />
         </button>

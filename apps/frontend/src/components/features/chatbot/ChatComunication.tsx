@@ -1,5 +1,6 @@
 import { useAskChatbot } from '@api'
 import { TextInput, Tooltip } from '@mantine/core'
+import type * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { IoIosSend } from 'react-icons/io'
 import ChatBanner from './ChatBanner'

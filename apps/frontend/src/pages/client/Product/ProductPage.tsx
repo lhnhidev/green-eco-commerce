@@ -23,7 +23,7 @@ import {
   WarningCircleIcon,
   XCircleIcon,
 } from '@phosphor-icons/react'
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ProductSortBy } from '@/api/schemas'
 
@@ -36,28 +36,14 @@ const items = [
   </Anchor>
 ))
 
+const productsAmount = 12
+
 const ProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
-  const initialSearch = searchParams.get('search') || ''
-
-  const productsAmount = 12
+  const currentSearch = searchParams.get('search') || ''
 
   const [pageNumber, setPageNumber] = useState(1)
-  const [searchName, setSearchName] = useState<string>(initialSearch)
-  const [triggerSearch, setTriggerSearch] = useState<string>(initialSearch)
-
-  useEffect(() => {
-    const search = searchParams.get('search')
-    if (search !== null && search !== triggerSearch) {
-      setSearchName(search)
-      setTriggerSearch(search)
-      setPageNumber(1)
-    } else if (search === null && triggerSearch !== '') {
-      setSearchName('')
-      setTriggerSearch('')
-      setPageNumber(1)
-    }
-  }, [searchParams, triggerSearch])
+  const [searchName, setSearchName] = useState(currentSearch)
 
   const [categoryId, setCategoryId] = useState<string>('')
   const [sortBy, setSortBy] = useState<ProductSortBy>(ProductSortBy.Name)
@@ -118,32 +104,35 @@ const ProductPage = () => {
     isLoading,
     isError,
   } = useGetAllProducts({
-    PageNumber: pageNumber,
-    PageSize: productsAmount,
-    Search: triggerSearch || undefined,
-    CategoryIds: categoryId !== '' ? [categoryId] : [],
-    MinPrice: minPrice,
-    MaxPrice: maxPrice === 1000 ? undefined : maxPrice,
-    SortBy: sortBy,
-    SortDescending: sortOrder === 'desc',
-    IsOrganic: isOrganic,
-    IsBiodegradable: isBiodegradable,
-    IsRecycled: isRecycled,
+    pageNumber: pageNumber,
+    pageSize: productsAmount,
+    search: searchName || undefined,
+    categoryIds: categoryId !== '' ? [categoryId] : [],
+    minPrice: minPrice,
+    maxPrice: maxPrice === 1000 ? undefined : maxPrice,
+    sortBy: sortBy,
+    sortDescending: sortOrder === 'desc',
+    isOrganic: isOrganic,
+    isBiodegradable: isBiodegradable,
+    isRecycled: isRecycled,
   })
 
   const handleSearch = () => {
     const trimmed = searchName.trim()
-    setTriggerSearch(trimmed)
+    setSearchName(trimmed)
     setPageNumber(1)
-    if (trimmed) {
-      setSearchParams({ search: trimmed })
-    } else {
-      setSearchParams({})
-    }
+
+    setSearchParams((prevParams) => {
+      if (trimmed) {
+        prevParams.set('search', trimmed)
+      } else {
+        prevParams.delete('search')
+      }
+      return prevParams
+    })
   }
 
   const handleClearFilters = () => {
-    setTriggerSearch('')
     setSearchName('')
     setCategoryId('')
     setSortBy(ProductSortBy.Name)
@@ -168,9 +157,9 @@ const ProductPage = () => {
       <div className="bg-linear-to-br from-green-950 via-green-900 to-emerald-800 text-white py-16 px-4 relative overflow-hidden">
         {/* Subtle background circles for premium feel */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
-          <div className="absolute -top-32 -right-32 w-[400px] h-[400px] bg-green-500/20 rounded-full blur-[80px] animate-pulse" />
+          <div className="absolute -top-32 -right-32 size-100 bg-green-500/20 rounded-full blur-[80px] animate-pulse" />
           <div
-            className="absolute -bottom-32 -left-32 w-[400px] h-[400px] bg-emerald-400/20 rounded-full blur-[90px] animate-pulse"
+            className="absolute -bottom-32 -left-32 size-100 bg-emerald-400/20 rounded-full blur-[90px] animate-pulse"
             style={{ animationDelay: '2s' }}
           />
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-50" />
@@ -393,17 +382,16 @@ const ProductPage = () => {
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col">
-            {triggerSearch && (
+            {searchName && (
               <div className="bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl flex items-center justify-between mb-6 shadow-sm border border-gray-100">
                 <p className="font-medium text-sm text-gray-700 flex items-center gap-2">
                   <MagnifyingGlassIcon size={18} className="text-green-600" />
-                  Search results for: <span className="font-black text-green-700">"{triggerSearch}"</span>
+                  Search results for: <span className="font-black text-green-700">"{searchName}"</span>
                   <span className="text-gray-400 font-normal ml-1">({productsData?.totalCount ?? 0} products)</span>
                 </p>
                 <button
                   type="button"
                   onClick={() => {
-                    setTriggerSearch('')
                     setSearchName('')
                     setPageNumber(1)
                     setSearchParams({})

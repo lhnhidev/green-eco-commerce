@@ -1,6 +1,6 @@
 import type { OrderStatusEnum } from '@api/schemas/orderStatusEnum'
-import { customInstance } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
+import { customInstance } from '@/lib/axios'
 
 /**
  * Personal buyer statistics.
@@ -13,15 +13,15 @@ import { useQuery } from '@tanstack/react-query'
 export interface StatisticsSummary {
   /** Total number of orders the user has ever placed (any status). */
   totalOrders: number
-  /** Σ(UnitPrice × Quantity) − Discount over non-cancelled orders (primary KPI). */
+  /** Σ(UnitPrice × Quantity) − Discount over non-canceled orders (primary KPI). */
   totalSpending: number
-  /** Portion of totalSpending from non-cancelled orders already paid. */
+  /** Portion of totalSpending from non-canceled orders already paid. */
   paidSpending: number
-  /** Portion of totalSpending from non-cancelled orders not yet paid (e.g. COD). paidSpending + pendingSpending = totalSpending. */
+  /** Portion of totalSpending from non-canceled orders not yet paid (e.g. COD). paidSpending + pendingSpending = totalSpending. */
   pendingSpending: number
-  /** Money paid for orders later cancelled — pending refund. Not part of totalSpending. */
+  /** Money paid for orders later canceled — pending refund. Not part of totalSpending. */
   refundPendingSpending: number
-  /** Σ(UnitCo2Saved × Quantity) over non-cancelled orders, in kg. */
+  /** Σ(UnitCo2Saved × Quantity) over non-canceled orders, in kg. */
   totalCo2Saved: number
   /** Current green-point balance. */
   currentPoints: number

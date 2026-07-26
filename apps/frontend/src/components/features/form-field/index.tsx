@@ -3,7 +3,6 @@ import {
   type Control,
   Controller,
   type ControllerRenderProps,
-  // type FieldErrors,
   type FieldValues,
   type Path,
   type RegisterOptions,

@@ -1,3 +1,4 @@
+import type * as React from 'react'
 import { useState } from 'react'
 
 const ERROR_IMG_SRC =

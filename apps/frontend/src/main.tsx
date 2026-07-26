@@ -7,12 +7,13 @@ import { RouterProvider } from 'react-router/dom'
 import './index.css'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import axios from 'axios'
+import { router } from '@/router'
+import { store } from '@/store'
 import { AuthBootstrap } from './components/features/AuthBootstrap.tsx'
-import { router } from './router/index.tsx'
-import { store } from './store/index.ts'
 import '@fontsource-variable/inter/wght.css'
 import 'animate.css'
 import '@mantine/dates/styles.css'
+
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 
 const theme = createTheme({

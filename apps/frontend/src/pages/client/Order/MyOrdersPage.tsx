@@ -30,7 +30,7 @@ const MyOrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useGetMyOrders({ PageNumber: page, PageSize: PAGE_SIZE })
+  const { data, isLoading } = useGetMyOrders({ pageNumber: page, pageSize: PAGE_SIZE })
 
   const orders = data?.items ?? []
   const totalPages = data?.totalPages ?? 1
