@@ -64,6 +64,16 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 title = "Not found";
                 detail = missingKeyEx.Message;
                 break;
+            case ForbiddenException forbiddenEx:
+                statusCode = HttpStatusCode.Forbidden; // 403
+                title = "Forbidden";
+                detail = forbiddenEx.Message;
+                break;
+            case UnauthorizedAccessException unauthorizedEx:
+                statusCode = HttpStatusCode.Unauthorized; // 401
+                title = "Unauthorized";
+                detail = unauthorizedEx.Message;
+                break;
         }
 
         // 4. Cấu hình HTTP Response trả về cho Client
