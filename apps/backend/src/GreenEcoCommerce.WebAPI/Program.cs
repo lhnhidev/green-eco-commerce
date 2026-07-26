@@ -122,7 +122,20 @@ builder.Services.AddOpenApi(opt =>
         }
 
         return Task.CompletedTask;
-    });
+    }).AddOperationTransformer((operation, _, _) =>
+    {
+        if (operation.Parameters != null)
+        {
+            foreach (var param in operation.Parameters.Cast<Microsoft.OpenApi.OpenApiParameter>())
+            {
+                if (!string.IsNullOrEmpty(param.Name))
+                {
+                    param.Name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(param.Name);
+                }
+            }
+        }
+        return Task.CompletedTask;
+    });;
 
     opt.CreateSchemaReferenceId = typeInfo =>
     {
@@ -255,6 +268,7 @@ app.MapAdminEndpoints();
 app.MapCheckoutEndpoints();
 app.MapReviewEndpoints();
 app.MapCouponEndpoints();
+app.MapBannerEndpoints();
 
 app.MapFallbackToFile("index.html");
 
