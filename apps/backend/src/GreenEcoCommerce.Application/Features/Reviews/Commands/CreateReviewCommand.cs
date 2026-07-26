@@ -1,4 +1,4 @@
-using System.Data.Common;
+using EntityFramework.Exceptions.Common;
 using FluentValidation;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Queries;
@@ -18,9 +18,6 @@ public record CreateReviewCommand(
 {
     public class Handler(IApplicationDbContext db) : IRequestHandler<CreateReviewCommand, ReviewDto>
     {
-        /// <summary>PostgreSQL SQLSTATE for unique_violation.</summary>
-        private const string PostgresUniqueViolation = "23505";
-
         public async Task<ReviewDto> Handle(CreateReviewCommand cmd, CancellationToken ct)
         {
             if (!await db.Products.AnyAsync(p => p.Id == cmd.ProductId, ct))
@@ -62,7 +59,7 @@ public record CreateReviewCommand(
             {
                 await db.SaveChangesAsync(ct);
             }
-            catch (DbUpdateException ex) when (IsUniqueViolation(ex))
+            catch (UniqueConstraintException)
             {
                 // Two concurrent requests can both miss the lookup above; the unique index on
                 // (user_id, product_id) is what actually settles the race. The loser falls back
@@ -100,20 +97,6 @@ public record CreateReviewCommand(
             await db.SaveChangesAsync(ct);
 
             return review.ToDto();
-        }
-
-        /// <summary>
-        /// Walks the exception chain looking for a provider error carrying the unique_violation
-        /// SQLSTATE, because the original <see cref="DbUpdateException"/> may be re-wrapped.
-        /// </summary>
-        private static bool IsUniqueViolation(Exception? exception)
-        {
-            for (var current = exception; current != null; current = current.InnerException)
-            {
-                if (current is DbException { SqlState: PostgresUniqueViolation }) { return true; }
-            }
-
-            return false;
         }
     }
 
