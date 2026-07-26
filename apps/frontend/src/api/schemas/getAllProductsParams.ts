@@ -8,15 +8,15 @@
 import type { ProductSortBy } from './productSortBy';
 
 export type GetAllProductsParams = {
-SortBy?: ProductSortBy;
-SortDescending?: boolean;
-Search?: string;
-CategoryIds?: string[];
-IsOrganic?: boolean;
-IsBiodegradable?: boolean;
-IsRecycled?: boolean;
-MinPrice?: number;
-MaxPrice?: number;
-PageNumber?: number;
-PageSize?: number;
+sortBy?: ProductSortBy;
+sortDescending?: boolean;
+search?: string;
+categoryIds?: string[];
+isOrganic?: boolean;
+isBiodegradable?: boolean;
+isRecycled?: boolean;
+minPrice?: number;
+maxPrice?: number;
+pageNumber?: number;
+pageSize?: number;
 };

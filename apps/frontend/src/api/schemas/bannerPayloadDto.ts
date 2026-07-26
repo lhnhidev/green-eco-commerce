@@ -6,9 +6,13 @@
  * OpenAPI spec version: v1
  */
 
-export interface ChatSessionDto {
-  id: string;
-  userId: string;
+export interface BannerPayloadDto {
   title: string;
-  createdAt: Date;
+  /** @nullable */
+  subtitle: string | null;
+  imageUrl: string;
+  /** @nullable */
+  linkUrl: string | null;
+  sortOrder: number;
+  isActive: boolean;
 }

@@ -8,9 +8,9 @@
 import type { OrderSortBy } from './orderSortBy';
 
 export type GetAllOrdersParams = {
-SortBy?: OrderSortBy;
-SortDescending?: boolean;
-UserId?: string;
-PageNumber?: number;
-PageSize?: number;
+sortBy?: OrderSortBy;
+sortDescending?: boolean;
+userId?: string;
+pageNumber?: number;
+pageSize?: number;
 };

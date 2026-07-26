@@ -6,7 +6,10 @@
  * OpenAPI spec version: v1
  */
 
-export type GetInfoAnalystParams = {
-month: number;
-year: number;
-};
+export interface GetMyStatisticsQueryMonthlyPoint {
+  year: number;
+  month: number;
+  label: string;
+  amount: number;
+  co2Saved: number;
+}

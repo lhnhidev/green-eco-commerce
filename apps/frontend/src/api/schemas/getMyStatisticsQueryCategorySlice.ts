@@ -6,7 +6,8 @@
  * OpenAPI spec version: v1
  */
 
-export type GetInfoAnalystParams = {
-month: number;
-year: number;
-};
+export interface GetMyStatisticsQueryCategorySlice {
+  category: string;
+  amount: number;
+  quantity: number;
+}

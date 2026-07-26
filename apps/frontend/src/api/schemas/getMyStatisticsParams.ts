@@ -6,7 +6,6 @@
  * OpenAPI spec version: v1
  */
 
-export type GetInfoAnalystParams = {
-month: number;
-year: number;
+export type GetMyStatisticsParams = {
+months?: number;
 };

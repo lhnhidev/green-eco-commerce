@@ -5,8 +5,9 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { OrderStatusEnum } from './orderStatusEnum';
 
-export type GetInfoAnalystParams = {
-month: number;
-year: number;
-};
+export interface GetMyStatisticsQueryStatusSlice {
+  status: OrderStatusEnum;
+  count: number;
+}

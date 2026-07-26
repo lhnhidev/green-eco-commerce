@@ -6,7 +6,7 @@
  * OpenAPI spec version: v1
  */
 
-export type GetInfoAnalystParams = {
-month: number;
-year: number;
-};
+export interface ReviewPayloadDto {
+  rating: number;
+  comment: string;
+}

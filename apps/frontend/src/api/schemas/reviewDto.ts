@@ -6,9 +6,14 @@
  * OpenAPI spec version: v1
  */
 
-export interface ChatSessionDto {
+export interface ReviewDto {
   id: string;
   userId: string;
-  title: string;
+  userName: string;
+  productId: string;
+  rating: number;
+  comment: string;
+  isApproved: boolean;
+  isHidden: boolean;
   createdAt: Date;
 }

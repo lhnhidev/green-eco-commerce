@@ -16,5 +16,6 @@ export interface UserDto {
   phone: string;
   address: string;
   role: RoleEnum;
-  createdAt: string;
+  isActive: boolean;
+  createdAt: Date;
 }
