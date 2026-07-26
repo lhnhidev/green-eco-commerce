@@ -1,11 +1,12 @@
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 
-import { useGetCart, useGetAllProducts } from '@api'
+import { useGetAllProducts, useGetCart } from '@api'
 import { useAppDispatch } from '@hooks/useAppDispatch'
-import { Badge, Button, Group, TextInput, Loader } from '@mantine/core'
+import { Badge, Button, Group, Loader, TextInput } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { MagnifyingGlassIcon, ShoppingCartIcon } from '@phosphor-icons/react'
+import type * as React from 'react'
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import Brand from '../ui/Brand'
@@ -26,8 +27,8 @@ const SearchAutocomplete = ({ className }: { className?: string }) => {
   const [isFocused, setIsFocused] = useState(false)
 
   const { data: searchData, isLoading: isSearching } = useGetAllProducts(
-    { Search: debouncedSearch, PageSize: 5 },
-    { query: { enabled: debouncedSearch.trim().length > 0 } }
+    { search: debouncedSearch, pageSize: 5 },
+    { query: { enabled: debouncedSearch.trim().length > 0 } },
   )
 
   const handleSearch = (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -42,7 +43,7 @@ const SearchAutocomplete = ({ className }: { className?: string }) => {
 
   return (
     <div className={`relative ${className}`}>
-      <form onSubmit={handleSearch} className='w-full'>
+      <form onSubmit={handleSearch} className="w-full">
         <TextInput
           placeholder="Search products..."
           leftSection={<MagnifyingGlassIcon className="h-4 w-4" />}
@@ -58,7 +59,9 @@ const SearchAutocomplete = ({ className }: { className?: string }) => {
       {showDropdown && (
         <div className="absolute top-full left-0 w-full mt-2 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-100 flex flex-col max-h-96">
           {isSearching && (
-            <div className="p-4 flex justify-center"><Loader size="sm" color="green" /></div>
+            <div className="p-4 flex justify-center">
+              <Loader size="sm" color="green" />
+            </div>
           )}
           {!isSearching && searchData?.items && searchData.items.length === 0 && (
             <div className="p-4 text-center text-sm text-gray-500">No products found</div>
@@ -78,9 +81,7 @@ const SearchAutocomplete = ({ className }: { className?: string }) => {
                   />
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-sm text-gray-900 truncate">{product.name}</div>
-                    <div className="text-primary text-xs font-bold">
-                      ${product.price}
-                    </div>
+                    <div className="text-primary text-xs font-bold">${product.price}</div>
                   </div>
                 </Link>
               ))}
@@ -116,7 +117,7 @@ export function Navigation() {
           {/* Logo */}
           <Brand linkToHome={true} size="md" />
           {/* Navigation Links - Desktop */}
-          <nav className="hidden md:flex items-center gap-2">
+          <nav className="hidden md:flex items-center gap-2 md:ml-4">
             {navigationItems.map((item) => (
               <Link key={item.path} to={item.path}>
                 <Button
@@ -182,4 +183,3 @@ export function Navigation() {
     </header>
   )
 }
-

@@ -29,7 +29,7 @@ public record UpdateProductCommand(Guid Id, ProductPayloadDto Dto) : IRequest<Pr
 
             await dbContext.SaveChangesAsync(ct);
 
-            return product.ToDto();
+            return await dbContext.Products.WithId(command.Id).ProjectToDto().FirstAsync(ct);
         }
     }
 

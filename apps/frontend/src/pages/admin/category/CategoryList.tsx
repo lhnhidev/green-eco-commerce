@@ -11,7 +11,7 @@ import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
 
@@ -20,15 +20,27 @@ const CategoryList = () => {
   const queryClient = useQueryClient()
   const { data: categories, isLoading } = useGetAllCategories()
   const { data: productsPage } = useGetAllProducts()
-  const products = productsPage?.items ?? []
+  const products = useMemo(() => productsPage?.items ?? [], [productsPage])
 
   // Edit modal state
   const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false)
   const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
-  const deletingRef = useRef<{ id: string; name: string }>({ id: '', name: '' })
+  const [deletingCategory, setDeletingCategory] = useState<{ id: string; name: string } | null>(null)
 
-  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory()
-  const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory()
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
+      },
+    },
+  })
+  const { mutate: deleteCategory, isPending: isDeleting } = useDeleteCategory({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
+      },
+    },
+  })
 
   const editForm = useForm({
     initialValues: { id: '', name: '', description: '', parentId: '' as string | null },
@@ -54,7 +66,6 @@ const CategoryList = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Updated', message: 'Category has been updated.', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
           closeEdit()
         },
         onError: () => {
@@ -65,17 +76,16 @@ const CategoryList = () => {
   }
 
   const handleDeleteClick = (id: string, name: string) => {
-    deletingRef.current = { id, name }
+    setDeletingCategory({ id, name })
     openDelete()
   }
 
   const handleConfirmDelete = () => {
     deleteCategory(
-      { id: deletingRef.current.id },
+      { id: deletingCategory!.id },
       {
         onSuccess: () => {
           notifications.show({ title: 'Deleted', message: 'Category removed.', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
           closeDelete()
         },
         onError: () => {
@@ -140,8 +150,8 @@ const CategoryList = () => {
       {/* Delete Confirmation Modal */}
       <Modal opened={deleteOpened} onClose={closeDelete} title="Delete Category" centered size="sm">
         <Text size="sm" c="dimmed" mb="lg">
-          Are you sure you want to delete <strong className="text-gray-700">{deletingRef.current.name}</strong>? This
-          cannot be undone.
+          Are you sure you want to delete <strong className="text-gray-700">{deleteCategory?.name}</strong>? This cannot
+          be undone.
         </Text>
         <div className="flex justify-end gap-2">
           <Button variant="default" size="xs" onClick={closeDelete}>

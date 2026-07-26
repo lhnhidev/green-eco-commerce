@@ -7,7 +7,13 @@ import { FiShoppingCart } from 'react-icons/fi'
 import { Link } from 'react-router'
 
 const ProductCardv2 = ({ product }: { product: ProductDto }) => {
-  const { mutate, isPending } = useAddCartItem()
+  const { mutate, isPending } = useAddCartItem({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+      },
+    },
+  })
   const queryClient = useQueryClient()
 
   const handleAddToCart = (productId: string | undefined, quantity: number) => {
@@ -22,8 +28,6 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
-
           notifications.show({
             title: 'Added to cart!',
             message: `${product?.name} has been added to your cart.`,

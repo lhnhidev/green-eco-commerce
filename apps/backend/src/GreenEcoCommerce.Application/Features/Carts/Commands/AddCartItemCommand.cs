@@ -36,13 +36,13 @@ public record AddCartItemCommand(Guid UserId, CartItemPayloadDto Item) : IReques
             else
             {
                 // Add new item
-                cart.CartItems.Add(
-                    new CartItem
-                    {
-                        CartId = cart.Id,
-                        ProductId = command.Item.ProductId,
-                        Quantity = command.Item.Quantity
-                    });
+                var newItem = new CartItem
+                {
+                    CartId = cart.Id,
+                    ProductId = command.Item.ProductId,
+                    Quantity = command.Item.Quantity
+                };
+                await dbContext.CartItems.AddAsync(newItem, ct);
             }
 
             await dbContext.SaveChangesAsync(ct);

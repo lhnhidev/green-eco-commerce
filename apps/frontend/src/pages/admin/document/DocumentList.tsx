@@ -1,4 +1,4 @@
-import { Button, Table, TextInput, FileInput } from '@mantine/core'
+import { Button, FileInput, Table, TextInput } from '@mantine/core'
 import { useState } from 'react'
 import { FiSearch, FiUploadCloud } from 'react-icons/fi'
 
@@ -12,9 +12,7 @@ const DocumentList = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">Knowledge Base</h1>
-          <p className="text-gray-500 mt-1">
-            Upload and manage documents to train the AI Chatbot.
-          </p>
+          <p className="text-gray-500 mt-1">Upload and manage documents to train the AI Chatbot.</p>
         </div>
       </div>
 
@@ -64,9 +62,7 @@ const DocumentList = () => {
           <Table.Tbody>
             <Table.Tr>
               <Table.Td colSpan={6}>
-                <div className="text-center py-12 text-muted-foreground">
-                  No documents found in the Knowledge Base.
-                </div>
+                <div className="text-center py-12 text-muted-foreground">No documents found in the Knowledge Base.</div>
               </Table.Td>
             </Table.Tr>
           </Table.Tbody>

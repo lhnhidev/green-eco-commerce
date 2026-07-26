@@ -1,16 +1,21 @@
-import { getGetAllCategoriesQueryKey, useCreateCategory } from '@api'
+import { getGetAllCategoriesQueryKey, useCreateCategory, useGetAllCategories } from '@api'
 import { ActionIcon, Button, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
 import { FiArrowLeft } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router'
-import { useGetAllCategories } from '@api'
 
 const CategoryCreate = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { mutate: createCategory, isPending } = useCreateCategory()
+  const { mutate: createCategory, isPending } = useCreateCategory({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
+      },
+    },
+  })
   const { data: categories } = useGetAllCategories()
 
   const parentOptions = (categories ?? [])
@@ -40,7 +45,6 @@ const CategoryCreate = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Success', message: 'Category created', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
           navigate('/admin/category')
         },
         onError: () => {

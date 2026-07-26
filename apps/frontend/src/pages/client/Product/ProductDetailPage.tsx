@@ -1,4 +1,5 @@
 import { getGetCartQueryKey, useAddCartItem, useGetProductById } from '@api'
+import ProductReviews from '@components/features/reviews/ProductReviews'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
 import Loading from '@components/ui/status/Loading'
 import { useAppSelector } from '@hooks/useAppSelector'
@@ -7,6 +8,7 @@ import { notifications } from '@mantine/notifications'
 import { HeartIcon, LeafIcon, ShieldCheckIcon, ShoppingCartIcon, StarIcon, TreeIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatParam } from '@utils/formatParam'
+import type * as React from 'react'
 import { useState } from 'react'
 import { useParams } from 'react-router'
 
@@ -30,8 +32,15 @@ const ProductDetailPage = () => {
   const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
 
-  const { mutate } = useAddCartItem()
   const queryClient = useQueryClient()
+
+  const { mutate } = useAddCartItem({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+      },
+    },
+  })
 
   const handleAddToCart = (productId: string | undefined, quantity: number) => {
     if (!productId) return
@@ -45,8 +54,6 @@ const ProductDetailPage = () => {
       },
       {
         onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
-
           notifications.show({
             title: 'Add Product Sucessed!',
             message: `Product: ${product?.name} - Amount: ${quantity}`,
@@ -233,7 +240,7 @@ const ProductDetailPage = () => {
               {/* Actions Section */}
               <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
                 <div className="flex items-end gap-6 mb-6">
-                  <div className="flex-1 max-w-[140px]">
+                  <div className="flex-1 max-w-35">
                     {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
                     <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 ml-1">
                       Quantity
@@ -301,6 +308,13 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Customer Reviews */}
+      {product && (
+        <div className="container mx-auto px-4 max-w-7xl pb-16">
+          <ProductReviews productId={product.id} />
+        </div>
+      )}
     </div>
   )
 }

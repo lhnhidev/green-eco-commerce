@@ -2,6 +2,7 @@ import RootLayout from '@layouts/RootLayout'
 import RootLayoutAdmin from '@layouts/RootLayoutAdmin'
 import CategoryCreate from '@pages/admin/category/CategoryCreate'
 import CategoryList from '@pages/admin/category/CategoryList'
+import CouponList from '@pages/admin/coupon/CouponList'
 import Dashboard from '@pages/admin/Dashboard'
 import DocumentList from '@pages/admin/document/DocumentList'
 import MaterialCreate from '@pages/admin/material/MaterialCreate'
@@ -10,6 +11,7 @@ import OrderList from '@pages/admin/order/OrderList'
 import ProductCreate from '@pages/admin/product/ProductCreate'
 import ProductEdit from '@pages/admin/product/ProductEdit'
 import ProductList from '@pages/admin/product/ProductList'
+import ReviewList from '@pages/admin/review/ReviewList'
 import UserList from '@pages/admin/user/UserList'
 import AuthPage from '@pages/client/AuthPage'
 import { HomePage } from '@pages/client/HomePage'
@@ -111,6 +113,14 @@ export const router = createBrowserRouter([
       {
         path: 'user',
         element: <UserList />,
+      },
+      {
+        path: 'review',
+        element: <ReviewList />,
+      },
+      {
+        path: 'coupon',
+        element: <CouponList />,
       },
       {
         path: 'document',

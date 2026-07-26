@@ -7,6 +7,6 @@
  */
 
 export type GetInfoAnalystParams = {
-Month: number;
-Year: number;
+month: number;
+year: number;
 };

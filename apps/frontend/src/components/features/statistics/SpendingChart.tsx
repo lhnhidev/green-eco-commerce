@@ -11,7 +11,7 @@ type SpendingChartProps = {
   data: MonthlyPoint[]
 }
 
-/** Monthly spending (non-cancelled orders) over the selected window. */
+/** Monthly spending (non-canceled orders) over the selected window. */
 const SpendingChart = ({ data }: SpendingChartProps) => {
   const chartData = data.map((point) => ({ month: formatMonth(point), spending: point.amount }))
 

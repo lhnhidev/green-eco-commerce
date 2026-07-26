@@ -5,20 +5,7 @@ import { Alert, SegmentedControl, Skeleton } from '@mantine/core'
 import { useQueries } from '@tanstack/react-query'
 import { useState } from 'react'
 
-const MONTHS = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-]
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const CHART_HEIGHT = 300
 
 const currencyFormat = new Intl.NumberFormat('en-US', {
@@ -82,9 +69,7 @@ type MonthlyStatisticsChartProps = {
   year?: number
 }
 
-const MonthlyStatisticsChart = ({
-  year = new Date().getFullYear(),
-}: MonthlyStatisticsChartProps) => {
+const MonthlyStatisticsChart = ({ year = new Date().getFullYear() }: MonthlyStatisticsChartProps) => {
   const [metric, setMetric] = useState<MetricKey>('revenue')
   const config = METRICS[metric]
 
@@ -92,9 +77,7 @@ const MonthlyStatisticsChart = ({
   // fetched in parallel. React Query shares its cache with the Dashboard's own
   // per-month query, so the selected month is not requested twice.
   const results = useQueries({
-    queries: MONTHS.map((_, index) =>
-      getGetInfoAnalystQueryOptions({ Month: index + 1, Year: year }),
-    ),
+    queries: MONTHS.map((_, index) => getGetInfoAnalystQueryOptions({ month: index + 1, year: year })),
   })
 
   const isLoading = results.some((result) => result.isPending)
@@ -122,10 +105,7 @@ const MonthlyStatisticsChart = ({
 
     if (!hasData) {
       return (
-        <div
-          className="flex items-center justify-center text-[12px] text-[#a1a1aa]"
-          style={{ height: CHART_HEIGHT }}
-        >
+        <div className="flex items-center justify-center text-[12px] text-[#a1a1aa]" style={{ height: CHART_HEIGHT }}>
           No data for {year}
         </div>
       )

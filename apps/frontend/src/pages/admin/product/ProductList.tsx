@@ -3,7 +3,7 @@ import { ActionIcon, Badge, Button, Modal, Pagination, Table, Text, TextInput } 
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useState } from 'react'
 import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router'
 
@@ -13,17 +13,23 @@ const ProductList = () => {
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [deleteName, setDeleteName] = useState<string | null>(null)
   const [opened, { open, close }] = useDisclosure(false)
-  const deletingNameRef = useRef('')
 
   const navigate = useNavigate()
   const queryClient = useQueryClient()
-  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct()
+  const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
+      },
+    },
+  })
 
   const { data, isLoading } = useGetAllProducts({
-    PageNumber: page,
-    PageSize: PAGE_SIZE,
-    Search: search || undefined,
+    pageNumber: page,
+    pageSize: PAGE_SIZE,
+    search: search || undefined,
   })
 
   const products = data?.items ?? []
@@ -32,7 +38,7 @@ const ProductList = () => {
 
   const handleDeleteClick = (id: string, name: string) => {
     setDeleteId(id)
-    deletingNameRef.current = name
+    setDeleteName(name)
     open()
   }
 
@@ -43,7 +49,6 @@ const ProductList = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Deleted', message: 'Product has been removed.', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
           close()
           setDeleteId(null)
         },
@@ -59,8 +64,8 @@ const ProductList = () => {
       {/* Delete Confirmation Modal */}
       <Modal opened={opened} onClose={close} title="Delete Product" centered size="sm">
         <Text size="sm" c="dimmed" mb="lg">
-          Are you sure you want to delete <strong className="text-gray-700">{deletingNameRef.current}</strong>? This
-          action cannot be undone.
+          Are you sure you want to delete <strong className="text-gray-700">{deleteName}</strong>? This action cannot be
+          undone.
         </Text>
         <div className="flex justify-end gap-2">
           <Button variant="default" size="xs" onClick={close}>

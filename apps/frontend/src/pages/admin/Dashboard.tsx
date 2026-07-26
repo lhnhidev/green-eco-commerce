@@ -32,8 +32,8 @@ const Dashboard = () => {
 
   // 3. Truyền tháng/năm chuẩn vào API thông qua biến activeDate đã parse
   const { data: analysted, isLoading } = useGetInfoAnalyst({
-    Month: activeDate.getMonth() + 1,
-    Year: activeDate.getFullYear(),
+    month: activeDate.getMonth() + 1,
+    year: activeDate.getFullYear(),
   })
 
   // 4. Hàm handle chuẩn khớp hoàn toàn với type '(value: string | null) => void'

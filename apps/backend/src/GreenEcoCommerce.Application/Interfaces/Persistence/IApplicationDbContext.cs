@@ -33,6 +33,10 @@ public interface IApplicationDbContext
     // Settings & Config
     DbSet<AppConfiguration> AppConfigurations { get; }
 
+    // Reviews & Coupons
+    DbSet<Review> Reviews { get; }
+    DbSet<Coupon> Coupons { get; }
+
     // Automatic transaction
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 
