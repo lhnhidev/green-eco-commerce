@@ -6,6 +6,7 @@ import { FaTableCells } from 'react-icons/fa6'
 import { IoIosDocument, IoIosSettings } from 'react-icons/io'
 import { IoReceipt } from 'react-icons/io5'
 import { MdCategory } from 'react-icons/md'
+import { RiCoupon3Line } from 'react-icons/ri'
 import { TbCategory, TbMessageStar } from 'react-icons/tb'
 import { Link } from 'react-router'
 import NavigationIndex from './NavigationIndex'
@@ -48,6 +49,11 @@ const navigateMems = [
     text: 'Reviews',
   },
   {
+    id: 'coupon',
+    icon: RiCoupon3Line,
+    text: 'Coupons',
+  },
+  {
     id: 'document',
     icon: IoIosDocument,
     text: 'Document',
@@ -64,7 +70,7 @@ const TheNavigation = () => {
   const active = useAppSelector((state) => state.theNavigation.active)
 
   return (
-    <div className="w-55 flex flex-col bg-white border-r border-[#ececee] h-screen px-2 py-3 z-10">
+    <div className="w-[220px] flex flex-col bg-white border-r border-[#ececee] h-screen px-2 py-3 z-10">
       <div className="flex justify-center mb-4">
         <Brand linkToHome={true} size="md" />
       </div>

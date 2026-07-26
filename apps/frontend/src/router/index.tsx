@@ -2,6 +2,7 @@ import RootLayout from '@layouts/RootLayout'
 import RootLayoutAdmin from '@layouts/RootLayoutAdmin'
 import CategoryCreate from '@pages/admin/category/CategoryCreate'
 import CategoryList from '@pages/admin/category/CategoryList'
+import CouponList from '@pages/admin/coupon/CouponList'
 import Dashboard from '@pages/admin/Dashboard'
 import DocumentList from '@pages/admin/document/DocumentList'
 import MaterialCreate from '@pages/admin/material/MaterialCreate'
@@ -116,6 +117,10 @@ export const router = createBrowserRouter([
       {
         path: 'review',
         element: <ReviewList />,
+      },
+      {
+        path: 'coupon',
+        element: <CouponList />,
       },
       {
         path: 'document',
