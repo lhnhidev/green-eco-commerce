@@ -1,4 +1,5 @@
 using FluentValidation;
+using GreenEcoCommerce.Application.Interfaces.Configuration;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Queries;
 using GreenEcoCommerce.Domain.Exceptions;
@@ -9,7 +10,8 @@ namespace GreenEcoCommerce.Application.Features.Carts.Commands;
 
 public record UpdateCartItemCommand(Guid UserId, CartItemPayloadDto Item) : IRequest<CartDto>
 {
-    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<UpdateCartItemCommand, CartDto>
+    public class Handler(IApplicationDbContext dbContext, IApplicationConfiguration config)
+            : IRequestHandler<UpdateCartItemCommand, CartDto>
     {
         public async Task<CartDto> Handle(UpdateCartItemCommand command, CancellationToken ct)
         {
@@ -27,19 +29,15 @@ public record UpdateCartItemCommand(Guid UserId, CartItemPayloadDto Item) : IReq
             // Check if item already exists in cart
             var item = cart.CartItems.FirstOrDefault(i => i.ProductId == command.Item.ProductId);
 
-            if (item != null)
-            {
-                item.Quantity = command.Item.Quantity;
-            }
-            else
-            {
-                throw new NotFoundException($"Cart item with product ID {command.Item.ProductId} not found.");
-            }
+            if (item != null) { item.Quantity = command.Item.Quantity; }
+            else { throw new NotFoundException($"Cart item with product ID {command.Item.ProductId} not found."); }
+
+            await dbContext.SaveChangesAsync(ct);
 
             await dbContext.Carts.Entry(cart).Collection(c => c.CartItems).Query().Include(ci => ci.Product)
                     .LoadAsync(ct);
 
-            return cart.ToDto();
+            return await cart.ToDto().ConfigurePointsSavedAsync(config);
         }
     }
 
