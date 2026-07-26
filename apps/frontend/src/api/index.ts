@@ -47,16 +47,19 @@ import type {
   GetMyOrdersParams,
   GetMyStatisticsParams,
   GetMyStatisticsQueryResponse,
+  GetProductReviewsParams,
   GreenWalletDto,
   LoginCommand,
   MaterialDto,
   MaterialPayloadDto,
   PagedResultOfOrderDto,
   PagedResultOfProductDto,
+  PagedResultOfReviewDto,
   PagedResultOfUserDto,
   ProblemDetails,
   ProductDto,
   ProductPayloadDto,
+  ProductReviewSummaryDto,
   RegisterPayload,
   ReviewDto,
   ReviewPayloadDto,
@@ -89,12 +92,14 @@ const withQueryKey = <T extends object, K>(query: T, queryKey: K): T & { queryKe
 
 export const getProductReviews = (
     productId: string,
+    params?: GetProductReviewsParams,
  signal?: AbortSignal
 ) => {
 
 
-      return customInstance<ReviewDto[]>(
-      {url: `/api/products/${productId}/reviews`, method: 'GET', signal
+      return customInstance<PagedResultOfReviewDto>(
+      {url: `/api/products/${productId}/reviews`, method: 'GET',
+        params, signal
     },
       );
     }
@@ -102,23 +107,25 @@ export const getProductReviews = (
 
 
 
-export const getGetProductReviewsQueryKey = (productId: string,) => {
+export const getGetProductReviewsQueryKey = (productId: string,
+    params?: GetProductReviewsParams,) => {
     return [
-    `/api/products/${productId}/reviews`
+    `/api/products/${productId}/reviews`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetProductReviewsQueryOptions = <TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
+export const getGetProductReviewsQueryOptions = <TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetProductReviewsQueryKey(productId);
+  const queryKey =  queryOptions?.queryKey ?? getGetProductReviewsQueryKey(productId,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductReviews>>> = ({ signal }) => getProductReviews(productId, signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductReviews>>> = ({ signal }) => getProductReviews(productId,params, signal);
 
 
 
@@ -132,7 +139,8 @@ export type GetProductReviewsQueryError = ProblemDetails
 
 
 export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
- productId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>> & Pick<
+ productId: string,
+    params: undefined |  GetProductReviewsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductReviews>>,
           TError,
@@ -142,7 +150,8 @@ export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProduc
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
- productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>> & Pick<
+ productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getProductReviews>>,
           TError,
@@ -152,16 +161,18 @@ export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProduc
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
- productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
+ productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProductReviews>>, TError = ProblemDetails>(
- productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
+ productId: string,
+    params?: GetProductReviewsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviews>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetProductReviewsQueryOptions(productId,options)
+  const queryOptions = getGetProductReviewsQueryOptions(productId,params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -233,6 +244,93 @@ const {mutation: mutationOptions} = options ?
       > => {
       return useMutation(getCreateReviewMutationOptions(options), queryClient);
     }
+
+export const getProductReviewSummary = (
+    productId: string,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<ProductReviewSummaryDto>(
+      {url: `/api/products/${productId}/reviews/summary`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getGetProductReviewSummaryQueryKey = (productId: string,) => {
+    return [
+    `/api/products/${productId}/reviews/summary`
+    ] as const;
+    }
+
+
+export const getGetProductReviewSummaryQueryOptions = <TData = Awaited<ReturnType<typeof getProductReviewSummary>>, TError = ProblemDetails>(productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviewSummary>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductReviewSummaryQueryKey(productId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductReviewSummary>>> = ({ signal }) => getProductReviewSummary(productId, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: productId !== null && productId !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductReviewSummary>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetProductReviewSummaryQueryResult = NonNullable<Awaited<ReturnType<typeof getProductReviewSummary>>>
+export type GetProductReviewSummaryQueryError = ProblemDetails
+
+
+export function useGetProductReviewSummary<TData = Awaited<ReturnType<typeof getProductReviewSummary>>, TError = ProblemDetails>(
+ productId: string, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviewSummary>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductReviewSummary>>,
+          TError,
+          Awaited<ReturnType<typeof getProductReviewSummary>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductReviewSummary<TData = Awaited<ReturnType<typeof getProductReviewSummary>>, TError = ProblemDetails>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviewSummary>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getProductReviewSummary>>,
+          TError,
+          Awaited<ReturnType<typeof getProductReviewSummary>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetProductReviewSummary<TData = Awaited<ReturnType<typeof getProductReviewSummary>>, TError = ProblemDetails>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviewSummary>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetProductReviewSummary<TData = Awaited<ReturnType<typeof getProductReviewSummary>>, TError = ProblemDetails>(
+ productId: string, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getProductReviewSummary>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetProductReviewSummaryQueryOptions(productId,options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const validateCoupon = (
     validateCouponRequest: ValidateCouponRequest,
@@ -2441,93 +2539,6 @@ export function useGetAllOrders<TData = Awaited<ReturnType<typeof getAllOrders>>
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetAllOrdersQueryOptions(params,options)
-
-  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
-
-  return withQueryKey(query, queryOptions.queryKey);
-}
-
-
-
-
-
-
-
-export const exportOrdersCsv = (
-
- signal?: AbortSignal
-) => {
-
-
-      return customInstance<unknown>(
-      {url: `/api/orders/export`, method: 'GET', signal
-    },
-      );
-    }
-
-
-
-
-export const getExportOrdersCsvQueryKey = () => {
-    return [
-    `/api/orders/export`
-    ] as const;
-    }
-
-
-export const getExportOrdersCsvQueryOptions = <TData = Awaited<ReturnType<typeof exportOrdersCsv>>, TError = ProblemDetails>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportOrdersCsv>>, TError, TData>>, }
-) => {
-
-const {query: queryOptions} = options ?? {};
-
-  const queryKey =  queryOptions?.queryKey ?? getExportOrdersCsvQueryKey();
-
-
-
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof exportOrdersCsv>>> = ({ signal }) => exportOrdersCsv(signal);
-
-
-
-
-
-   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof exportOrdersCsv>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
-}
-
-export type ExportOrdersCsvQueryResult = NonNullable<Awaited<ReturnType<typeof exportOrdersCsv>>>
-export type ExportOrdersCsvQueryError = ProblemDetails
-
-
-export function useExportOrdersCsv<TData = Awaited<ReturnType<typeof exportOrdersCsv>>, TError = ProblemDetails>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportOrdersCsv>>, TError, TData>> & Pick<
-        DefinedInitialDataOptions<
-          Awaited<ReturnType<typeof exportOrdersCsv>>,
-          TError,
-          Awaited<ReturnType<typeof exportOrdersCsv>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useExportOrdersCsv<TData = Awaited<ReturnType<typeof exportOrdersCsv>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportOrdersCsv>>, TError, TData>> & Pick<
-        UndefinedInitialDataOptions<
-          Awaited<ReturnType<typeof exportOrdersCsv>>,
-          TError,
-          Awaited<ReturnType<typeof exportOrdersCsv>>
-        > , 'initialData'
-      >, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-export function useExportOrdersCsv<TData = Awaited<ReturnType<typeof exportOrdersCsv>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportOrdersCsv>>, TError, TData>>, }
- , queryClient?: QueryClient
-  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
-
-export function useExportOrdersCsv<TData = Awaited<ReturnType<typeof exportOrdersCsv>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof exportOrdersCsv>>, TError, TData>>, }
- , queryClient?: QueryClient
- ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
-
-  const queryOptions = getExportOrdersCsvQueryOptions(options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
