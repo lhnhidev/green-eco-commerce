@@ -1,3 +1,6 @@
+/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
+/** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
+
 import Brand from '@components/ui/Brand'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
@@ -10,7 +13,8 @@ import { RiCoupon3Line } from 'react-icons/ri'
 import { TbCategory, TbMessageStar, TbPhoto } from 'react-icons/tb'
 import { Link } from 'react-router'
 import NavigationIndex from './NavigationIndex'
-import { type ActiveType, setActive } from './navigation.slice'
+import { type ActiveType, closeMobileSidebar, setActive } from './navigation.slice'
+import { AppShell, Burger } from '@mantine/core'
 
 const navigateMems = [
   {
@@ -20,8 +24,8 @@ const navigateMems = [
   },
   {
     id: 'product',
-    icon: MdCategory,
-    text: 'Product',
+    icon: FaTableCells,
+    text: 'Products',
   },
   {
     id: 'category',
@@ -29,19 +33,19 @@ const navigateMems = [
     text: 'Category',
   },
   {
-    id: 'material',
-    icon: TbCategory,
-    text: 'Material',
+    id: 'user',
+    icon: FaUser,
+    text: 'User',
   },
   {
     id: 'order',
     icon: IoReceipt,
-    text: 'Order',
+    text: 'Orders',
   },
   {
-    id: 'user',
-    icon: FaUser,
-    text: 'User',
+    id: 'material',
+    icon: TbCategory,
+    text: 'Material',
   },
   {
     id: 'review',
@@ -70,13 +74,15 @@ const navigateMems = [
   },
 ]
 
-const TheNavigation = () => {
+const SidebarContent = () => {
   const dispatch = useAppDispatch()
   const active = useAppSelector((state) => state.theNavigation.active)
+  const mobileSidebarOpen = useAppSelector((state) => state.theNavigation.mobileSidebarOpen)
 
   return (
-    <div className="w-55 flex flex-col bg-white border-r border-[#ececee] h-screen px-2 py-3 z-10">
-      <div className="flex justify-center mb-4">
+    <AppShell.Navbar p="md">
+      <div className="flex mb-4">
+        <Burger opened={mobileSidebarOpen} onClick={() => dispatch(closeMobileSidebar())} hiddenFrom="sm" size="sm" />
         <Brand linkToHome={true} size="md" />
       </div>
       <div className="flex flex-col gap-px">
@@ -84,7 +90,10 @@ const TheNavigation = () => {
           <Link
             to={`${item.id}`}
             key={item.id}
-            onClick={() => dispatch(setActive(item.id as ActiveType))}
+            onClick={() => {
+              dispatch(setActive(item.id as ActiveType))
+              dispatch(closeMobileSidebar())
+            }}
             className="w-full text-left"
           >
             <NavigationIndex icon={item.icon} text={item.text} isActive={active.toLocaleLowerCase() === item.id} />
@@ -93,12 +102,18 @@ const TheNavigation = () => {
       </div>
 
       <div className="mt-auto pt-1.5 border-t border-[#ececee]">
-        <button type="button" onClick={() => dispatch(setActive('setting'))} className="w-full text-left">
+        <button
+          type="button"
+          onClick={() => {
+            dispatch(setActive('setting'))
+          }}
+          className="w-full text-left"
+        >
           <NavigationIndex icon={IoIosSettings} text="Setting" isActive={active === 'setting'} />
         </button>
       </div>
-    </div>
+    </AppShell.Navbar>
   )
 }
 
-export default TheNavigation
+export default SidebarContent
