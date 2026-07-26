@@ -1,11 +1,22 @@
-import { getGetProductReviewsQueryKey, useCreateReview, useGetProductReviews } from '@api'
+import {
+  getGetProductReviewSummaryQueryKey,
+  getGetProductReviewsQueryKey,
+  useCreateReview,
+  useGetProductReviews,
+  useGetProductReviewSummary,
+} from '@api'
+import type { ProblemDetails } from '@api/schemas'
 import { useAppSelector } from '@hooks/useAppSelector'
-import { Avatar, Button, Rating, Textarea } from '@mantine/core'
+import { Avatar, Button, Pagination, Rating, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
+import type { AxiosError } from 'axios'
 import dayjs from 'dayjs'
+import { useState } from 'react'
 import { FiMessageSquare } from 'react-icons/fi'
+
+const PAGE_SIZE = 5
 
 interface ProductReviewsProps {
   productId: string
@@ -14,7 +25,17 @@ interface ProductReviewsProps {
 const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const queryClient = useQueryClient()
   const user = useAppSelector((state) => state.auth.user)
-  const { data: reviews = [], isLoading } = useGetProductReviews(productId)
+  const [page, setPage] = useState(1)
+
+  const { data, isLoading } = useGetProductReviews(productId, { pageNumber: page, pageSize: PAGE_SIZE })
+  const reviews = data?.items ?? []
+  const totalPages = data?.totalPages ?? 0
+
+  // The average has to come from the server: computing it from `reviews` would only
+  // describe the page currently on screen.
+  const { data: summary } = useGetProductReviewSummary(productId)
+  const avgRating = summary?.averageRating ?? 0
+  const totalCount = summary?.totalCount ?? 0
 
   const form = useForm({
     initialValues: { rating: 5, comment: '' },
@@ -27,11 +48,24 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const { mutate: createReview, isPending } = useCreateReview({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetProductReviewsQueryKey(productId) })
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: getGetProductReviewsQueryKey(productId) }),
+          queryClient.invalidateQueries({ queryKey: getGetProductReviewSummaryQueryKey(productId) }),
+        ])
         form.reset()
-        notifications.show({ title: 'Review submitted', message: 'Your review is pending approval.', color: 'green' })
+        setPage(1)
+        notifications.show({ title: 'Review submitted', message: 'Thanks for sharing your experience.', color: 'green' })
       },
-      onError: () => notifications.show({ title: 'Error', message: 'Failed to submit review.', color: 'red' }),
+      onError: (error) => {
+        // The server explains why it refused (403 when the product was never delivered to this
+        // user, 404 when it no longer exists); a generic message would hide that from the user.
+        const detail = (error as AxiosError<ProblemDetails>).response?.data?.detail
+        notifications.show({
+          title: 'Error',
+          message: detail || 'Failed to submit review.',
+          color: 'red',
+        })
+      },
     },
   })
 
@@ -42,19 +76,17 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
     })
   }
 
-  const avgRating = reviews.length > 0 ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0
-
   return (
     <div className="mt-10">
       {/* Header */}
       <div className="flex items-center gap-2 mb-6">
         <FiMessageSquare className="text-xl text-primary" />
         <h2 className="text-xl font-bold text-gray-800">Customer Reviews</h2>
-        {reviews.length > 0 && (
+        {totalCount > 0 && (
           <div className="flex items-center gap-1.5 ml-2">
             <Rating value={avgRating} fractions={2} readOnly size="sm" />
             <span className="text-sm text-gray-500">
-              ({avgRating.toFixed(1)}) · {reviews.length} reviews
+              ({avgRating.toFixed(1)}) · {totalCount} {totalCount === 1 ? 'review' : 'reviews'}
             </span>
           </div>
         )}
@@ -87,6 +119,12 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
               </div>
             </div>
           ))}
+
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-2">
+              <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+            </div>
+          )}
         </div>
       )}
 

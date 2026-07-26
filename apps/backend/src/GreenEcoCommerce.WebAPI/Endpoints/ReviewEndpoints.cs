@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GreenEcoCommerce.Application.Common.Models;
 using GreenEcoCommerce.Application.Features.Reviews;
 using GreenEcoCommerce.Application.Features.Reviews.Commands;
 using GreenEcoCommerce.Application.Features.Reviews.Queries;
@@ -16,9 +17,17 @@ public static class ReviewEndpoints
            .WithTags("Reviews")
            .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+        // Public: rating aggregate across every visible review of a product
+        app.MapGet("/api/products/{productId:guid}/reviews/summary", GetProductReviewSummary)
+           .WithTags("Reviews")
+           .ProducesProblem(StatusCodes.Status500InternalServerError);
+
         // Authenticated user: submit/update a review
         app.MapPost("/api/products/{productId:guid}/reviews", CreateReview)
                 .WithTags("Reviews").RequireAuthorization("UserOnly")
+                .ProducesProblem(StatusCodes.Status401Unauthorized)
+                .ProducesProblem(StatusCodes.Status403Forbidden)
+                .ProducesProblem(StatusCodes.Status404NotFound)
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         // Admin: list all reviews with optional filter
@@ -32,13 +41,29 @@ public static class ReviewEndpoints
         adminGroup.MapDelete("/{id:guid}", DeleteReview);
     }
 
-    private static async Task<Ok<ReviewDto[]>> GetProductReviews(Guid productId, ISender sender) =>
-            TypedResults.Ok(await sender.Send(new GetProductReviewsQuery(productId)));
+    private static Guid GetUserId(ClaimsPrincipal user)
+    {
+        var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
+
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            throw new UnauthorizedAccessException("Invalid user ID in token");
+        }
+
+        return userId;
+    }
+
+    private static async Task<Ok<PagedResult<ReviewDto>>> GetProductReviews(
+            Guid productId, [AsParameters] GetProductReviewsQuery.Parameters query, ISender sender) =>
+            TypedResults.Ok(await sender.Send(new GetProductReviewsQuery(productId, query)));
+
+    private static async Task<Ok<ProductReviewSummaryDto>> GetProductReviewSummary(Guid productId, ISender sender) =>
+            TypedResults.Ok(await sender.Send(new GetProductReviewSummaryQuery(productId)));
 
     private static async Task<Ok<ReviewDto>> CreateReview(Guid productId, ReviewPayloadDto body,
                                                           ClaimsPrincipal user, ISender sender)
     {
-        var userId = Guid.Parse(user.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = GetUserId(user);
         var result = await sender.Send(new CreateReviewCommand(productId, userId, body));
         return TypedResults.Ok(result);
     }
