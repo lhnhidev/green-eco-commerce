@@ -12,6 +12,7 @@ export type ActiveType =
   | 'setting'
   | 'review'
   | 'coupon'
+  | 'banner'
 
 type TheNavigationState = {
   active: ActiveType
