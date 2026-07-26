@@ -10,6 +10,7 @@ import OrderList from '@pages/admin/order/OrderList'
 import ProductCreate from '@pages/admin/product/ProductCreate'
 import ProductEdit from '@pages/admin/product/ProductEdit'
 import ProductList from '@pages/admin/product/ProductList'
+import ReviewList from '@pages/admin/review/ReviewList'
 import UserList from '@pages/admin/user/UserList'
 import AuthPage from '@pages/client/AuthPage'
 import { HomePage } from '@pages/client/HomePage'
@@ -111,6 +112,10 @@ export const router = createBrowserRouter([
       {
         path: 'user',
         element: <UserList />,
+      },
+      {
+        path: 'review',
+        element: <ReviewList />,
       },
       {
         path: 'document',

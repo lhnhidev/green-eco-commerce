@@ -1,5 +1,4 @@
 import { useGetGreenWallet } from '@api'
-import { useAuth } from '@hooks/useAuth'
 import { Anchor, Badge, Breadcrumbs, RingProgress, Table, Text } from '@mantine/core'
 import dayjs from 'dayjs'
 import { BiLeaf } from 'react-icons/bi'
@@ -17,17 +16,12 @@ const breadcrumbItems = [
 ))
 
 const GreenWalletPage = () => {
-  const { user } = useAuth()
-  const userId = (user as { id?: string })?.id ?? ''
-
-  const { data: wallet, isLoading } = useGetGreenWallet(userId, {
-    query: { enabled: !!userId },
-  })
+  const { data: wallet, isLoading } = useGetGreenWallet()
 
   const progress = wallet ? Math.min((wallet.balance / Math.max(wallet.earnedTotal, 1)) * 100, 100) : 0
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
+    <div className="container mx-auto px-4 py-8">
       <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
 
       <div className="flex items-center gap-3 mb-6">

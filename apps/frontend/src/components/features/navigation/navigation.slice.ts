@@ -1,6 +1,16 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
 
-export type ActiveType = 'dashboard' | 'product' | 'category' | 'user' | 'material' | 'document' | 'order' | 'analyst' | 'setting'
+export type ActiveType =
+  | 'dashboard'
+  | 'product'
+  | 'category'
+  | 'user'
+  | 'material'
+  | 'document'
+  | 'order'
+  | 'analyst'
+  | 'setting'
+  | 'review'
 
 type TheNavigationState = {
   active: ActiveType

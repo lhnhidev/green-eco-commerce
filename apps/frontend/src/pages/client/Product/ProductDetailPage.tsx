@@ -308,6 +308,13 @@ const ProductDetailPage = () => {
           </div>
         </div>
       </div>
+
+      {/* Customer Reviews */}
+      {product && (
+        <div className="container mx-auto px-4 max-w-7xl pb-16">
+          <ProductReviews productId={product.id} />
+        </div>
+      )}
     </div>
   )
 }
