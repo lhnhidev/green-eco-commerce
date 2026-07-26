@@ -22,7 +22,7 @@ public record GetAllProductsQuery(GetAllProductsQuery.Parameters Query)
     {
         public async Task<PagedResult<ProductDto>> Handle(GetAllProductsQuery request, CancellationToken ct)
         {
-            var productQuery = dbContext.Products;
+            var productQuery = dbContext.Products.Where(p => p.IsActive);
             return await request.Query.ApplyAsync(productQuery, ProductDtoMapper.ProjectToDto, ct);
         }
     }

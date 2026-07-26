@@ -1,115 +1,176 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
-/** biome-ignore-all lint/correctness/useJsxKeyInIterable: <> */
 /** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
 
 import { useGetCart } from '@api'
-import Loading from '@components/ui/status/Loading'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
-import { Button } from '@mantine/core'
-import { IoCart, IoCloseSharp } from 'react-icons/io5'
 import { useNavigate } from 'react-router'
 import CartItem from './CartItem'
 import { setIsShow } from './cart.slice'
+
+// Icons as inline SVGs to avoid icon package dependency here
+const CartIcon = () => (
+  <svg width="52" height="52" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.2} className="text-green-300">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+  </svg>
+)
 
 const CartSidebar = () => {
   const isShow = useAppSelector((state) => state.cart.isShow)
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-
   const { data, isLoading, isError } = useGetCart()
 
-  // console.log(data)
+  const close = () => dispatch(setIsShow(false))
+  const subtotal = data?.items?.reduce((acc, item) => acc + (item.productPrice ?? 0) * (item.quantity ?? 1), 0) ?? 0
+  const itemCount = data?.items?.length ?? 0
 
   return (
-    isShow && (
-      <div className="fixed z-100 top-0 right-0 left-0 w-full h-full">
-        <div
-          onClick={() => dispatch(setIsShow(false))}
-          className="w-full h-full bg-black/80 animate__animated animate__fadeIn"
-        ></div>
-        <div
-          className={`bg-(--color-background) fixed top-0 right-0 w-[40%] h-full animate__animated animate__fadeInRight ${data?.items?.length === 0 ? 'flex items-center justify-center' : ''}`}
-        >
-          {isError ? (
-            <div className="h-full flex items-center justify-center">You are not logged in</div>
-          ) : data === undefined || isLoading ? (
-            <div className="h-full flex items-center justify-center">
-              <Loading text="Loading" />
+    <>
+      {/* Backdrop */}
+      <div
+        className={`fixed inset-0 z-99 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ${isShow ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+        onClick={close}
+      />
+
+      {/* Drawer panel */}
+      <div
+        className={`
+          fixed top-0 right-0 z-100 h-full
+          w-full sm:w-[400px] max-w-[calc(100vw-2rem)]
+          bg-white flex flex-col shadow-2xl
+          transform transition-transform duration-300 ease-out
+          ${isShow ? 'translate-x-0' : 'translate-x-full'}
+        `}
+      >
+        {/* ── Header ─────────────────────────────────────── */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2} className="text-green-700">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
             </div>
-          ) : data?.items?.length === 0 ? (
-            <div className="text-gray-800">
-              <div className="mb-3">
-                <IoCart className="text-6xl mx-auto" />
+            <div>
+              <p className="font-bold text-gray-900 text-[15px] leading-none">My Cart</p>
+              {itemCount > 0 && (
+                <p className="text-[11px] text-gray-400 mt-0.5">{itemCount} item{itemCount !== 1 ? 's' : ''}</p>
+              )}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={close}
+            className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-all"
+          >
+            <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* ── Body ───────────────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto">
+          {isError ? (
+            /* Not logged in */
+            <div className="h-full flex flex-col items-center justify-center gap-4 px-8 text-center">
+              <div className="w-16 h-16 bg-amber-50 rounded-full flex items-center justify-center">
+                <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} className="text-amber-500">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </div>
-              <div className="text-center">
-                <p>Your Cart is empty</p>
-                <p
-                  onClick={() => {
-                    dispatch(setIsShow(false))
-                    navigate('/products')
-                  }}
-                  className="underline text-primary hover:cursor-pointer hover:opacity-80 transition-all"
-                >
-                  Continue Shopping
-                </p>
+              <p className="font-semibold text-gray-700">Sign in to see your cart</p>
+              <p className="text-sm text-gray-400">Your eco-friendly picks will appear here once you're logged in.</p>
+              <button
+                type="button"
+                onClick={() => { close(); navigate('/auth') }}
+                className="mt-1 px-6 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors"
+              >
+                Sign In
+              </button>
+            </div>
+          ) : isLoading || data === undefined ? (
+            /* Loading skeleton */
+            <div className="px-5 py-4 flex flex-col gap-5">
+              {Array.from({ length: 3 }).map((_, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: skeleton
+                <div key={i} className="flex gap-3 animate-pulse">
+                  <div className="w-20 h-20 bg-gray-100 rounded-xl shrink-0" />
+                  <div className="flex-1 space-y-2 pt-1">
+                    <div className="h-3 bg-gray-100 rounded-full w-3/4" />
+                    <div className="h-3 bg-gray-100 rounded-full w-1/2" />
+                    <div className="h-6 bg-gray-100 rounded-full w-24 mt-3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : data.items.length === 0 ? (
+            /* Empty state */
+            <div className="h-full flex flex-col items-center justify-center gap-3 px-8 text-center py-12">
+              <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-2">
+                <CartIcon />
               </div>
+              <p className="font-bold text-gray-800 text-lg">Your cart is empty</p>
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Looks like you haven't added any eco-friendly products yet. Let's change that!
+              </p>
+              <button
+                type="button"
+                onClick={() => { close(); navigate('/products') }}
+                className="mt-3 px-6 py-2.5 bg-linear-to-r from-green-700 to-emerald-600 hover:from-green-800 hover:to-emerald-700 text-white text-sm font-semibold rounded-xl transition-all shadow-md shadow-green-500/20 active:scale-[0.98]"
+              >
+                Shop Now →
+              </button>
             </div>
           ) : (
-            <>
-              <div className="px-4 relative text-center font-bold text-sm py-4 border-b-gray-400 border-b">
-                Shopping Cart
-                <div
-                  onClick={() => dispatch(setIsShow(false))}
-                  className="text-xl hover:bg-gray-300 transition-all hover:cursor-pointer absolute top-0 right-0 h-full flex items-center justify-center px-5"
-                >
-                  <IoCloseSharp />
-                </div>
-              </div>
-
-              <div className="px-4 py-5 border-b-gray-400 border-b overflow-auto max-h-170">
-                {data?.items?.map((item) => (
-                  <div className="mb-4">
-                    <CartItem key={item.productId} cartItem={item} />
-                  </div>
-                ))}
-              </div>
-
-              <div className="px-4 py-5">
-                <p className="text-center text-sm mb-2"> Included tax. Checkout to pay them.</p>
-                <div>
-                  <Button
-                    onClick={() => {
-                      dispatch(setIsShow(false))
-                      navigate('/payment')
-                    }}
-                    color="green.9"
-                    size="md"
-                    w="100%"
-                    radius="xl"
-                    classNames={{ root: '!mb-3' }}
-                  >
-                    <span className="hidden sm:inline">Checkout</span>
-                  </Button>
-                  <Button
-                    onClick={() => {
-                      dispatch(setIsShow(false))
-                      navigate('/products')
-                    }}
-                    color="green.9"
-                    size="md"
-                    w="100%"
-                    radius="xl"
-                  >
-                    <span className="hidden sm:inline">Continue Shopping</span>
-                  </Button>
-                </div>
-              </div>
-            </>
+            /* Items list */
+            <div className="px-5">
+              {data.items.map((item) => (
+                <CartItem key={item.productId} cartItem={item} />
+              ))}
+            </div>
           )}
         </div>
+
+        {/* ── Footer (only when cart has items) ──────────── */}
+        {!isError && !isLoading && data && data.items.length > 0 && (
+          <div className="border-t border-gray-100 bg-gray-50/50">
+            {/* Green Points notice */}
+            <div className="mx-5 mt-4 px-3 py-2.5 bg-green-50 rounded-xl border border-green-100 flex items-center gap-2">
+              <span className="text-base">🌿</span>
+              <p className="text-[11px] font-semibold text-green-700">
+                You'll earn <span className="text-green-800 font-black">{data.pointsGained}</span> Green Points on this order
+              </p>
+            </div>
+
+            {/* Subtotal */}
+            <div className="px-5 pt-4 pb-2 flex items-center justify-between">
+              <span className="text-sm text-gray-500">Subtotal</span>
+              <span className="font-bold text-gray-900 text-[15px]">${subtotal.toFixed(2)}</span>
+            </div>
+            <p className="px-5 text-[11px] text-gray-400 mb-4">Taxes and shipping calculated at checkout</p>
+
+            {/* Actions */}
+            <div className="px-5 pb-5 flex flex-col gap-2.5">
+              <button
+                type="button"
+                onClick={() => { close(); navigate('/payment') }}
+                className="w-full py-3.5 bg-linear-to-r from-green-700 to-emerald-600 hover:from-green-800 hover:to-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40 active:scale-[0.98] flex items-center justify-center gap-2"
+              >
+                Checkout — ${subtotal.toFixed(2)}
+              </button>
+              <button
+                type="button"
+                onClick={() => { close(); navigate('/products') }}
+                className="w-full py-3 bg-white border border-gray-200 hover:border-green-300 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold text-sm rounded-xl transition-all active:scale-[0.98]"
+              >
+                Continue Shopping
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-    )
+    </>
   )
 }
 

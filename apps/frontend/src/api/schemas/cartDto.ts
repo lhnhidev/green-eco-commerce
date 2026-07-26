@@ -11,4 +11,5 @@ export interface CartDto {
   id: string;
   userId: string;
   items: CartItemDto[];
+  pointsGained: number;
 }

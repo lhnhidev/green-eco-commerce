@@ -1,10 +1,4 @@
-import {
-  getGetProductReviewSummaryQueryKey,
-  getGetProductReviewsQueryKey,
-  useCreateReview,
-  useGetProductReviews,
-  useGetProductReviewSummary,
-} from '@api'
+import { getGetProductByIdQueryKey, getGetProductReviewsQueryKey, useCreateReview, useGetProductReviews, } from '@api'
 import type { ProblemDetails } from '@api/schemas'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { Avatar, Button, Pagination, Rating, Textarea } from '@mantine/core'
@@ -20,9 +14,11 @@ const PAGE_SIZE = 5
 
 interface ProductReviewsProps {
   productId: string
+  averageRating: number
+  reviewsCount: number
 }
 
-const ProductReviews = ({ productId }: ProductReviewsProps) => {
+const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductReviewsProps) => {
   const queryClient = useQueryClient()
   const user = useAppSelector((state) => state.auth.user)
   const [page, setPage] = useState(1)
@@ -30,12 +26,6 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
   const { data, isLoading } = useGetProductReviews(productId, { pageNumber: page, pageSize: PAGE_SIZE })
   const reviews = data?.items ?? []
   const totalPages = data?.totalPages ?? 0
-
-  // The average has to come from the server: computing it from `reviews` would only
-  // describe the page currently on screen.
-  const { data: summary } = useGetProductReviewSummary(productId)
-  const avgRating = summary?.averageRating ?? 0
-  const totalCount = summary?.totalCount ?? 0
 
   const form = useForm({
     initialValues: { rating: 5, comment: '' },
@@ -50,7 +40,7 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
       onSuccess: async () => {
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: getGetProductReviewsQueryKey(productId) }),
-          queryClient.invalidateQueries({ queryKey: getGetProductReviewSummaryQueryKey(productId) }),
+          queryClient.invalidateQueries({ queryKey: getGetProductByIdQueryKey(productId) }),
         ])
         form.reset()
         setPage(1)
@@ -82,11 +72,11 @@ const ProductReviews = ({ productId }: ProductReviewsProps) => {
       <div className="flex items-center gap-2 mb-6">
         <FiMessageSquare className="text-xl text-primary" />
         <h2 className="text-xl font-bold text-gray-800">Customer Reviews</h2>
-        {totalCount > 0 && (
+        {reviewsCount > 0 && (
           <div className="flex items-center gap-1.5 ml-2">
-            <Rating value={avgRating} fractions={2} readOnly size="sm" />
+            <Rating value={averageRating} fractions={2} readOnly size="sm" />
             <span className="text-sm text-gray-500">
-              ({avgRating.toFixed(1)}) · {totalCount} {totalCount === 1 ? 'review' : 'reviews'}
+              ({averageRating.toFixed(1)}) · {reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'}
             </span>
           </div>
         )}

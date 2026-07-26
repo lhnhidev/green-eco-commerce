@@ -1,3 +1,4 @@
+using GreenEcoCommerce.Application.Interfaces.Configuration;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Queries;
 using GreenEcoCommerce.Domain.Exceptions;
@@ -8,7 +9,8 @@ namespace GreenEcoCommerce.Application.Features.Carts.Commands;
 
 public record RemoveCartItemCommand(Guid UserId, Guid ProductId) : IRequest<CartDto>
 {
-    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<RemoveCartItemCommand, CartDto>
+    public class Handler(IApplicationDbContext dbContext, IApplicationConfiguration config)
+            : IRequestHandler<RemoveCartItemCommand, CartDto>
     {
         public async Task<CartDto> Handle(RemoveCartItemCommand command, CancellationToken ct)
         {
@@ -23,7 +25,7 @@ public record RemoveCartItemCommand(Guid UserId, Guid ProductId) : IRequest<Cart
                 await dbContext.SaveChangesAsync(ct);
             }
 
-            return cart.ToDto();
+            return await cart.ToDto().ConfigurePointsSavedAsync(config);
         }
     }
 }

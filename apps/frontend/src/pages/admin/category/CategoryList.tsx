@@ -82,7 +82,7 @@ const CategoryList = () => {
 
   const handleConfirmDelete = () => {
     deleteCategory(
-      { id: deletingCategory!.id },
+      { id: deletingCategory?.id ?? '' },
       {
         onSuccess: () => {
           notifications.show({ title: 'Deleted', message: 'Category removed.', color: 'green' })

@@ -1,4 +1,4 @@
-import { getGetCartQueryKey, useAddCartItem, useGetProductById, useGetProductReviewSummary } from '@api'
+import { getGetCartQueryKey, useAddCartItem, useGetProductById } from '@api'
 import ProductReviews from '@components/features/reviews/ProductReviews'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
 import Loading from '@components/ui/status/Loading'
@@ -28,13 +28,6 @@ const ProductDetailPage = () => {
       enabled: !!id,
     },
   })
-
-  const { data: reviewSummary } = useGetProductReviewSummary(
-    // biome-ignore lint/style/noNonNullAssertion: <>
-    id!,
-    { query: { enabled: !!id } },
-  )
-  const reviewCount = reviewSummary?.totalCount ?? 0
 
   const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
@@ -161,12 +154,12 @@ const ProductDetailPage = () => {
                 </div>
                 <div className="h-6 w-px bg-gray-200" />
                 <div className="flex items-center gap-2">
-                  <Rating value={reviewSummary?.averageRating ?? 0} fractions={2} readOnly size="sm" />
+                  <Rating value={product?.rating ?? 0} fractions={2} readOnly size="sm" />
                   <a
                     href="#reviews"
                     className="text-sm font-medium text-gray-500 hover:text-primary transition-colors border-b border-dashed border-gray-400"
                   >
-                    {reviewCount === 1 ? '1 Review' : `${reviewCount} Reviews`}
+                    {product.reviewsCount === 1 ? '1 Review' : `${product.reviewsCount} Reviews`}
                   </a>
                 </div>
               </div>
@@ -316,7 +309,7 @@ const ProductDetailPage = () => {
       {/* Customer Reviews */}
       {product && (
         <div id="reviews" className="container mx-auto px-4 max-w-7xl pb-16 scroll-mt-24">
-          <ProductReviews productId={product.id} />
+          <ProductReviews productId={product.id} reviewsCount={product.reviewsCount} averageRating={product.rating} />
         </div>
       )}
     </div>

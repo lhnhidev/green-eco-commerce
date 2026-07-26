@@ -1,4 +1,5 @@
 using FluentValidation;
+using GreenEcoCommerce.Application.Interfaces.Configuration;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Queries;
 using GreenEcoCommerce.Domain.Entities;
@@ -10,7 +11,8 @@ namespace GreenEcoCommerce.Application.Features.Carts.Commands;
 
 public record AddCartItemCommand(Guid UserId, CartItemPayloadDto Item) : IRequest<CartDto>
 {
-    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<AddCartItemCommand, CartDto>
+    public class Handler(IApplicationDbContext dbContext, IApplicationConfiguration config)
+            : IRequestHandler<AddCartItemCommand, CartDto>
     {
         public async Task<CartDto> Handle(AddCartItemCommand command, CancellationToken ct)
         {
@@ -50,7 +52,7 @@ public record AddCartItemCommand(Guid UserId, CartItemPayloadDto Item) : IReques
             await dbContext.Carts.Entry(cart).Collection(c => c.CartItems).Query().Include(ci => ci.Product)
                     .LoadAsync(ct);
 
-            return cart.ToDto();
+            return await cart.ToDto().ConfigurePointsSavedAsync(config);
         }
     }
 

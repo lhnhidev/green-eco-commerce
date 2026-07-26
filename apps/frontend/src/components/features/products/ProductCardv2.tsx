@@ -2,9 +2,9 @@ import { getGetCartQueryKey, useAddCartItem } from '@api'
 import type { ProductDto } from '@api/schemas'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
-import { FaStar, FaStarHalfAlt } from 'react-icons/fa'
 import { FiShoppingCart } from 'react-icons/fi'
 import { Link } from 'react-router'
+import { Rating } from "@mantine/core";
 
 const ProductCardv2 = ({ product }: { product: ProductDto }) => {
   const { mutate, isPending } = useAddCartItem({
@@ -103,14 +103,18 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
 
           {/* Footer (Rating & Reviews) */}
           <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100/80">
-            <div className="flex items-center gap-1.5 text-amber-400">
-              <FaStar size={14} />
-              <FaStar size={14} />
-              <FaStar size={14} />
-              <FaStar size={14} />
-              <FaStarHalfAlt size={14} />
-            </div>
-            <span className="text-xs font-medium text-gray-400 hover:text-primary transition-colors">124 reviews</span>
+            <Rating value={product.rating} fractions={2} readOnly />
+            <span className="text-xs font-medium text-gray-400 hover:text-primary transition-colors">
+              ({product.rating.toFixed(1)}) · {product.reviewsCount} {product.reviewsCount === 1 ? 'review' : 'reviews'}
+            </span>
+            {/*<div className="flex items-center gap-1.5 text-amber-400">*/}
+            {/*  <FaStar size={14} />*/}
+            {/*  <FaStar size={14} />*/}
+            {/*  <FaStar size={14} />*/}
+            {/*  <FaStar size={14} />*/}
+            {/*  <FaStarHalfAlt size={14} />*/}
+            {/*</div>*/}
+            {/*<span className="text-xs font-medium text-gray-400 hover:text-primary transition-colors">124 reviews</span>*/}
           </div>
         </div>
       </div>

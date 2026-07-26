@@ -11,6 +11,7 @@ export interface CartItemDto {
   productName: string;
   productPrice: number;
   productImageUrl: string;
+  unitCo2Saved: number;
   quantity: number;
   currentStockQuantity: number;
 }
