@@ -70,7 +70,7 @@ const TheNavigation = () => {
   const active = useAppSelector((state) => state.theNavigation.active)
 
   return (
-    <div className="w-[220px] flex flex-col bg-white border-r border-[#ececee] h-screen px-2 py-3 z-10">
+    <div className="w-55 flex flex-col bg-white border-r border-[#ececee] h-screen px-2 py-3 z-10">
       <div className="flex justify-center mb-4">
         <Brand linkToHome={true} size="md" />
       </div>
