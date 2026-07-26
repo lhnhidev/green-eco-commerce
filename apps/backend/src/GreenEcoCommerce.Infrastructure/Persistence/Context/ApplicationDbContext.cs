@@ -37,9 +37,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     // Settings & Config
     public DbSet<AppConfiguration> AppConfigurations => Set<AppConfiguration>();
 
-    // Reviews & Coupons
+    // Reviews, Coupons & Banners
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<Coupon> Coupons => Set<Coupon>();
+    public DbSet<Banner> Banners => Set<Banner>();
 
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
             Database.BeginTransactionAsync(ct);

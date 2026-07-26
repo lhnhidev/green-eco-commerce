@@ -7,7 +7,7 @@ import { IoIosDocument, IoIosSettings } from 'react-icons/io'
 import { IoReceipt } from 'react-icons/io5'
 import { MdCategory } from 'react-icons/md'
 import { RiCoupon3Line } from 'react-icons/ri'
-import { TbCategory, TbMessageStar } from 'react-icons/tb'
+import { TbCategory, TbMessageStar, TbPhoto } from 'react-icons/tb'
 import { Link } from 'react-router'
 import NavigationIndex from './NavigationIndex'
 import { type ActiveType, setActive } from './navigation.slice'
@@ -52,6 +52,11 @@ const navigateMems = [
     id: 'coupon',
     icon: RiCoupon3Line,
     text: 'Coupons',
+  },
+  {
+    id: 'banner',
+    icon: TbPhoto,
+    text: 'Banners',
   },
   {
     id: 'document',

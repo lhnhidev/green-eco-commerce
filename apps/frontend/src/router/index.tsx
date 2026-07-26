@@ -1,5 +1,6 @@
 import RootLayout from '@layouts/RootLayout'
 import RootLayoutAdmin from '@layouts/RootLayoutAdmin'
+import BannerList from '@pages/admin/banner/BannerList'
 import CategoryCreate from '@pages/admin/category/CategoryCreate'
 import CategoryList from '@pages/admin/category/CategoryList'
 import CouponList from '@pages/admin/coupon/CouponList'
@@ -113,6 +114,10 @@ export const router = createBrowserRouter([
       {
         path: 'user',
         element: <UserList />,
+      },
+      {
+        path: 'banner',
+        element: <BannerList />,
       },
       {
         path: 'review',

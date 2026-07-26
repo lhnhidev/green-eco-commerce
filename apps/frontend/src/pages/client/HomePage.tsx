@@ -1,4 +1,5 @@
 import { useGetAllProducts } from '@api'
+import BannerCarousel from '@components/features/banners/BannerCarousel'
 import FormSendEmail from '@components/features/FormSendEmail'
 import { ProductSlider } from '@components/features/products/ProductSlider'
 import FeatureSection from '@components/ui/landing/FeatureSection'
@@ -47,6 +48,7 @@ export function HomePage() {
   return (
     <div className="min-h-screen bg-(--color-background)">
       <HeroSection />
+      <BannerCarousel />
       <TrustSection />
 
       <div>

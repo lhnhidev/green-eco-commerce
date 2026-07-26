@@ -27,6 +27,7 @@ const RootLayoutAdmin = () => {
       setting: 'setting',
       review: 'review',
       coupon: 'coupon',
+      banner: 'banner',
     }
 
     const activeValue = pathToActiveMap[currentPath] || 'dashboard'

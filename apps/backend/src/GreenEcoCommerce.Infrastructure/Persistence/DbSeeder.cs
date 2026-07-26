@@ -25,6 +25,7 @@ public static class DbSeeder
         await SeedPointTransactionsAsync(context);
         await SeedCartItemsAsync(context);
         await SeedOrderItemsAsync(context);
+        await SeedBannersAsync(context);
     }
 
     // ────────────────────────────────────────────────────────────────────
@@ -153,7 +154,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000011"),
                 Name = "Bamboo Toothbrush Pack (4x)",
                 Description = "Four adult bamboo toothbrushes with BPA-free bristles and a biodegradable handle. Certified by FSC-certified bamboo plantation.",
-                Price = 89_000m,
+                Price = 8.99m,
                 StockQty = 250,
                 CarbonIndex = 0.05m,
                 BaselineCarbonIndex = 0.35m,
@@ -172,7 +173,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000011"),
                 Name = "Natural Charcoal Toothpaste",
                 Description = "Whitening toothpaste with activated charcoal and coconut oil. Free of SLS, fluoride, and microplastics. Comes in a glass jar.",
-                Price = 125_000m,
+                Price = 12.99m,
                 StockQty = 180,
                 CarbonIndex = 0.12m,
                 BaselineCarbonIndex = 0.60m,
@@ -191,7 +192,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000011"),
                 Name = "Silk Dental Floss (Refillable)",
                 Description = "100% natural silk floss coated with candelilla wax. Comes in a refillable stainless-steel dispenser.",
-                Price = 75_000m,
+                Price = 7.49m,
                 StockQty = 130,
                 CarbonIndex = 0.03m,
                 BaselineCarbonIndex = 0.25m,
@@ -211,7 +212,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000012"),
                 Name = "Organic Aloe Vera Gel",
                 Description = "Pure 99.5% aloe vera gel in a recyclable glass bottle. Certified USDA Organic. Soothes and moisturises naturally.",
-                Price = 145_000m,
+                Price = 14.99m,
                 StockQty = 200,
                 CarbonIndex = 0.08m,
                 BaselineCarbonIndex = 0.40m,
@@ -230,7 +231,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000012"),
                 Name = "Solid Shampoo Bar - Lavender",
                 Description = "Zero-plastic shampoo bar made with organic lavender oil and shea butter. One bar equals ~3 bottles of liquid shampoo.",
-                Price = 110_000m,
+                Price = 10.99m,
                 StockQty = 320,
                 CarbonIndex = 0.06m,
                 BaselineCarbonIndex = 0.80m,
@@ -251,7 +252,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000013"),
                 Name = "Beeswax Food Wraps (Set of 3)",
                 Description = "Reusable beeswax food wraps in three sizes. Replaces cling film. Washable and compostable at end of life.",
-                Price = 165_000m,
+                Price = 16.99m,
                 StockQty = 140,
                 CarbonIndex = 0.10m,
                 BaselineCarbonIndex = 0.90m,
@@ -270,7 +271,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000013"),
                 Name = "Organic Cotton Produce Bags (5-Pack)",
                 Description = "Lightweight mesh produce bags made from organic cotton. Machine washable. Perfect for fruits, veggies, and bulk goods.",
-                Price = 95_000m,
+                Price = 9.49m,
                 StockQty = 400,
                 CarbonIndex = 0.07m,
                 BaselineCarbonIndex = 0.50m,
@@ -289,7 +290,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000013"),
                 Name = "Stainless Steel Lunch Box",
                 Description = "Leak-proof 3-compartment stainless steel lunch box. BPA-free, durable, and perfect for reducing single-use plastics.",
-                Price = 280_000m,
+                Price = 28.99m,
                 StockQty = 90,
                 CarbonIndex = 0.45m,
                 BaselineCarbonIndex = 2.00m,
@@ -310,7 +311,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000014"),
                 Name = "Biodegradable Dish Soap Bar",
                 Description = "Concentrated dish soap bar that replaces 4 bottles of liquid dish soap. Palm-oil free and vegan.",
-                Price = 72_000m,
+                Price = 6.99m,
                 StockQty = 350,
                 CarbonIndex = 0.04m,
                 BaselineCarbonIndex = 0.55m,
@@ -328,7 +329,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000014"),
                 Name = "Coconut Fibre Scrub Brush",
                 Description = "Kitchen scrubbing brush with a sustainably sourced wooden handle and coconut coir bristles. 100% biodegradable.",
-                Price = 55_000m,
+                Price = 5.99m,
                 StockQty = 220,
                 CarbonIndex = 0.03m,
                 BaselineCarbonIndex = 0.30m,
@@ -347,7 +348,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000014"),
                 Name = "All-Purpose Cleaning Tablets (30-Pack)",
                 Description = "Concentrated cleaning tablets. Dissolve in water to make a full bottle of multi-surface cleaner. Reduces plastic waste by 90%.",
-                Price = 190_000m,
+                Price = 18.99m,
                 StockQty = 160,
                 CarbonIndex = 0.09m,
                 BaselineCarbonIndex = 1.20m,
@@ -367,7 +368,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000015"),
                 Name = "Organic Cotton Tote Bag",
                 Description = "Heavy-duty grocery tote bag made from GOTS-certified organic cotton canvas. One bag replaces hundreds of single-use plastic bags.",
-                Price = 120_000m,
+                Price = 11.99m,
                 StockQty = 500,
                 CarbonIndex = 0.80m,
                 BaselineCarbonIndex = 6.00m,
@@ -386,7 +387,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000015"),
                 Name = "Recycled PET Fleece Jacket",
                 Description = "Warm fleece jacket made from 100% recycled plastic bottles. Each jacket repurposes ~25 500ml bottles.",
-                Price = 850_000m,
+                Price = 64.99m,
                 StockQty = 60,
                 CarbonIndex = 1.80m,
                 BaselineCarbonIndex = 7.00m,
@@ -405,7 +406,7 @@ public static class DbSeeder
                 CategoryId = new Guid("11000000-0000-0000-0000-000000000015"),
                 Name = "Hemp Canvas Backpack",
                 Description = "Durable backpack woven from natural hemp canvas with vegan leather accents. Water-resistant and ethically manufactured.",
-                Price = 650_000m,
+                Price = 49.99m,
                 StockQty = 75,
                 CarbonIndex = 0.90m,
                 BaselineCarbonIndex = 4.50m,
@@ -681,17 +682,17 @@ public static class DbSeeder
 
         var orders = new List<Order>
         {
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000001"), UserId = new Guid("44000000-0000-0000-0000-000000000002"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "45 Le Loi, District 3, Ho Chi Minh City",                    DiscountAmount = 0m,       EarnedPoints = 25m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-90) },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000002"), UserId = new Guid("44000000-0000-0000-0000-000000000002"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "45 Le Loi, District 3, Ho Chi Minh City",                    DiscountAmount = 50_000m,  EarnedPoints = 40m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-60) },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000003"), UserId = new Guid("44000000-0000-0000-0000-000000000003"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "78 Tran Hung Dao, District 5, Ho Chi Minh City",            DiscountAmount = 0m,       EarnedPoints = 15m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-80) },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000004"), UserId = new Guid("44000000-0000-0000-0000-000000000004"), Status = OrderStatusEnum.Packing,    DeliveryAddress = "12 Dinh Tien Hoang, Binh Thanh District, Ho Chi Minh City", DiscountAmount = 0m,       EarnedPoints = 20m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-3)  },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000005"), UserId = new Guid("44000000-0000-0000-0000-000000000005"), Status = OrderStatusEnum.Pending,    DeliveryAddress = "56 Nguyen Thi Minh Khai, District 1, Ho Chi Minh City",   DiscountAmount = 0m,       EarnedPoints = 8m,  CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000006"), UserId = new Guid("44000000-0000-0000-0000-000000000006"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "30 Pasteur, District 1, Ho Chi Minh City",                  DiscountAmount = 100_000m, EarnedPoints = 60m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-45) },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000007"), UserId = new Guid("44000000-0000-0000-0000-000000000007"), Status = OrderStatusEnum.Delivering, DeliveryAddress = "89 Ly Tu Trong, District 1, Ho Chi Minh City",              DiscountAmount = 0m,       EarnedPoints = 10m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-2)  },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000008"), UserId = new Guid("44000000-0000-0000-0000-000000000008"), Status = OrderStatusEnum.Cancelled,  DeliveryAddress = "25 Vo Van Tan, District 3, Ho Chi Minh City",               DiscountAmount = 0m,       EarnedPoints = 0m,  CreatedAt = DateTimeOffset.UtcNow.AddDays(-15) },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000009"), UserId = new Guid("44000000-0000-0000-0000-000000000009"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "67 Nguyen Du, District 1, Ho Chi Minh City",                DiscountAmount = 25_000m,  EarnedPoints = 9m,  CreatedAt = DateTimeOffset.UtcNow.AddDays(-20) },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000010"), UserId = new Guid("44000000-0000-0000-0000-000000000010"), Status = OrderStatusEnum.Packing,    DeliveryAddress = "34 Hai Ba Trung, District 1, Ho Chi Minh City",             DiscountAmount = 0m,       EarnedPoints = 11m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
-            new() { Id = new Guid("77000000-0000-0000-0000-000000000011"), UserId = new Guid("44000000-0000-0000-0000-000000000011"), Status = OrderStatusEnum.Pending,    DeliveryAddress = "101 Cach Mang Thang 8, District 10, Ho Chi Minh City",     DiscountAmount = 0m,       EarnedPoints = 5m,  CreatedAt = DateTimeOffset.UtcNow              },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000001"), UserId = new Guid("44000000-0000-0000-0000-000000000002"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "45 Le Loi, District 3, Ho Chi Minh City",                    DiscountAmount = 0m,    EarnedPoints = 25m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-90) },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000002"), UserId = new Guid("44000000-0000-0000-0000-000000000002"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "45 Le Loi, District 3, Ho Chi Minh City",                    DiscountAmount = 5.00m, EarnedPoints = 40m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-60) },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000003"), UserId = new Guid("44000000-0000-0000-0000-000000000003"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "78 Tran Hung Dao, District 5, Ho Chi Minh City",            DiscountAmount = 0m,    EarnedPoints = 15m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-80) },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000004"), UserId = new Guid("44000000-0000-0000-0000-000000000004"), Status = OrderStatusEnum.Packing,    DeliveryAddress = "12 Dinh Tien Hoang, Binh Thanh District, Ho Chi Minh City", DiscountAmount = 0m,    EarnedPoints = 20m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-3)  },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000005"), UserId = new Guid("44000000-0000-0000-0000-000000000005"), Status = OrderStatusEnum.Pending,    DeliveryAddress = "56 Nguyen Thi Minh Khai, District 1, Ho Chi Minh City",   DiscountAmount = 0m,    EarnedPoints = 8m,  CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000006"), UserId = new Guid("44000000-0000-0000-0000-000000000006"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "30 Pasteur, District 1, Ho Chi Minh City",                  DiscountAmount = 10.00m,EarnedPoints = 60m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-45) },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000007"), UserId = new Guid("44000000-0000-0000-0000-000000000007"), Status = OrderStatusEnum.Delivering, DeliveryAddress = "89 Ly Tu Trong, District 1, Ho Chi Minh City",              DiscountAmount = 0m,    EarnedPoints = 10m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-2)  },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000008"), UserId = new Guid("44000000-0000-0000-0000-000000000008"), Status = OrderStatusEnum.Cancelled,  DeliveryAddress = "25 Vo Van Tan, District 3, Ho Chi Minh City",               DiscountAmount = 0m,    EarnedPoints = 0m,  CreatedAt = DateTimeOffset.UtcNow.AddDays(-15) },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000009"), UserId = new Guid("44000000-0000-0000-0000-000000000009"), Status = OrderStatusEnum.Delivered,  DeliveryAddress = "67 Nguyen Du, District 1, Ho Chi Minh City",                DiscountAmount = 2.00m, EarnedPoints = 9m,  CreatedAt = DateTimeOffset.UtcNow.AddDays(-20) },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000010"), UserId = new Guid("44000000-0000-0000-0000-000000000010"), Status = OrderStatusEnum.Packing,    DeliveryAddress = "34 Hai Ba Trung, District 1, Ho Chi Minh City",             DiscountAmount = 0m,    EarnedPoints = 11m, CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
+            new() { Id = new Guid("77000000-0000-0000-0000-000000000011"), UserId = new Guid("44000000-0000-0000-0000-000000000011"), Status = OrderStatusEnum.Pending,    DeliveryAddress = "101 Cach Mang Thang 8, District 10, Ho Chi Minh City",     DiscountAmount = 0m,    EarnedPoints = 5m,  CreatedAt = DateTimeOffset.UtcNow              },
         };
 
         context.Orders.AddRange(orders);
@@ -707,17 +708,17 @@ public static class DbSeeder
 
         var payments = new List<Payment>
         {
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000001"), OrderId = new Guid("77000000-0000-0000-0000-000000000001"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Paid,     Amount = 254_000m, TransactionRef = "TXN-20260401-001", CreatedAt = DateTimeOffset.UtcNow.AddDays(-90) },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000002"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), Method = PaymentMethodEnum.MoMo,  Status = PaymentStatusEnum.Paid,     Amount = 390_000m, TransactionRef = "TXN-20260501-002", CreatedAt = DateTimeOffset.UtcNow.AddDays(-60) },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000003"), OrderId = new Guid("77000000-0000-0000-0000-000000000003"), Method = PaymentMethodEnum.COD,   Status = PaymentStatusEnum.Paid,     Amount = 165_000m, TransactionRef = "TXN-20260411-003", CreatedAt = DateTimeOffset.UtcNow.AddDays(-80) },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000004"), OrderId = new Guid("77000000-0000-0000-0000-000000000004"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Pending,  Amount = 280_000m, TransactionRef = "TXN-20260716-004", CreatedAt = DateTimeOffset.UtcNow.AddDays(-3)  },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000005"), OrderId = new Guid("77000000-0000-0000-0000-000000000005"), Method = PaymentMethodEnum.MoMo,  Status = PaymentStatusEnum.Pending,  Amount = 89_000m,  TransactionRef = "TXN-20260718-005", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000006"), OrderId = new Guid("77000000-0000-0000-0000-000000000006"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Paid,     Amount = 820_000m, TransactionRef = "TXN-20260604-006", CreatedAt = DateTimeOffset.UtcNow.AddDays(-45) },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000007"), OrderId = new Guid("77000000-0000-0000-0000-000000000007"), Method = PaymentMethodEnum.COD,   Status = PaymentStatusEnum.Pending,  Amount = 110_000m, TransactionRef = "TXN-20260717-007", CreatedAt = DateTimeOffset.UtcNow.AddDays(-2)  },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000008"), OrderId = new Guid("77000000-0000-0000-0000-000000000008"), Method = PaymentMethodEnum.MoMo,  Status = PaymentStatusEnum.Refunded, Amount = 195_000m, TransactionRef = "TXN-20260704-008", CreatedAt = DateTimeOffset.UtcNow.AddDays(-15) },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000009"), OrderId = new Guid("77000000-0000-0000-0000-000000000009"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Paid,     Amount = 127_000m, TransactionRef = "TXN-20260629-009", CreatedAt = DateTimeOffset.UtcNow.AddDays(-20) },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000010"), OrderId = new Guid("77000000-0000-0000-0000-000000000010"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Pending,  Amount = 175_000m, TransactionRef = "TXN-20260718-010", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
-            new() { Id = new Guid("88000000-0000-0000-0000-000000000011"), OrderId = new Guid("77000000-0000-0000-0000-000000000011"), Method = PaymentMethodEnum.COD,   Status = PaymentStatusEnum.Pending,  Amount = 72_000m,  TransactionRef = "TXN-20260719-011", CreatedAt = DateTimeOffset.UtcNow              },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000001"), OrderId = new Guid("77000000-0000-0000-0000-000000000001"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Paid,     Amount = 23.97m,  TransactionRef = "TXN-20260401-001", CreatedAt = DateTimeOffset.UtcNow.AddDays(-90) },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000002"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), Method = PaymentMethodEnum.MoMo,  Status = PaymentStatusEnum.Paid,     Amount = 36.46m,  TransactionRef = "TXN-20260501-002", CreatedAt = DateTimeOffset.UtcNow.AddDays(-60) },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000003"), OrderId = new Guid("77000000-0000-0000-0000-000000000003"), Method = PaymentMethodEnum.COD,   Status = PaymentStatusEnum.Paid,     Amount = 16.99m,  TransactionRef = "TXN-20260411-003", CreatedAt = DateTimeOffset.UtcNow.AddDays(-80) },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000004"), OrderId = new Guid("77000000-0000-0000-0000-000000000004"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Pending,  Amount = 28.99m,  TransactionRef = "TXN-20260716-004", CreatedAt = DateTimeOffset.UtcNow.AddDays(-3)  },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000005"), OrderId = new Guid("77000000-0000-0000-0000-000000000005"), Method = PaymentMethodEnum.MoMo,  Status = PaymentStatusEnum.Pending,  Amount = 8.99m,   TransactionRef = "TXN-20260718-005", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000006"), OrderId = new Guid("77000000-0000-0000-0000-000000000006"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Paid,     Amount = 54.99m,  TransactionRef = "TXN-20260604-006", CreatedAt = DateTimeOffset.UtcNow.AddDays(-45) },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000007"), OrderId = new Guid("77000000-0000-0000-0000-000000000007"), Method = PaymentMethodEnum.COD,   Status = PaymentStatusEnum.Pending,  Amount = 10.99m,  TransactionRef = "TXN-20260717-007", CreatedAt = DateTimeOffset.UtcNow.AddDays(-2)  },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000008"), OrderId = new Guid("77000000-0000-0000-0000-000000000008"), Method = PaymentMethodEnum.MoMo,  Status = PaymentStatusEnum.Refunded, Amount = 21.98m,  TransactionRef = "TXN-20260704-008", CreatedAt = DateTimeOffset.UtcNow.AddDays(-15) },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000009"), OrderId = new Guid("77000000-0000-0000-0000-000000000009"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Paid,     Amount = 9.98m,   TransactionRef = "TXN-20260629-009", CreatedAt = DateTimeOffset.UtcNow.AddDays(-20) },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000010"), OrderId = new Guid("77000000-0000-0000-0000-000000000010"), Method = PaymentMethodEnum.Bank,  Status = PaymentStatusEnum.Pending,  Amount = 18.99m,  TransactionRef = "TXN-20260718-010", CreatedAt = DateTimeOffset.UtcNow.AddDays(-1)  },
+            new() { Id = new Guid("88000000-0000-0000-0000-000000000011"), OrderId = new Guid("77000000-0000-0000-0000-000000000011"), Method = PaymentMethodEnum.COD,   Status = PaymentStatusEnum.Pending,  Amount = 6.99m,   TransactionRef = "TXN-20260719-011", CreatedAt = DateTimeOffset.UtcNow              },
         };
 
         context.Payments.AddRange(payments);
@@ -793,35 +794,100 @@ public static class DbSeeder
 
         var orderItems = new List<OrderItem>
         {
-            // Order 1 (user 2)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000001"), OrderId = new Guid("77000000-0000-0000-0000-000000000001"), ProductId = new Guid("33000000-0000-0000-0000-000000000001"), Quantity = 1, UnitPrice = 89_000m,  UnitCo2Saved = 0.30m },
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000002"), OrderId = new Guid("77000000-0000-0000-0000-000000000001"), ProductId = new Guid("33000000-0000-0000-0000-000000000003"), Quantity = 2, UnitPrice = 75_000m,  UnitCo2Saved = 0.22m },
-            // Order 2 (user 2)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000003"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), ProductId = new Guid("33000000-0000-0000-0000-000000000005"), Quantity = 1, UnitPrice = 110_000m, UnitCo2Saved = 0.74m },
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000004"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), ProductId = new Guid("33000000-0000-0000-0000-000000000007"), Quantity = 2, UnitPrice = 95_000m,  UnitCo2Saved = 0.43m },
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000005"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), ProductId = new Guid("33000000-0000-0000-0000-000000000012"), Quantity = 1, UnitPrice = 120_000m, UnitCo2Saved = 5.20m },
-            // Order 3 (user 3)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000006"), OrderId = new Guid("77000000-0000-0000-0000-000000000003"), ProductId = new Guid("33000000-0000-0000-0000-000000000006"), Quantity = 1, UnitPrice = 165_000m, UnitCo2Saved = 0.80m },
-            // Order 4 (user 4)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000007"), OrderId = new Guid("77000000-0000-0000-0000-000000000004"), ProductId = new Guid("33000000-0000-0000-0000-000000000008"), Quantity = 1, UnitPrice = 280_000m, UnitCo2Saved = 1.55m },
-            // Order 5 (user 5)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000008"), OrderId = new Guid("77000000-0000-0000-0000-000000000005"), ProductId = new Guid("33000000-0000-0000-0000-000000000001"), Quantity = 1, UnitPrice = 89_000m,  UnitCo2Saved = 0.30m },
-            // Order 6 (user 6)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000009"), OrderId = new Guid("77000000-0000-0000-0000-000000000006"), ProductId = new Guid("33000000-0000-0000-0000-000000000013"), Quantity = 1, UnitPrice = 850_000m, UnitCo2Saved = 5.20m },
-            // Order 7 (user 7)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000010"), OrderId = new Guid("77000000-0000-0000-0000-000000000007"), ProductId = new Guid("33000000-0000-0000-0000-000000000005"), Quantity = 1, UnitPrice = 110_000m, UnitCo2Saved = 0.74m },
-            // Order 8 (user 8) - cancelled
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000011"), OrderId = new Guid("77000000-0000-0000-0000-000000000008"), ProductId = new Guid("33000000-0000-0000-0000-000000000004"), Quantity = 1, UnitPrice = 145_000m, UnitCo2Saved = 0.32m },
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000012"), OrderId = new Guid("77000000-0000-0000-0000-000000000008"), ProductId = new Guid("33000000-0000-0000-0000-000000000009"), Quantity = 1, UnitPrice = 72_000m,  UnitCo2Saved = 0.51m },
-            // Order 9 (user 9)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000013"), OrderId = new Guid("77000000-0000-0000-0000-000000000009"), ProductId = new Guid("33000000-0000-0000-0000-000000000010"), Quantity = 2, UnitPrice = 55_000m,  UnitCo2Saved = 0.27m },
-            // Order 10 (user 10)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000014"), OrderId = new Guid("77000000-0000-0000-0000-000000000010"), ProductId = new Guid("33000000-0000-0000-0000-000000000011"), Quantity = 1, UnitPrice = 190_000m, UnitCo2Saved = 1.11m },
-            // Order 11 (user 11)
-            new() { Id = new Guid("BB000000-0000-0000-0000-000000000015"), OrderId = new Guid("77000000-0000-0000-0000-000000000011"), ProductId = new Guid("33000000-0000-0000-0000-000000000009"), Quantity = 1, UnitPrice = 72_000m,  UnitCo2Saved = 0.51m },
+            // Order 1 (user 2): 1x Bamboo Toothbrush $8.99 + 2x Silk Floss $7.49 = $23.97
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000001"), OrderId = new Guid("77000000-0000-0000-0000-000000000001"), ProductId = new Guid("33000000-0000-0000-0000-000000000001"), Quantity = 1, UnitPrice = 8.99m,  UnitCo2Saved = 0.30m },
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000002"), OrderId = new Guid("77000000-0000-0000-0000-000000000001"), ProductId = new Guid("33000000-0000-0000-0000-000000000003"), Quantity = 2, UnitPrice = 7.49m,  UnitCo2Saved = 0.22m },
+            // Order 2 (user 2): 1x Shampoo Bar $10.99 + 2x Cotton Bags $9.49 + 1x Tote $11.99 — $5 discount = $36.46
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000003"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), ProductId = new Guid("33000000-0000-0000-0000-000000000005"), Quantity = 1, UnitPrice = 10.99m, UnitCo2Saved = 0.74m },
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000004"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), ProductId = new Guid("33000000-0000-0000-0000-000000000007"), Quantity = 2, UnitPrice = 9.49m,  UnitCo2Saved = 0.43m },
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000005"), OrderId = new Guid("77000000-0000-0000-0000-000000000002"), ProductId = new Guid("33000000-0000-0000-0000-000000000012"), Quantity = 1, UnitPrice = 11.99m, UnitCo2Saved = 5.20m },
+            // Order 3 (user 3): 1x Beeswax Wraps $16.99
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000006"), OrderId = new Guid("77000000-0000-0000-0000-000000000003"), ProductId = new Guid("33000000-0000-0000-0000-000000000006"), Quantity = 1, UnitPrice = 16.99m, UnitCo2Saved = 0.80m },
+            // Order 4 (user 4): 1x Stainless Lunch Box $28.99
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000007"), OrderId = new Guid("77000000-0000-0000-0000-000000000004"), ProductId = new Guid("33000000-0000-0000-0000-000000000008"), Quantity = 1, UnitPrice = 28.99m, UnitCo2Saved = 1.55m },
+            // Order 5 (user 5): 1x Bamboo Toothbrush $8.99
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000008"), OrderId = new Guid("77000000-0000-0000-0000-000000000005"), ProductId = new Guid("33000000-0000-0000-0000-000000000001"), Quantity = 1, UnitPrice = 8.99m,  UnitCo2Saved = 0.30m },
+            // Order 6 (user 6): 1x Recycled Fleece Jacket $64.99 — $10 discount = $54.99
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000009"), OrderId = new Guid("77000000-0000-0000-0000-000000000006"), ProductId = new Guid("33000000-0000-0000-0000-000000000013"), Quantity = 1, UnitPrice = 64.99m, UnitCo2Saved = 5.20m },
+            // Order 7 (user 7): 1x Shampoo Bar $10.99
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000010"), OrderId = new Guid("77000000-0000-0000-0000-000000000007"), ProductId = new Guid("33000000-0000-0000-0000-000000000005"), Quantity = 1, UnitPrice = 10.99m, UnitCo2Saved = 0.74m },
+            // Order 8 (user 8) — cancelled: 1x Aloe Vera $14.99 + 1x Dish Soap $6.99 = $21.98
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000011"), OrderId = new Guid("77000000-0000-0000-0000-000000000008"), ProductId = new Guid("33000000-0000-0000-0000-000000000004"), Quantity = 1, UnitPrice = 14.99m, UnitCo2Saved = 0.32m },
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000012"), OrderId = new Guid("77000000-0000-0000-0000-000000000008"), ProductId = new Guid("33000000-0000-0000-0000-000000000009"), Quantity = 1, UnitPrice = 6.99m,  UnitCo2Saved = 0.51m },
+            // Order 9 (user 9): 2x Coconut Brush $5.99 — $2 discount = $9.98
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000013"), OrderId = new Guid("77000000-0000-0000-0000-000000000009"), ProductId = new Guid("33000000-0000-0000-0000-000000000010"), Quantity = 2, UnitPrice = 5.99m,  UnitCo2Saved = 0.27m },
+            // Order 10 (user 10): 1x Cleaning Tablets $18.99
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000014"), OrderId = new Guid("77000000-0000-0000-0000-000000000010"), ProductId = new Guid("33000000-0000-0000-0000-000000000011"), Quantity = 1, UnitPrice = 18.99m, UnitCo2Saved = 1.11m },
+            // Order 11 (user 11): 1x Dish Soap Bar $6.99
+            new() { Id = new Guid("BB000000-0000-0000-0000-000000000015"), OrderId = new Guid("77000000-0000-0000-0000-000000000011"), ProductId = new Guid("33000000-0000-0000-0000-000000000009"), Quantity = 1, UnitPrice = 6.99m,  UnitCo2Saved = 0.51m },
         };
 
         context.OrderItems.AddRange(orderItems);
+        await context.SaveChangesAsync();
+    }
+
+    // ────────────────────────────────────────────────────────────────────
+    // BANNERS
+    // ────────────────────────────────────────────────────────────────────
+    private static async Task SeedBannersAsync(ApplicationDbContext context)
+    {
+        if (await context.Banners.AnyAsync()) return;
+
+        var banners = new List<Banner>
+        {
+            new()
+            {
+                Id = new Guid("CC000000-0000-0000-0000-000000000001"),
+                Title = "Live Greener Every Day",
+                Subtitle = "Explore our curated collection of eco-friendly products and make a difference with every purchase.",
+                ImageUrl = "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=1600&q=80",
+                LinkUrl = "/products",
+                SortOrder = 1,
+                IsActive = true,
+            },
+            new()
+            {
+                Id = new Guid("CC000000-0000-0000-0000-000000000002"),
+                Title = "Zero Waste Kitchen",
+                Subtitle = "Replace single-use plastics with beautiful, durable alternatives. Free shipping on orders over $30.",
+                ImageUrl = "https://images.unsplash.com/photo-1610824224971-b3a0de944af1?w=1600&q=80",
+                LinkUrl = "/products?category=kitchen",
+                SortOrder = 2,
+                IsActive = true,
+            },
+            new()
+            {
+                Id = new Guid("CC000000-0000-0000-0000-000000000003"),
+                Title = "Organic Personal Care",
+                Subtitle = "Clean beauty starts with clean ingredients. Our personal care range is 100% natural and cruelty-free.",
+                ImageUrl = "https://images.unsplash.com/photo-1556760544-74068565f05c?w=1600&q=80",
+                LinkUrl = "/products?category=personal-care",
+                SortOrder = 3,
+                IsActive = true,
+            },
+            new()
+            {
+                Id = new Guid("CC000000-0000-0000-0000-000000000004"),
+                Title = "Wear the Change",
+                Subtitle = "Fashion that cares — organic cotton, recycled fibres, and ethical manufacturing from field to wardrobe.",
+                ImageUrl = "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1600&q=80",
+                LinkUrl = "/products?category=fashion",
+                SortOrder = 4,
+                IsActive = true,
+            },
+            new()
+            {
+                Id = new Guid("CC000000-0000-0000-0000-000000000005"),
+                Title = "Earn Green Points",
+                Subtitle = "Every eco-friendly purchase earns you Green Points. Redeem them for discounts on future orders!",
+                ImageUrl = "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=1600&q=80",
+                LinkUrl = "/wallet",
+                SortOrder = 5,
+                IsActive = true,
+            },
+        };
+
+        context.Banners.AddRange(banners);
         await context.SaveChangesAsync();
     }
 }
