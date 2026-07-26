@@ -50,6 +50,7 @@ public record UserDto(
     string Phone,
     string Address,
     RoleEnum Role,
+    bool IsActive,
     DateTimeOffset CreatedAt
 );
 

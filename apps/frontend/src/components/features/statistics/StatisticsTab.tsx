@@ -82,20 +82,11 @@ const StatisticsTab = () => {
 
   if (isError || !data) {
     return (
-      <Alert
-        icon={<FiAlertCircle />}
-        color="red"
-        title="Couldn't load statistics"
-        variant="light"
-      >
+      <Alert icon={<FiAlertCircle />} color="red" title="Couldn't load statistics" variant="light">
         <Text size="sm" mb="sm">
           Something went wrong while loading your statistics.
         </Text>
-        <button
-          type="button"
-          onClick={() => refetch()}
-          className="text-sm font-semibold text-primary hover:underline"
-        >
+        <button type="button" onClick={() => refetch()} className="text-sm font-semibold text-primary hover:underline">
           Try again
         </button>
       </Alert>
@@ -122,20 +113,11 @@ const StatisticsTab = () => {
     <Stack gap="lg">
       <Group justify="space-between" align="center">
         <Text fw={600}>Your shopping statistics</Text>
-        <SegmentedControl
-          size="xs"
-          value={months}
-          onChange={setMonths}
-          data={MONTH_OPTIONS}
-        />
+        <SegmentedControl size="xs" value={months} onChange={setMonths} data={MONTH_OPTIONS} />
       </Group>
 
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="sm">
-        <StatCard
-          icon={<IoCartOutline />}
-          title="Total orders"
-          value={formatNumber(summary.totalOrders)}
-        />
+        <StatCard icon={<IoCartOutline />} title="Total orders" value={formatNumber(summary.totalOrders)} />
         <StatCard
           icon={<LuWallet />}
           title="Total spending"

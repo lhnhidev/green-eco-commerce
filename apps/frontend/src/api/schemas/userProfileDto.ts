@@ -15,5 +15,5 @@ export interface UserProfileDto {
   phone: string;
   address: string;
   role: RoleEnum;
-  createdAt: string;
+  createdAt: Date;
 }

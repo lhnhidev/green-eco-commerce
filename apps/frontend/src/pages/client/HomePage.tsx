@@ -18,7 +18,7 @@ const GroupProductSliderWithButtonShowMore = () => {
     isLoading,
     isError,
   } = useGetAllProducts({
-    PageSize: productTotal,
+    pageSize: productTotal,
   })
 
   if (isLoading) {

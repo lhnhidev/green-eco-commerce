@@ -1,3 +1,5 @@
+import type * as React from 'react'
+
 type NavigationIndexType = {
   text: string
   icon: React.ComponentType<{ className?: string; size?: number }>

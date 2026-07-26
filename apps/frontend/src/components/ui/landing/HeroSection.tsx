@@ -24,7 +24,13 @@ const HeroSection = () => {
                 </Button>
               </Link>
               <Link to="/remedies">
-                <Button variant="outline" size="lg" radius="xl" color="primary.8" className="transition-all hover:scale-105">
+                <Button
+                  variant="outline"
+                  size="lg"
+                  radius="xl"
+                  color="primary.8"
+                  className="transition-all hover:scale-105"
+                >
                   Our Impact Report
                 </Button>
               </Link>

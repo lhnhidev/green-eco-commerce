@@ -10,5 +10,5 @@ export interface ChatSessionDto {
   id: string;
   userId: string;
   title: string;
-  createdAt: string;
+  createdAt: Date;
 }

@@ -24,12 +24,12 @@ const OrderList = () => {
   const [page, setPage] = useState(1)
 
   const queryClient = useQueryClient()
-  const { data, isLoading } = useGetAllOrders({ PageNumber: page, PageSize: PAGE_SIZE })
+  const { data, isLoading } = useGetAllOrders({ pageNumber: page, pageSize: PAGE_SIZE })
 
   const { mutate: changeStatus, variables: pendingChange } = useUpdateOrderStatus({
     mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetAllOrdersQueryKey() })
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllOrdersQueryKey() })
         notifications.show({ title: 'Updated', message: 'Order status changed.', color: 'green' })
       },
       onError: () => {

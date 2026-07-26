@@ -20,4 +20,5 @@ public class Product
     public ICollection<CartItem> CartItems { get; set; } = new HashSet<CartItem>();
     public ICollection<OrderItem> OrderItems { get; set; } = new HashSet<OrderItem>();
     public ICollection<Material> Materials { get; set; } = new HashSet<Material>();
+    public ICollection<Review> Reviews { get; set; } = new HashSet<Review>();
 }

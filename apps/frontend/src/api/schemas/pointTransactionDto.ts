@@ -12,5 +12,5 @@ export interface PointTransactionDto {
   description: string;
   /** @nullable */
   orderId: string | null;
-  createdAt: string;
+  createdAt: Date;
 }

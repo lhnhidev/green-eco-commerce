@@ -49,8 +49,8 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
           color: 'red',
         })
       },
-      onSettled: () => {
-        queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+      onSettled: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
       },
     },
   })

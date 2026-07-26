@@ -10,9 +10,7 @@ const ChatBot = () => {
   const isShow = useAppSelector((state) => state.chatbot.isShow)
   const dispatch = useAppDispatch()
 
-  return (
-    <div onClick={() => dispatch(setIsShow(true))}>{isShow === false ? <ChatIconComp /> : <ChatComunication />}</div>
-  )
+  return <div onClick={() => dispatch(setIsShow(true))}>{!isShow ? <ChatIconComp /> : <ChatComunication />}</div>
 }
 
 export default ChatBot

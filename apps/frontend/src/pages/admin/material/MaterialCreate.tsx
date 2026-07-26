@@ -10,7 +10,13 @@ import { Link, useNavigate } from 'react-router'
 const MaterialCreate = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { mutate: createMaterial, isPending } = useCreateMaterial()
+  const { mutate: createMaterial, isPending } = useCreateMaterial({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
+      },
+    },
+  })
 
   const form = useForm({
     initialValues: {
@@ -29,7 +35,6 @@ const MaterialCreate = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Success', message: 'Material created successfully', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
           navigate('/admin/material')
         },
         onError: () => {

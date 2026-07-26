@@ -1,5 +1,6 @@
 using FluentValidation;
 using GreenEcoCommerce.Application.Features.Materials;
+using GreenEcoCommerce.Application.Features.Reviews;
 using GreenEcoCommerce.Domain.Entities;
 using MediatR;
 using Riok.Mapperly.Abstractions;
@@ -72,7 +73,7 @@ public record ProductDto(
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class ProductDtoMapper
 {
-    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
+    [MapperRequiredMapping(RequiredMappingStrategy.None)]
     public static partial ProductDto ToDto(this Product product);
     public static partial IQueryable<ProductDto> ProjectToDto(this IQueryable<Product> products);
 

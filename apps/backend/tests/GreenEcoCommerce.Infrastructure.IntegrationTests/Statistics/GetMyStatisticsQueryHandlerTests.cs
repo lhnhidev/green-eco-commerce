@@ -3,7 +3,6 @@ using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.ValueObjects;
 using GreenEcoCommerce.Infrastructure.IntegrationTests.Shared;
-using GreenEcoCommerce.Infrastructure.Persistence.Context;
 
 namespace GreenEcoCommerce.Infrastructure.IntegrationTests.Statistics;
 

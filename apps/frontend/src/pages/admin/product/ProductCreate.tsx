@@ -1,4 +1,4 @@
-import { getGetAllProductsQueryKey, useGetAllCategories, useGetAllMaterials, useCreateProduct } from '@api'
+import { getGetAllProductsQueryKey, useCreateProduct, useGetAllCategories, useGetAllMaterials } from '@api'
 import { ActionIcon, Button, MultiSelect, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
@@ -9,7 +9,13 @@ import { Link, useNavigate } from 'react-router'
 const ProductCreate = () => {
   const queryClient = useQueryClient()
   const navigate = useNavigate()
-  const { mutate: createProduct, isPending } = useCreateProduct()
+  const { mutate: createProduct, isPending } = useCreateProduct({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
+      },
+    },
+  })
   const { data: categories } = useGetAllCategories()
   const { data: materials } = useGetAllMaterials()
 
@@ -57,7 +63,6 @@ const ProductCreate = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Success', message: 'Product created', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
           navigate('/admin/product')
         },
         onError: () => {
@@ -133,20 +138,8 @@ const ProductCreate = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <NumberInput
-              label="Decompose %"
-              min={0}
-              max={100}
-              suffix="%"
-              {...form.getInputProps('decomposePercent')}
-            />
-            <NumberInput
-              label="Recycle %"
-              min={0}
-              max={100}
-              suffix="%"
-              {...form.getInputProps('recyclePercent')}
-            />
+            <NumberInput label="Decompose %" min={0} max={100} suffix="%" {...form.getInputProps('decomposePercent')} />
+            <NumberInput label="Recycle %" min={0} max={100} suffix="%" {...form.getInputProps('recyclePercent')} />
           </div>
 
           <div className="flex justify-end gap-4 mt-4">

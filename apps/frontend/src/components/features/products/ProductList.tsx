@@ -6,7 +6,7 @@ const ProductList = () => {
   const [pageNumber] = useState<number>(1)
   const [pageSize] = useState<number>(4)
 
-  const { data: products } = useGetAllProducts({ PageNumber: pageNumber, PageSize: pageSize })
+  const { data: products } = useGetAllProducts({ pageNumber: pageNumber, pageSize: pageSize })
 
   return (
     <div>

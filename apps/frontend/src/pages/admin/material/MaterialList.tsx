@@ -19,8 +19,20 @@ const MaterialList = () => {
   const [deleting, setDeleting] = useState<MaterialDto | null>(null)
   const [editing, setEditing] = useState<MaterialDto | null>(null)
 
-  const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteMaterial()
-  const { mutate: updateMaterial, isPending: isUpdating } = useUpdateMaterial()
+  const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteMaterial({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
+      },
+    },
+  })
+  const { mutate: updateMaterial, isPending: isUpdating } = useUpdateMaterial({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
+      },
+    },
+  })
 
   const form = useForm({
     initialValues: {
@@ -51,7 +63,6 @@ const MaterialList = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Updated', message: 'Material updated successfully.', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
           closeEdit()
         },
         onError: () => {
@@ -82,7 +93,6 @@ const MaterialList = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Deleted', message: 'Material deleted successfully.', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
           setDeleting(null)
         },
         onError: () => {

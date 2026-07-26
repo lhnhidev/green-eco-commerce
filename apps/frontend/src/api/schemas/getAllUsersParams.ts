@@ -8,9 +8,9 @@
 import type { UserSortBy } from './userSortBy';
 
 export type GetAllUsersParams = {
-SortBy?: UserSortBy;
-SortDescending?: boolean;
-Search?: string;
-PageNumber?: number;
-PageSize?: number;
+sortBy?: UserSortBy;
+sortDescending?: boolean;
+search?: string;
+pageNumber?: number;
+pageSize?: number;
 };

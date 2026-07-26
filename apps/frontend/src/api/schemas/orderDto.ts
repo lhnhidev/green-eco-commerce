@@ -18,5 +18,5 @@ export interface OrderDto {
   totalCo2Saved: number;
   earnedPoints: number;
   items: OrderItemDto[];
-  createdAt: string;
+  createdAt: Date;
 }

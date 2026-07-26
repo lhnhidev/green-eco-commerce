@@ -8,8 +8,8 @@ import {
 import { ActionIcon, Button, MultiSelect, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { FiArrowLeft } from 'react-icons/fi'
 import { Link, useNavigate, useParams } from 'react-router'
 
@@ -21,7 +21,13 @@ const ProductEdit = () => {
   const { data: product, isLoading: isLoadingProduct } = useGetProductById(id!, {
     query: { enabled: !!id },
   })
-  const { mutate: updateProduct, isPending } = useUpdateProduct()
+  const { mutate: updateProduct, isPending } = useUpdateProduct({
+    mutation: {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
+      },
+    },
+  })
   const { data: categories } = useGetAllCategories()
   const { data: materials } = useGetAllMaterials()
 
@@ -66,7 +72,7 @@ const ProductEdit = () => {
       })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [product])
+  }, [product, form.setValues])
 
   const handleSubmit = (values: typeof form.values) => {
     if (!id) return
@@ -90,7 +96,6 @@ const ProductEdit = () => {
       {
         onSuccess: () => {
           notifications.show({ title: 'Success', message: 'Product updated', color: 'green' })
-          queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
           navigate('/admin/product')
         },
         onError: () => {
@@ -170,20 +175,8 @@ const ProductEdit = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-6">
-            <NumberInput
-              label="Decompose %"
-              min={0}
-              max={100}
-              suffix="%"
-              {...form.getInputProps('decomposePercent')}
-            />
-            <NumberInput
-              label="Recycle %"
-              min={0}
-              max={100}
-              suffix="%"
-              {...form.getInputProps('recyclePercent')}
-            />
+            <NumberInput label="Decompose %" min={0} max={100} suffix="%" {...form.getInputProps('decomposePercent')} />
+            <NumberInput label="Recycle %" min={0} max={100} suffix="%" {...form.getInputProps('recyclePercent')} />
           </div>
 
           <div className="flex justify-end gap-4 mt-4">
