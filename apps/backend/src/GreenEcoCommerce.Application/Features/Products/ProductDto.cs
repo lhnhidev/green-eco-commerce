@@ -67,18 +67,32 @@ public record ProductDto(
     float RecyclePercent,
     string[] ImageUrl,
     MaterialDto[] Materials,
+    float Rating,
+    int ReviewsCount,
     bool IsActive
 );
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class ProductDtoMapper
 {
-    [MapperRequiredMapping(RequiredMappingStrategy.None)]
+    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
+    [MapProperty(nameof(Product.Reviews), nameof(ProductDto.Rating), Use = nameof(CalculateRating))]
+    [MapProperty(nameof(Product.Reviews), nameof(ProductDto.ReviewsCount), Use = nameof(GetReviewsCount))]
     public static partial ProductDto ToDto(this Product product);
+
     public static partial IQueryable<ProductDto> ProjectToDto(this IQueryable<Product> products);
+
+    [UserMapping(Default = false)]
+    private static float CalculateRating(ICollection<Review> reviews) =>
+            reviews.Any() ? (float)reviews.Where(r => r.IsApproved && !r.IsHidden).Average(r => r.Rating) : 0;
+
+    [UserMapping(Default = false)]
+    private static int GetReviewsCount(ICollection<Review> reviews) =>
+            reviews.Where(r => r.IsApproved && !r.IsHidden).Count();
 
     [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
     public static partial Product ToEntity(this ProductPayloadDto payload);
+
     [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
     public static partial void ApplyUpdate([MappingTarget] this Product product, ProductPayloadDto payload);
 }

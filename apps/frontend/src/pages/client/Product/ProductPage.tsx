@@ -4,6 +4,7 @@ import {
   Anchor,
   Breadcrumbs,
   Checkbox,
+  Collapse,
   Input,
   Pagination,
   Select,
@@ -15,6 +16,7 @@ import {
 import {
   CurrencyDollarIcon,
   DropIcon,
+  FunnelIcon,
   LeafIcon,
   ListDashesIcon,
   MagnifyingGlassIcon,
@@ -26,6 +28,92 @@ import {
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ProductSortBy } from '@/api/schemas'
+
+// ─── Reusable filter panel (shared between desktop sidebar and mobile Collapse) ─
+
+interface FilterPanelProps {
+  treeSelectData: TreeNodeData[]
+  categoryId: string
+  setCategoryId: (v: string) => void
+  isOrganic: boolean
+  setIsOrganic: (v: boolean) => void
+  isBiodegradable: boolean
+  setIsBiodegradable: (v: boolean) => void
+  isRecycled: boolean
+  setIsRecycled: (v: boolean) => void
+  maxPrice: number
+  setMaxPrice: (v: number) => void
+  onClear: () => void
+}
+
+const FilterPanel = ({
+  treeSelectData, categoryId, setCategoryId,
+  isOrganic, setIsOrganic,
+  isBiodegradable, setIsBiodegradable,
+  isRecycled, setIsRecycled,
+  maxPrice, setMaxPrice,
+  onClear,
+}: FilterPanelProps) => (
+  <>
+    <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+      <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
+        <div className="bg-green-100 p-1 rounded text-green-700"><ListDashesIcon weight="bold" size={14} /></div>
+        Categories
+      </h3>
+      <TreeSelect
+        data={treeSelectData}
+        value={categoryId}
+        onChange={(val) => setCategoryId(val || '')}
+        placeholder="All Essentials"
+        clearable searchable size="sm" radius="md"
+        classNames={{ input: 'border-gray-200 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 bg-gray-50/50 hover:bg-white transition-all text-gray-700 font-medium' }}
+      />
+    </div>
+
+    <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+      <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
+        <div className="bg-emerald-100 p-1 rounded text-emerald-700"><LeafIcon weight="fill" size={14} /></div>
+        Sustainability
+      </h3>
+      <div className="space-y-4 px-1">
+        <Checkbox label={<div className="flex items-center gap-2"><PlantIcon size={16} className="text-green-600" /><span className="text-sm">Organic</span></div>}
+          checked={isOrganic} onChange={(e) => setIsOrganic(e.currentTarget.checked)} color="green.6" size="sm"
+          classNames={{ label: 'text-gray-700 font-medium cursor-pointer ml-2', input: 'cursor-pointer transition-colors hover:border-green-400' }}
+        />
+        <Checkbox label={<div className="flex items-center gap-2"><DropIcon size={16} className="text-blue-500" /><span className="text-sm">Biodegradable</span></div>}
+          checked={isBiodegradable} onChange={(e) => setIsBiodegradable(e.currentTarget.checked)} color="green.6" size="sm"
+          classNames={{ label: 'text-gray-700 font-medium cursor-pointer ml-2', input: 'cursor-pointer transition-colors hover:border-green-400' }}
+        />
+        <Checkbox label={<div className="flex items-center gap-2"><RecycleIcon size={16} className="text-emerald-500" /><span className="text-sm">Recycled</span></div>}
+          checked={isRecycled} onChange={(e) => setIsRecycled(e.currentTarget.checked)} color="green.6" size="sm"
+          classNames={{ label: 'text-gray-700 font-medium cursor-pointer ml-2', input: 'cursor-pointer transition-colors hover:border-green-400' }}
+        />
+      </div>
+    </div>
+
+    <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 pb-8">
+      <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
+        <div className="bg-blue-100 p-1 rounded text-blue-700"><CurrencyDollarIcon weight="bold" size={14} /></div>
+        Price Range
+      </h3>
+      <div className="space-y-4 px-2">
+        <div className="text-green-700 font-bold text-xl tracking-tight text-center">Up to ${maxPrice === 1000 ? '1000+' : maxPrice}</div>
+        <Slider color="green.6" size="sm" radius="xl" min={0} max={1000} step={10} value={maxPrice}
+          onChange={setMaxPrice}
+          marks={[{ value: 0, label: '$0' }, { value: 1000, label: '$1000+' }]}
+          classNames={{ markLabel: 'text-[10px] font-bold tracking-wider text-gray-400 mt-2', thumb: 'border-2 border-white shadow-sm' }}
+        />
+      </div>
+    </div>
+
+    <button type="button" onClick={onClear}
+      className="w-full py-2.5 px-4 bg-white border border-gray-200 text-gray-500 font-bold text-sm rounded-xl hover:border-red-200 hover:text-red-600 hover:bg-red-50/50 transition-all duration-300 shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
+    >
+      <XCircleIcon weight="fill" size={18} />
+      Clear All Filters
+    </button>
+  </>
+)
 
 const items = [
   { id: 1, title: 'Home', href: '/' },
@@ -151,6 +239,8 @@ const ProductPage = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  const [filtersOpen, setFiltersOpen] = useState(false)
+
   return (
     <div className="bg-gray-50/50 min-h-screen pb-16">
       {/* Hero Section */}
@@ -191,7 +281,7 @@ const ProductPage = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         {/* Search & Sort Bar */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-2xl">
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-2xl">
           <form
             onSubmit={(e) => {
               e.preventDefault()
@@ -238,147 +328,51 @@ const ProductPage = () => {
           />
         </div>
 
+        {/* Mobile filter toggle */}
+        <div className="lg:hidden mb-4">
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((o) => !o)}
+            className="flex items-center gap-2 bg-white border border-gray-200 text-gray-700 font-semibold text-sm px-4 py-2 rounded-xl shadow-sm hover:border-green-300 hover:text-green-700 transition-all"
+          >
+            <FunnelIcon size={16} weight="bold" />
+            {filtersOpen ? 'Hide Filters' : 'Show Filters'}
+          </button>
+        </div>
+
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <aside className="w-full lg:w-64 shrink-0 space-y-4">
-            <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
-                <div className="bg-green-100 p-1 rounded text-green-700">
-                  <ListDashesIcon weight="bold" size={14} />
-                </div>
-                Categories
-              </h3>
-              <TreeSelect
-                data={treeSelectData}
-                value={categoryId}
-                onChange={(val) => {
-                  setCategoryId(val || '')
-                  setPageNumber(1)
-                }}
-                placeholder="All Essentials"
-                clearable
-                searchable
-                size="sm"
-                radius="md"
-                classNames={{
-                  input:
-                    'border-gray-200 focus:border-green-500 focus:ring-1 focus:ring-green-500/20 bg-gray-50/50 hover:bg-white transition-all text-gray-700 font-medium',
-                }}
+          {/* Filter sidebar wrapper */}
+          <div className="w-full lg:w-64 lg:shrink-0">
+            {/* Desktop: always show */}
+            <aside className="hidden lg:flex flex-col gap-4">
+              <FilterPanel
+                treeSelectData={treeSelectData}
+                categoryId={categoryId}
+                setCategoryId={(v) => { setCategoryId(v); setPageNumber(1) }}
+                isOrganic={isOrganic} setIsOrganic={(v) => { setIsOrganic(v); setPageNumber(1) }}
+                isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => { setIsBiodegradable(v); setPageNumber(1) }}
+                isRecycled={isRecycled} setIsRecycled={(v) => { setIsRecycled(v); setPageNumber(1) }}
+                maxPrice={maxPrice} setMaxPrice={(v) => { setMaxPrice(v); setPageNumber(1) }}
+                onClear={handleClearFilters}
               />
-            </div>
+            </aside>
 
-            <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
-              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
-                <div className="bg-emerald-100 p-1 rounded text-emerald-700">
-                  <LeafIcon weight="fill" size={14} />
-                </div>
-                Sustainability
-              </h3>
-              <div className="space-y-4 px-1">
-                <Checkbox
-                  label={
-                    <div className="flex items-center gap-2">
-                      <PlantIcon size={16} className="text-green-600" />
-                      <span className="text-sm">Organic</span>
-                    </div>
-                  }
-                  checked={isOrganic}
-                  onChange={(e) => {
-                    setIsOrganic(e.currentTarget.checked)
-                    setPageNumber(1)
-                  }}
-                  color="green.6"
-                  size="sm"
-                  classNames={{
-                    label: 'text-gray-700 font-medium cursor-pointer ml-2',
-                    input: 'cursor-pointer transition-colors hover:border-green-400',
-                  }}
+            {/* Mobile: Collapse-toggled */}
+            <Collapse expanded={filtersOpen} className="lg:hidden">
+              <aside className="flex flex-col gap-4 pb-2">
+                <FilterPanel
+                  treeSelectData={treeSelectData}
+                  categoryId={categoryId}
+                  setCategoryId={(v) => { setCategoryId(v); setPageNumber(1) }}
+                  isOrganic={isOrganic} setIsOrganic={(v) => { setIsOrganic(v); setPageNumber(1) }}
+                  isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => { setIsBiodegradable(v); setPageNumber(1) }}
+                  isRecycled={isRecycled} setIsRecycled={(v) => { setIsRecycled(v); setPageNumber(1) }}
+                  maxPrice={maxPrice} setMaxPrice={(v) => { setMaxPrice(v); setPageNumber(1) }}
+                  onClear={handleClearFilters}
                 />
-                <Checkbox
-                  label={
-                    <div className="flex items-center gap-2">
-                      <DropIcon size={16} className="text-blue-500" />
-                      <span className="text-sm">Biodegradable</span>
-                    </div>
-                  }
-                  checked={isBiodegradable}
-                  onChange={(e) => {
-                    setIsBiodegradable(e.currentTarget.checked)
-                    setPageNumber(1)
-                  }}
-                  color="green.6"
-                  size="sm"
-                  classNames={{
-                    label: 'text-gray-700 font-medium cursor-pointer ml-2',
-                    input: 'cursor-pointer transition-colors hover:border-green-400',
-                  }}
-                />
-                <Checkbox
-                  label={
-                    <div className="flex items-center gap-2">
-                      <RecycleIcon size={16} className="text-emerald-500" />
-                      <span className="text-sm">Recycled</span>
-                    </div>
-                  }
-                  checked={isRecycled}
-                  onChange={(e) => {
-                    setIsRecycled(e.currentTarget.checked)
-                    setPageNumber(1)
-                  }}
-                  color="green.6"
-                  size="sm"
-                  classNames={{
-                    label: 'text-gray-700 font-medium cursor-pointer ml-2',
-                    input: 'cursor-pointer transition-colors hover:border-green-400',
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 pb-8">
-              <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
-                <div className="bg-blue-100 p-1 rounded text-blue-700">
-                  <CurrencyDollarIcon weight="bold" size={14} />
-                </div>
-                Price Range
-              </h3>
-              <div className="space-y-4 px-2">
-                <div className="text-green-700 font-bold text-xl tracking-tight text-center">
-                  Up to ${maxPrice === 1000 ? '1000+' : maxPrice}
-                </div>
-                <Slider
-                  color="green.6"
-                  size="sm"
-                  radius="xl"
-                  min={0}
-                  max={1000}
-                  step={10}
-                  value={maxPrice}
-                  onChange={(val) => {
-                    setMaxPrice(val)
-                    setPageNumber(1)
-                  }}
-                  marks={[
-                    { value: 0, label: '$0' },
-                    { value: 1000, label: '$1000+' },
-                  ]}
-                  classNames={{
-                    markLabel: 'text-[10px] font-bold tracking-wider text-gray-400 mt-2',
-                    thumb: 'border-2 border-white shadow-sm',
-                  }}
-                />
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleClearFilters}
-              className="w-full py-2.5 px-4 bg-white border border-gray-200 text-gray-500 font-bold text-sm rounded-xl hover:border-red-200 hover:text-red-600 hover:bg-red-50/50 transition-all duration-300 shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
-            >
-              <XCircleIcon weight="fill" size={18} />
-              Clear All Filters
-            </button>
-          </aside>
+              </aside>
+            </Collapse>
+          </div>
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col">
@@ -460,7 +454,7 @@ const ProductPage = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   {productsData.items.map((product) => (
                     <div key={product.id} className="animate__animated animate__fadeIn">
                       <ProductCardv2 product={product} />
@@ -496,3 +490,4 @@ const ProductPage = () => {
 }
 
 export default ProductPage
+

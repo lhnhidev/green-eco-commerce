@@ -21,5 +21,7 @@ export interface ProductDto {
   recyclePercent: number;
   imageUrl: string[];
   materials: MaterialDto[];
+  rating: number;
+  reviewsCount: number;
   isActive: boolean;
 }

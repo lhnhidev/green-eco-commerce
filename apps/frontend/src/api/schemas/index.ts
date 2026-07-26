@@ -58,7 +58,6 @@ export * from './pointTransactionDto';
 export * from './problemDetails';
 export * from './productDto';
 export * from './productPayloadDto';
-export * from './productReviewSummaryDto';
 export * from './productSortBy';
 export * from './registerPayload';
 export * from './reviewDto';

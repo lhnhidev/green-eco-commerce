@@ -154,40 +154,4 @@ public class GetProductReviewsQueryTests(PostgreSqlFixture postgres)
         Assert.Equal(2, result.TotalCount);
         Assert.DoesNotContain(result.Items, r => r.Comment == "Hidden by an admin");
     }
-
-    [Fact]
-    public async Task SummaryHandler_ShouldAverageEveryVisibleReview_NotJustOnePage()
-    {
-        // Arrange
-        await using var db = postgres.CreateDbContext();
-        var productId = await SeedProductWithReviewsAsync(db, 5, 5, 2, 2);
-
-        var sut = new GetProductReviewSummaryQuery.Handler(db);
-
-        // Act
-        var result = await sut.Handle(new GetProductReviewSummaryQuery(productId),
-                                      TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(4, result.TotalCount);
-        Assert.Equal(3.5, result.AverageRating);
-    }
-
-    [Fact]
-    public async Task SummaryHandler_ShouldReturnZeroes_WhenProductHasNoReviews()
-    {
-        // Arrange
-        await using var db = postgres.CreateDbContext();
-        var productId = await SeedProductWithReviewsAsync(db);
-
-        var sut = new GetProductReviewSummaryQuery.Handler(db);
-
-        // Act
-        var result = await sut.Handle(new GetProductReviewSummaryQuery(productId),
-                                      TestContext.Current.CancellationToken);
-
-        // Assert
-        Assert.Equal(0, result.TotalCount);
-        Assert.Equal(0, result.AverageRating);
-    }
 }
