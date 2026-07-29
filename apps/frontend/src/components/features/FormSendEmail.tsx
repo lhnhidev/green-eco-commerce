@@ -1,17 +1,56 @@
-import { Button } from '@mantine/core'
+import { Button, TextInput } from '@mantine/core'
+import { CheckCircleIcon } from '@phosphor-icons/react'
+import { type FormEvent, useState } from 'react'
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const FormSendEmail = () => {
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  const [subscribed, setSubscribed] = useState(false)
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    const trimmed = email.trim()
+    if (!EMAIL_REGEX.test(trimmed)) {
+      setError('Please enter a valid email address')
+      return
+    }
+    setError(null)
+    // No newsletter backend exists yet — this only confirms the address locally.
+    setSubscribed(true)
+    setEmail('')
+  }
+
+  if (subscribed) {
+    return (
+      <div className="flex items-center justify-center gap-2 max-w-md mx-auto text-primary font-medium">
+        <CheckCircleIcon weight="fill" size={20} />
+        Thanks for subscribing! Watch your inbox for updates.
+      </div>
+    )
+  }
+
   return (
-    <div className="flex items-center flex-col sm:flex-row gap-4 max-w-md mx-auto">
-      <input
-        type="email"
-        placeholder="Enter your email"
-        className="flex-1 px-4 py-3 rounded-full border bg-white focus:outline-none focus:ring-2 focus:ring-primary"
-      />
-      <Button radius="xl" color="green.9" className="px-8">
+    <form onSubmit={handleSubmit} className="flex items-start flex-col sm:flex-row gap-4 max-w-md mx-auto">
+      <div className="flex-1 w-full">
+        <TextInput
+          type="email"
+          placeholder="Enter your email"
+          radius="xl"
+          size="md"
+          value={email}
+          onChange={(e) => {
+            setEmail(e.currentTarget.value)
+            if (error) setError(null)
+          }}
+          error={error}
+        />
+      </div>
+      <Button type="submit" radius="xl" color="green.9" className="px-8">
         Subscribe
       </Button>
-    </div>
+    </form>
   )
 }
 

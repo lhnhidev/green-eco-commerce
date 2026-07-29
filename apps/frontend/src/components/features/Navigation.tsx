@@ -1,17 +1,16 @@
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
-/** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
-
-import { useGetAllProducts, useGetCart } from '@api'
+import { useGetAllProducts, useGetCart, useGetWishlist } from '@api'
+import CategoryMenu from '@components/features/categories/CategoryMenu'
 import NotificationBell from '@components/features/notifications/NotificationBell'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { useAuth } from '@hooks/useAuth'
 import { Badge, Loader, TextInput } from '@mantine/core'
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks'
-import { ListIcon, MagnifyingGlassIcon, ShoppingCartIcon, XIcon } from '@phosphor-icons/react'
+import { HeartIcon, ListIcon, MagnifyingGlassIcon, ShoppingCartIcon, XIcon } from '@phosphor-icons/react'
+import { formatCurrency } from '@utils/formatCurrency'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import type * as React from 'react'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
 import Brand from '../ui/Brand'
 import ProfileUser from './auth/ProfileUser'
@@ -20,7 +19,6 @@ import { setIsShow } from './cart/cart.slice'
 const navigationItems = [
   { path: '/', label: 'Home' },
   { path: '/products', label: 'Products' },
-  { path: '/payment', label: 'Checkout' },
   { path: '/my-orders', label: 'Orders' },
   { path: '/green-wallet', label: 'Wallet' },
 ]
@@ -97,12 +95,13 @@ const SearchAutocomplete = ({ className, onSelect }: { className?: string; onSel
                   />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm text-gray-900 truncate">{product.name}</div>
-                    <div className="text-green-700 text-xs font-bold">${product.price}</div>
+                    <div className="text-green-700 text-xs font-bold">{formatCurrency(product.price)}</div>
                   </div>
                 </Link>
               ))}
-              <div
-                className="p-3 text-center text-xs font-bold text-green-700 hover:bg-green-50 cursor-pointer border-t border-gray-100 transition-colors"
+              <button
+                type="button"
+                className="w-full p-3 text-center text-xs font-bold text-green-700 hover:bg-green-50 border-t border-gray-100 transition-colors"
                 onClick={() => {
                   navigate(`/products?search=${encodeURIComponent(searchValue.trim())}`)
                   setIsFocused(false)
@@ -110,7 +109,7 @@ const SearchAutocomplete = ({ className, onSelect }: { className?: string; onSel
                 }}
               >
                 View all results →
-              </div>
+              </button>
             </div>
           )}
         </div>
@@ -131,6 +130,9 @@ export function Navigation() {
   const { data: cartData } = useGetCart()
   const cartCount = cartData?.items?.length ?? 0
 
+  const { data: wishlistData } = useGetWishlist({ query: { enabled: !!user } })
+  const wishlistCount = wishlistData?.length ?? 0
+
   const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
 
   return (
@@ -145,18 +147,20 @@ export function Navigation() {
 
           {/* Desktop nav links */}
           <nav className="hidden lg:flex items-center gap-0.5 ml-2">
-            {navigationItems.map((item) => (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all duration-150 ${
-                  isActive(item.path)
-                    ? 'bg-green-700 text-white shadow-sm shadow-green-500/30'
-                    : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
-                }`}
-              >
-                {item.label}
-              </Link>
+            {navigationItems.map((item, index) => (
+              <Fragment key={item.path}>
+                <Link
+                  to={item.path}
+                  className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all duration-150 ${
+                    isActive(item.path)
+                      ? 'bg-green-700 text-white shadow-sm shadow-green-500/30'
+                      : 'text-gray-600 hover:text-green-700 hover:bg-green-50'
+                  }`}
+                >
+                  {item.label}
+                </Link>
+                {index === 0 && <CategoryMenu />}
+              </Fragment>
             ))}
           </nav>
 
@@ -167,6 +171,27 @@ export function Navigation() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2 ml-auto sm:ml-3">
+            {/* Wishlist button */}
+            {user && (
+              <Link
+                to="/favorite-products"
+                className="relative w-9 h-9 rounded-full flex items-center justify-center text-gray-600 hover:text-rose-500 hover:bg-rose-50 transition-all active:scale-95"
+                aria-label="View wishlist"
+              >
+                <HeartIcon size={20} />
+                {wishlistCount > 0 && (
+                  <Badge
+                    size="xs"
+                    circle
+                    color="red"
+                    className="absolute -top-0.5 -right-0.5 shadow-sm text-[9px] min-w-4 h-4"
+                  >
+                    {wishlistCount > 9 ? '9+' : wishlistCount}
+                  </Badge>
+                )}
+              </Link>
+            )}
+
             {/* Cart button */}
             <button
               type="button"
@@ -208,7 +233,12 @@ export function Navigation() {
 
       {/* ── Mobile drawer backdrop ─────────────────────────────────── */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-49 bg-black/30 backdrop-blur-[1px] lg:hidden" onClick={closeMobile} />
+        <button
+          type="button"
+          aria-label="Close menu"
+          className="fixed inset-0 z-49 bg-black/30 backdrop-blur-[1px] lg:hidden cursor-default"
+          onClick={closeMobile}
+        />
       )}
 
       {/* ── Mobile/tablet slide-down menu ─────────────────────────── */}
@@ -223,7 +253,7 @@ export function Navigation() {
       >
         <div className="container mx-auto px-4 pb-5 pt-4 flex flex-col gap-4">
           {/* Mobile search */}
-          {/* <SearchAutocomplete onSelect={closeMobile} /> */}
+          <SearchAutocomplete onSelect={closeMobile} />
 
           {/* Mobile nav links */}
           <nav className="flex flex-col gap-1">
