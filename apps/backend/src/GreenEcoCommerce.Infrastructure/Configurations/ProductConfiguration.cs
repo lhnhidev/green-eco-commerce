@@ -24,6 +24,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(x => x.RecyclePercent).HasColumnName("recycle_percent").HasPrecision(5, 2);
         builder.Property(x => x.ImageUrl).HasColumnName("image_url").HasColumnType("text[]");
         builder.Property(x => x.IsActive).HasColumnName("is_active");
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
 
         builder.HasOne(x => x.Category)
                 .WithMany(x => x.Products)
