@@ -1,5 +1,6 @@
 import CartSidebar from '@components/features/cart/CartSidebar'
 import ChatBot from '@components/features/chatbot/ChatBot'
+import CompareBar from '@components/features/compare/CompareBar'
 import { Navigation } from '@components/features/Navigation'
 import Footer from '@components/ui/Footer'
 import Loading from '@components/ui/status/Loading'
@@ -18,6 +19,7 @@ const RootLayout = () => {
         <Outlet></Outlet>
       </Suspense>
 
+      <CompareBar />
       <ChatBot />
       <Footer />
     </div>

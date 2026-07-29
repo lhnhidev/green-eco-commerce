@@ -1,9 +1,7 @@
 import { useGetGreenWallet } from '@api'
 import { Anchor, Badge, Breadcrumbs, RingProgress, Table, Text } from '@mantine/core'
+import { ArrowUpRightIcon, LeafIcon, ShoppingBagIcon } from '@phosphor-icons/react'
 import dayjs from 'dayjs'
-import { BiLeaf } from 'react-icons/bi'
-import { FiArrowUpRight } from 'react-icons/fi'
-import { MdOutlineShoppingBag } from 'react-icons/md'
 import { Link } from 'react-router'
 
 const breadcrumbItems = [
@@ -25,7 +23,7 @@ const GreenWalletPage = () => {
       <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
 
       <div className="flex items-center gap-3 mb-6">
-        <BiLeaf className="text-2xl text-primary" />
+        <LeafIcon className="text-2xl text-primary" />
         <h1 className="text-2xl font-bold text-gray-800">Green Wallet</h1>
       </div>
 
@@ -38,11 +36,12 @@ const GreenWalletPage = () => {
           {/* Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
             {/* Balance Card */}
-            <div className="bg-linear-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white col-span-1 sm:col-span-1 flex flex-col justify-between">
+            <div
+              className="bg-linear-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white col-span-1 sm:col-span-1 flex flex-col justify-between">
               <p className="text-green-100 text-sm font-medium">Current Balance</p>
               <div className="flex items-end justify-between mt-4">
                 <span className="text-4xl font-bold">{wallet.balance.toLocaleString()}</span>
-                <BiLeaf size={32} className="text-green-200 mb-1" />
+                <LeafIcon size={32} className="text-green-200 mb-1" />
               </div>
               <p className="text-green-100 text-xs mt-1">Green Points</p>
             </div>
@@ -55,7 +54,8 @@ const GreenWalletPage = () => {
             </div>
 
             {/* Progress */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center">
+            <div
+              className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center">
               <RingProgress
                 size={90}
                 thickness={8}
@@ -72,7 +72,7 @@ const GreenWalletPage = () => {
 
           {/* Tips */}
           <div className="bg-green-50 border border-green-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
-            <BiLeaf size={20} className="text-green-500 mt-0.5 shrink-0" />
+            <LeafIcon size={20} className="text-green-500 mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-semibold text-green-800">How to earn more points?</p>
               <p className="text-xs text-green-600 mt-0.5">
@@ -83,7 +83,7 @@ const GreenWalletPage = () => {
                 to="/products"
                 className="inline-flex items-center gap-1 text-xs text-green-700 font-medium mt-2 hover:underline"
               >
-                Shop now <FiArrowUpRight size={12} />
+                Shop now <ArrowUpRightIcon size={12} />
               </Link>
             </div>
           </div>
@@ -91,7 +91,7 @@ const GreenWalletPage = () => {
           {/* Transaction History */}
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
             <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-50">
-              <MdOutlineShoppingBag className="text-gray-400" />
+              <ShoppingBagIcon className="text-gray-400" />
               <p className="font-semibold text-gray-700 text-sm">Transaction History</p>
               <Badge size="xs" variant="light" color="green" radius="xl" ml="auto">
                 {wallet.transactions.length} records

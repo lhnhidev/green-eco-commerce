@@ -1,12 +1,14 @@
 import { useGetMe, useUpdateUserProfile } from '@api'
 import { setAuthUser } from '@components/features/auth/auth.slice'
 import StatisticsTab from '@components/features/statistics/StatisticsTab'
+import { ImageDropzone } from '@components/features/upload/ImageDropzone'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Anchor, Avatar, Breadcrumbs, Button, Divider, PasswordInput, Tabs, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { ChartBarIcon, UserIcon } from '@phosphor-icons/react'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { useEffect } from 'react'
-import { FiBarChart2, FiUser } from 'react-icons/fi'
 
 const breadcrumbItems = [
   { title: 'Home', href: '/' },
@@ -85,16 +87,16 @@ const ProfilePage = () => {
       <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
 
       <div className="flex items-center gap-3 mb-6">
-        <FiUser className="text-2xl text-primary" />
+        <UserIcon className="text-2xl text-primary" />
         <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
       </div>
 
       <Tabs defaultValue="profile" keepMounted={false}>
         <Tabs.List mb="lg">
-          <Tabs.Tab value="profile" leftSection={<FiUser />}>
+          <Tabs.Tab value="profile" leftSection={<UserIcon />}>
             Profile
           </Tabs.Tab>
-          <Tabs.Tab value="stats" leftSection={<FiBarChart2 />}>
+          <Tabs.Tab value="stats" leftSection={<ChartBarIcon />}>
             Statistics
           </Tabs.Tab>
         </Tabs.List>
@@ -103,7 +105,7 @@ const ProfilePage = () => {
           <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
             {/* Avatar section */}
             <div className="flex items-center gap-4 mb-6">
-              <Avatar src={user?.avatar || null} size={72} radius="xl" color="green">
+              <Avatar src={resolveImageUrl(user?.avatar) ?? null} size={72} radius="xl" color="green">
                 {!user?.avatar && initials}
               </Avatar>
               <div>
@@ -150,10 +152,10 @@ const ProfilePage = () => {
                   {...form.getInputProps('address')}
                 />
 
-                <TextInput
-                  label="Avatar URL"
-                  placeholder="https://example.com/avatar.jpg"
-                  {...form.getInputProps('avatar')}
+                <ImageDropzone
+                  label="Avatar"
+                  value={form.values.avatar}
+                  onChange={(url) => form.setFieldValue('avatar', url)}
                 />
 
                 <PasswordInput

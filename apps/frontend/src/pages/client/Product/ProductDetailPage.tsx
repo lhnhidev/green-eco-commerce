@@ -1,19 +1,37 @@
-import { getGetCartQueryKey, useAddCartItem, useGetProductById } from '@api'
+import {
+  getGetCartQueryKey,
+  getGetWishlistQueryKey,
+  getIsInWishlistQueryKey,
+  useAddCartItem,
+  useAddToWishlist,
+  useGetProductById,
+  useIsInWishlist,
+  useRemoveFromWishlist,
+} from '@api'
+import { MAX_COMPARE_ITEMS, toggleCompare } from '@components/features/compare/compare.slice'
+import RelatedProducts from '@components/features/products/RelatedProducts'
 import ProductReviews from '@components/features/reviews/ProductReviews'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
 import Loading from '@components/ui/status/Loading'
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
+import { useAuth } from '@hooks/useAuth'
 import { Anchor, Breadcrumbs, NumberInput, Rating } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { HeartIcon, LeafIcon, ShieldCheckIcon, ShoppingCartIcon, TreeIcon } from '@phosphor-icons/react'
+import { HeartIcon, LeafIcon, ScalesIcon, ShieldCheckIcon, ShoppingCartIcon, TreeIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatParam } from '@utils/formatParam'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import type * as React from 'react'
 import { useState } from 'react'
 import { useParams } from 'react-router'
 
 const ProductDetailPage = () => {
   const { id } = useParams()
+  const { user } = useAuth()
+  const dispatch = useAppDispatch()
+  const compareIds = useAppSelector((state) => state.compare.productIds)
+  const isComparing = !!id && compareIds.includes(id)
 
   const [isShowMore, setIsShowMore] = useState<boolean>(false)
   const [amountProduct, setAmountProduct] = useState<number>(1)
@@ -41,6 +59,42 @@ const ProductDetailPage = () => {
       },
     },
   })
+
+  const { data: isWishlisted } = useIsInWishlist(id ?? '', {
+    query: {
+      enabled: !!user && !!id,
+      staleTime: 1000 * 60 * 5
+    }
+  })
+  const invalidateWishlist = () => {
+    queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
+    if (id) queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(id) })
+  }
+  const { mutate: addWishlist } = useAddToWishlist({ mutation: { onSuccess: invalidateWishlist } })
+  const { mutate: removeWishlist } = useRemoveFromWishlist({ mutation: { onSuccess: invalidateWishlist } })
+
+  const handleWishlist = () => {
+    if (!id) return
+    if (!user) {
+      notifications.show({ title: 'Login required', message: 'Please log in to save to wishlist.', color: 'orange' })
+      return
+    }
+    if (isWishlisted) removeWishlist({ productId: id })
+    else addWishlist({ productId: id })
+  }
+
+  const handleCompare = () => {
+    if (!id) return
+    if (!isComparing && compareIds.length >= MAX_COMPARE_ITEMS) {
+      notifications.show({
+        title: 'Compare list full',
+        message: `You can compare up to ${MAX_COMPARE_ITEMS} products at a time.`,
+        color: 'orange',
+      })
+      return
+    }
+    dispatch(toggleCompare(id))
+  }
 
   const handleAddToCart = (productId: string | undefined, quantity: number) => {
     if (!productId) return
@@ -131,7 +185,8 @@ const ProductDetailPage = () => {
                 src={imgUrlActive}
               />
               <div className="absolute top-4 left-4">
-                <div className="backdrop-blur-md bg-white/70 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-white/50">
+                <div
+                  className="backdrop-blur-md bg-white/70 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-white/50">
                   <LeafIcon weight="fill" className="text-green-600 text-sm" />
                   <span className="text-[11px] font-bold tracking-widest text-green-800 uppercase">Eco-Certified</span>
                 </div>
@@ -139,7 +194,12 @@ const ProductDetailPage = () => {
             </div>
 
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-              <ImgSlider imgs={product.imageUrl} isAuto={false} delayTime={0} percent="25%" />
+              <ImgSlider
+                imgs={product.imageUrl.map((url) => resolveImageUrl(url) ?? url)}
+                isAuto={false}
+                delayTime={0}
+                percent="25%"
+              />
             </div>
           </div>
 
@@ -149,7 +209,8 @@ const ProductDetailPage = () => {
               <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">{product.name}</h1>
 
               <div className="flex items-center gap-6 mb-6">
-                <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-400">
+                <div
+                  className="text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-400">
                   ${product.price.toFixed(2)}
                 </div>
                 <div className="h-6 w-px bg-gray-200" />
@@ -165,9 +226,12 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Eco Impact Premium Card */}
-              <div className="relative overflow-hidden bg-linear-to-br from-green-50 to-emerald-50/30 rounded-3xl p-8 mb-8 border border-green-100/50 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-200 group">
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-green-400/10 rounded-full blur-3xl group-hover:bg-green-400/20 transition-all duration-500" />
-                <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-emerald-300/10 rounded-full blur-2xl group-hover:bg-emerald-300/20 transition-all duration-500" />
+              <div
+                className="relative overflow-hidden bg-linear-to-br from-green-50 to-emerald-50/30 rounded-3xl p-8 mb-8 border border-green-100/50 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-200 group">
+                <div
+                  className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-green-400/10 rounded-full blur-3xl group-hover:bg-green-400/20 transition-all duration-500" />
+                <div
+                  className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-emerald-300/10 rounded-full blur-2xl group-hover:bg-emerald-300/20 transition-all duration-500" />
 
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-6">
@@ -200,7 +264,8 @@ const ProductDetailPage = () => {
                   </div>
 
                   {product.baselineCarbonIndex > product.carbonIndex && (
-                    <div className="mt-6 inline-flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-green-100 shadow-sm">
+                    <div
+                      className="mt-6 inline-flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-green-100 shadow-sm">
                       <ShieldCheckIcon weight="fill" className="text-green-500 text-lg" />
                       <span className="text-xs font-bold text-green-800">
                         {(
@@ -275,10 +340,27 @@ const ProductDetailPage = () => {
                   </button>
                   {/** biome-ignore lint/a11y/useButtonType: <> */}
                   <button
-                    className="sm:flex-none cursor-pointer px-6 bg-white border-2 border-gray-200 text-gray-600 py-4 rounded-xl font-bold flex items-center justify-center hover:border-red-200 hover:text-red-500 hover:bg-red-50 active:scale-[0.98] transition-all duration-300"
-                    title="Save to Favorites"
+                    onClick={handleWishlist}
+                    className={`sm:flex-none cursor-pointer px-6 bg-white border-2 py-4 rounded-xl font-bold flex items-center justify-center transition-all duration-300 active:scale-[0.98] ${
+                      isWishlisted
+                        ? 'border-red-200 text-red-500 bg-red-50'
+                        : 'border-gray-200 text-gray-600 hover:border-red-200 hover:text-red-500 hover:bg-red-50'
+                    }`}
+                    title={isWishlisted ? 'Remove from Favorites' : 'Save to Favorites'}
                   >
-                    <HeartIcon weight="bold" className="text-xl" />
+                    <HeartIcon weight={isWishlisted ? 'fill' : 'bold'} className="text-xl" />
+                  </button>
+                  {/** biome-ignore lint/a11y/useButtonType: <> */}
+                  <button
+                    onClick={handleCompare}
+                    className={`sm:flex-none cursor-pointer px-6 bg-white border-2 py-4 rounded-xl font-bold flex items-center justify-center transition-all duration-300 active:scale-[0.98] ${
+                      isComparing
+                        ? 'border-green-200 text-primary bg-green-50'
+                        : 'border-gray-200 text-gray-600 hover:border-green-200 hover:text-primary hover:bg-green-50'
+                    }`}
+                    title={isComparing ? 'Remove from Compare' : 'Add to Compare'}
+                  >
+                    <ScalesIcon weight={isComparing ? 'fill' : 'bold'} className="text-xl" />
                   </button>
                 </div>
               </div>
@@ -308,8 +390,15 @@ const ProductDetailPage = () => {
 
       {/* Customer Reviews */}
       {product && (
-        <div id="reviews" className="container mx-auto px-4 max-w-7xl pb-16 scroll-mt-24">
+        <div id="reviews" className="container mx-auto px-4 max-w-7xl pb-8 scroll-mt-24">
           <ProductReviews productId={product.id} reviewsCount={product.reviewsCount} averageRating={product.rating} />
+        </div>
+      )}
+
+      {/* Related Products */}
+      {product && (
+        <div className="container mx-auto px-4 max-w-7xl pb-16">
+          <RelatedProducts productId={product.id} />
         </div>
       )}
     </div>

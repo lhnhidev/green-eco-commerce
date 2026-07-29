@@ -1,10 +1,11 @@
 import { useGetMyOrders } from '@api'
-import { OrderStatusEnum } from '@api/schemas'
-import { Anchor, Badge, Breadcrumbs, Pagination, Select, Table, TextInput } from '@mantine/core'
+import { OrderSortBy, OrderStatusEnum } from '@api/schemas'
+import { Anchor, Badge, Breadcrumbs, Button, Pagination, Select, Table, TextInput } from '@mantine/core'
+import { useDebouncedValue } from '@mantine/hooks'
+import { EyeIcon, MagnifyingGlassIcon, ReceiptIcon } from '@phosphor-icons/react'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { FiSearch } from 'react-icons/fi'
-import { MdOutlineReceiptLong } from 'react-icons/md'
+import { Link } from 'react-router'
 
 const statusColor: Record<string, string> = {
   Pending: 'gray',
@@ -30,27 +31,28 @@ const MyOrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
   const [page, setPage] = useState(1)
 
-  const { data, isLoading } = useGetMyOrders({ pageNumber: page, pageSize: PAGE_SIZE })
+  const [debouncedSearch] = useDebouncedValue(search, 300)
+  const { data, isLoading } = useGetMyOrders({
+    pageNumber: page,
+    pageSize: PAGE_SIZE,
+    search: debouncedSearch || undefined,
+    sortBy: OrderSortBy.CreatedAt,
+    sortDescending: true,
+  })
 
   const orders = data?.items ?? []
   const totalPages = data?.totalPages ?? 1
 
-  const filtered = orders
-    .filter((o) => {
-      const kw = search.trim().toLowerCase()
-      const matchSearch =
-        !kw || (o.id?.toLowerCase() || '').includes(kw) || (o.deliveryAddress?.toLowerCase() || '').includes(kw)
-      const matchStatus = statusFilter ? o.status === statusFilter : true
-      return matchSearch && matchStatus
-    })
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  // Search is server-side (see useGetMyOrders above); status is still filtered
+  // client-side within the current page.
+  const filtered = statusFilter ? orders.filter((o) => o.status === statusFilter) : orders
 
   return (
     <div className="container mx-auto px-4 py-8">
       <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
 
       <div className="flex items-center gap-3 mb-6">
-        <MdOutlineReceiptLong className="text-2xl text-primary" />
+        <ReceiptIcon className="text-2xl text-primary" />
         <h1 className="text-2xl font-bold text-gray-800">My Orders</h1>
       </div>
 
@@ -58,9 +60,12 @@ const MyOrdersPage = () => {
         <TextInput
           placeholder="Search by order ID or address..."
           size="sm"
-          leftSection={<FiSearch size={14} />}
+          leftSection={<MagnifyingGlassIcon size={14} />}
           value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
+          onChange={(e) => {
+            setSearch(e.currentTarget.value)
+            setPage(1)
+          }}
           w={260}
         />
         <Select
@@ -93,6 +98,7 @@ const MyOrdersPage = () => {
               <Table.Th w={110}>CO₂ Saved</Table.Th>
               <Table.Th w={110}>Points Earned</Table.Th>
               <Table.Th w={120}>Status</Table.Th>
+              <Table.Th w={80}>Action</Table.Th>
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
@@ -106,14 +112,14 @@ const MyOrdersPage = () => {
               <Table.Tr>
                 <Table.Td colSpan={7}>
                   <div className="flex flex-col items-center py-16 gap-3 text-gray-400">
-                    <MdOutlineReceiptLong size={40} />
+                    <ReceiptIcon size={40} />
                     <p className="text-sm">No orders found.</p>
                   </div>
                 </Table.Td>
               </Table.Tr>
             ) : (
               filtered.map((order) => (
-                <Table.Tr key={order.id}>
+                <Table.Tr key={order.id} className="hover:bg-green-50/30 transition-colors">
                   <Table.Td>
                     <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
                       #{order.id?.substring(0, 8).toUpperCase()}
@@ -124,7 +130,7 @@ const MyOrdersPage = () => {
                     {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
                   </Table.Td>
                   <Table.Td className="font-semibold! text-primary!">
-                    ${Number(order.totalAmount ?? 0).toFixed(2)}
+                    ${Number(order.finalAmount ?? 0).toFixed(2)}
                   </Table.Td>
                   <Table.Td className="text-green-600!">{Number(order.totalCo2Saved ?? 0).toFixed(2)} kg</Table.Td>
                   <Table.Td>
@@ -134,6 +140,18 @@ const MyOrdersPage = () => {
                     <Badge size="sm" variant="light" color={statusColor[order.status] ?? 'gray'} radius="xl">
                       {order.status}
                     </Badge>
+                  </Table.Td>
+                  <Table.Td>
+                    <Button
+                      component={Link}
+                      to={`/my-orders/${order.id}`}
+                      size="compact-xs"
+                      variant="subtle"
+                      color="green"
+                      leftSection={<EyeIcon size={12} />}
+                    >
+                      View
+                    </Button>
                   </Table.Td>
                 </Table.Tr>
               ))

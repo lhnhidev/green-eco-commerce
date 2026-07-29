@@ -47,15 +47,16 @@ interface FilterPanelProps {
 }
 
 const FilterPanel = ({
-  treeSelectData, categoryId, setCategoryId,
-  isOrganic, setIsOrganic,
-  isBiodegradable, setIsBiodegradable,
-  isRecycled, setIsRecycled,
-  maxPrice, setMaxPrice,
-  onClear,
-}: FilterPanelProps) => (
+                       treeSelectData, categoryId, setCategoryId,
+                       isOrganic, setIsOrganic,
+                       isBiodegradable, setIsBiodegradable,
+                       isRecycled, setIsRecycled,
+                       maxPrice, setMaxPrice,
+                       onClear,
+                     }: FilterPanelProps) => (
   <>
-    <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+    <div
+      className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
       <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
         <div className="bg-green-100 p-1 rounded text-green-700"><ListDashesIcon weight="bold" size={14} /></div>
         Categories
@@ -70,44 +71,65 @@ const FilterPanel = ({
       />
     </div>
 
-    <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
+    <div
+      className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300">
       <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
         <div className="bg-emerald-100 p-1 rounded text-emerald-700"><LeafIcon weight="fill" size={14} /></div>
         Sustainability
       </h3>
       <div className="space-y-4 px-1">
-        <Checkbox label={<div className="flex items-center gap-2"><PlantIcon size={16} className="text-green-600" /><span className="text-sm">Organic</span></div>}
+        <Checkbox
+          label={<div className="flex items-center gap-2"><PlantIcon size={16} className="text-green-600" /><span
+            className="text-sm">Organic</span></div>}
           checked={isOrganic} onChange={(e) => setIsOrganic(e.currentTarget.checked)} color="green.6" size="sm"
-          classNames={{ label: 'text-gray-700 font-medium cursor-pointer ml-2', input: 'cursor-pointer transition-colors hover:border-green-400' }}
+          classNames={{
+            label: 'text-gray-700 font-medium cursor-pointer ml-2',
+            input: 'cursor-pointer transition-colors hover:border-green-400'
+          }}
         />
-        <Checkbox label={<div className="flex items-center gap-2"><DropIcon size={16} className="text-blue-500" /><span className="text-sm">Biodegradable</span></div>}
-          checked={isBiodegradable} onChange={(e) => setIsBiodegradable(e.currentTarget.checked)} color="green.6" size="sm"
-          classNames={{ label: 'text-gray-700 font-medium cursor-pointer ml-2', input: 'cursor-pointer transition-colors hover:border-green-400' }}
+        <Checkbox label={<div className="flex items-center gap-2"><DropIcon size={16} className="text-blue-500" /><span
+          className="text-sm">Biodegradable</span></div>}
+                  checked={isBiodegradable} onChange={(e) => setIsBiodegradable(e.currentTarget.checked)}
+                  color="green.6" size="sm"
+                  classNames={{
+                    label: 'text-gray-700 font-medium cursor-pointer ml-2',
+                    input: 'cursor-pointer transition-colors hover:border-green-400'
+                  }}
         />
-        <Checkbox label={<div className="flex items-center gap-2"><RecycleIcon size={16} className="text-emerald-500" /><span className="text-sm">Recycled</span></div>}
+        <Checkbox
+          label={<div className="flex items-center gap-2"><RecycleIcon size={16} className="text-emerald-500" /><span
+            className="text-sm">Recycled</span></div>}
           checked={isRecycled} onChange={(e) => setIsRecycled(e.currentTarget.checked)} color="green.6" size="sm"
-          classNames={{ label: 'text-gray-700 font-medium cursor-pointer ml-2', input: 'cursor-pointer transition-colors hover:border-green-400' }}
+          classNames={{
+            label: 'text-gray-700 font-medium cursor-pointer ml-2',
+            input: 'cursor-pointer transition-colors hover:border-green-400'
+          }}
         />
       </div>
     </div>
 
-    <div className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 pb-8">
+    <div
+      className="bg-white/80 backdrop-blur-lg p-5 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all duration-300 pb-8">
       <h3 className="font-bold text-gray-900 uppercase tracking-widest text-[11px] mb-4 flex items-center gap-2">
         <div className="bg-blue-100 p-1 rounded text-blue-700"><CurrencyDollarIcon weight="bold" size={14} /></div>
         Price Range
       </h3>
       <div className="space-y-4 px-2">
-        <div className="text-green-700 font-bold text-xl tracking-tight text-center">Up to ${maxPrice === 1000 ? '1000+' : maxPrice}</div>
+        <div className="text-green-700 font-bold text-xl tracking-tight text-center">Up to
+          ${maxPrice === 1000 ? '1000+' : maxPrice}</div>
         <Slider color="green.6" size="sm" radius="xl" min={0} max={1000} step={10} value={maxPrice}
-          onChange={setMaxPrice}
-          marks={[{ value: 0, label: '$0' }, { value: 1000, label: '$1000+' }]}
-          classNames={{ markLabel: 'text-[10px] font-bold tracking-wider text-gray-400 mt-2', thumb: 'border-2 border-white shadow-sm' }}
+                onChange={setMaxPrice}
+                marks={[{ value: 0, label: '$0' }, { value: 1000, label: '$1000+' }]}
+                classNames={{
+                  markLabel: 'text-[10px] font-bold tracking-wider text-gray-400 mt-2',
+                  thumb: 'border-2 border-white shadow-sm'
+                }}
         />
       </div>
     </div>
 
     <button type="button" onClick={onClear}
-      className="w-full py-2.5 px-4 bg-white border border-gray-200 text-gray-500 font-bold text-sm rounded-xl hover:border-red-200 hover:text-red-600 hover:bg-red-50/50 transition-all duration-300 shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
+            className="w-full py-2.5 px-4 bg-white border border-gray-200 text-gray-500 font-bold text-sm rounded-xl hover:border-red-200 hover:text-red-600 hover:bg-red-50/50 transition-all duration-300 shadow-sm active:scale-[0.98] flex items-center justify-center gap-2"
     >
       <XCircleIcon weight="fill" size={18} />
       Clear All Filters
@@ -244,7 +266,8 @@ const ProductPage = () => {
   return (
     <div className="bg-gray-50/50 min-h-screen pb-16">
       {/* Hero Section */}
-      <div className="bg-linear-to-br from-green-950 via-green-900 to-emerald-800 text-white py-16 px-4 relative overflow-hidden">
+      <div
+        className="bg-linear-to-br from-green-950 via-green-900 to-emerald-800 text-white py-16 px-4 relative overflow-hidden">
         {/* Subtle background circles for premium feel */}
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-0 pointer-events-none">
           <div className="absolute -top-32 -right-32 size-100 bg-green-500/20 rounded-full blur-[80px] animate-pulse" />
@@ -252,7 +275,8 @@ const ProductPage = () => {
             className="absolute -bottom-32 -left-32 size-100 bg-emerald-400/20 rounded-full blur-[90px] animate-pulse"
             style={{ animationDelay: '2s' }}
           />
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-50" />
+          <div
+            className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wMykiLz48L3N2Zz4=')] opacity-50" />
         </div>
 
         <div className="container mx-auto relative z-10 flex flex-col items-center text-center">
@@ -268,7 +292,8 @@ const ProductPage = () => {
             {items}
           </Breadcrumbs>
           <div className="max-w-3xl">
-            <h1 className="font-extrabold text-4xl md:text-5xl mb-4 tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-green-100 drop-shadow-sm">
+            <h1
+              className="font-extrabold text-4xl md:text-5xl mb-4 tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-green-100 drop-shadow-sm">
               Sustainable Essentials
             </h1>
             <p className="text-base md:text-lg text-green-100/90 max-w-xl mx-auto leading-relaxed font-light">
@@ -281,7 +306,8 @@ const ProductPage = () => {
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 -mt-8 relative z-20">
         {/* Search & Sort Bar */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-2xl">
+        <div
+          className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white p-4 mb-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all hover:shadow-2xl">
           <form
             onSubmit={(e) => {
               e.preventDefault()
@@ -320,6 +346,9 @@ const ProductPage = () => {
               { value: `${ProductSortBy.Price}|desc`, label: 'Price (High to Low)' },
               { value: `${ProductSortBy.CarbonIndex}|asc`, label: 'Carbon Impact (Low to High)' },
               { value: `${ProductSortBy.CarbonIndex}|desc`, label: 'Carbon Impact (High to Low)' },
+              { value: `${ProductSortBy.Newest}|desc`, label: 'Newest Arrivals' },
+              { value: `${ProductSortBy.Rating}|desc`, label: 'Highest Rated' },
+              { value: `${ProductSortBy.BestSelling}|desc`, label: 'Best Selling' },
             ]}
             classNames={{
               input:
@@ -348,11 +377,26 @@ const ProductPage = () => {
               <FilterPanel
                 treeSelectData={treeSelectData}
                 categoryId={categoryId}
-                setCategoryId={(v) => { setCategoryId(v); setPageNumber(1) }}
-                isOrganic={isOrganic} setIsOrganic={(v) => { setIsOrganic(v); setPageNumber(1) }}
-                isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => { setIsBiodegradable(v); setPageNumber(1) }}
-                isRecycled={isRecycled} setIsRecycled={(v) => { setIsRecycled(v); setPageNumber(1) }}
-                maxPrice={maxPrice} setMaxPrice={(v) => { setMaxPrice(v); setPageNumber(1) }}
+                setCategoryId={(v) => {
+                  setCategoryId(v);
+                  setPageNumber(1)
+                }}
+                isOrganic={isOrganic} setIsOrganic={(v) => {
+                setIsOrganic(v);
+                setPageNumber(1)
+              }}
+                isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => {
+                setIsBiodegradable(v);
+                setPageNumber(1)
+              }}
+                isRecycled={isRecycled} setIsRecycled={(v) => {
+                setIsRecycled(v);
+                setPageNumber(1)
+              }}
+                maxPrice={maxPrice} setMaxPrice={(v) => {
+                setMaxPrice(v);
+                setPageNumber(1)
+              }}
                 onClear={handleClearFilters}
               />
             </aside>
@@ -363,11 +407,26 @@ const ProductPage = () => {
                 <FilterPanel
                   treeSelectData={treeSelectData}
                   categoryId={categoryId}
-                  setCategoryId={(v) => { setCategoryId(v); setPageNumber(1) }}
-                  isOrganic={isOrganic} setIsOrganic={(v) => { setIsOrganic(v); setPageNumber(1) }}
-                  isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => { setIsBiodegradable(v); setPageNumber(1) }}
-                  isRecycled={isRecycled} setIsRecycled={(v) => { setIsRecycled(v); setPageNumber(1) }}
-                  maxPrice={maxPrice} setMaxPrice={(v) => { setMaxPrice(v); setPageNumber(1) }}
+                  setCategoryId={(v) => {
+                    setCategoryId(v);
+                    setPageNumber(1)
+                  }}
+                  isOrganic={isOrganic} setIsOrganic={(v) => {
+                  setIsOrganic(v);
+                  setPageNumber(1)
+                }}
+                  isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => {
+                  setIsBiodegradable(v);
+                  setPageNumber(1)
+                }}
+                  isRecycled={isRecycled} setIsRecycled={(v) => {
+                  setIsRecycled(v);
+                  setPageNumber(1)
+                }}
+                  maxPrice={maxPrice} setMaxPrice={(v) => {
+                  setMaxPrice(v);
+                  setPageNumber(1)
+                }}
                   onClear={handleClearFilters}
                 />
               </aside>
@@ -377,7 +436,8 @@ const ProductPage = () => {
           {/* Main Content */}
           <div className="flex-1 flex flex-col">
             {searchName && (
-              <div className="bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl flex items-center justify-between mb-6 shadow-sm border border-gray-100">
+              <div
+                className="bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl flex items-center justify-between mb-6 shadow-sm border border-gray-100">
                 <p className="font-medium text-sm text-gray-700 flex items-center gap-2">
                   <MagnifyingGlassIcon size={18} className="text-green-600" />
                   Search results for: <span className="font-black text-green-700">"{searchName}"</span>
@@ -418,7 +478,8 @@ const ProductPage = () => {
                 ))}
               </div>
             ) : isError ? (
-              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-red-100 h-full">
+              <div
+                className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-red-100 h-full">
                 <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center mb-5 shadow-inner">
                   <WarningCircleIcon weight="fill" size={40} className="text-red-500" />
                 </div>
@@ -435,8 +496,10 @@ const ProductPage = () => {
                 </button>
               </div>
             ) : !productsData?.items || productsData.items.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 h-full">
-                <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-5 shadow-inner border border-gray-100">
+              <div
+                className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 h-full">
+                <div
+                  className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-5 shadow-inner border border-gray-100">
                   <MagnifyingGlassIcon weight="duotone" size={48} className="text-gray-400" />
                 </div>
                 <h3 className="text-2xl font-extrabold text-gray-900 mb-3 tracking-tight">No products found</h3>

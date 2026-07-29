@@ -32,46 +32,19 @@ export const router = createBrowserRouter([
     path: '/',
     element: <RootLayout />,
     children: [
-      {
-        path: '/',
-        element: <HomePage />,
-      },
-      {
-        path: '/products',
-        element: <ProductPage />,
-      },
-      {
-        path: '/products/:id',
-        element: <ProductDetailPage />,
-      },
-      {
-        path: '/payment',
-        element: <PaymentPage />,
-      },
-      {
-        path: '/support',
-        element: <></>,
-      },
-      {
-        path: '/auth',
-        element: <AuthPage />,
-      },
-      {
-        path: '/cart',
-        element: <></>,
-      },
-      {
-        path: '/my-orders',
-        element: <MyOrdersPage />,
-      },
-      {
-        path: '/profile',
-        element: <ProfilePage />,
-      },
-      {
-        path: '/green-wallet',
-        element: <GreenWalletPage />,
-      },
+      { path: '/', element: <HomePage /> },
+      { path: '/products', element: <ProductPage /> },
+      { path: '/products/:id', element: <ProductDetailPage /> },
+      { path: '/payment', element: <PaymentPage /> },
+      { path: '/support', element: <></> },
+      { path: '/auth', element: <AuthPage /> },
+      { path: '/cart', element: <></> },
+      { path: '/my-orders', element: <MyOrdersPage /> },
+      { path: '/my-orders/:id', element: <OrderDetailPage /> },
+      { path: '/profile', element: <ProfilePage /> },
+      { path: '/green-wallet', element: <GreenWalletPage /> },
+      { path: '/favorite-products', element: <WishlistPage /> },
+      { path: '/compare', element: <ComparePage /> },
     ],
   },
   {
