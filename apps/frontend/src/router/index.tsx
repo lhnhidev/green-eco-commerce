@@ -1,55 +1,139 @@
+import { RequireAuth } from '@components/features/auth/RequireAuth'
 import RootLayout from '@layouts/RootLayout'
 import RootLayoutAdmin from '@layouts/RootLayoutAdmin'
-import BannerList from '@pages/admin/banner/BannerList'
-import CategoryCreate from '@pages/admin/category/CategoryCreate'
-import CategoryList from '@pages/admin/category/CategoryList'
-import CouponList from '@pages/admin/coupon/CouponList'
-import Dashboard from '@pages/admin/Dashboard'
-import DocumentList from '@pages/admin/document/DocumentList'
-import MaterialCreate from '@pages/admin/material/MaterialCreate'
-import MaterialList from '@pages/admin/material/MaterialList'
-import OrderList from '@pages/admin/order/OrderList'
-import ProductCreate from '@pages/admin/product/ProductCreate'
-import ProductEdit from '@pages/admin/product/ProductEdit'
-import ProductList from '@pages/admin/product/ProductList'
-import ReviewList from '@pages/admin/review/ReviewList'
-import UserList from '@pages/admin/user/UserList'
 import AuthPage from '@pages/client/AuthPage'
+import CartPage from '@pages/client/Cart/CartPage'
+import CheckoutPage from '@pages/client/Checkout/CheckoutPage'
 import ComparePage from '@pages/client/Compare/ComparePage'
 import { HomePage } from '@pages/client/HomePage'
 import MyOrdersPage from '@pages/client/Order/MyOrdersPage'
 import OrderDetailPage from '@pages/client/Order/OrderDetailPage'
+import OrderSuccessPage from '@pages/client/Order/OrderSuccessPage'
 import PaymentPage from '@pages/client/Payment/PaymentPage'
 import ProductDetailPage from '@pages/client/Product/ProductDetailPage'
 import ProductPage from '@pages/client/Product/ProductPage'
 import ProfilePage from '@pages/client/Profile/ProfilePage'
+import AboutPage from '@pages/client/static/AboutPage'
+import ContactPage from '@pages/client/static/ContactPage'
+import FaqPage from '@pages/client/static/FaqPage'
+import PrivacyPage from '@pages/client/static/PrivacyPage'
+import ReturnsPage from '@pages/client/static/ReturnsPage'
+import ShippingPage from '@pages/client/static/ShippingPage'
+import TermsPage from '@pages/client/static/TermsPage'
 import GreenWalletPage from '@pages/client/Wallet/GreenWalletPage'
 import WishlistPage from '@pages/client/Wishlist/WishlistPage'
+import ErrorPage from '@pages/ErrorPage'
+import NotFoundPage from '@pages/NotFoundPage'
+import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router'
+
+// Admin pages are lazy-loaded — they're a separate console the vast majority of
+// storefront visitors never open, and shouldn't bloat the customer-facing bundle.
+const Dashboard = lazy(() => import('@pages/admin/Dashboard'))
+const ProductList = lazy(() => import('@pages/admin/product/ProductList'))
+const ProductCreate = lazy(() => import('@pages/admin/product/ProductCreate'))
+const ProductEdit = lazy(() => import('@pages/admin/product/ProductEdit'))
+const CategoryList = lazy(() => import('@pages/admin/category/CategoryList'))
+const CategoryCreate = lazy(() => import('@pages/admin/category/CategoryCreate'))
+const MaterialList = lazy(() => import('@pages/admin/material/MaterialList'))
+const MaterialCreate = lazy(() => import('@pages/admin/material/MaterialCreate'))
+const OrderList = lazy(() => import('@pages/admin/order/OrderList'))
+const UserList = lazy(() => import('@pages/admin/user/UserList'))
+const BannerList = lazy(() => import('@pages/admin/banner/BannerList'))
+const ReviewList = lazy(() => import('@pages/admin/review/ReviewList'))
+const CouponList = lazy(() => import('@pages/admin/coupon/CouponList'))
+const DocumentList = lazy(() => import('@pages/admin/document/DocumentList'))
 
 export const router = createBrowserRouter([
   {
     path: '/',
     element: <RootLayout />,
+    errorElement: <ErrorPage />,
     children: [
       { path: '/', element: <HomePage /> },
       { path: '/products', element: <ProductPage /> },
       { path: '/products/:id', element: <ProductDetailPage /> },
+      {
+        path: '/cart',
+        element: (
+          <RequireAuth>
+            <CartPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/checkout',
+        element: (
+          <RequireAuth>
+            <CheckoutPage />
+          </RequireAuth>
+        ),
+      },
       { path: '/payment', element: <PaymentPage /> },
-      { path: '/support', element: <></> },
       { path: '/auth', element: <AuthPage /> },
-      { path: '/cart', element: <></> },
-      { path: '/my-orders', element: <MyOrdersPage /> },
-      { path: '/my-orders/:id', element: <OrderDetailPage /> },
-      { path: '/profile', element: <ProfilePage /> },
-      { path: '/green-wallet', element: <GreenWalletPage /> },
-      { path: '/favorite-products', element: <WishlistPage /> },
+      {
+        path: '/my-orders',
+        element: (
+          <RequireAuth>
+            <MyOrdersPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/my-orders/:id',
+        element: (
+          <RequireAuth>
+            <OrderDetailPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/order-success/:id',
+        element: (
+          <RequireAuth>
+            <OrderSuccessPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/profile',
+        element: (
+          <RequireAuth>
+            <ProfilePage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/green-wallet',
+        element: (
+          <RequireAuth>
+            <GreenWalletPage />
+          </RequireAuth>
+        ),
+      },
+      {
+        path: '/favorite-products',
+        element: (
+          <RequireAuth>
+            <WishlistPage />
+          </RequireAuth>
+        ),
+      },
       { path: '/compare', element: <ComparePage /> },
+      { path: '/about', element: <AboutPage /> },
+      { path: '/contact', element: <ContactPage /> },
+      { path: '/faq', element: <FaqPage /> },
+      { path: '/shipping', element: <ShippingPage /> },
+      { path: '/returns', element: <ReturnsPage /> },
+      { path: '/privacy', element: <PrivacyPage /> },
+      { path: '/terms', element: <TermsPage /> },
+      { path: '*', element: <NotFoundPage /> },
     ],
   },
   {
     path: '/admin',
     element: <RootLayoutAdmin />,
+    errorElement: <ErrorPage />,
     children: [
       { path: 'dashboard', element: <Dashboard /> },
       { path: 'product', element: <ProductList /> },
