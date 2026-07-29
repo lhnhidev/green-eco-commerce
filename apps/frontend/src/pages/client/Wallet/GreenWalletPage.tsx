@@ -1,5 +1,7 @@
 import { useGetGreenWallet } from '@api'
-import { Anchor, Badge, Breadcrumbs, RingProgress, Table, Text } from '@mantine/core'
+import PageHeader from '@components/ui/primitives/PageHeader'
+import Panel from '@components/ui/primitives/Panel'
+import { Badge, RingProgress, Skeleton, Table, Text } from '@mantine/core'
 import { ArrowUpRightIcon, LeafIcon, ShoppingBagIcon } from '@phosphor-icons/react'
 import dayjs from 'dayjs'
 import { Link } from 'react-router'
@@ -7,11 +9,7 @@ import { Link } from 'react-router'
 const breadcrumbItems = [
   { title: 'Home', href: '/' },
   { title: 'Green Wallet', href: '/green-wallet' },
-].map((item) => (
-  <Anchor href={item.href} key={item.href} size="sm">
-    {item.title}
-  </Anchor>
-))
+]
 
 const GreenWalletPage = () => {
   const { data: wallet, isLoading } = useGetGreenWallet()
@@ -20,15 +18,17 @@ const GreenWalletPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
-
-      <div className="flex items-center gap-3 mb-6">
-        <LeafIcon className="text-2xl text-primary" />
-        <h1 className="text-2xl font-bold text-gray-800">Green Wallet</h1>
-      </div>
+      <PageHeader breadcrumbItems={breadcrumbItems} icon={LeafIcon} title="Green Wallet" />
 
       {isLoading ? (
-        <div className="text-center py-16 text-gray-400">Loading wallet…</div>
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <Skeleton height={130} radius="xl" />
+            <Skeleton height={130} radius="xl" />
+            <Skeleton height={130} radius="xl" />
+          </div>
+          <Skeleton height={220} radius="xl" />
+        </>
       ) : !wallet ? (
         <div className="text-center py-16 text-gray-400">Wallet not found.</div>
       ) : (
@@ -47,15 +47,14 @@ const GreenWalletPage = () => {
             </div>
 
             {/* Total Earned */}
-            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col justify-between">
+            <Panel className="p-6 flex flex-col justify-between">
               <p className="text-gray-400 text-sm font-medium">Total Earned</p>
               <p className="text-3xl font-bold text-gray-800 mt-2">{wallet.earnedTotal.toLocaleString()}</p>
               <p className="text-gray-400 text-xs mt-1">All-time points</p>
-            </div>
+            </Panel>
 
             {/* Progress */}
-            <div
-              className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm flex flex-col items-center justify-center">
+            <Panel className="p-6 flex flex-col items-center justify-center">
               <RingProgress
                 size={90}
                 thickness={8}
@@ -67,7 +66,7 @@ const GreenWalletPage = () => {
                 }
               />
               <p className="text-gray-400 text-xs mt-2 text-center">Balance vs. Total Earned</p>
-            </div>
+            </Panel>
           </div>
 
           {/* Tips */}
@@ -89,7 +88,7 @@ const GreenWalletPage = () => {
           </div>
 
           {/* Transaction History */}
-          <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
+          <Panel className="overflow-hidden">
             <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-50">
               <ShoppingBagIcon className="text-gray-400" />
               <p className="font-semibold text-gray-700 text-sm">Transaction History</p>
@@ -101,6 +100,7 @@ const GreenWalletPage = () => {
             {wallet.transactions.length === 0 ? (
               <div className="text-center py-12 text-gray-400 text-sm">No transactions yet.</div>
             ) : (
+              <div className="overflow-x-auto">
               <Table
                 verticalSpacing={10}
                 horizontalSpacing={14}
@@ -136,8 +136,9 @@ const GreenWalletPage = () => {
                     ))}
                 </Table.Tbody>
               </Table>
+              </div>
             )}
-          </div>
+          </Panel>
         </>
       )}
     </div>

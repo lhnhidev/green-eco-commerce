@@ -1,26 +1,24 @@
-import { useGetMe, useUpdateUserProfile } from '@api'
-import { setAuthUser } from '@components/features/auth/auth.slice'
+import { getGetMeQueryKey, useGetMe, useUpdateUserProfile } from '@api'
+import AddressManager from '@components/features/addresses/AddressManager'
 import StatisticsTab from '@components/features/statistics/StatisticsTab'
 import { ImageDropzone } from '@components/features/upload/ImageDropzone'
-import { useAppDispatch } from '@hooks/useAppDispatch'
-import { Anchor, Avatar, Breadcrumbs, Button, Divider, PasswordInput, Tabs, TextInput } from '@mantine/core'
+import PageHeader from '@components/ui/primitives/PageHeader'
+import Panel from '@components/ui/primitives/Panel'
+import { Avatar, Button, Divider, PasswordInput, Skeleton, Tabs, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { ChartBarIcon, UserIcon } from '@phosphor-icons/react'
+import { ChartBarIcon, MapPinIcon, UserIcon } from '@phosphor-icons/react'
+import { useQueryClient } from '@tanstack/react-query'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { useEffect } from 'react'
 
 const breadcrumbItems = [
   { title: 'Home', href: '/' },
   { title: 'Profile', href: '/profile' },
-].map((item) => (
-  <Anchor href={item.href} key={item.href} size="sm">
-    {item.title}
-  </Anchor>
-))
+]
 
 const ProfilePage = () => {
-  const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const { data: user, isLoading } = useGetMe()
   const { mutate: updateProfile, isPending } = useUpdateUserProfile()
 
@@ -69,7 +67,7 @@ const ProfilePage = () => {
       },
       {
         onSuccess: (updated) => {
-          dispatch(setAuthUser(updated))
+          queryClient.setQueryData(getGetMeQueryKey(), updated)
           notifications.show({ title: 'Profile updated', message: 'Your info has been saved.', color: 'green' })
           form.setFieldValue('password', '')
         },
@@ -84,17 +82,15 @@ const ProfilePage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
-
-      <div className="flex items-center gap-3 mb-6">
-        <UserIcon className="text-2xl text-primary" />
-        <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
-      </div>
+      <PageHeader breadcrumbItems={breadcrumbItems} icon={UserIcon} title="My Profile" />
 
       <Tabs defaultValue="profile" keepMounted={false}>
         <Tabs.List mb="lg">
           <Tabs.Tab value="profile" leftSection={<UserIcon />}>
             Profile
+          </Tabs.Tab>
+          <Tabs.Tab value="addresses" leftSection={<MapPinIcon />}>
+            Addresses
           </Tabs.Tab>
           <Tabs.Tab value="stats" leftSection={<ChartBarIcon />}>
             Statistics
@@ -102,7 +98,7 @@ const ProfilePage = () => {
         </Tabs.List>
 
         <Tabs.Panel value="profile">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <Panel className="p-8">
             {/* Avatar section */}
             <div className="flex items-center gap-4 mb-6">
               <Avatar src={resolveImageUrl(user?.avatar) ?? null} size={72} radius="xl" color="green">
@@ -120,7 +116,16 @@ const ProfilePage = () => {
             <Divider mb="lg" />
 
             {isLoading ? (
-              <div className="text-center py-8 text-gray-400">Loading profile…</div>
+              <div className="flex flex-col gap-5">
+                <div className="grid grid-cols-2 gap-5">
+                  <Skeleton height={60} radius="md" />
+                  <Skeleton height={60} radius="md" />
+                </div>
+                <Skeleton height={60} radius="md" />
+                <Skeleton height={60} radius="md" />
+                <Skeleton height={100} radius="md" />
+                <Skeleton height={60} radius="md" />
+              </div>
             ) : (
               <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-5">
                 <div className="grid grid-cols-2 gap-5">
@@ -172,7 +177,13 @@ const ProfilePage = () => {
                 </div>
               </form>
             )}
-          </div>
+          </Panel>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="addresses">
+          <Panel className="p-8">
+            <AddressManager />
+          </Panel>
         </Tabs.Panel>
 
         <Tabs.Panel value="stats">

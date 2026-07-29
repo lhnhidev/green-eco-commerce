@@ -1,12 +1,14 @@
 import { getGetMyOrderByIdQueryKey, useCancelMyOrder, useGetMyOrderById } from '@api'
 import { OrderStatusEnum } from '@api/schemas'
+import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
 import Loading from '@components/ui/status/Loading'
-import { Anchor, Badge, Breadcrumbs, Button, Divider, Group, Image, Paper, Stack, Text, Title } from '@mantine/core'
+import { Badge, Button, Divider, Group, Image, Paper, Stack, Text, Title } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
 import { ArrowLeftIcon, DownloadSimpleIcon, LeafIcon, MapPinIcon, PackageIcon, StarIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { downloadFile } from '@utils/downloadFile'
+import { formatCurrency } from '@utils/formatCurrency'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -41,12 +43,8 @@ const OrderDetailPage = () => {
   const breadcrumbItems = [
     { title: 'Home', href: '/' },
     { title: 'My Orders', href: '/my-orders' },
-    { title: `Order #${id?.substring(0, 8).toUpperCase()}`, href: '#' },
-  ].map((item) => (
-    <Anchor href={item.href} key={item.href} size="sm">
-      {item.title}
-    </Anchor>
-  ))
+    { title: `Order #${id?.substring(0, 8).toUpperCase()}`, href: `/my-orders/${id}` },
+  ]
 
   if (isLoading) return <Loading text="Loading order details..." />
   if (isError || !order) {
@@ -87,7 +85,7 @@ const OrderDetailPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
+      <PageBreadcrumbs items={breadcrumbItems} mb="lg" />
 
       <Group justify="space-between" align="flex-start" mb="md">
         <div>
@@ -149,7 +147,7 @@ const OrderDetailPage = () => {
                   </Link>
                 </Text>
                 <Text size="xs" c="dimmed">
-                  ${item.unitPrice.toFixed(2)} × {item.quantity}
+                  {formatCurrency(item.unitPrice)} × {item.quantity}
                 </Text>
                 <Text size="xs" c="teal.6">
                   <LeafIcon className="inline mr-1" />
@@ -157,7 +155,7 @@ const OrderDetailPage = () => {
                 </Text>
               </div>
               <Text fw={700} size="sm">
-                ${(item.unitPrice * item.quantity).toFixed(2)}
+                {formatCurrency(item.unitPrice * item.quantity)}
               </Text>
             </div>
           ))}
@@ -174,7 +172,7 @@ const OrderDetailPage = () => {
             <Text size="sm" c="dimmed">
               Subtotal:
             </Text>
-            <Text size="sm">${subtotal.toFixed(2)}</Text>
+            <Text size="sm">{formatCurrency(subtotal)}</Text>
           </Group>
           {order.discountAmount > 0 && (
             <Group justify="space-between">
@@ -182,7 +180,7 @@ const OrderDetailPage = () => {
                 Discount:
               </Text>
               <Text size="sm" c="red">
-                -${order.discountAmount.toFixed(2)}
+                -{formatCurrency(order.discountAmount)}
               </Text>
             </Group>
           )}
@@ -190,7 +188,7 @@ const OrderDetailPage = () => {
           <Group justify="space-between">
             <Text fw={700}>Total:</Text>
             <Text fw={700} c="green.7">
-              ${order.finalAmount.toFixed(2)}
+              {formatCurrency(order.finalAmount)}
             </Text>
           </Group>
           <Group justify="space-between">

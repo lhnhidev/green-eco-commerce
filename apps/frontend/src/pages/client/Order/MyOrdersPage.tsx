@@ -1,8 +1,12 @@
 import { useGetMyOrders } from '@api'
 import { OrderSortBy, OrderStatusEnum } from '@api/schemas'
-import { Anchor, Badge, Breadcrumbs, Button, Pagination, Select, Table, TextInput } from '@mantine/core'
+import EmptyState from '@components/ui/primitives/EmptyState'
+import PageHeader from '@components/ui/primitives/PageHeader'
+import Panel from '@components/ui/primitives/Panel'
+import { Badge, Button, Pagination, Select, Skeleton, Table, TextInput } from '@mantine/core'
 import { useDebouncedValue } from '@mantine/hooks'
 import { EyeIcon, MagnifyingGlassIcon, ReceiptIcon } from '@phosphor-icons/react'
+import { formatCurrency } from '@utils/formatCurrency'
 import dayjs from 'dayjs'
 import { useState } from 'react'
 import { Link } from 'react-router'
@@ -20,11 +24,7 @@ const PAGE_SIZE = 10
 const breadcrumbItems = [
   { title: 'Home', href: '/' },
   { title: 'My Orders', href: '/my-orders' },
-].map((item) => (
-  <Anchor href={item.href} key={item.href} size="sm">
-    {item.title}
-  </Anchor>
-))
+]
 
 const MyOrdersPage = () => {
   const [search, setSearch] = useState('')
@@ -49,12 +49,7 @@ const MyOrdersPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
-
-      <div className="flex items-center gap-3 mb-6">
-        <ReceiptIcon className="text-2xl text-primary" />
-        <h1 className="text-2xl font-bold text-gray-800">My Orders</h1>
-      </div>
+      <PageHeader breadcrumbItems={breadcrumbItems} icon={ReceiptIcon} title="My Orders" />
 
       <div className="flex items-center gap-2.5 mb-4 flex-wrap">
         <TextInput
@@ -69,17 +64,18 @@ const MyOrdersPage = () => {
           w={260}
         />
         <Select
-          placeholder="All statuses"
+          placeholder="Filter status (this page)"
           size="sm"
           data={Object.values(OrderStatusEnum)}
           value={statusFilter}
           onChange={setStatusFilter}
           clearable
-          w={160}
+          w={190}
         />
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+      <Panel className="overflow-hidden">
+        <div className="overflow-x-auto">
         <Table
           verticalSpacing={10}
           horizontalSpacing={14}
@@ -103,18 +99,27 @@ const MyOrdersPage = () => {
           </Table.Thead>
           <Table.Tbody>
             {isLoading ? (
-              <Table.Tr>
-                <Table.Td colSpan={7}>
-                  <div className="text-center py-12 text-gray-400">Loading your orders…</div>
-                </Table.Td>
-              </Table.Tr>
+              Array.from({ length: 5 }).map((_, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loader
+                <Table.Tr key={i}>
+                  <Table.Td colSpan={8}>
+                    <Skeleton height={20} radius="xl" />
+                  </Table.Td>
+                </Table.Tr>
+              ))
             ) : filtered.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={7}>
-                  <div className="flex flex-col items-center py-16 gap-3 text-gray-400">
-                    <ReceiptIcon size={40} />
-                    <p className="text-sm">No orders found.</p>
-                  </div>
+                <Table.Td colSpan={8}>
+                  <EmptyState
+                    icon={ReceiptIcon}
+                    color="gray"
+                    description={
+                      statusFilter && orders.length > 0
+                        ? 'No orders on this page match that status. Try clearing the filter or checking another page.'
+                        : 'No orders found.'
+                    }
+                    className="py-4"
+                  />
                 </Table.Td>
               </Table.Tr>
             ) : (
@@ -130,7 +135,7 @@ const MyOrdersPage = () => {
                     {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
                   </Table.Td>
                   <Table.Td className="font-semibold! text-primary!">
-                    ${Number(order.finalAmount ?? 0).toFixed(2)}
+                    {formatCurrency(order.finalAmount)}
                   </Table.Td>
                   <Table.Td className="text-green-600!">{Number(order.totalCo2Saved ?? 0).toFixed(2)} kg</Table.Td>
                   <Table.Td>
@@ -158,7 +163,8 @@ const MyOrdersPage = () => {
             )}
           </Table.Tbody>
         </Table>
-      </div>
+        </div>
+      </Panel>
 
       {totalPages > 1 && (
         <div className="flex justify-end mt-4">

@@ -1,15 +1,16 @@
 import { useGetAllCategories, useGetAllProducts } from '@api'
-import ProductCardv2 from '@components/features/products/ProductCardv2'
+import ProductCard from '@components/features/products/ProductCard'
+import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
+import Seo from '@components/ui/Seo'
 import {
-  Anchor,
-  Breadcrumbs,
+  Badge,
   Checkbox,
   Collapse,
   Input,
   Pagination,
+  RangeSlider,
   Select,
   Skeleton,
-  Slider,
   type TreeNodeData,
   TreeSelect,
 } from '@mantine/core'
@@ -20,14 +21,20 @@ import {
   LeafIcon,
   ListDashesIcon,
   MagnifyingGlassIcon,
+  PackageIcon,
   PlantIcon,
   RecycleIcon,
   WarningCircleIcon,
   XCircleIcon,
+  XIcon,
 } from '@phosphor-icons/react'
-import { useMemo, useState } from 'react'
+import { buildCategoryTree, type CategoryTreeNode } from '@utils/buildCategoryTree'
+import { formatCurrency } from '@utils/formatCurrency'
+import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
 import { ProductSortBy } from '@/api/schemas'
+
+const MAX_PRICE = 1000
 
 // ─── Reusable filter panel (shared between desktop sidebar and mobile Collapse) ─
 
@@ -41,8 +48,11 @@ interface FilterPanelProps {
   setIsBiodegradable: (v: boolean) => void
   isRecycled: boolean
   setIsRecycled: (v: boolean) => void
-  maxPrice: number
-  setMaxPrice: (v: number) => void
+  inStockOnly: boolean
+  setInStockOnly: (v: boolean) => void
+  priceRange: [number, number]
+  onPriceRangeChange: (v: [number, number]) => void
+  onPriceRangeChangeEnd: (v: [number, number]) => void
   onClear: () => void
 }
 
@@ -51,7 +61,8 @@ const FilterPanel = ({
                        isOrganic, setIsOrganic,
                        isBiodegradable, setIsBiodegradable,
                        isRecycled, setIsRecycled,
-                       maxPrice, setMaxPrice,
+                       inStockOnly, setInStockOnly,
+                       priceRange, onPriceRangeChange, onPriceRangeChangeEnd,
                        onClear,
                      }: FilterPanelProps) => (
   <>
@@ -105,6 +116,15 @@ const FilterPanel = ({
             input: 'cursor-pointer transition-colors hover:border-green-400'
           }}
         />
+        <Checkbox
+          label={<div className="flex items-center gap-2"><PackageIcon size={16} className="text-gray-600" /><span
+            className="text-sm">In stock only</span></div>}
+          checked={inStockOnly} onChange={(e) => setInStockOnly(e.currentTarget.checked)} color="green.6" size="sm"
+          classNames={{
+            label: 'text-gray-700 font-medium cursor-pointer ml-2',
+            input: 'cursor-pointer transition-colors hover:border-green-400'
+          }}
+        />
       </div>
     </div>
 
@@ -115,15 +135,19 @@ const FilterPanel = ({
         Price Range
       </h3>
       <div className="space-y-4 px-2">
-        <div className="text-green-700 font-bold text-xl tracking-tight text-center">Up to
-          ${maxPrice === 1000 ? '1000+' : maxPrice}</div>
-        <Slider color="green.6" size="sm" radius="xl" min={0} max={1000} step={10} value={maxPrice}
-                onChange={setMaxPrice}
-                marks={[{ value: 0, label: '$0' }, { value: 1000, label: '$1000+' }]}
-                classNames={{
-                  markLabel: 'text-[10px] font-bold tracking-wider text-gray-400 mt-2',
-                  thumb: 'border-2 border-white shadow-sm'
-                }}
+        <div className="text-green-700 font-bold text-lg tracking-tight text-center">
+          {formatCurrency(priceRange[0])} – {priceRange[1] >= MAX_PRICE ? `${formatCurrency(MAX_PRICE)}+` : formatCurrency(priceRange[1])}
+        </div>
+        <RangeSlider
+          color="green.6" size="sm" radius="xl" min={0} max={MAX_PRICE} step={10}
+          value={priceRange}
+          onChange={onPriceRangeChange}
+          onChangeEnd={onPriceRangeChangeEnd}
+          marks={[{ value: 0, label: '$0' }, { value: MAX_PRICE, label: `$${MAX_PRICE}+` }]}
+          classNames={{
+            markLabel: 'text-[10px] font-bold tracking-wider text-gray-400 mt-2',
+            thumb: 'border-2 border-white shadow-sm'
+          }}
         />
       </div>
     </div>
@@ -137,77 +161,73 @@ const FilterPanel = ({
   </>
 )
 
-const items = [
-  { id: 1, title: 'Home', href: '/' },
-  { id: 2, title: 'Products', href: '/products' },
-].map((item) => (
-  <Anchor href={item.href} key={item.id}>
-    {item.title}
-  </Anchor>
-))
+const breadcrumbItems = [
+  { title: 'Home', href: '/' },
+  { title: 'Products', href: '/products' },
+]
 
 const productsAmount = 12
 
 const ProductPage = () => {
   const [searchParams, setSearchParams] = useSearchParams()
+
+  // The URL is the single source of truth for every filter except the live text of the
+  // search box (which shouldn't hit the URL on every keystroke, only on submit) and the
+  // price range thumbs while actively dragging (see priceRange state below).
+  const pageNumber = Number(searchParams.get('page') ?? 1)
+  const categoryId = searchParams.get('categoryId') ?? ''
+  const sortBy = (searchParams.get('sortBy') as ProductSortBy) || ProductSortBy.Name
+  const sortOrder = (searchParams.get('order') === 'desc' ? 'desc' : 'asc') as 'asc' | 'desc'
+  const minPrice = Number(searchParams.get('minPrice') ?? 0)
+  const maxPrice = Number(searchParams.get('maxPrice') ?? MAX_PRICE)
+  const isOrganic = searchParams.get('organic') === 'true'
+  const isBiodegradable = searchParams.get('biodegradable') === 'true'
+  const isRecycled = searchParams.get('recycled') === 'true'
+  const inStockOnly = searchParams.get('inStock') === 'true'
   const currentSearch = searchParams.get('search') || ''
 
-  const [pageNumber, setPageNumber] = useState(1)
   const [searchName, setSearchName] = useState(currentSearch)
+  const [priceRange, setPriceRange] = useState<[number, number]>([minPrice, maxPrice])
+  const [filtersOpen, setFiltersOpen] = useState(false)
 
-  const [categoryId, setCategoryId] = useState<string>('')
-  const [sortBy, setSortBy] = useState<ProductSortBy>(ProductSortBy.Name)
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
+  // Keep the search box and the price slider's live position in sync when the URL
+  // changes from elsewhere (Clear Filters, browser back/forward, a category link).
+  useEffect(() => setSearchName(currentSearch), [currentSearch])
+  useEffect(() => setPriceRange([minPrice, maxPrice]), [minPrice, maxPrice])
 
-  const [minPrice, setMinPrice] = useState<number>(0)
-  const [maxPrice, setMaxPrice] = useState<number>(1000)
-
-  const [isOrganic, setIsOrganic] = useState(false)
-  const [isBiodegradable, setIsBiodegradable] = useState(false)
-  const [isRecycled, setIsRecycled] = useState(false)
+  const updateParams = (patch: Record<string, string | null>, resetPage = true) => {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev)
+      Object.entries(patch).forEach(([key, value]) => {
+        if (value === null || value === '') next.delete(key)
+        else next.set(key, value)
+      })
+      if (resetPage) next.delete('page')
+      return next
+    })
+  }
 
   const { data: categoriesData } = useGetAllCategories()
 
   const treeSelectData = useMemo(() => {
     if (!categoriesData) return []
 
-    const nodeMap = new Map<string, TreeNodeData>()
-    const roots: TreeNodeData[] = []
+    // Adapt the shared category tree into Mantine TreeSelect's node shape,
+    // omitting empty `children` arrays so leaf nodes don't render an expand arrow.
+    const toTreeNodeData = (nodes: CategoryTreeNode[]): TreeNodeData[] =>
+      nodes.map((node) => ({
+        label: `${node.name} (${node.productCount})`,
+        value: node.id,
+        ...(node.children.length > 0 ? { children: toTreeNodeData(node.children) } : {}),
+      }))
 
-    // First pass: create node objects
-    categoriesData.forEach((cat) => {
-      nodeMap.set(cat.id, { label: `${cat.name} (${cat.productCount})`, value: cat.id, children: [] })
-    })
-
-    // Second pass: attach to parents
-    categoriesData.forEach((cat) => {
-      const node = nodeMap.get(cat.id)
-      if (!node) return
-
-      if (cat.parentId && nodeMap.has(cat.parentId)) {
-        const parent = nodeMap.get(cat.parentId)
-        if (parent?.children) {
-          parent.children.push(node)
-        }
-      } else {
-        roots.push(node)
-      }
-    })
-
-    // Clean up empty children arrays
-    const cleanEmptyChildren = (nodes: TreeNodeData[]) => {
-      nodes.forEach((node) => {
-        if (node.children && node.children.length === 0) {
-          delete node.children
-        } else if (node.children) {
-          cleanEmptyChildren(node.children)
-        }
-      })
-    }
-    cleanEmptyChildren(roots)
-
-    return roots
+    return toTreeNodeData(buildCategoryTree(categoriesData))
   }, [categoriesData])
+
+  const selectedCategoryName = useMemo(() => {
+    if (!categoryId || !categoriesData) return null
+    return categoriesData.find((c) => c.id === categoryId)?.name ?? null
+  }, [categoryId, categoriesData])
 
   const {
     data: productsData,
@@ -216,10 +236,10 @@ const ProductPage = () => {
   } = useGetAllProducts({
     pageNumber: pageNumber,
     pageSize: productsAmount,
-    search: searchName || undefined,
+    search: currentSearch || undefined,
     categoryIds: categoryId !== '' ? [categoryId] : [],
     minPrice: minPrice,
-    maxPrice: maxPrice === 1000 ? undefined : maxPrice,
+    maxPrice: maxPrice >= MAX_PRICE ? undefined : maxPrice,
     sortBy: sortBy,
     sortDescending: sortOrder === 'desc',
     isOrganic: isOrganic,
@@ -227,44 +247,74 @@ const ProductPage = () => {
     isRecycled: isRecycled,
   })
 
+  // The backend has no "in stock" filter — this narrows the already-fetched page,
+  // same page-scoped-filter pattern used for order status filtering elsewhere in the app.
+  const visibleItems = useMemo(() => {
+    const items = productsData?.items ?? []
+    return inStockOnly ? items.filter((p) => p.stockQty > 0) : items
+  }, [productsData, inStockOnly])
+
   const handleSearch = () => {
     const trimmed = searchName.trim()
     setSearchName(trimmed)
-    setPageNumber(1)
-
-    setSearchParams((prevParams) => {
-      if (trimmed) {
-        prevParams.set('search', trimmed)
-      } else {
-        prevParams.delete('search')
-      }
-      return prevParams
-    })
+    updateParams({ search: trimmed || null })
   }
 
   const handleClearFilters = () => {
-    setSearchName('')
-    setCategoryId('')
-    setSortBy(ProductSortBy.Name)
-    setSortOrder('asc')
-    setMinPrice(0)
-    setMaxPrice(1000)
-    setIsOrganic(false)
-    setIsBiodegradable(false)
-    setIsRecycled(false)
-    setPageNumber(1)
     setSearchParams({})
   }
 
   const handlePageChange = (page: number) => {
-    setPageNumber(page)
+    updateParams({ page: page > 1 ? String(page) : null }, false)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  const [filtersOpen, setFiltersOpen] = useState(false)
+  const activeFilterChips = useMemo(() => {
+    const chips: { key: string; label: string; onRemove: () => void }[] = []
+
+    if (currentSearch) {
+      chips.push({ key: 'search', label: `"${currentSearch}"`, onRemove: () => updateParams({ search: null }) })
+    }
+    if (categoryId && selectedCategoryName) {
+      chips.push({
+        key: 'category',
+        label: selectedCategoryName,
+        onRemove: () => updateParams({ categoryId: null }),
+      })
+    }
+    if (isOrganic) {
+      chips.push({ key: 'organic', label: 'Organic', onRemove: () => updateParams({ organic: null }) })
+    }
+    if (isBiodegradable) {
+      chips.push({
+        key: 'biodegradable',
+        label: 'Biodegradable',
+        onRemove: () => updateParams({ biodegradable: null }),
+      })
+    }
+    if (isRecycled) {
+      chips.push({ key: 'recycled', label: 'Recycled', onRemove: () => updateParams({ recycled: null }) })
+    }
+    if (inStockOnly) {
+      chips.push({ key: 'inStock', label: 'In stock only', onRemove: () => updateParams({ inStock: null }) })
+    }
+    if (minPrice > 0 || maxPrice < MAX_PRICE) {
+      chips.push({
+        key: 'price',
+        label: `${formatCurrency(minPrice)} – ${maxPrice >= MAX_PRICE ? `${formatCurrency(MAX_PRICE)}+` : formatCurrency(maxPrice)}`,
+        onRemove: () => updateParams({ minPrice: null, maxPrice: null }),
+      })
+    }
+
+    return chips
+  }, [currentSearch, categoryId, selectedCategoryName, isOrganic, isBiodegradable, isRecycled, inStockOnly, minPrice, maxPrice])
 
   return (
     <div className="bg-gray-50/50 min-h-screen pb-16">
+      <Seo
+        title={currentSearch ? `Search: ${currentSearch}` : 'Shop Sustainable Essentials'}
+        description="Browse eco-friendly, sustainable products with a transparent carbon footprint on every item."
+      />
       {/* Hero Section */}
       <div
         className="bg-linear-to-br from-green-950 via-green-900 to-emerald-800 text-white py-16 px-4 relative overflow-hidden">
@@ -280,7 +330,8 @@ const ProductPage = () => {
         </div>
 
         <div className="container mx-auto relative z-10 flex flex-col items-center text-center">
-          <Breadcrumbs
+          <PageBreadcrumbs
+            items={breadcrumbItems}
             className="mb-6"
             separator="›"
             classNames={{
@@ -288,9 +339,7 @@ const ProductPage = () => {
                 'text-green-200/70 hover:text-white transition-colors text-[11px] font-bold tracking-widest uppercase',
               separator: 'text-white/30',
             }}
-          >
-            {items}
-          </Breadcrumbs>
+          />
           <div className="max-w-3xl">
             <h1
               className="font-extrabold text-4xl md:text-5xl mb-4 tracking-tight text-transparent bg-clip-text bg-linear-to-b from-white to-green-100 drop-shadow-sm">
@@ -335,9 +384,7 @@ const ProductPage = () => {
             value={`${sortBy}|${sortOrder}`}
             onChange={(val) => {
               const [newSortBy, newSortOrder] = (val || '').split('|')
-              setSortBy(newSortBy as ProductSortBy)
-              setSortOrder(newSortOrder as 'asc' | 'desc')
-              setPageNumber(1)
+              updateParams({ sortBy: newSortBy, order: newSortOrder })
             }}
             data={[
               { value: `${ProductSortBy.Name}|asc`, label: 'Name (A-Z)' },
@@ -356,6 +403,41 @@ const ProductPage = () => {
             }}
           />
         </div>
+
+        {/* Active filter chips */}
+        {activeFilterChips.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {activeFilterChips.map((chip) => (
+              <Badge
+                key={chip.key}
+                variant="light"
+                color="green"
+                radius="xl"
+                size="lg"
+                className="!pr-1 !normal-case !font-semibold"
+                rightSection={
+                  <button
+                    type="button"
+                    onClick={chip.onRemove}
+                    className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-green-200/60 transition-colors"
+                    aria-label={`Remove ${chip.label} filter`}
+                  >
+                    <XIcon size={10} />
+                  </button>
+                }
+              >
+                {chip.label}
+              </Badge>
+            ))}
+            <button
+              type="button"
+              onClick={handleClearFilters}
+              className="text-xs font-bold text-gray-400 hover:text-red-600 transition-colors ml-1"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
 
         {/* Mobile filter toggle */}
         <div className="lg:hidden mb-4">
@@ -377,26 +459,17 @@ const ProductPage = () => {
               <FilterPanel
                 treeSelectData={treeSelectData}
                 categoryId={categoryId}
-                setCategoryId={(v) => {
-                  setCategoryId(v);
-                  setPageNumber(1)
-                }}
-                isOrganic={isOrganic} setIsOrganic={(v) => {
-                setIsOrganic(v);
-                setPageNumber(1)
-              }}
-                isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => {
-                setIsBiodegradable(v);
-                setPageNumber(1)
-              }}
-                isRecycled={isRecycled} setIsRecycled={(v) => {
-                setIsRecycled(v);
-                setPageNumber(1)
-              }}
-                maxPrice={maxPrice} setMaxPrice={(v) => {
-                setMaxPrice(v);
-                setPageNumber(1)
-              }}
+                setCategoryId={(v) => updateParams({ categoryId: v || null })}
+                isOrganic={isOrganic} setIsOrganic={(v) => updateParams({ organic: v ? 'true' : null })}
+                isBiodegradable={isBiodegradable}
+                setIsBiodegradable={(v) => updateParams({ biodegradable: v ? 'true' : null })}
+                isRecycled={isRecycled} setIsRecycled={(v) => updateParams({ recycled: v ? 'true' : null })}
+                inStockOnly={inStockOnly} setInStockOnly={(v) => updateParams({ inStock: v ? 'true' : null }, false)}
+                priceRange={priceRange}
+                onPriceRangeChange={setPriceRange}
+                onPriceRangeChangeEnd={(v) =>
+                  updateParams({ minPrice: v[0] > 0 ? String(v[0]) : null, maxPrice: v[1] < MAX_PRICE ? String(v[1]) : null })
+                }
                 onClear={handleClearFilters}
               />
             </aside>
@@ -407,26 +480,18 @@ const ProductPage = () => {
                 <FilterPanel
                   treeSelectData={treeSelectData}
                   categoryId={categoryId}
-                  setCategoryId={(v) => {
-                    setCategoryId(v);
-                    setPageNumber(1)
-                  }}
-                  isOrganic={isOrganic} setIsOrganic={(v) => {
-                  setIsOrganic(v);
-                  setPageNumber(1)
-                }}
-                  isBiodegradable={isBiodegradable} setIsBiodegradable={(v) => {
-                  setIsBiodegradable(v);
-                  setPageNumber(1)
-                }}
-                  isRecycled={isRecycled} setIsRecycled={(v) => {
-                  setIsRecycled(v);
-                  setPageNumber(1)
-                }}
-                  maxPrice={maxPrice} setMaxPrice={(v) => {
-                  setMaxPrice(v);
-                  setPageNumber(1)
-                }}
+                  setCategoryId={(v) => updateParams({ categoryId: v || null })}
+                  isOrganic={isOrganic} setIsOrganic={(v) => updateParams({ organic: v ? 'true' : null })}
+                  isBiodegradable={isBiodegradable}
+                  setIsBiodegradable={(v) => updateParams({ biodegradable: v ? 'true' : null })}
+                  isRecycled={isRecycled} setIsRecycled={(v) => updateParams({ recycled: v ? 'true' : null })}
+                  inStockOnly={inStockOnly}
+                  setInStockOnly={(v) => updateParams({ inStock: v ? 'true' : null }, false)}
+                  priceRange={priceRange}
+                  onPriceRangeChange={setPriceRange}
+                  onPriceRangeChangeEnd={(v) =>
+                    updateParams({ minPrice: v[0] > 0 ? String(v[0]) : null, maxPrice: v[1] < MAX_PRICE ? String(v[1]) : null })
+                  }
                   onClear={handleClearFilters}
                 />
               </aside>
@@ -435,21 +500,17 @@ const ProductPage = () => {
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col">
-            {searchName && (
+            {currentSearch && (
               <div
                 className="bg-white/80 backdrop-blur-md px-5 py-4 rounded-2xl flex items-center justify-between mb-6 shadow-sm border border-gray-100">
                 <p className="font-medium text-sm text-gray-700 flex items-center gap-2">
                   <MagnifyingGlassIcon size={18} className="text-green-600" />
-                  Search results for: <span className="font-black text-green-700">"{searchName}"</span>
+                  Search results for: <span className="font-black text-green-700">"{currentSearch}"</span>
                   <span className="text-gray-400 font-normal ml-1">({productsData?.totalCount ?? 0} products)</span>
                 </p>
                 <button
                   type="button"
-                  onClick={() => {
-                    setSearchName('')
-                    setPageNumber(1)
-                    setSearchParams({})
-                  }}
+                  onClick={() => updateParams({ search: null })}
                   className="text-xs font-bold text-gray-500 hover:text-red-600 transition-colors flex items-center gap-1 bg-gray-50 hover:bg-red-50 px-3 py-1.5 rounded-full"
                 >
                   <XCircleIcon weight="fill" size={14} />
@@ -459,7 +520,7 @@ const ProductPage = () => {
             )}
 
             {isLoading ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div
                     // biome-ignore lint/suspicious/noArrayIndexKey: Skeleton loader.
@@ -495,7 +556,7 @@ const ProductPage = () => {
                   Refresh Page
                 </button>
               </div>
-            ) : !productsData?.items || productsData.items.length === 0 ? (
+            ) : visibleItems.length === 0 ? (
               <div
                 className="flex flex-col items-center justify-center py-24 px-4 text-center bg-white/60 backdrop-blur-md rounded-2xl shadow-sm border border-gray-100 h-full">
                 <div
@@ -504,7 +565,9 @@ const ProductPage = () => {
                 </div>
                 <h3 className="text-2xl font-extrabold text-gray-900 mb-3 tracking-tight">No products found</h3>
                 <p className="text-gray-500 max-w-sm text-sm leading-relaxed mb-6">
-                  We couldn't find any products matching your current filters. Try adjusting your search criteria.
+                  {inStockOnly && (productsData?.items?.length ?? 0) > 0
+                    ? "No in-stock products on this page match your filters. Try clearing 'In stock only' or checking another page."
+                    : "We couldn't find any products matching your current filters. Try adjusting your search criteria."}
                 </p>
                 <button
                   type="button"
@@ -517,15 +580,15 @@ const ProductPage = () => {
               </div>
             ) : (
               <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {productsData.items.map((product) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+                  {visibleItems.map((product) => (
                     <div key={product.id} className="animate__animated animate__fadeIn">
-                      <ProductCardv2 product={product} />
+                      <ProductCard product={product} />
                     </div>
                   ))}
                 </div>
 
-                {productsData.totalPages > 1 && (
+                {productsData && productsData.totalPages > 1 && (
                   <div className="mt-10 flex justify-center pb-6">
                     <Pagination
                       total={productsData.totalPages}
@@ -553,4 +616,3 @@ const ProductPage = () => {
 }
 
 export default ProductPage
-

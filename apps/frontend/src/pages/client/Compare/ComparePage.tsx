@@ -1,9 +1,14 @@
 import { getGetCartQueryKey, useAddCartItem, useGetProductsByIds } from '@api'
 import { removeFromCompare } from '@components/features/compare/compare.slice'
+import EmptyState from '@components/ui/primitives/EmptyState'
+import PageHeader from '@components/ui/primitives/PageHeader'
+import Panel from '@components/ui/primitives/Panel'
+import PriceTag from '@components/ui/primitives/PriceTag'
+import Seo from '@components/ui/Seo'
 import Loading from '@components/ui/status/Loading'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
-import { Anchor, Breadcrumbs, Button, Rating, Text, Title } from '@mantine/core'
+import { Button, Rating } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import { ScalesIcon, ShoppingCartIcon, TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -15,11 +20,7 @@ const breadcrumbItems = [
   { title: 'Home', href: '/' },
   { title: 'Products', href: '/products' },
   { title: 'Compare', href: '/compare' },
-].map((item) => (
-  <Anchor href={item.href} key={item.href} size="sm">
-    {item.title}
-  </Anchor>
-))
+]
 
 type SpecProduct = {
   rating: number
@@ -33,7 +34,7 @@ type SpecProduct = {
 }
 
 const specRows: { label: string; render: (p: SpecProduct) => ReactNode }[] = [
-  { label: 'Price', render: (p) => `$${p.price.toFixed(2)}` },
+  { label: 'Price', render: (p) => <PriceTag value={p.price} size="sm" /> },
   { label: 'Rating', render: (p) => <Rating value={p.rating} fractions={2} readOnly size="sm" /> },
   { label: 'Carbon Footprint', render: (p) => `${p.carbonIndex} kg CO₂e` },
   { label: 'Baseline (conventional)', render: (p) => `${p.baselineCarbonIndex} kg CO₂e` },
@@ -81,26 +82,28 @@ const ComparePage = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
-
-      <div className="flex items-center gap-3 mb-6">
-        <ScalesIcon className="text-2xl text-primary" weight="fill" />
-        <Title order={2}>Compare Products</Title>
-      </div>
+      <Seo title="Compare Products" description="Compare eco-friendly products side by side." />
+      <PageHeader
+        breadcrumbItems={breadcrumbItems}
+        icon={ScalesIcon}
+        iconClassName="text-2xl text-primary"
+        title="Compare Products"
+      />
 
       {isLoading ? (
         <Loading text="Loading products…" />
       ) : !products || products.length === 0 ? (
-        <div className="flex flex-col items-center py-24 gap-4 text-gray-400">
-          <ScalesIcon size={48} className="text-gray-200" />
-          <Text size="lg" fw={500}>
-            Nothing to compare yet
-          </Text>
-          <Text size="sm">Add 2 or more products from the catalog to compare their specs side by side.</Text>
-          <Button component={Link} to="/products" variant="light" color="green" mt="md">
-            Browse Products
-          </Button>
-        </div>
+        <EmptyState
+          icon={ScalesIcon}
+          color="gray"
+          title="Nothing to compare yet"
+          description="Add 2 or more products from the catalog to compare their specs side by side."
+          action={
+            <Button component={Link} to="/products" variant="light" color="green" mt="md">
+              Browse Products
+            </Button>
+          }
+        />
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full border-collapse min-w-175">
@@ -111,7 +114,7 @@ const ComparePage = () => {
               </th>
               {products.map((p) => (
                 <th key={p.id} className="p-3 text-left align-bottom min-w-52">
-                  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 flex flex-col gap-3">
+                  <Panel className="p-4 flex flex-col gap-3">
                     <div className="flex justify-end">
                       <button
                         type="button"
@@ -141,7 +144,7 @@ const ComparePage = () => {
                     >
                       Add to Cart
                     </Button>
-                  </div>
+                  </Panel>
                 </th>
               ))}
             </tr>

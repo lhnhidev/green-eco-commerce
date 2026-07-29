@@ -9,21 +9,39 @@ import {
   useRemoveFromWishlist,
 } from '@api'
 import { MAX_COMPARE_ITEMS, toggleCompare } from '@components/features/compare/compare.slice'
+import RecentlyViewedProducts from '@components/features/products/RecentlyViewedProducts'
+import { recordProductView } from '@components/features/products/recentlyViewed.slice'
 import RelatedProducts from '@components/features/products/RelatedProducts'
 import ProductReviews from '@components/features/reviews/ProductReviews'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
+import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
+import PriceTag from '@components/ui/primitives/PriceTag'
+import Seo from '@components/ui/Seo'
 import Loading from '@components/ui/status/Loading'
+import StockBadge from '@components/ui/StockBadge'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { useAuth } from '@hooks/useAuth'
-import { Anchor, Breadcrumbs, NumberInput, Rating } from '@mantine/core'
+import { Modal, NumberInput, Rating } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { HeartIcon, LeafIcon, ScalesIcon, ShieldCheckIcon, ShoppingCartIcon, TreeIcon } from '@phosphor-icons/react'
+import {
+  ArrowsOutIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  HeartIcon,
+  LeafIcon,
+  ScalesIcon,
+  ShieldCheckIcon,
+  ShoppingCartIcon,
+  TreeIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { formatCurrency } from '@utils/formatCurrency'
 import { formatParam } from '@utils/formatParam'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import type * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
 const ProductDetailPage = () => {
@@ -47,8 +65,21 @@ const ProductDetailPage = () => {
     },
   })
 
-  const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
+  const [activeImg, setActiveImg] = useState('')
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
+
+  const resolvedImages = product?.imageUrl.map((url) => resolveImageUrl(url) ?? url) ?? []
+
+  // Reset the active image (and record the view) whenever we land on a different product —
+  // this component instance is reused across navigations between /products/:id routes.
+  useEffect(() => {
+    if (product) {
+      setActiveImg(resolveImageUrl(product.imageUrl[0]) ?? product.imageUrl[0] ?? '')
+      dispatch(recordProductView(product.id))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id])
 
   const queryClient = useQueryClient()
 
@@ -141,15 +172,13 @@ const ProductDetailPage = () => {
     )
   }
 
-  const items = [
-    { id: 1, title: 'Home', href: '/' },
-    { id: 2, title: 'Products', href: '/products' },
-    { id: 3, title: product.name, href: `/products/${product.id}` },
-  ].map((item) => (
-    <Anchor href={item.href} key={item.id} className="text-sm text-gray-500 hover:text-primary transition-colors">
-      {item.title}
-    </Anchor>
-  ))
+  const breadcrumbItems = [
+    { title: 'Home', href: '/' },
+    { title: 'Products', href: '/products' },
+    { title: product.name, href: `/products/${product.id}` },
+  ]
+
+  const outOfStock = product.stockQty <= 0
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
@@ -163,11 +192,19 @@ const ProductDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
+    <div className="min-h-screen bg-gray-50/30 pb-36 lg:pb-0">
+      <Seo
+        title={product.name}
+        description={product.description ?? undefined}
+        image={resolveImageUrl(product.imageUrl[0]) ?? undefined}
+      />
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20">
-        <Breadcrumbs separator="/" className="mb-8">
-          {items}
-        </Breadcrumbs>
+        <PageBreadcrumbs
+          items={breadcrumbItems}
+          separator="/"
+          className="mb-8"
+          classNames={{ breadcrumb: 'text-sm text-gray-500 hover:text-primary transition-colors' }}
+        />
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {/* Image Gallery Section */}
@@ -182,7 +219,7 @@ const ProductDetailPage = () => {
                 className="w-full h-full object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-150"
                 style={zoomStyle}
                 alt={product.name}
-                src={imgUrlActive}
+                src={activeImg}
               />
               <div className="absolute top-4 left-4">
                 <div
@@ -191,15 +228,21 @@ const ProductDetailPage = () => {
                   <span className="text-[11px] font-bold tracking-widest text-green-800 uppercase">Eco-Certified</span>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightboxOpen(true)
+                }}
+                className="absolute bottom-4 right-4 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center text-gray-600 hover:text-primary hover:scale-110 transition-all"
+                aria-label="View full size image"
+              >
+                <ArrowsOutIcon size={16} />
+              </button>
             </div>
 
             <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-              <ImgSlider
-                imgs={product.imageUrl.map((url) => resolveImageUrl(url) ?? url)}
-                isAuto={false}
-                delayTime={0}
-                percent="25%"
-              />
+              <ImgSlider imgs={resolvedImages} isAuto={false} delayTime={0} percent="25%" activeImg={activeImg} onSelect={setActiveImg} />
             </div>
           </div>
 
@@ -211,7 +254,7 @@ const ProductDetailPage = () => {
               <div className="flex items-center gap-6 mb-6">
                 <div
                   className="text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-400">
-                  ${product.price.toFixed(2)}
+                  {formatCurrency(product.price)}
                 </div>
                 <div className="h-6 w-px bg-gray-200" />
                 <div className="flex items-center gap-2">
@@ -223,6 +266,7 @@ const ProductDetailPage = () => {
                     {product.reviewsCount === 1 ? '1 Review' : `${product.reviewsCount} Reviews`}
                   </a>
                 </div>
+                <StockBadge stockQty={product.stockQty} />
               </div>
 
               {/* Eco Impact Premium Card */}
@@ -309,37 +353,39 @@ const ProductDetailPage = () => {
                     </label>
                     <NumberInput
                       min={1}
+                      max={product.stockQty}
                       value={amountProduct}
                       size="md"
                       radius="xl"
+                      disabled={outOfStock}
                       classNames={{
                         input: '!text-center !font-bold !text-lg !border-gray-200 focus:!border-primary',
                         control: '!border-none !bg-gray-50 hover:!bg-gray-100',
                       }}
-                      onChange={(value) =>
-                        setAmountProduct(typeof value === 'number' ? value : parseInt(value.toString(), 10) || 1)
-                      }
+                      onChange={(value) => {
+                        const parsed = typeof value === 'number' ? value : parseInt(value.toString(), 10) || 1
+                        setAmountProduct(Math.min(Math.max(1, parsed), product.stockQty))
+                      }}
                     />
                   </div>
                   <div className="flex-1">
                     <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Total Price</div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      ${(product.price * amountProduct).toFixed(2)}
-                    </div>
+                    <PriceTag value={product.price * amountProduct} size="lg" colorClassName="text-gray-900" />
                   </div>
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-4">
-                  {/** biome-ignore lint/a11y/useButtonType: <> */}
                   <button
+                    type="button"
                     onClick={() => handleAddToCart(product.id, amountProduct)}
-                    className="flex-1 cursor-pointer bg-linear-to-r from-green-600 to-emerald-500 text-white font-bold py-4 px-6 rounded-xl tracking-wide flex items-center justify-center gap-3 hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
+                    disabled={outOfStock}
+                    className="flex-1 cursor-pointer bg-linear-to-r from-green-600 to-emerald-500 text-white font-bold py-4 px-6 rounded-xl tracking-wide flex items-center justify-center gap-3 hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
                   >
                     <ShoppingCartIcon weight="bold" className="text-xl" />
-                    <span>Add to Cart</span>
+                    <span>{outOfStock ? 'Out of Stock' : 'Add to Cart'}</span>
                   </button>
-                  {/** biome-ignore lint/a11y/useButtonType: <> */}
                   <button
+                    type="button"
                     onClick={handleWishlist}
                     className={`sm:flex-none cursor-pointer px-6 bg-white border-2 py-4 rounded-xl font-bold flex items-center justify-center transition-all duration-300 active:scale-[0.98] ${
                       isWishlisted
@@ -350,8 +396,8 @@ const ProductDetailPage = () => {
                   >
                     <HeartIcon weight={isWishlisted ? 'fill' : 'bold'} className="text-xl" />
                   </button>
-                  {/** biome-ignore lint/a11y/useButtonType: <> */}
                   <button
+                    type="button"
                     onClick={handleCompare}
                     className={`sm:flex-none cursor-pointer px-6 bg-white border-2 py-4 rounded-xl font-bold flex items-center justify-center transition-all duration-300 active:scale-[0.98] ${
                       isComparing
@@ -401,6 +447,81 @@ const ProductDetailPage = () => {
           <RelatedProducts productId={product.id} />
         </div>
       )}
+
+      {/* Recently Viewed */}
+      <div className="container mx-auto px-4 max-w-7xl">
+        <RecentlyViewedProducts excludeProductId={product.id} />
+      </div>
+
+      {/* Sticky mobile add-to-cart bar */}
+      <div className="lg:hidden fixed bottom-16 left-0 right-0 z-30 bg-white border-t border-gray-100 shadow-[0_-2px_8px_rgba(0,0,0,0.06)] px-4 py-3 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-gray-400 truncate">{product.name}</p>
+          <PriceTag value={product.price * amountProduct} />
+        </div>
+        <button
+          type="button"
+          onClick={() => handleAddToCart(product.id, amountProduct)}
+          disabled={outOfStock}
+          className="shrink-0 bg-linear-to-r from-green-600 to-emerald-500 text-white font-bold py-3 px-6 rounded-xl flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <ShoppingCartIcon weight="bold" />
+          {outOfStock ? 'Out of Stock' : 'Add to Cart'}
+        </button>
+      </div>
+
+      {/* Lightbox */}
+      <Modal
+        opened={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        size="auto"
+        centered
+        padding={0}
+        withCloseButton={false}
+        classNames={{ body: 'relative bg-black', content: 'bg-black' }}
+      >
+        <button
+          type="button"
+          onClick={() => setLightboxOpen(false)}
+          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
+          aria-label="Close"
+        >
+          <XIcon size={18} />
+        </button>
+        <img
+          src={activeImg}
+          alt={product.name}
+          className="max-w-[90vw] max-h-[85vh] object-contain mx-auto"
+        />
+        {resolvedImages.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                const idx = resolvedImages.indexOf(activeImg)
+                const prevIdx = (idx - 1 + resolvedImages.length) % resolvedImages.length
+                setActiveImg(resolvedImages[prevIdx])
+              }}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
+              aria-label="Previous image"
+            >
+              <CaretLeftIcon size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const idx = resolvedImages.indexOf(activeImg)
+                const nextIdx = (idx + 1) % resolvedImages.length
+                setActiveImg(resolvedImages[nextIdx])
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all"
+              aria-label="Next image"
+            >
+              <CaretRightIcon size={20} />
+            </button>
+          </>
+        )}
+      </Modal>
     </div>
   )
 }
