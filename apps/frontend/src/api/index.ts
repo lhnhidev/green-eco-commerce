@@ -25,6 +25,9 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AddressDto,
+  AddressRequest,
+  AddressSuggestion,
   BannerDto,
   BannerPayloadDto,
   CartDto,
@@ -75,6 +78,7 @@ import type {
   RegisterPayload,
   ReviewDto,
   ReviewPayloadDto,
+  SearchAddressesParams,
   UpdateCouponCommand,
   UpdateOrderStatusRequest,
   UpdatePaymentStatusCommand,
@@ -394,6 +398,94 @@ export function useGetActiveBanners<TData = Awaited<ReturnType<typeof getActiveB
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
   const queryOptions = getGetActiveBannersQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const searchAddresses = (
+    params: SearchAddressesParams,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<AddressSuggestion[]>(
+      {url: `/api/addresses/autocomplete`, method: 'GET',
+        params, signal
+    },
+      );
+    }
+
+
+
+
+export const getSearchAddressesQueryKey = (params?: SearchAddressesParams,) => {
+    return [
+    `/api/addresses/autocomplete`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchAddressesQueryOptions = <TData = Awaited<ReturnType<typeof searchAddresses>>, TError = ProblemDetails>(params: SearchAddressesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchAddressesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchAddresses>>> = ({ signal }) => searchAddresses(params, signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type SearchAddressesQueryResult = NonNullable<Awaited<ReturnType<typeof searchAddresses>>>
+export type SearchAddressesQueryError = ProblemDetails
+
+
+export function useSearchAddresses<TData = Awaited<ReturnType<typeof searchAddresses>>, TError = ProblemDetails>(
+ params: SearchAddressesParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchAddresses>>,
+          TError,
+          Awaited<ReturnType<typeof searchAddresses>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchAddresses<TData = Awaited<ReturnType<typeof searchAddresses>>, TError = ProblemDetails>(
+ params: SearchAddressesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof searchAddresses>>,
+          TError,
+          Awaited<ReturnType<typeof searchAddresses>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useSearchAddresses<TData = Awaited<ReturnType<typeof searchAddresses>>, TError = ProblemDetails>(
+ params: SearchAddressesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useSearchAddresses<TData = Awaited<ReturnType<typeof searchAddresses>>, TError = ProblemDetails>(
+ params: SearchAddressesParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof searchAddresses>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getSearchAddressesQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -6151,6 +6243,326 @@ const {mutation: mutationOptions} = options ?
         TContext
       > => {
       return useMutation(getMarkAllReadMutationOptions(options), queryClient);
+    }
+
+export const getMyAddresses = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<AddressDto[]>(
+      {url: `/api/me/addresses`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getGetMyAddressesQueryKey = () => {
+    return [
+    `/api/me/addresses`
+    ] as const;
+    }
+
+
+export const getGetMyAddressesQueryOptions = <TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = ProblemDetails>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyAddressesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyAddresses>>> = ({ signal }) => getMyAddresses(signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetMyAddressesQueryResult = NonNullable<Awaited<ReturnType<typeof getMyAddresses>>>
+export type GetMyAddressesQueryError = ProblemDetails
+
+
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = ProblemDetails>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyAddresses>>,
+          TError,
+          Awaited<ReturnType<typeof getMyAddresses>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getMyAddresses>>,
+          TError,
+          Awaited<ReturnType<typeof getMyAddresses>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddresses>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getMyAddresses>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetMyAddressesQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const createAddress = (
+    addressRequest: AddressRequest,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<AddressDto>(
+      {url: `/api/me/addresses`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: addressRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getCreateAddressMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAddress>>, TError,{data: AddressRequest}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createAddress>>, TError,{data: AddressRequest}, TContext> => {
+
+const mutationKey = ['createAddress'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createAddress>>, {data: AddressRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createAddress(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateAddressMutationResult = NonNullable<Awaited<ReturnType<typeof createAddress>>>
+    export type CreateAddressMutationBody = AddressRequest
+    export type CreateAddressMutationError = ProblemDetails
+
+    export const useCreateAddress = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createAddress>>, TError,{data: AddressRequest}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createAddress>>,
+        TError,
+        {data: AddressRequest},
+        TContext
+      > => {
+      return useMutation(getCreateAddressMutationOptions(options), queryClient);
+    }
+
+export const updateAddress = (
+    id: string,
+    addressRequest: AddressRequest,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<AddressDto>(
+      {url: `/api/me/addresses/${id}`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: addressRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getUpdateAddressMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAddress>>, TError,{id: string;data: AddressRequest}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateAddress>>, TError,{id: string;data: AddressRequest}, TContext> => {
+
+const mutationKey = ['updateAddress'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateAddress>>, {id: string;data: AddressRequest}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updateAddress(id,data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateAddressMutationResult = NonNullable<Awaited<ReturnType<typeof updateAddress>>>
+    export type UpdateAddressMutationBody = AddressRequest
+    export type UpdateAddressMutationError = ProblemDetails
+
+    export const useUpdateAddress = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateAddress>>, TError,{id: string;data: AddressRequest}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateAddress>>,
+        TError,
+        {id: string;data: AddressRequest},
+        TContext
+      > => {
+      return useMutation(getUpdateAddressMutationOptions(options), queryClient);
+    }
+
+export const deleteAddress = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<void>(
+      {url: `/api/me/addresses/${id}`, method: 'DELETE', signal
+    },
+      );
+    }
+
+
+
+
+export const getDeleteAddressMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAddress>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof deleteAddress>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['deleteAddress'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteAddress>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteAddress(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteAddressMutationResult = NonNullable<Awaited<ReturnType<typeof deleteAddress>>>
+
+    export type DeleteAddressMutationError = ProblemDetails
+
+    export const useDeleteAddress = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteAddress>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof deleteAddress>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getDeleteAddressMutationOptions(options), queryClient);
+    }
+
+export const setDefaultAddress = (
+    id: string,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<void>(
+      {url: `/api/me/addresses/${id}/default`, method: 'PATCH', signal
+    },
+      );
+    }
+
+
+
+
+export const getSetDefaultAddressMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setDefaultAddress>>, TError,{id: string}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof setDefaultAddress>>, TError,{id: string}, TContext> => {
+
+const mutationKey = ['setDefaultAddress'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setDefaultAddress>>, {id: string}> = (props) => {
+          const {id} = props ?? {};
+
+          return  setDefaultAddress(id,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetDefaultAddressMutationResult = NonNullable<Awaited<ReturnType<typeof setDefaultAddress>>>
+
+    export type SetDefaultAddressMutationError = ProblemDetails
+
+    export const useSetDefaultAddress = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setDefaultAddress>>, TError,{id: string}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof setDefaultAddress>>,
+        TError,
+        {id: string},
+        TContext
+      > => {
+      return useMutation(getSetDefaultAddressMutationOptions(options), queryClient);
     }
 
 /**

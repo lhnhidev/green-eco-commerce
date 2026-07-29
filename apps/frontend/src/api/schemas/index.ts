@@ -6,6 +6,9 @@
  * OpenAPI spec version: v1
  */
 
+export * from './addressDto';
+export * from './addressRequest';
+export * from './addressSuggestion';
 export * from './bannerDto';
 export * from './bannerPayloadDto';
 export * from './cartDto';
@@ -80,6 +83,7 @@ export * from './registerPayload';
 export * from './reviewDto';
 export * from './reviewPayloadDto';
 export * from './roleEnum';
+export * from './searchAddressesParams';
 export * from './updateCouponCommand';
 export * from './updateOrderStatusRequest';
 export * from './updatePaymentStatusCommand';
