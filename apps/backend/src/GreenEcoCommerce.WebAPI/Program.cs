@@ -277,6 +277,10 @@ app.MapCheckoutEndpoints();
 app.MapReviewEndpoints();
 app.MapCouponEndpoints();
 app.MapBannerEndpoints();
+app.MapWishlistEndpoints();
+app.MapDocumentEndpoints();
+app.MapUploadEndpoints();
+app.MapNotificationEndpoints();
 
 app.MapFallbackToFile("index.html");
 
