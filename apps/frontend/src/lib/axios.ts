@@ -2,7 +2,7 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <> */
 import Axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
 
-export const API_BASE_URL = 'http://localhost:5244'
+export const API_BASE_URL = import.meta.env.VITE_API_ROOT ?? 'http://localhost:5244'
 
 export const axiosInstance = Axios.create({
   baseURL: API_BASE_URL,

@@ -5,7 +5,7 @@
 
 import { useGetInfoAnalyst } from '@api'
 import CardDisplayNumber from '@components/features/cards/CardDisplayNumber'
-import BestSellingProducts from '@components/features/dashboard/BestSellingProducts'
+import BestSellingProducts from '@components/features/products/BestSellingProducts'
 import LowStockProducts from '@components/features/dashboard/LowStockProducts'
 import MonthlyStatisticsChart from '@components/features/dashboard/MonthlyStatisticsChart'
 import RecentOrders from '@components/features/dashboard/RecentOrders'

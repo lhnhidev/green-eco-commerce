@@ -1,6 +1,7 @@
 import { useGetAllOrders } from '@api'
 import type { OrderStatusEnum } from '@api/schemas/orderStatusEnum'
 import { Badge } from '@mantine/core'
+import { formatCurrency } from '@utils/formatCurrency'
 
 const statusColor: Record<OrderStatusEnum, string> = {
   Pending: 'gray',
@@ -51,7 +52,7 @@ const RecentOrders = () => {
                 </Badge>
               </div>
               <div className="px-2 py-1.5 text-right">{o.earnedPoints}</div>
-              <div className="px-2 py-1.5 text-right text-muted-foreground">${Number(o.discountAmount).toFixed(2)}</div>
+              <div className="px-2 py-1.5 text-right text-muted-foreground">{formatCurrency(o.discountAmount)}</div>
             </div>
           ))}
         </>

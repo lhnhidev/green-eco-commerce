@@ -24,6 +24,7 @@ import {
 } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { downloadFile } from '@utils/downloadFile'
+import { formatCurrency } from '@utils/formatCurrency'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -136,9 +137,9 @@ const OrderList = () => {
                     (item) => `
                   <tr>
                     <td>${item.productName}</td>
-                    <td>$${item.unitPrice.toFixed(2)}</td>
+                    <td>${formatCurrency(item.unitPrice)}</td>
                     <td>${item.quantity}</td>
-                    <td style="text-align: right;">$${(item.unitPrice * item.quantity).toFixed(2)}</td>
+                    <td style="text-align: right;">${formatCurrency(item.unitPrice * item.quantity)}</td>
                   </tr>
                 `,
                   )
@@ -146,11 +147,11 @@ const OrderList = () => {
               </tbody>
             </table>
             <div class="total-row">
-              <p>Subtotal: $${detailOrder.totalAmount.toFixed(2)}</p>
-              <p>Discount: -$${detailOrder.discountAmount.toFixed(2)}</p>
+              <p>Subtotal: ${formatCurrency(detailOrder.totalAmount)}</p>
+              <p>Discount: -${formatCurrency(detailOrder.discountAmount)}</p>
             </div>
             <div class="final-total">
-              <p>Total: $${detailOrder.finalAmount.toFixed(2)}</p>
+              <p>Total: ${formatCurrency(detailOrder.finalAmount)}</p>
             </div>
           </body>
         </html>
@@ -218,14 +219,14 @@ const OrderList = () => {
                     {item.productName}
                   </Text>
                   <Text size="xs" c="dimmed">
-                    ${item.unitPrice.toFixed(2)} × {item.quantity}
+                    {formatCurrency(item.unitPrice)} × {item.quantity}
                   </Text>
                   <Text size="xs" c="teal.6">
                     <LeafIcon className="inline" /> CO₂ Saved: {(item.unitCo2Saved * item.quantity).toFixed(2)} kg
                   </Text>
                 </div>
                 <Text size="sm" fw={700}>
-                  ${(item.unitPrice * item.quantity).toFixed(2)}
+                  {formatCurrency(item.unitPrice * item.quantity)}
                 </Text>
               </div>
             ))}
@@ -234,12 +235,12 @@ const OrderList = () => {
               <Text size="sm" c="dimmed">
                 Discount:
               </Text>
-              <Text size="sm">-${detailOrder.discountAmount.toFixed(2)}</Text>
+              <Text size="sm">-{formatCurrency(detailOrder.discountAmount)}</Text>
             </div>
             <div className="flex justify-between">
               <Text fw={700}>Total:</Text>
               <Text fw={700} c="green.7">
-                ${detailOrder.finalAmount.toFixed(2)}
+                {formatCurrency(detailOrder.finalAmount)}
               </Text>
             </div>
             <Text size="xs" c="dimmed">
@@ -369,11 +370,11 @@ const OrderList = () => {
                         {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
                       </Table.Td>
                       <Table.Td ta="right" className="font-semibold!">
-                        ${Number(order.finalAmount ?? 0).toFixed(2)}
+                        {formatCurrency(order.finalAmount)}
                       </Table.Td>
                       <Table.Td ta="right">{order.earnedPoints}</Table.Td>
                       <Table.Td ta="right" className="text-muted-foreground!">
-                        ${Number(order.discountAmount).toFixed(2)}
+                        {formatCurrency(order.discountAmount)}
                       </Table.Td>
                       <Table.Td>
                         <Select

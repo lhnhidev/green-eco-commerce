@@ -1,5 +1,5 @@
 import { useGetRelatedProducts } from '@api'
-import ProductCardv2 from '@components/features/products/ProductCardv2'
+import ProductCard from '@components/features/products/ProductCard'
 import { Skeleton, Text, Title } from '@mantine/core'
 import { LeafIcon } from '@phosphor-icons/react'
 
@@ -40,7 +40,7 @@ const RelatedProducts = ({ productId }: Props) => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {products.map((product) => (
-          <ProductCardv2 key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </div>

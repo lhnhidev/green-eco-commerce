@@ -9,23 +9,28 @@ import {
 } from '@api'
 import type { ProductDto } from '@api/schemas'
 import { MAX_COMPARE_ITEMS, toggleCompare } from '@components/features/compare/compare.slice'
+import PriceTag from '@components/ui/primitives/PriceTag'
+import StockBadge from '@components/ui/StockBadge'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { useAuth } from '@hooks/useAuth'
 import { Rating } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { HeartIcon, ScalesIcon, ShoppingCartIcon } from '@phosphor-icons/react'
+import { EyeIcon, HeartIcon, ScalesIcon, ShoppingCartIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import type * as React from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router'
+import QuickViewModal from './QuickViewModal'
 
-const ProductCardv2 = ({ product }: { product: ProductDto }) => {
+const ProductCard = ({ product }: { product: ProductDto }) => {
   const queryClient = useQueryClient()
   const dispatch = useAppDispatch()
   const { user } = useAuth()
   const compareIds = useAppSelector((state) => state.compare.productIds)
   const isComparing = compareIds.includes(product.id)
+  const [quickViewOpen, setQuickViewOpen] = useState(false)
   const { mutate, isPending } = useAddCartItem({
     mutation: {
       onSuccess: async () => {
@@ -106,13 +111,10 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
     )
   }
 
-  // Assuming price is a number, format it nicely
-  const formattedPrice = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-  }).format(product.price ?? 0)
+  const outOfStock = product.stockQty <= 0
 
   return (
+    <>
     <Link to={`/products/${product.id}`} className="group block h-full">
       <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(16,177,87,0.15)] plant-shadow">
         {/* Image Section */}
@@ -126,16 +128,20 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
           {/* Subtle dark gradient overlay on hover to make icons pop */}
           <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/0 to-black/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-          {/* Material Badge */}
-          {product.materials?.at(0) !== undefined && (
-            <div className="absolute left-3 top-3 z-10 flex gap-2">
+          {/* Material & Stock Badges */}
+          <div className="absolute left-3 top-3 z-10 flex flex-col gap-2 items-start">
+            {product.materials?.at(0) !== undefined && (
               <span className="bg-secondary/95 text-primary border border-primary/20 px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider shadow-sm backdrop-blur-md">
                 {product.materials?.at(0)?.name}
               </span>
-            </div>
-          )}
+            )}
+            <StockBadge stockQty={product.stockQty} />
+          </div>
 
-          {/* Wishlist & Compare Buttons */}
+          {/* Dim the image when unavailable */}
+          {outOfStock && <div className="absolute inset-0 bg-white/40 z-[5]" />}
+
+          {/* Wishlist, Compare & Quick View Buttons */}
           <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
             {user && (
               <button
@@ -159,20 +165,33 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
                 className={isComparing ? 'text-primary' : 'text-gray-500'}
               />
             </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setQuickViewOpen(true)
+              }}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110"
+              aria-label="Quick view"
+            >
+              <EyeIcon size={15} className="text-gray-500" />
+            </button>
           </div>
 
           {/* Floating Add to Cart Button */}
           <div className="absolute bottom-4 right-4 z-10 translate-y-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
             <button
               type="button"
-              disabled={isPending}
+              disabled={isPending || outOfStock}
               onClick={(e) => {
                 e.preventDefault()
                 e.stopPropagation()
                 handleAddToCart(product.id, 1)
               }}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-all hover:scale-110 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-all hover:scale-110 hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label="Add to cart"
+              title={outOfStock ? 'Out of stock' : 'Add to cart'}
             >
               <ShoppingCartIcon size={20} />
             </button>
@@ -185,7 +204,7 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
             <h2 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
               {product.name}
             </h2>
-            <span className="text-lg font-extrabold text-primary">{formattedPrice}</span>
+            <PriceTag value={product.price} />
           </div>
 
           {/* Footer (Rating & Reviews) */}
@@ -206,7 +225,9 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
         </div>
       </div>
     </Link>
+    <QuickViewModal product={quickViewOpen ? product : null} onClose={() => setQuickViewOpen(false)} />
+    </>
   )
 }
 
-export default ProductCardv2
+export default ProductCard

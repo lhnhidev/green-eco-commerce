@@ -1,4 +1,5 @@
 import { createTheme, MantineProvider } from '@mantine/core'
+import { ModalsProvider } from '@mantine/modals'
 import { Notifications } from '@mantine/notifications'
 // import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
@@ -7,10 +8,8 @@ import { RouterProvider } from 'react-router/dom'
 import './index.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import axios from 'axios'
 import { router } from '@/router'
 import { store } from '@/store'
-import { AuthBootstrap } from './components/features/AuthBootstrap.tsx'
 import '@fontsource-variable/inter/wght.css'
 import 'animate.css'
 import '@mantine/dates/styles.css'
@@ -20,6 +19,9 @@ import '@mantine/dates/styles.css'
 const theme = createTheme({
   fontFamily: 'Inter Variable, sans-serif',
   primaryColor: 'primary',
+  // Mantine defaults to shade index 6 for unshaded `color="primary"` — index 7 is the one that
+  // matches --color-primary (#10b157) in index.css, so pin it explicitly to keep them in sync.
+  primaryShade: 7,
   colors: {
     primary: [
       '#eefcf1',
@@ -50,10 +52,6 @@ const theme = createTheme({
   },
 })
 
-// Cấu hình URL gốc cho tất cả các lượt gọi API thông qua Axios
-axios.defaults.baseURL = import.meta.env.VITE_API_ROOT
-axios.defaults.withCredentials = true
-
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -70,10 +68,11 @@ createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}>
       <Provider store={store}>
-        <AuthBootstrap />
         <MantineProvider theme={theme}>
-          <Notifications position="bottom-right" />
-          <RouterProvider router={router} />
+          <ModalsProvider>
+            <Notifications position="bottom-right" />
+            <RouterProvider router={router} />
+          </ModalsProvider>
         </MantineProvider>
       </Provider>
     </GoogleOAuthProvider>

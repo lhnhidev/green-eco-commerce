@@ -1,6 +1,7 @@
 import { useGetBestSellingProducts } from '@api'
 import { Avatar, Badge, Paper, Skeleton, Table, Text, Title } from '@mantine/core'
 import { TrophyIcon } from '@phosphor-icons/react'
+import { formatCurrency } from '@utils/formatCurrency'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 
 const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
@@ -73,7 +74,7 @@ const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
                   </Table.Td>
                   <Table.Td>
                     <Text size="sm" fw={600}>
-                      ${p.totalRevenue.toFixed(2)}
+                      {formatCurrency(p.totalRevenue)}
                     </Text>
                   </Table.Td>
                   <Table.Td>

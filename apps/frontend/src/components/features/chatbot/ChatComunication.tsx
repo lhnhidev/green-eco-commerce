@@ -127,7 +127,7 @@ const ChatComunication = () => {
   }
 
   return (
-    <div className="fixed flex flex-col justify-between bottom-10 right-10 text-sm rounded-2xl bg-white shadow-2xl z-50 px-3 py-4 border border-gray-300 min-h-125 min-w-96">
+    <div className="fixed flex flex-col justify-between bottom-24 right-6 lg:bottom-10 lg:right-10 text-sm rounded-2xl bg-white shadow-2xl z-50 px-3 py-4 border border-gray-300 min-h-125 min-w-96">
       <div className="max-h-150 overflow-auto">
         <HeaderChatbot activeSessionId={sessionId} onNewChat={handleNewChat} onSelectSession={handleSelectSession} />
         <div className="mt-6">

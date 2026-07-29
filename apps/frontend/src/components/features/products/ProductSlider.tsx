@@ -1,5 +1,5 @@
 import { Carousel } from '@mantine/carousel'
-import ProductCard from './ProductCardv1'
+import ProductCard from './ProductCard'
 import '@mantine/core/styles.css'
 import '@mantine/carousel/styles.css'
 import type { ProductDto } from '@api/schemas'

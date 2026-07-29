@@ -1,14 +1,15 @@
 import { getGetProductByIdQueryKey, getGetProductReviewsQueryKey, useCreateReview, useGetProductReviews } from '@api'
 import type { ProblemDetails } from '@api/schemas'
-import { useAppSelector } from '@hooks/useAppSelector'
-import { Avatar, Button, Pagination, Rating, Textarea } from '@mantine/core'
+import { useAuth } from '@hooks/useAuth'
+import { Avatar, Button, Pagination, Progress, Rating, Select, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
-import { ChatIcon } from '@phosphor-icons/react'
+import { ChatIcon, StarIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import dayjs from 'dayjs'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
+import { Link, useLocation } from 'react-router'
 
 const PAGE_SIZE = 5
 
@@ -20,12 +21,37 @@ interface ProductReviewsProps {
 
 const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductReviewsProps) => {
   const queryClient = useQueryClient()
-  const user = useAppSelector((state) => state.auth.user)
+  const { user } = useAuth()
+  const location = useLocation()
   const [page, setPage] = useState(1)
+  const [sortOrder, setSortOrder] = useState<'newest' | 'highest' | 'lowest'>('newest')
 
   const { data, isLoading } = useGetProductReviews(productId, { pageNumber: page, pageSize: PAGE_SIZE })
   const reviews = data?.items ?? []
   const totalPages = data?.totalPages ?? 0
+
+  const sortedReviews = useMemo(() => {
+    const sorted = [...reviews]
+    if (sortOrder === 'newest') {
+      sorted.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    } else if (sortOrder === 'highest') {
+      sorted.sort((a, b) => b.rating - a.rating)
+    } else {
+      sorted.sort((a, b) => a.rating - b.rating)
+    }
+    return sorted
+  }, [reviews, sortOrder])
+
+  // Rating distribution — computed over the current page of reviews, not the full history,
+  // since there's no endpoint that returns the full distribution.
+  const ratingCounts = useMemo(() => {
+    const counts = [0, 0, 0, 0, 0] // index 0 = 1 star ... index 4 = 5 star
+    reviews.forEach((r) => {
+      const bucket = Math.min(5, Math.max(1, Math.round(r.rating))) - 1
+      counts[bucket]++
+    })
+    return counts
+  }, [reviews])
 
   const form = useForm({
     initialValues: { rating: 5, comment: '' },
@@ -86,6 +112,47 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
         )}
       </div>
 
+      {/* Rating distribution */}
+      {!isLoading && reviews.length > 0 && (
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
+          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+            Rating breakdown{totalPages > 1 ? ' (this page)' : ''}
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = ratingCounts[star - 1]
+              const percent = reviews.length > 0 ? (count / reviews.length) * 100 : 0
+              return (
+                <div key={star} className="flex items-center gap-2">
+                  <span className="text-xs font-semibold text-gray-600 w-8 flex items-center gap-0.5">
+                    {star} <StarIcon weight="fill" size={11} className="text-amber-400" />
+                  </span>
+                  <Progress value={percent} color="green.6" size="sm" radius="xl" className="flex-1" />
+                  <span className="text-xs text-gray-400 w-6 text-right">{count}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Sort control */}
+      {!isLoading && reviews.length > 0 && (
+        <div className="flex justify-end mb-3">
+          <Select
+            size="xs"
+            w={160}
+            value={sortOrder}
+            onChange={(v) => setSortOrder((v as 'newest' | 'highest' | 'lowest') || 'newest')}
+            data={[
+              { value: 'newest', label: 'Newest first' },
+              { value: 'highest', label: 'Highest rated' },
+              { value: 'lowest', label: 'Lowest rated' },
+            ]}
+          />
+        </div>
+      )}
+
       {/* Review list */}
       {isLoading ? (
         <div className="text-center py-8 text-gray-400">Loading reviews…</div>
@@ -96,7 +163,7 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
         </div>
       ) : (
         <div className="flex flex-col gap-4 mb-8">
-          {reviews.map((r) => (
+          {sortedReviews.map((r) => (
             <div key={r.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
               <div className="flex items-start gap-3">
                 <Avatar size={36} radius="xl" color="green">
@@ -152,9 +219,12 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
         <div className="text-center py-6 bg-gray-50 rounded-2xl border border-gray-100">
           <p className="text-sm text-gray-500">
             Please{' '}
-            <a href="/auth" className="text-primary font-medium hover:underline">
+            <Link
+              to={`/auth?returnTo=${encodeURIComponent(location.pathname + location.search)}`}
+              className="text-primary font-medium hover:underline"
+            >
               log in
-            </a>{' '}
+            </Link>{' '}
             to write a review.
           </p>
         </div>

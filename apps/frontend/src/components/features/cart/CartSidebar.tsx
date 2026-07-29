@@ -1,10 +1,9 @@
-/** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
-
 import { useGetCart } from '@api'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
+import { Drawer } from '@mantine/core'
 import { ShoppingCartIcon, UserIcon, XIcon } from '@phosphor-icons/react'
+import { formatCurrency } from '@utils/formatCurrency'
 import { useNavigate } from 'react-router'
 import CartItem from './CartItem'
 import { setIsShow } from './cart.slice'
@@ -20,23 +19,16 @@ const CartSidebar = () => {
   const itemCount = data?.items?.length ?? 0
 
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 z-99 bg-black/50 backdrop-blur-[2px] transition-opacity duration-300 ${isShow ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-        onClick={close}
-      />
-
-      {/* Drawer panel */}
-      <div
-        className={`
-          fixed top-0 right-0 z-100 h-full
-          w-full sm:w-100 max-w-[calc(100vw-2rem)]
-          bg-white flex flex-col shadow-2xl
-          transform transition-transform duration-300 ease-out
-          ${isShow ? 'translate-x-0' : 'translate-x-full'}
-        `}
-      >
+    <Drawer
+      opened={isShow}
+      onClose={close}
+      position="right"
+      padding={0}
+      size={400}
+      withCloseButton={false}
+      classNames={{ content: '!w-full sm:!w-100 !max-w-[calc(100vw-2rem)]', body: '!h-full !p-0' }}
+    >
+      <div className="flex flex-col h-full">
         {/* ── Header ─────────────────────────────────────── */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
           <div className="flex items-center gap-3">
@@ -55,6 +47,7 @@ const CartSidebar = () => {
           <button
             type="button"
             onClick={close}
+            aria-label="Close cart"
             className="w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-800 transition-all"
           >
             <XIcon />
@@ -75,7 +68,7 @@ const CartSidebar = () => {
                 type="button"
                 onClick={() => {
                   close()
-                  navigate('/auth')
+                  navigate('/auth?returnTo=%2Fcart')
                 }}
                 className="mt-1 px-6 py-2.5 bg-green-700 hover:bg-green-800 text-white text-sm font-semibold rounded-xl transition-colors"
               >
@@ -143,9 +136,9 @@ const CartSidebar = () => {
             {/* Subtotal */}
             <div className="px-5 pt-4 pb-2 flex items-center justify-between">
               <span className="text-sm text-gray-500">Subtotal</span>
-              <span className="font-bold text-gray-900 text-[15px]">${subtotal.toFixed(2)}</span>
+              <span className="font-bold text-gray-900 text-[15px]">{formatCurrency(subtotal)}</span>
             </div>
-            <p className="px-5 text-[11px] text-gray-400 mb-4">Taxes and shipping calculated at checkout</p>
+            <p className="px-5 text-[11px] text-gray-400 mb-4">Free shipping, no taxes added</p>
 
             {/* Actions */}
             <div className="px-5 pb-5 flex flex-col gap-2.5">
@@ -153,11 +146,21 @@ const CartSidebar = () => {
                 type="button"
                 onClick={() => {
                   close()
-                  navigate('/payment')
+                  navigate('/checkout')
                 }}
                 className="w-full py-3.5 bg-linear-to-r from-green-700 to-emerald-600 hover:from-green-800 hover:to-emerald-700 text-white font-bold text-sm rounded-xl transition-all shadow-lg shadow-green-500/25 hover:shadow-green-500/40 active:scale-[0.98] flex items-center justify-center gap-2"
               >
-                Checkout — ${subtotal.toFixed(2)}
+                Checkout — {formatCurrency(subtotal)}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  close()
+                  navigate('/cart')
+                }}
+                className="w-full py-3 bg-white border border-gray-200 hover:border-green-300 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold text-sm rounded-xl transition-all active:scale-[0.98]"
+              >
+                View Cart
               </button>
               <button
                 type="button"
@@ -165,7 +168,7 @@ const CartSidebar = () => {
                   close()
                   navigate('/products')
                 }}
-                className="w-full py-3 bg-white border border-gray-200 hover:border-green-300 hover:bg-green-50 text-gray-700 hover:text-green-700 font-semibold text-sm rounded-xl transition-all active:scale-[0.98]"
+                className="w-full py-2 text-gray-500 hover:text-green-700 font-medium text-xs transition-all"
               >
                 Continue Shopping
               </button>
@@ -173,7 +176,7 @@ const CartSidebar = () => {
           </div>
         )}
       </div>
-    </>
+    </Drawer>
   )
 }
 

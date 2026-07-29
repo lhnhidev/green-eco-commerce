@@ -4,6 +4,7 @@ import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { MagnifyingGlassIcon, NotePencilIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { formatCurrency } from '@utils/formatCurrency'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 
@@ -144,7 +145,7 @@ const ProductList = () => {
                 products.map((p) => (
                   <Table.Tr key={p.id}>
                     <Table.Td className="font-medium!">{p.name}</Table.Td>
-                    <Table.Td>${p.price?.toFixed(2)}</Table.Td>
+                    <Table.Td>{formatCurrency(p.price)}</Table.Td>
                     <Table.Td>
                       <span className={p.stockQty < 20 ? 'text-red-500 font-semibold' : ''}>{p.stockQty}</span>
                     </Table.Td>

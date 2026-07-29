@@ -1,13 +1,10 @@
-import { useAppSelector } from '@hooks/useAppSelector'
+import { useAuth } from '@hooks/useAuth'
 import { RobotIcon } from '@phosphor-icons/react'
 import { Typewriter } from 'react-simple-typewriter'
 
 const ChatBanner = () => {
-  const fullName = useAppSelector((state) => {
-    if (state.auth.user?.firstName === undefined || state.auth.user?.lastName === undefined) return 'there'
-
-    return `${state.auth.user?.firstName || ''} ${state.auth.user?.lastName || ''}`.trim() || 'there'
-  })
+  const { user } = useAuth()
+  const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'there' : 'there'
 
   return (
     <div className="flex justify-center items-center p-6">

@@ -1,6 +1,5 @@
 import { useFacebookLogin, useGoogleLogin, useLogin } from '@api'
 import type { LoginCommand, ProblemDetails, UserProfileDto } from '@api/schemas'
-import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useFacebookSdk } from '@hooks/useFacebookSdk'
 import { Button } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
@@ -9,16 +8,15 @@ import { GoogleLogin } from '@react-oauth/google'
 import { useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import FormField from '../form-field'
 import EmailInput from '../form-field/email-input'
 import PasswordInputV2 from '../form-field/password-input'
-import { setAuthUser } from './auth.slice'
 
 const LoginForm = () => {
   const queryClient = useQueryClient()
-  const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { isReady: isFacebookReady, login: facebookLogin } = useFacebookSdk()
 
   const {
@@ -36,8 +34,8 @@ const LoginForm = () => {
 
   const handleAuthSuccess = (profile: UserProfileDto) => {
     queryClient.clear()
-    dispatch(setAuthUser(profile))
-    navigate(profile.role === 'Admin' ? '/admin/dashboard' : '/')
+    const returnTo = searchParams.get('returnTo')
+    navigate(returnTo || (profile.role === 'Admin' ? '/admin/dashboard' : '/'))
     notifications.show({ title: 'Login sucessed!', message: 'Welcome to our shop.', color: 'green' })
   }
 
