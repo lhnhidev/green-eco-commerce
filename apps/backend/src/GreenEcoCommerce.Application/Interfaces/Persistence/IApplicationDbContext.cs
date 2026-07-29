@@ -41,6 +41,9 @@ public interface IApplicationDbContext
     // Wishlist
     DbSet<WishlistItem> WishlistItems { get; }
 
+    // Notifications
+    DbSet<Notification> Notifications { get; }
+
     // Automatic transaction
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 

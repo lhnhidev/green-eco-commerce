@@ -45,6 +45,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     // Wishlist
     public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
 
+    // Notifications
+    public DbSet<Notification> Notifications => Set<Notification>();
+
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
             Database.BeginTransactionAsync(ct);
 
