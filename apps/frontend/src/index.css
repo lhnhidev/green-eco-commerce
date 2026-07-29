@@ -9,61 +9,60 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-background: #ffffff;
-  --color-foreground: #09090b;
-  --color-primary: #10b157;
-  --color-secondary: #d7f7de;
-  --color-primary-foreground: #ffffff;
-  --color-muted: #f4f4f5;
-  --color-muted-foreground: #71717a;
-  --color-input-muted: #f4f4f5;
+    --color-background: #ffffff;
+    --color-foreground: #09090b;
+    --color-primary: #10b157;
+    --color-secondary: #d7f7de;
+    --color-primary-foreground: #ffffff;
+    --color-muted: #f4f4f5;
+    --color-muted-foreground: #71717a;
+    --color-input-muted: #f4f4f5;
 }
 
 @layer base {
-  body {
-    font-family: "Inter Variable", sans-serif;
-    background-color: var(--color-background);
-    color: var(--color-foreground);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+    body {
+        font-family: "Inter Variable", sans-serif;
+        background-color: var(--color-background);
+        color: var(--color-foreground);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 }
 
 /* Custom plant-themed utilities */
 .plant-gradient {
-  background: linear-gradient(135deg, #d7f7de 0%, #eefcf1 100%);
+    background: linear-gradient(135deg, #d7f7de 0%, #eefcf1 100%);
 }
 
 .plant-shadow {
-  box-shadow:
-    0 4px 12px -2px rgba(16, 177, 87, 0.08),
+    box-shadow: 0 4px 12px -2px rgba(16, 177, 87, 0.08),
     0 2px 6px -1px rgba(16, 177, 87, 0.04);
 }
 
 /* 1. Định dạng thanh cuộn tổng thể */
 ::-webkit-scrollbar {
-  width: 8px; /* Độ rộng của thanh cuộn dọc */
-  height: 8px; /* Độ cao của thanh cuộn ngang */
+    width: 8px; /* Độ rộng của thanh cuộn dọc */
+    height: 8px; /* Độ cao của thanh cuộn ngang */
 }
 
 /* 2. Phần nền bên dưới thanh cuộn (Track) */
 ::-webkit-scrollbar-track {
-  background: transparent; /* Notion để nền trong suốt để tạo sự tối giản */
+    background: transparent; /* Notion để nền trong suốt để tạo sự tối giản */
 }
 
 /* 3. Thanh kéo (Thumb) - Trạng thái bình thường */
 ::-webkit-scrollbar-thumb {
-  background: rgba(15, 15, 15, 0.1); /* Màu xám nhạt, trong suốt nhẹ */
-  border-radius: 20px; /* Bo tròn góc giống Notion */
+    background: rgba(15, 15, 15, 0.1); /* Màu xám nhạt, trong suốt nhẹ */
+    border-radius: 20px; /* Bo tròn góc giống Notion */
 }
 
 /* 4. Thanh kéo (Thumb) - Khi di chuột qua (Hover) */
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(15, 15, 15, 0.2); /* Đậm lên một chút khi hover */
+    background: rgba(15, 15, 15, 0.2); /* Đậm lên một chút khi hover */
 }
 
 /* 5. Hỗ trợ cho Firefox (Firefox sử dụng thuộc tính khác) */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(15, 15, 15, 0.1) transparent;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(15, 15, 15, 0.1) transparent;
 }

@@ -6,8 +6,8 @@ import { customInstance } from '@/lib/axios'
  * Personal buyer statistics.
  *
  * Shape mirrors the backend `GetMyStatisticsQuery.Response` (camelCase JSON).
- * When the backend is running, `bun orval` regenerates a canonical
- * `useGetMyStatistics` hook in `@api`; this hand-written hook can then be
+ * When the backend is running, `bun run orval` regenerates a canonical
+ * `useGetMyStatistics` hook in `@api`; this handwritten hook can then be
  * replaced by it. Kept manual so the feature is self-contained meanwhile.
  */
 export interface StatisticsSummary {
