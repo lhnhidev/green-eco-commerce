@@ -1,4 +1,4 @@
-﻿using System.Security.Claims;
+using System.Security.Claims;
 using GreenEcoCommerce.Application.Features.Checkout.Commands;
 using GreenEcoCommerce.Domain.Enums;
 using MediatR;
@@ -26,11 +26,12 @@ public static class CheckoutEndpoints
             userId,
             request.PointsToRedeem,
             request.DeliveryAddress,
-            request.PaymentMethod);
+            request.PaymentMethod,
+            request.CouponCode);
 
         var response = await sender.Send(command);
         return TypedResults.Ok(response);
     }
 }
 
-public record CheckoutRequest(int PointsToRedeem, string DeliveryAddress, PaymentMethodEnum PaymentMethod);
+public record CheckoutRequest(int PointsToRedeem, string DeliveryAddress, PaymentMethodEnum PaymentMethod, string? CouponCode = null);

@@ -1,4 +1,4 @@
-﻿using FluentValidation;
+using FluentValidation;
 using GreenEcoCommerce.Application.Interfaces.Configuration;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Queries;
@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Checkout.Commands;
 
-public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAddress, PaymentMethodEnum PaymentMethod)
+public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAddress, PaymentMethodEnum PaymentMethod, string? CouponCode = null)
         : IRequest<CheckoutCommand.Response>
 {
     public record Response(Guid OrderId);
@@ -70,7 +70,29 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                 var wallet = await dbContext.GreenWallets.OfUser(command.UserId).FirstOrDefaultAsync(ct);
                 if (wallet == null) { throw new NotFoundException("Green wallet not found for the user."); }
 
-                decimal discountAmount = 0;
+                // 3a. Apply Coupon if provided (mutually exclusive with points redemption, see Validator)
+                decimal couponDiscount = 0;
+                string? appliedCouponCode = null;
+                if (!string.IsNullOrWhiteSpace(command.CouponCode))
+                {
+                    var coupon = await dbContext.Coupons
+                        .FirstOrDefaultAsync(c => c.Code == command.CouponCode.ToUpperInvariant() && c.IsActive, ct);
+
+                    if (coupon == null || coupon.ExpiresAt < DateTimeOffset.UtcNow || coupon.UsedCount >= coupon.MaxUses || totalPrice < coupon.MinOrderAmount)
+                    {
+                        throw new BadRequestException("This coupon is invalid, expired, or not applicable to this order.");
+                    }
+
+                    couponDiscount = coupon.DiscountType == CouponDiscountTypeEnum.Percent
+                        ? Math.Round(totalPrice * (coupon.DiscountValue / 100), 2)
+                        : Math.Min(coupon.DiscountValue, totalPrice);
+
+                    coupon.UsedCount++;
+                    appliedCouponCode = coupon.Code;
+                    await dbContext.SaveChangesAsync(ct);
+                }
+
+                decimal discountAmount = couponDiscount;
                 int earnedPoints;
 
                 if (command.PointsToRedeem > 0)
@@ -121,6 +143,7 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                         DeliveryAddress = command.DeliveryAddress,
                         DiscountAmount = discountAmount,
                         EarnedPoints = earnedPoints,
+                        CouponCode = appliedCouponCode,
                         OrderItems = orderItems,
                         Payment = new Payment
                         {
@@ -163,6 +186,10 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
 
             RuleFor(x => x.PaymentMethod)
                 .IsInEnum().WithMessage("Invalid payment method.");
+
+            RuleFor(x => x)
+                .Must(x => x.PointsToRedeem <= 0 || string.IsNullOrWhiteSpace(x.CouponCode))
+                .WithMessage("Cannot combine a coupon and Green Points on the same order — choose one.");
         }
     }
 }
