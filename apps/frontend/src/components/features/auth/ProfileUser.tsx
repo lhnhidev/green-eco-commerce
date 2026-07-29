@@ -4,10 +4,10 @@ import { getGetMeQueryKey, useLogout } from '@api'
 import { useAuth } from '@hooks/useAuth'
 import { Avatar, Divider, Group, Skeleton, Stack, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
+import { HeartIcon, LeafIcon, PackageIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { useState } from 'react'
-import { BiLeaf } from 'react-icons/bi'
-import { FiHeart, FiLogOut, FiPackage, FiSettings, FiShoppingBag, FiUser } from 'react-icons/fi'
 import type { IconType } from 'react-icons/lib'
 import { Link, useNavigate } from 'react-router'
 import LoginComponent from './LoginComponent'
@@ -23,38 +23,26 @@ const menuList: Array<menuItemType> = [
   {
     id: 1,
     label: 'Profile',
-    icon: FiUser,
+    icon: UserIcon,
     url: '/profile',
   },
   {
     id: 2,
     label: 'My orders',
-    icon: FiPackage,
+    icon: PackageIcon,
     url: '/my-orders',
   },
   {
     id: 3,
-    label: 'History shopping',
-    icon: FiShoppingBag,
-    url: '/history-shopping',
-  },
-  {
-    id: 4,
     label: 'Favorite products',
-    icon: FiHeart,
+    icon: HeartIcon,
     url: '/favorite-products',
   },
   {
-    id: 5,
+    id: 4,
     label: 'Green wallet',
-    icon: BiLeaf,
+    icon: LeafIcon,
     url: '/green-wallet',
-  },
-  {
-    id: 6,
-    label: 'Settings',
-    icon: FiSettings,
-    url: '/settings',
   },
 ]
 
@@ -110,7 +98,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
     <div onClick={() => setShowProfileMenu(!showProfileMenu)} className="relative">
       <div className="cursor-pointer">
         <Avatar
-          src={user?.avatar}
+          src={resolveImageUrl(user?.avatar)}
           color="green"
           radius="xl"
           alt="it's me"
@@ -129,7 +117,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
           <div>
             <Group gap="sm">
               <Avatar
-                src={user?.avatar}
+                src={resolveImageUrl(user?.avatar)}
                 color="green"
                 radius="xl"
                 alt="it's me"
@@ -172,7 +160,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
             onClick={handleLogout}
             className="w-full hover:bg-gray-100 -mx-1 p-2 rounded-md transition-colors text-left flex items-center gap-3 cursor-pointer"
           >
-            <FiLogOut size={16} className="text-gray-400" />
+            <SignOutIcon size={16} className="text-gray-400" />
             <span className="text-sm">Log out</span>
           </div>
         </div>

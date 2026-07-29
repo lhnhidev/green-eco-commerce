@@ -6,8 +6,9 @@ import type { CartDto, CartItemDto } from '@api/schemas'
 import { Button, Modal, NumberInput } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { FaRegTrashCan } from 'react-icons/fa6'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { useNavigate } from 'react-router'
 
 const OrderItem = ({ product }: { product: CartItemDto }) => {
@@ -82,7 +83,11 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
 
       <div className="flex gap-5 items-center border border-gray-300 rounded-lg p-4">
         <div className="cursor-pointer" onClick={() => navigation(`/products/${product?.productId}`)}>
-          <img className="rounded-lg w-30 h-30" src={product.productImageUrl?.at(0)} alt={product.productName} />
+          <img
+            className="rounded-lg w-30 h-30"
+            src={resolveImageUrl(product.productImageUrl)}
+            alt={product.productName}
+          />
         </div>
 
         <div className="flex justify-between flex-1">
@@ -101,7 +106,7 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
           <div className="w-20 flex-col items-center">
             <p className="mb-3">${price}</p>
             <div onClick={() => open()} className="text-red-500 hover:cursor-pointer hover:text-red-300 transition-all">
-              <FaRegTrashCan />
+              <TrashIcon />
             </div>
           </div>
         </div>

@@ -1,12 +1,11 @@
+import { ApproximateEqualsIcon, TrendDownIcon, TrendUpIcon } from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
-import { FaArrowTrendDown, FaArrowTrendUp } from 'react-icons/fa6'
-import { PiApproximateEquals } from 'react-icons/pi'
 
 type CardDisplayNumberType = {
   icon: ReactNode
   title: string
   isGrowth: 'up' | 'down' | 'balance'
-  showDolarIcon: boolean
+  showDollarIcon: boolean
   showPercentIcon: boolean
   growthValue: string | number
   currentData: string | number
@@ -19,7 +18,7 @@ const CardDisplayNumber = ({
   title,
   currentData,
   isGrowth,
-  showDolarIcon,
+  showDollarIcon,
   showPercentIcon,
   growthValue,
   unit,
@@ -34,7 +33,7 @@ const CardDisplayNumber = ({
       </div>
 
       <div className="text-[20px] font-bold leading-tight text-[#18181b] truncate">
-        {showDolarIcon && '$'}
+        {showDollarIcon && '$'}
         {currentData}
         {unit && <span className="text-[13px] font-medium ml-0.5">{unit}</span>}
       </div>
@@ -42,11 +41,11 @@ const CardDisplayNumber = ({
       <div className="flex items-center gap-1 mt-1">
         <span className={`flex items-center gap-1 text-[11px] font-semibold ${growthColor}`}>
           {isGrowth === 'up' ? (
-            <FaArrowTrendUp size={10} />
+            <TrendUpIcon size={10} />
           ) : isGrowth === 'down' ? (
-            <FaArrowTrendDown size={10} />
+            <TrendDownIcon size={10} />
           ) : (
-            <PiApproximateEquals size={10} />
+            <ApproximateEqualsIcon size={10} />
           )}
           {growthValue}
           {showPercentIcon && '%'}

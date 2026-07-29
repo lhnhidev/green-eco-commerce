@@ -1,12 +1,31 @@
-import { getGetCartQueryKey, useAddCartItem } from '@api'
+import {
+  getGetCartQueryKey,
+  getGetWishlistQueryKey,
+  getIsInWishlistQueryKey,
+  useAddCartItem,
+  useAddToWishlist,
+  useIsInWishlist,
+  useRemoveFromWishlist,
+} from '@api'
 import type { ProductDto } from '@api/schemas'
+import { MAX_COMPARE_ITEMS, toggleCompare } from '@components/features/compare/compare.slice'
+import { useAppDispatch } from '@hooks/useAppDispatch'
+import { useAppSelector } from '@hooks/useAppSelector'
+import { useAuth } from '@hooks/useAuth'
+import { Rating } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
+import { HeartIcon, ScalesIcon, ShoppingCartIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { FiShoppingCart } from 'react-icons/fi'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
+import type * as React from 'react'
 import { Link } from 'react-router'
-import { Rating } from "@mantine/core";
 
 const ProductCardv2 = ({ product }: { product: ProductDto }) => {
+  const queryClient = useQueryClient()
+  const dispatch = useAppDispatch()
+  const { user } = useAuth()
+  const compareIds = useAppSelector((state) => state.compare.productIds)
+  const isComparing = compareIds.includes(product.id)
   const { mutate, isPending } = useAddCartItem({
     mutation: {
       onSuccess: async () => {
@@ -14,7 +33,49 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
       },
     },
   })
-  const queryClient = useQueryClient()
+
+  const { data: isWishlisted } = useIsInWishlist(product.id, { query: { enabled: !!user, staleTime: 1000 * 60 * 5 } })
+  const { mutate: addWishlist } = useAddToWishlist({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
+        queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(product.id) })
+      },
+    },
+  })
+  const { mutate: removeWishlist } = useRemoveFromWishlist({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
+        queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(product.id) })
+      },
+    },
+  })
+
+  const handleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!user) {
+      notifications.show({ title: 'Login required', message: 'Please log in to save to wishlist.', color: 'orange' })
+      return
+    }
+    if (isWishlisted) removeWishlist({ productId: product.id })
+    else addWishlist({ productId: product.id })
+  }
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (!isComparing && compareIds.length >= MAX_COMPARE_ITEMS) {
+      notifications.show({
+        title: 'Compare list full',
+        message: `You can compare up to ${MAX_COMPARE_ITEMS} products at a time.`,
+        color: 'orange',
+      })
+      return
+    }
+    dispatch(toggleCompare(product.id))
+  }
 
   const handleAddToCart = (productId: string | undefined, quantity: number) => {
     if (!productId) return
@@ -59,7 +120,7 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
           <img
             alt={product.name}
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-            src={product?.imageUrl?.at(0) || '/placeholder.png'}
+            src={resolveImageUrl(product?.imageUrl?.at(0)) || '/placeholder.png'}
           />
 
           {/* Subtle dark gradient overlay on hover to make icons pop */}
@@ -74,6 +135,32 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
             </div>
           )}
 
+          {/* Wishlist & Compare Buttons */}
+          <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            {user && (
+              <button
+                type="button"
+                onClick={handleWishlist}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110"
+                aria-label="Toggle wishlist"
+              >
+                <HeartIcon size={15} className={isWishlisted ? 'fill-rose-500 text-rose-500' : 'text-gray-500'} />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={handleCompare}
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110"
+              aria-label="Toggle compare"
+            >
+              <ScalesIcon
+                size={15}
+                weight={isComparing ? 'fill' : 'regular'}
+                className={isComparing ? 'text-primary' : 'text-gray-500'}
+              />
+            </button>
+          </div>
+
           {/* Floating Add to Cart Button */}
           <div className="absolute bottom-4 right-4 z-10 translate-y-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
             <button
@@ -87,7 +174,7 @@ const ProductCardv2 = ({ product }: { product: ProductDto }) => {
               className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-all hover:scale-110 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label="Add to cart"
             >
-              <FiShoppingCart size={20} />
+              <ShoppingCartIcon size={20} />
             </button>
           </div>
         </div>

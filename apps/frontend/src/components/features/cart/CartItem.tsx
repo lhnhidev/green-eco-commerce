@@ -5,7 +5,9 @@ import { getGetCartQueryKey, useRemoveCartItem, useUpdateCartItem } from '@api'
 import type { CartItemDto } from '@api/schemas'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { notifications } from '@mantine/notifications'
+import { TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { useNavigate } from 'react-router'
 import { setIsShow } from './cart.slice'
 
@@ -40,7 +42,9 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
   const isLoading = updatingQty || removing
 
   return (
-    <div className={`flex gap-3 items-start py-4 border-b border-gray-100 last:border-0 group transition-opacity ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div
+      className={`flex gap-3 items-start py-4 border-b border-gray-100 last:border-0 group transition-opacity ${isLoading ? 'opacity-50 pointer-events-none' : ''}`}
+    >
       {/* Product image */}
       <div
         className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
@@ -50,7 +54,7 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
         }}
       >
         <img
-          src={cartItem?.productImageUrl}
+          src={resolveImageUrl(cartItem?.productImageUrl)}
           alt={cartItem?.productName ?? 'Product'}
           className="absolute inset-0 w-full h-full object-cover object-center"
         />
@@ -78,9 +82,7 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
           >
             −
           </button>
-          <span className="text-sm font-bold text-gray-800 min-w-5 text-center">
-            {cartItem?.quantity}
-          </span>
+          <span className="text-sm font-bold text-gray-800 min-w-5 text-center">{cartItem?.quantity}</span>
           <button
             type="button"
             onClick={() => handleQty(1)}
@@ -110,12 +112,7 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
           className="w-6 h-6 flex items-center justify-center text-gray-300 hover:text-red-500 transition-colors rounded-md hover:bg-red-50"
           title="Remove item"
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="3 6 5 6 21 6" />
-            <path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" />
-            <path d="M10 11v6M14 11v6" />
-            <path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2" />
-          </svg>
+          <TrashIcon size={13} />
         </button>
       </div>
     </div>

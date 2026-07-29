@@ -2,11 +2,14 @@
 /** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
 
 import { useGetAllProducts, useGetCart } from '@api'
+import NotificationBell from '@components/features/notifications/NotificationBell'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
+import { useAuth } from '@hooks/useAuth'
 import { Badge, Loader, TextInput } from '@mantine/core'
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks'
-import { MagnifyingGlassIcon } from '@phosphor-icons/react'
+import { ListIcon, MagnifyingGlassIcon, ShoppingCartIcon, XIcon } from '@phosphor-icons/react'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import type * as React from 'react'
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router'
@@ -19,28 +22,8 @@ const navigationItems = [
   { path: '/products', label: 'Products' },
   { path: '/payment', label: 'Checkout' },
   { path: '/my-orders', label: 'Orders' },
-  { path: '/wallet', label: 'Wallet' },
+  { path: '/green-wallet', label: 'Wallet' },
 ]
-
-// ─── Inline SVGs ─────────────────────────────────────────────────────────────
-
-const CartSvg = () => (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-  </svg>
-)
-
-const MenuSvg = () => (
-  <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-  </svg>
-)
-
-const CloseSvg = () => (
-  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-  </svg>
-)
 
 // ─── Search autocomplete ─────────────────────────────────────────────────────
 
@@ -79,7 +62,9 @@ const SearchAutocomplete = ({ className, onSelect }: { className?: string; onSel
           onChange={(e) => setSearchValue(e.currentTarget.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 200)}
-          classNames={{ input: 'bg-gray-50 border-gray-200 focus:border-green-400 focus:ring-1 focus:ring-green-400/20 text-sm' }}
+          classNames={{
+            input: 'bg-gray-50 border-gray-200 focus:border-green-400 focus:ring-1 focus:ring-green-400/20 text-sm',
+          }}
         />
       </form>
 
@@ -99,11 +84,14 @@ const SearchAutocomplete = ({ className, onSelect }: { className?: string; onSel
                 <Link
                   key={product.id}
                   to={`/products/${product.id}`}
-                  onClick={() => { setIsFocused(false); onSelect?.() }}
+                  onClick={() => {
+                    setIsFocused(false)
+                    onSelect?.()
+                  }}
                   className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
                 >
                   <img
-                    src={product.imageUrl?.[0] || '/placeholder.png'}
+                    src={resolveImageUrl(product.imageUrl?.[0]) || '/placeholder.png'}
                     alt={product.name}
                     className="w-10 h-10 object-cover rounded-lg bg-gray-100 shrink-0"
                   />
@@ -138,19 +126,18 @@ export function Navigation() {
   const dispatch = useAppDispatch()
   const cartIsOpen = useAppSelector((state) => state.cart.isShow)
   const [mobileOpen, { toggle: toggleMobile, close: closeMobile }] = useDisclosure(false)
+  const { user } = useAuth()
 
   const { data: cartData } = useGetCart()
   const cartCount = cartData?.items?.length ?? 0
 
-  const isActive = (path: string) =>
-    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
+  const isActive = (path: string) => (path === '/' ? location.pathname === '/' : location.pathname.startsWith(path))
 
   return (
     <>
       {/* ── Sticky header bar ─────────────────────────────────────── */}
       <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/90 backdrop-blur-md shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-
           {/* Brand */}
           <Link to="/" className="shrink-0">
             <Brand linkToHome={false} size="md" />
@@ -180,7 +167,6 @@ export function Navigation() {
 
           {/* Right actions */}
           <div className="flex items-center gap-2 ml-auto sm:ml-3">
-
             {/* Cart button */}
             <button
               type="button"
@@ -188,7 +174,7 @@ export function Navigation() {
               className="relative w-9 h-9 rounded-full flex items-center justify-center text-gray-600 hover:text-green-700 hover:bg-green-50 transition-all active:scale-95"
               aria-label="Open cart"
             >
-              <CartSvg />
+              <ShoppingCartIcon size={20} />
               {cartCount > 0 && (
                 <Badge
                   size="xs"
@@ -201,6 +187,9 @@ export function Navigation() {
               )}
             </button>
 
+            {/* Notifications */}
+            {user && <NotificationBell />}
+
             {/* Profile */}
             <ProfileUser />
 
@@ -211,7 +200,7 @@ export function Navigation() {
               className="lg:hidden w-9 h-9 rounded-full flex items-center justify-center text-gray-600 hover:text-green-700 hover:bg-green-50 transition-all active:scale-95"
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <CloseSvg /> : <MenuSvg />}
+              {mobileOpen ? <XIcon /> : <ListIcon />}
             </button>
           </div>
         </div>
@@ -219,10 +208,7 @@ export function Navigation() {
 
       {/* ── Mobile drawer backdrop ─────────────────────────────────── */}
       {mobileOpen && (
-        <div
-          className="fixed inset-0 z-49 bg-black/30 backdrop-blur-[1px] lg:hidden"
-          onClick={closeMobile}
-        />
+        <div className="fixed inset-0 z-49 bg-black/30 backdrop-blur-[1px] lg:hidden" onClick={closeMobile} />
       )}
 
       {/* ── Mobile/tablet slide-down menu ─────────────────────────── */}
@@ -236,7 +222,6 @@ export function Navigation() {
         `}
       >
         <div className="container mx-auto px-4 pb-5 pt-4 flex flex-col gap-4">
-
           {/* Mobile search */}
           {/* <SearchAutocomplete onSelect={closeMobile} /> */}
 

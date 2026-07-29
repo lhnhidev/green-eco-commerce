@@ -1,5 +1,5 @@
 import { useAppSelector } from '@hooks/useAppSelector'
-import { RiRobot3Line } from 'react-icons/ri'
+import { RobotIcon } from '@phosphor-icons/react'
 import { Typewriter } from 'react-simple-typewriter'
 
 const ChatBanner = () => {
@@ -15,7 +15,7 @@ const ChatBanner = () => {
       <div className="shadow-xl flex items-center gap-4 bg-primary text-white py-4 px-6 rounded-full max-w-xl">
         {/* Icon Robot */}
         <div className="text-3xl animate-bounce">
-          <RiRobot3Line />
+          <RobotIcon />
         </div>
 
         {/* Khu vực chữ chạy hiệu ứng Typing */}

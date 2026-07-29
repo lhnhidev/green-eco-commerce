@@ -4,27 +4,33 @@
 import Brand from '@components/ui/Brand'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
-import { FaHome, FaUser } from 'react-icons/fa'
-import { FaTableCells } from 'react-icons/fa6'
-import { IoIosDocument, IoIosSettings } from 'react-icons/io'
-import { IoReceipt } from 'react-icons/io5'
+import { AppShell, Burger } from '@mantine/core'
+import {
+  FilesIcon,
+  GearIcon,
+  GridNineIcon,
+  HouseIcon,
+  ImageIcon,
+  ReceiptIcon,
+  SealPercentIcon,
+  TableIcon,
+  UserIcon,
+} from '@phosphor-icons/react'
 import { MdCategory } from 'react-icons/md'
-import { RiCoupon3Line } from 'react-icons/ri'
-import { TbCategory, TbMessageStar, TbPhoto } from 'react-icons/tb'
+import { TbCategory, TbMessageStar } from 'react-icons/tb'
 import { Link } from 'react-router'
 import NavigationIndex from './NavigationIndex'
 import { type ActiveType, closeMobileSidebar, setActive } from './navigation.slice'
-import { AppShell, Burger } from '@mantine/core'
 
 const navigateMems = [
   {
     id: 'dashboard',
-    icon: FaHome,
+    icon: HouseIcon,
     text: 'Dashboard',
   },
   {
     id: 'product',
-    icon: FaTableCells,
+    icon: TableIcon,
     text: 'Products',
   },
   {
@@ -34,12 +40,12 @@ const navigateMems = [
   },
   {
     id: 'user',
-    icon: FaUser,
+    icon: UserIcon,
     text: 'User',
   },
   {
     id: 'order',
-    icon: IoReceipt,
+    icon: ReceiptIcon,
     text: 'Orders',
   },
   {
@@ -54,22 +60,22 @@ const navigateMems = [
   },
   {
     id: 'coupon',
-    icon: RiCoupon3Line,
+    icon: SealPercentIcon,
     text: 'Coupons',
   },
   {
     id: 'banner',
-    icon: TbPhoto,
+    icon: ImageIcon,
     text: 'Banners',
   },
   {
     id: 'document',
-    icon: IoIosDocument,
+    icon: FilesIcon,
     text: 'Document',
   },
   {
     id: 'analyst',
-    icon: FaTableCells,
+    icon: GridNineIcon,
     text: 'Analyst',
   },
 ]
@@ -109,7 +115,7 @@ const SidebarContent = () => {
           }}
           className="w-full text-left"
         >
-          <NavigationIndex icon={IoIosSettings} text="Setting" isActive={active === 'setting'} />
+          <NavigationIndex icon={GearIcon} text="Setting" isActive={active === 'setting'} />
         </button>
       </div>
     </AppShell.Navbar>

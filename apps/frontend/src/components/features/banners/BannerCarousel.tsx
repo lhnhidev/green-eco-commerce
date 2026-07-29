@@ -3,6 +3,7 @@ import type { BannerDto } from '@api/schemas'
 import { Carousel } from '@mantine/carousel'
 import '@mantine/carousel/styles.css'
 import { Skeleton } from '@mantine/core'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import Autoplay from 'embla-carousel-autoplay'
 import { useRef } from 'react'
 import { Link } from 'react-router'
@@ -10,7 +11,7 @@ import { Link } from 'react-router'
 const BannerSlide = ({ banner }: { banner: BannerDto }) => (
   <Carousel.Slide>
     <Link to={banner.linkUrl ?? '/products'} className="block relative overflow-hidden" style={{ height: 420 }}>
-      <img src={banner.imageUrl} alt={banner.title} className="w-full h-full object-cover" />
+      <img src={resolveImageUrl(banner.imageUrl)} alt={banner.title} className="w-full h-full object-cover" />
       {/* Gradient overlay */}
       <div className="absolute inset-0 bg-linear-to-r from-black/55 via-black/30 to-transparent" />
       {/* Text */}

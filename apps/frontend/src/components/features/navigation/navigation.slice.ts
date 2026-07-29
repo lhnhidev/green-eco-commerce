@@ -36,9 +36,6 @@ const theNavigationSlice = createSlice({
     toggleDesktopSidebar(state) {
       state.desktopSidebarOpen = !state.desktopSidebarOpen
     },
-    closeDesktopSidebar(state) {
-      state.desktopSidebarOpen = false
-    },
     toggleMobileSidebar(state) {
       state.mobileSidebarOpen = !state.mobileSidebarOpen
     },
@@ -48,6 +45,6 @@ const theNavigationSlice = createSlice({
   },
 })
 
-export const { setActive, toggleDesktopSidebar, closeDesktopSidebar, toggleMobileSidebar, closeMobileSidebar } = theNavigationSlice.actions
+export const { setActive, toggleDesktopSidebar, toggleMobileSidebar, closeMobileSidebar } = theNavigationSlice.actions
 
 export default theNavigationSlice.reducer

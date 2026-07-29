@@ -1,8 +1,10 @@
-import { useAskChatbot } from '@api'
+import { getGetAllChatSessionsQueryKey, useAskChatbot, useGetChatSessionMessages } from '@api'
+import { ChatRole } from '@api/schemas'
 import { TextInput, Tooltip } from '@mantine/core'
+import { PaperPlaneTiltIcon } from '@phosphor-icons/react'
+import { useQueryClient } from '@tanstack/react-query'
 import type * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
-import { IoIosSend } from 'react-icons/io'
 import ChatBanner from './ChatBanner'
 import HeaderChatbot from './HeaderChatbot'
 import MessageBox from './MessageBox'
@@ -14,49 +16,66 @@ type Message = {
   isBot: boolean
 }
 
-// const mockMessages: Message[] = [
-//   {
-//     id: 1,
-//     message: 'Xin chào! Tôi có thể giúp gì cho bạn hôm nay?',
-//     time: '10:00',
-//     isBot: true,
-//   },
-//   {
-//     id: 2,
-//     message: 'Tôi muốn tìm sản phẩm thân thiện với môi trường.',
-//     time: '10:01',
-//     isBot: false,
-//   },
-//   {
-//     id: 3,
-//     message:
-//       'Tuyệt vời! Chúng tôi có rất nhiều sản phẩm xanh:\n1. Túi vải tái chế\n2. Bình nước inox\n3. Ống hút tre\n4. Xà phòng hữu cơ\n5. Bàn chải tre\n6. Hộp đựng thức ăn thủy tinh\n7. Dầu gội khô\n8. Nến từ sáp đậu nành\n9. Khăn giấy tái chế\n10. Túi ziplock silicon\n11. Bọc thức ăn bằng sáp ong',
-//     time: '10:01',
-//     isBot: true,
-//   },
-//   {
-//     id: 4,
-//     message:
-//       'Tuyệt vời! Chúng tôi có rất nhiều sản phẩm xanh:\n1. Túi vải tái chế\n2. Bình nước inox\n3. Ống hút tre\n4. Xà phòng hữu cơ\n5. Bàn chải tre\n6. Hộp đựng thức ăn thủy tinh\n7. Dầu gội khô\n8. Nến từ sáp đậu nành\n9. Khăn giấy tái chế\n10. Túi ziplock silicon\n11. Bọc thức ăn bằng sáp ong',
-//     time: '10:01',
-//     isBot: true,
-//   },
-// ]
+const SESSION_STORAGE_KEY = 'chatbotSessionId'
 
 const formatTime = () => new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
 
 const ChatComunication = () => {
   const [messages, setMessages] = useState<Message[]>([])
+  const [sessionId, setSessionId] = useState<string | null>(() =>
+    typeof localStorage === 'undefined' ? null : localStorage.getItem(SESSION_STORAGE_KEY),
+  )
 
   const [inputValue, setInputValue] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
+  const queryClient = useQueryClient()
 
   const { mutate: askChatbot, isPending } = useAskChatbot()
+
+  const { data: history, isError: historyError } = useGetChatSessionMessages(sessionId ?? '', {
+    query: { enabled: !!sessionId },
+  })
+
+  // Hydrate a previously-started conversation once its history loads.
+  useEffect(() => {
+    if (history) {
+      setMessages(
+        history.map((m, i) => ({
+          id: i,
+          message: m.content,
+          time: '',
+          isBot: m.role === ChatRole.Bot,
+        })),
+      )
+    }
+  }, [history])
+
+  // Session was deleted or belongs to someone else (e.g. after logging in as a different user) — start fresh.
+  useEffect(() => {
+    if (historyError) {
+      localStorage.removeItem(SESSION_STORAGE_KEY)
+      setSessionId(null)
+      setMessages([])
+    }
+  }, [historyError])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  const handleNewChat = () => {
+    localStorage.removeItem(SESSION_STORAGE_KEY)
+    setSessionId(null)
+    setMessages([])
+  }
+
+  const handleSelectSession = (id: string) => {
+    if (id === sessionId) return
+    setMessages([])
+    setSessionId(id)
+    localStorage.setItem(SESSION_STORAGE_KEY, id)
+  }
 
   const handleSend = () => {
     const trimmed = inputValue.trim()
@@ -73,13 +92,18 @@ const ChatComunication = () => {
 
     askChatbot(
       {
-        data: { idSectionMessage: null, prompt: trimmed },
+        data: { idSectionMessage: sessionId, prompt: trimmed },
       },
       {
         onSuccess: (response) => {
+          if (response.sessionId !== sessionId) {
+            setSessionId(response.sessionId)
+            localStorage.setItem(SESSION_STORAGE_KEY, response.sessionId)
+            queryClient.invalidateQueries({ queryKey: getGetAllChatSessionsQueryKey() })
+          }
           const botMessage: Message = {
             id: Date.now() + 1,
-            message: response,
+            message: response.message,
             time: formatTime(),
             isBot: true,
           }
@@ -105,7 +129,7 @@ const ChatComunication = () => {
   return (
     <div className="fixed flex flex-col justify-between bottom-10 right-10 text-sm rounded-2xl bg-white shadow-2xl z-50 px-3 py-4 border border-gray-300 min-h-125 min-w-96">
       <div className="max-h-150 overflow-auto">
-        <HeaderChatbot />
+        <HeaderChatbot activeSessionId={sessionId} onNewChat={handleNewChat} onSelectSession={handleSelectSession} />
         <div className="mt-6">
           <ChatBanner />
         </div>
@@ -156,7 +180,7 @@ const ChatComunication = () => {
                 }`}
                 onClick={handleSend}
               >
-                <IoIosSend />
+                <PaperPlaneTiltIcon weight="fill" />
               </div>
             </Tooltip>
           }

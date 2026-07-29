@@ -1,14 +1,14 @@
-import { getGetProductByIdQueryKey, getGetProductReviewsQueryKey, useCreateReview, useGetProductReviews, } from '@api'
+import { getGetProductByIdQueryKey, getGetProductReviewsQueryKey, useCreateReview, useGetProductReviews } from '@api'
 import type { ProblemDetails } from '@api/schemas'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { Avatar, Button, Pagination, Rating, Textarea } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { ChatIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { FiMessageSquare } from 'react-icons/fi'
 
 const PAGE_SIZE = 5
 
@@ -44,7 +44,11 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
         ])
         form.reset()
         setPage(1)
-        notifications.show({ title: 'Review submitted', message: 'Thanks for sharing your experience.', color: 'green' })
+        notifications.show({
+          title: 'Review submitted',
+          message: 'Thanks for sharing your experience.',
+          color: 'green',
+        })
       },
       onError: (error) => {
         // The server explains why it refused (403 when the product was never delivered to this
@@ -70,7 +74,7 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
     <div className="mt-10">
       {/* Header */}
       <div className="flex items-center gap-2 mb-6">
-        <FiMessageSquare className="text-xl text-primary" />
+        <ChatIcon className="text-xl text-primary" />
         <h2 className="text-xl font-bold text-gray-800">Customer Reviews</h2>
         {reviewsCount > 0 && (
           <div className="flex items-center gap-1.5 ml-2">
@@ -87,7 +91,7 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
         <div className="text-center py-8 text-gray-400">Loading reviews…</div>
       ) : reviews.length === 0 ? (
         <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-2xl border border-gray-100">
-          <FiMessageSquare className="mx-auto text-3xl mb-2 text-gray-300" />
+          <ChatIcon className="mx-auto text-3xl mb-2 text-gray-300" />
           <p>No reviews yet. Be the first to review this product!</p>
         </div>
       ) : (

@@ -2,6 +2,7 @@ import type { ProductDto } from '@api/schemas'
 import { ImageWithFallback } from '@components/ui/status/ImageWithFallback'
 import { Badge, Button, Card } from '@mantine/core'
 import { LeafIcon } from '@phosphor-icons/react'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 
 const ProductCardv1 = ({ product }: { product: ProductDto }) => {
   const co2Saved = Number(product.baselineCarbonIndex ?? 0) - Number(product.carbonIndex ?? 0)
@@ -18,7 +19,7 @@ const ProductCardv1 = ({ product }: { product: ProductDto }) => {
       <div className="relative overflow-hidden rounded-t-lg group/image">
         <ImageWithFallback
           src={
-            product?.imageUrl?.at(0) ||
+            resolveImageUrl(product?.imageUrl?.at(0)) ||
             'https://images.unsplash.com/photo-1586074299478-0d3d20abba7d?w=300&h=300&fit=crop'
           }
           alt={product.name}
