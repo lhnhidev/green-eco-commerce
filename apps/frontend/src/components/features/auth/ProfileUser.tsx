@@ -1,62 +1,52 @@
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
-
 import { getGetMeQueryKey, useLogout } from '@api'
+import { RoleEnum } from '@api/schemas'
 import { useAuth } from '@hooks/useAuth'
-import { Avatar, Divider, Group, Skeleton, Stack, Text } from '@mantine/core'
+import { Avatar, Divider, Group, Menu, Skeleton, Stack, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { HeartIcon, LeafIcon, PackageIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
+import {
+  GaugeIcon,
+  HeartIcon,
+  LeafIcon,
+  PackageIcon,
+  ScalesIcon,
+  SignOutIcon,
+  UserIcon,
+} from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
-import { useState } from 'react'
 import type { IconType } from 'react-icons/lib'
 import { Link, useNavigate } from 'react-router'
 import LoginComponent from './LoginComponent'
 
-type menuItemType = {
+type MenuItemType = {
   id: number
   label: string
   icon: IconType
   url: string
 }
 
-const menuList: Array<menuItemType> = [
-  {
-    id: 1,
-    label: 'Profile',
-    icon: UserIcon,
-    url: '/profile',
-  },
-  {
-    id: 2,
-    label: 'My orders',
-    icon: PackageIcon,
-    url: '/my-orders',
-  },
-  {
-    id: 3,
-    label: 'Favorite products',
-    icon: HeartIcon,
-    url: '/favorite-products',
-  },
-  {
-    id: 4,
-    label: 'Green wallet',
-    icon: LeafIcon,
-    url: '/green-wallet',
-  },
+const menuList: Array<MenuItemType> = [
+  { id: 1, label: 'Profile', icon: UserIcon, url: '/profile' },
+  { id: 2, label: 'My orders', icon: PackageIcon, url: '/my-orders' },
+  { id: 3, label: 'Favorite products', icon: HeartIcon, url: '/favorite-products' },
+  { id: 4, label: 'Green wallet', icon: LeafIcon, url: '/green-wallet' },
+  { id: 5, label: 'Compare', icon: ScalesIcon, url: '/compare' },
 ]
+
+const positionMap = {
+  center: 'bottom' as const,
+  left: 'bottom-start' as const,
+  right: 'bottom-end' as const,
+}
 
 type ProfileUserType = {
   position?: 'center' | 'left' | 'right'
 }
 
 const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
-  const [showProfileMenu, setShowProfileMenu] = useState<boolean>(false)
   const queryClient = useQueryClient()
   const { mutate: logout } = useLogout()
-
   const navigate = useNavigate()
-
   const { user, isPending } = useAuth()
 
   if (isPending) {
@@ -73,9 +63,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
     logout(undefined, {
       onSuccess: () => {
         queryClient.clear()
-
         queryClient.removeQueries({ queryKey: getGetMeQueryKey() })
-        setShowProfileMenu(false)
         navigate('/')
         notifications.show({
           title: 'Logout successed!',
@@ -94,78 +82,71 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
   }
 
   return (
-    // biome-ignore lint/a11y/noStaticElementInteractions: <>
-    <div onClick={() => setShowProfileMenu(!showProfileMenu)} className="relative">
-      <div className="cursor-pointer">
+    <Menu shadow="xl" width={272} position={positionMap[position]} offset={8}>
+      <Menu.Target>
         <Avatar
           src={resolveImageUrl(user?.avatar)}
           color="green"
           radius="xl"
           alt="it's me"
+          className="cursor-pointer"
           classNames={{
             placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
           }}
         >
           {!user?.avatar && fullName}
         </Avatar>
-      </div>
+      </Menu.Target>
 
-      {showProfileMenu && (
-        <div
-          className={`${position === 'center' ? 'left-1/2 -translate-x-1/2' : position === 'left' ? 'left-0' : 'right-0'} shadow-xl border border-gray-200 py-5 px-4 absolute top-14 bg-white text-black text-sm w-68 rounded-xl z-50`}
-        >
-          <div>
-            <Group gap="sm">
-              <Avatar
-                src={resolveImageUrl(user?.avatar)}
-                color="green"
-                radius="xl"
-                alt="it's me"
-                classNames={{
-                  placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
-                }}
-              >
-                {!user?.avatar && fullName}
-              </Avatar>
-              <Stack gap={0} className="max-w-42.5">
-                <Text fw={600} size="sm" className="truncate">
-                  {user.firstName} {user.lastName}
-                </Text>
-                <Text size="xs" c="dimmed" className="truncate">
-                  {user.email}
-                </Text>
-              </Stack>
-            </Group>
-          </div>
-
-          <Divider my="xs" classNames={{ root: '!border-gray-200 !mt-4' }} />
-
-          <div className="flex flex-col gap-1 px-1">
-            {menuList.map((menuItem) => (
-              <Link
-                to={menuItem.url}
-                key={menuItem.id}
-                className="w-full hover:bg-gray-100 -mx-2 p-2 rounded-md transition-colors text-left flex items-center gap-3"
-              >
-                <menuItem.icon size={16} className="text-gray-400" />
-                <span className="text-sm">{menuItem.label}</span>
-              </Link>
-            ))}
-          </div>
-
-          <Divider my="xs" classNames={{ root: '!border-gray-200 !mt-4' }} />
-
-          {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
-          <div
-            onClick={handleLogout}
-            className="w-full hover:bg-gray-100 -mx-1 p-2 rounded-md transition-colors text-left flex items-center gap-3 cursor-pointer"
+      <Menu.Dropdown className="!p-4">
+        <Group gap="sm" px={4}>
+          <Avatar
+            src={resolveImageUrl(user?.avatar)}
+            color="green"
+            radius="xl"
+            alt="it's me"
+            classNames={{
+              placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
+            }}
           >
-            <SignOutIcon size={16} className="text-gray-400" />
-            <span className="text-sm">Log out</span>
-          </div>
-        </div>
-      )}
-    </div>
+            {!user?.avatar && fullName}
+          </Avatar>
+          <Stack gap={0} className="max-w-42.5">
+            <Text fw={600} size="sm" className="truncate">
+              {user.firstName} {user.lastName}
+            </Text>
+            <Text size="xs" c="dimmed" className="truncate">
+              {user.email}
+            </Text>
+          </Stack>
+        </Group>
+
+        <Divider my="xs" />
+
+        {menuList.map((menuItem) => (
+          <Menu.Item
+            key={menuItem.id}
+            component={Link}
+            to={menuItem.url}
+            leftSection={<menuItem.icon size={16} className="text-gray-400" />}
+          >
+            {menuItem.label}
+          </Menu.Item>
+        ))}
+
+        {user.role === RoleEnum.Admin && (
+          <Menu.Item component={Link} to="/admin/dashboard" leftSection={<GaugeIcon size={16} className="text-gray-400" />}>
+            Admin dashboard
+          </Menu.Item>
+        )}
+
+        <Divider my="xs" />
+
+        <Menu.Item color="red" leftSection={<SignOutIcon size={16} />} onClick={handleLogout}>
+          Log out
+        </Menu.Item>
+      </Menu.Dropdown>
+    </Menu>
   )
 }
 
