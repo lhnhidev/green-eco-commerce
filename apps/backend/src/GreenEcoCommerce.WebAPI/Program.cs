@@ -6,6 +6,7 @@ using EntityFramework.Exceptions.PostgreSQL;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
 using GreenEcoCommerce.Application.Features.Auth.Commands;
+using GreenEcoCommerce.Application.Interfaces.Addresses;
 using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Interfaces.Configuration;
@@ -14,6 +15,7 @@ using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Application.Interfaces.Storage;
 using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Infrastructure.Addresses;
 using GreenEcoCommerce.Infrastructure.Caching;
 using GreenEcoCommerce.Infrastructure.ChatbotServices;
 using GreenEcoCommerce.Infrastructure.Configuration;
@@ -218,6 +220,7 @@ builder.Services.AddProblemDetails();
 // Đăng ký DI
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<ISocialAuthService, SocialAuthService>();
+builder.Services.AddScoped<IAddressAutocompleteService, GoongAddressAutocompleteService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
