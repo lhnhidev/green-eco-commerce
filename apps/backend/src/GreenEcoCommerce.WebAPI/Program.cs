@@ -9,8 +9,10 @@ using GreenEcoCommerce.Application.Features.Auth.Commands;
 using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Interfaces.Configuration;
+using GreenEcoCommerce.Application.Interfaces.Environment;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
+using GreenEcoCommerce.Application.Interfaces.Storage;
 using GreenEcoCommerce.Domain.Interfaces;
 using GreenEcoCommerce.Infrastructure.Caching;
 using GreenEcoCommerce.Infrastructure.ChatbotServices;
@@ -19,6 +21,8 @@ using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
+using GreenEcoCommerce.Infrastructure.Storage;
+using GreenEcoCommerce.WebAPI;
 using GreenEcoCommerce.WebAPI.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -181,6 +185,10 @@ builder.AddNpgsqlDbContext<ApplicationDbContext>(
 builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>(provider =>
         provider.GetRequiredService<ApplicationDbContext>());
 
+builder.Services.AddSingleton<IApplicationEnvironment, ApplicationEnvironment>();
+builder.Services.AddSingleton<IAIService, AIService>();
+builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
+
 // Đăng ký dịch vụ Redis Distributed Cache của Microsoft
 builder.AddRedisDistributedCache("cache");
 
@@ -207,6 +215,8 @@ builder.Services.AddProblemDetails();
 
 // Đăng ký DI
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ISocialAuthService, SocialAuthService>();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();

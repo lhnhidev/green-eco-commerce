@@ -89,6 +89,24 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         return TypedResults.Ok(response.UserProfile);
     }
 
+    [HttpPost("google", Name = nameof(GoogleLogin))]
+    public async Task<Results<Ok<UserProfileDto>, BadRequest<ProblemDetails>>> GoogleLogin(GoogleLoginCommand command)
+    {
+        var response = await sender.Send(command);
+        SetTokenCookie(response.Token, TokenType.AccessToken);
+        SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
+        return TypedResults.Ok(response.UserProfile);
+    }
+
+    [HttpPost("facebook", Name = nameof(FacebookLogin))]
+    public async Task<Results<Ok<UserProfileDto>, BadRequest<ProblemDetails>>> FacebookLogin(FacebookLoginCommand command)
+    {
+        var response = await sender.Send(command);
+        SetTokenCookie(response.Token, TokenType.AccessToken);
+        SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
+        return TypedResults.Ok(response.UserProfile);
+    }
+
     [HttpPost("logout", Name = nameof(Logout))]
     [Authorize]
     public async Task<Results<NoContent, BadRequest<ProblemDetails>>> Logout()
