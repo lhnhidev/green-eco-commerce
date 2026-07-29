@@ -3,16 +3,16 @@ import cartReducer from '@components/features/cart/cart.slice'
 import chatbotReducer from '@components/features/chatbot/chatbot.slice'
 import compareReducer from '@components/features/compare/compare.slice'
 import theNavigationReducer from '@components/features/navigation/navigation.slice'
-import imgSliderReducer from '@components/ui/img-slider/img-slider.slice'
+import recentlyViewedReducer from '@components/features/products/recentlyViewed.slice'
 import { configureStore } from '@reduxjs/toolkit'
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    imgSlider: imgSliderReducer,
     chatbot: chatbotReducer,
     cart: cartReducer,
     compare: compareReducer,
+    recentlyViewed: recentlyViewedReducer,
     theNavigation: theNavigationReducer,
   },
 })
