@@ -1,52 +1,31 @@
 import { Button } from '@mantine/core'
 import { Link } from 'react-router'
-import { ImageWithFallback } from '../status/ImageWithFallback'
 
-const HeroSection = () => {
-  return (
-    <section className="plant-gradient py-16 md:py-24">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <h1 className="text-4xl md:text-6xl font-bold text-primary">
-              Essentials that breathe
-              <br />
-              <span className="text-green-600 italic">with the planet.</span>
-            </h1>
-            <p className="text-lg text-gray-500 max-w-md">
-              Curating high-quality, sustainable alternatives for your everyday life. Transparent sourcing, plastic-free
-              shipping, and a commitment to longevity.
-            </p>
-            <div className="flex gap-4">
-              <Link to="/products">
-                <Button size="lg" radius="xl" color="primary.8" className="transition-all hover:scale-105">
-                  Shop Sustainably
-                </Button>
-              </Link>
-              <Link to="/products">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  radius="xl"
-                  color="primary.8"
-                  className="transition-all hover:scale-105"
-                >
-                  Our Impact Report
-                </Button>
-              </Link>
-            </div>
-          </div>
-          <div className="relative">
-            <ImageWithFallback
-              src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=600&h=600&fit=crop"
-              alt="Sustainable and eco-friendly products"
-              className="rounded-2xl w-full h-100 object-cover plant-shadow"
-            />
-          </div>
-        </div>
+const HeroSection = () => (
+  <section className="plant-gradient py-6">
+    <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-center md:text-left">
+      <div>
+        <h1 className="text-xl md:text-2xl font-bold text-primary leading-tight">
+          Essentials that breathe <span className="text-green-600 italic">with the planet.</span>
+        </h1>
+        <p className="text-sm text-gray-500 mt-1">
+          Transparent sourcing, plastic-free shipping, and a commitment to longevity.
+        </p>
       </div>
-    </section>
-  )
-}
+      <div className="flex gap-3 shrink-0">
+        <Link to="/products">
+          <Button size="sm" radius="xl" color="primary" className="transition-all hover:scale-105">
+            Shop Sustainably
+          </Button>
+        </Link>
+        <Link to="/about#impact">
+          <Button variant="outline" size="sm" radius="xl" color="primary" className="transition-all hover:scale-105">
+            Our Impact Report
+          </Button>
+        </Link>
+      </div>
+    </div>
+  </section>
+)
 
 export default HeroSection

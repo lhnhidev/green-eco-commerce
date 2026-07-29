@@ -1,8 +1,14 @@
+import { useGetAllCategories } from '@api'
 import { LeafIcon } from '@phosphor-icons/react'
-import { useNavigate } from 'react-router'
+import { Link } from 'react-router'
 
 const Footer = () => {
-  const navigate = useNavigate()
+  const { data: categories } = useGetAllCategories()
+
+  const topCategories = [...(categories ?? [])]
+    .filter((c) => !c.parentId)
+    .sort((a, b) => b.productCount - a.productCount)
+    .slice(0, 3)
 
   return (
     <footer className="bg-primary text-white py-12">
@@ -21,40 +27,30 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Shop</h4>
             <ul className="space-y-2 text-sm text-white/80">
               <li>
-                <button type="button" onClick={() => navigate('/products')}>
-                  All Products
-                </button>
+                <Link to="/products">All Products</Link>
               </li>
-              <li>
-                <button type="button" onClick={() => navigate('/products')}>
-                  Zero Waste
-                </button>
-              </li>
-              <li>
-                <button type="button" onClick={() => navigate('/products')}>
-                  Home Essentials
-                </button>
-              </li>
-              <li>
-                <button type="button" onClick={() => navigate('/products')}>
-                  Personal Care
-                </button>
-              </li>
+              {topCategories.map((category) => (
+                <li key={category.id}>
+                  <Link to={`/products?categoryId=${category.id}`}>{category.name}</Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div>
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2 text-sm text-white/80">
               <li>
-                <button type="button" onClick={() => navigate('/products')}>
-                  Sustainability Guide
-                </button>
+                <Link to="/about">Sustainability Guide</Link>
+              </li>
+              <li>
+                <Link to="/faq">FAQ</Link>
+              </li>
+              <li>
+                <Link to="/contact">Contact</Link>
               </li>
               <li>
                 <a href="mailto:support@greencart.com">Feedback</a>
               </li>
-              <li>FAQ</li>
-              <li>Contact</li>
             </ul>
           </div>
           <div>
@@ -67,7 +63,7 @@ const Footer = () => {
           </div>
         </div>
         <div className="border-t border-white/20 mt-8 pt-8 text-center text-sm text-white/60">
-          © 2025 GreenCart. All rights reserved.
+          © {new Date().getFullYear()} GreenCart. All rights reserved.
         </div>
       </div>
     </footer>

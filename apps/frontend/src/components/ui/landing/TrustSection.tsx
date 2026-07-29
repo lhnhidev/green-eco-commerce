@@ -6,7 +6,7 @@ const TrustSection = () => {
       id: '1',
       icon: TruckIcon,
       title: 'Free Delivery',
-      description: 'Free shipping on orders over $50',
+      description: 'Free shipping on every order',
     },
     {
       id: '2',
@@ -19,7 +19,7 @@ const TrustSection = () => {
       icon: HeadsetIcon,
 
       title: 'Expert Support',
-      description: '24/7 expert eco-living guidance',
+      description: 'Real humans, Mon–Fri 9AM–6PM EST',
     },
     {
       id: '4',
