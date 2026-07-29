@@ -2,8 +2,8 @@ import { getGetAllCategoriesQueryKey, useCreateCategory, useGetAllCategories } f
 import { ActionIcon, Button, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { FiArrowLeft } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router'
 
 const CategoryCreate = () => {
@@ -58,7 +58,7 @@ const CategoryCreate = () => {
     <div className="w-full max-w-2xl mx-auto h-full">
       <div className="flex items-center gap-4 mb-6">
         <ActionIcon component={Link} to="/admin/category" variant="light" color="gray" radius="xl" size="lg">
-          <FiArrowLeft />
+          <ArrowLeftIcon />
         </ActionIcon>
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">Add New Category</h1>

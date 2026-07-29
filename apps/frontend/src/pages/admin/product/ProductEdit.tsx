@@ -5,12 +5,13 @@ import {
   useGetProductById,
   useUpdateProduct,
 } from '@api'
+import { MultiImageDropzone } from '@components/features/upload/ImageDropzone'
 import { ActionIcon, Button, MultiSelect, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
-import { FiArrowLeft } from 'react-icons/fi'
 import { Link, useNavigate, useParams } from 'react-router'
 
 const ProductEdit = () => {
@@ -113,7 +114,7 @@ const ProductEdit = () => {
     <div className="w-full max-w-2xl mx-auto h-full">
       <div className="flex items-center gap-4 mb-6">
         <ActionIcon component={Link} to="/admin/product" variant="light" color="gray" radius="xl" size="lg">
-          <FiArrowLeft />
+          <ArrowLeftIcon />
         </ActionIcon>
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">Edit Product</h1>
@@ -157,6 +158,12 @@ const ProductEdit = () => {
             data={materialOptions}
             searchable
             {...form.getInputProps('materialIds')}
+          />
+
+          <MultiImageDropzone
+            label="Product Images"
+            value={form.values.imageUrl}
+            onChange={(urls) => form.setFieldValue('imageUrl', urls)}
           />
 
           <div className="grid grid-cols-2 gap-6">

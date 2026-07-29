@@ -15,13 +15,16 @@ import ProductList from '@pages/admin/product/ProductList'
 import ReviewList from '@pages/admin/review/ReviewList'
 import UserList from '@pages/admin/user/UserList'
 import AuthPage from '@pages/client/AuthPage'
+import ComparePage from '@pages/client/Compare/ComparePage'
 import { HomePage } from '@pages/client/HomePage'
 import MyOrdersPage from '@pages/client/Order/MyOrdersPage'
+import OrderDetailPage from '@pages/client/Order/OrderDetailPage'
 import PaymentPage from '@pages/client/Payment/PaymentPage'
 import ProductDetailPage from '@pages/client/Product/ProductDetailPage'
 import ProductPage from '@pages/client/Product/ProductPage'
 import ProfilePage from '@pages/client/Profile/ProfilePage'
 import GreenWalletPage from '@pages/client/Wallet/GreenWalletPage'
+import WishlistPage from '@pages/client/Wishlist/WishlistPage'
 import { createBrowserRouter } from 'react-router'
 
 export const router = createBrowserRouter([
@@ -75,66 +78,21 @@ export const router = createBrowserRouter([
     path: '/admin',
     element: <RootLayoutAdmin />,
     children: [
-      {
-        path: 'dashboard',
-        element: <Dashboard />,
-      },
-      {
-        path: 'product',
-        element: <ProductList />,
-      },
-      {
-        path: 'product/create',
-        element: <ProductCreate />,
-      },
-      {
-        path: 'product/:id/edit',
-        element: <ProductEdit />,
-      },
-      {
-        path: 'category',
-        element: <CategoryList />,
-      },
-      {
-        path: 'category/create',
-        element: <CategoryCreate />,
-      },
-      {
-        path: 'material',
-        element: <MaterialList />,
-      },
-      {
-        path: 'material/create',
-        element: <MaterialCreate />,
-      },
-      {
-        path: 'order',
-        element: <OrderList />,
-      },
-      {
-        path: 'user',
-        element: <UserList />,
-      },
-      {
-        path: 'banner',
-        element: <BannerList />,
-      },
-      {
-        path: 'review',
-        element: <ReviewList />,
-      },
-      {
-        path: 'coupon',
-        element: <CouponList />,
-      },
-      {
-        path: 'document',
-        element: <DocumentList />,
-      },
-      {
-        path: 'analyst',
-        element: <Dashboard />,
-      },
+      { path: 'dashboard', element: <Dashboard /> },
+      { path: 'product', element: <ProductList /> },
+      { path: 'product/create', element: <ProductCreate /> },
+      { path: 'product/:id/edit', element: <ProductEdit /> },
+      { path: 'category', element: <CategoryList /> },
+      { path: 'category/create', element: <CategoryCreate /> },
+      { path: 'material', element: <MaterialList /> },
+      { path: 'material/create', element: <MaterialCreate /> },
+      { path: 'order', element: <OrderList /> },
+      { path: 'user', element: <UserList /> },
+      { path: 'banner', element: <BannerList /> },
+      { path: 'review', element: <ReviewList /> },
+      { path: 'coupon', element: <CouponList /> },
+      { path: 'document', element: <DocumentList /> },
+      { path: 'analyst', element: <Dashboard /> },
     ],
   },
 ])

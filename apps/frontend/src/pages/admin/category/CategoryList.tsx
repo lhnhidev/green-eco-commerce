@@ -10,9 +10,9 @@ import { ActionIcon, Button, Modal, Table, Text, Textarea, TextInput } from '@ma
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { MagnifyingGlassIcon, NotePencilIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
 
 const CategoryList = () => {
@@ -167,7 +167,7 @@ const CategoryList = () => {
         <TextInput
           placeholder="Search categories..."
           size="xs"
-          leftSection={<FiSearch size={13} />}
+          leftSection={<MagnifyingGlassIcon size={13} />}
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
           w={220}
@@ -181,87 +181,89 @@ const CategoryList = () => {
           to="/admin/category/create"
           color="primary"
           size="xs"
-          leftSection={<FiPlus size={13} />}
+          leftSection={<PlusIcon size={13} />}
         >
           Add new category
         </Button>
       </div>
 
       <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <Table
-          verticalSpacing={6}
-          horizontalSpacing={8}
-          highlightOnHover
-          classNames={{
-            th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
-            td: '!text-[12px]',
-          }}
-        >
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th w={220}>Category name</Table.Th>
-              <Table.Th>Description</Table.Th>
-              <Table.Th w={160}>Parent</Table.Th>
-              <Table.Th w={90} ta="right">
-                Products
-              </Table.Th>
-              <Table.Th w={70} ta="right">
-                Actions
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <div className="overflow-x-auto">
+          <Table
+            verticalSpacing={6}
+            horizontalSpacing={8}
+            highlightOnHover
+            classNames={{
+              th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
+              td: '!text-[12px]',
+            }}
+          >
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={5}>
-                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading categories…</div>
-                </Table.Td>
+                <Table.Th w={220}>Category name</Table.Th>
+                <Table.Th>Description</Table.Th>
+                <Table.Th w={160}>Parent</Table.Th>
+                <Table.Th w={90} ta="right">
+                  Products
+                </Table.Th>
+                <Table.Th w={70} ta="right">
+                  Actions
+                </Table.Th>
               </Table.Tr>
-            ) : sortedCategories.length === 0 ? (
-              <Table.Tr>
-                <Table.Td colSpan={5}>
-                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No categories found.</div>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              sortedCategories.map((cat) => (
-                <Table.Tr key={cat.id}>
-                  <Table.Td className="font-medium!">
-                    {cat.parentId && <span className="text-[#d4d4d8] mr-1.5">└</span>}
-                    {cat.name}
-                  </Table.Td>
-                  <Table.Td className="text-muted-foreground!">{cat.description || '—'}</Table.Td>
-                  <Table.Td className="text-muted-foreground!">
-                    {cat.parentId ? (nameById.get(cat.parentId) ?? '—') : <span className="text-[#d4d4d8]">—</span>}
-                  </Table.Td>
-                  <Table.Td ta="right">{productCount.get(cat.id) ?? 0}</Table.Td>
-                  <Table.Td>
-                    <div className="flex gap-0.5 justify-end">
-                      <ActionIcon
-                        variant="subtle"
-                        color="gray"
-                        size="sm"
-                        onClick={() => handleEditClick(cat)}
-                        aria-label="Edit"
-                      >
-                        <FiEdit2 size={13} />
-                      </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        size="sm"
-                        onClick={() => handleDeleteClick(cat.id, cat.name)}
-                        aria-label="Delete"
-                      >
-                        <FiTrash2 size={13} />
-                      </ActionIcon>
-                    </div>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5}>
+                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading categories…</div>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ) : sortedCategories.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={5}>
+                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No categories found.</div>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                sortedCategories.map((cat) => (
+                  <Table.Tr key={cat.id}>
+                    <Table.Td className="font-medium!">
+                      {cat.parentId && <span className="text-[#d4d4d8] mr-1.5">└</span>}
+                      {cat.name}
+                    </Table.Td>
+                    <Table.Td className="text-muted-foreground!">{cat.description || '—'}</Table.Td>
+                    <Table.Td className="text-muted-foreground!">
+                      {cat.parentId ? (nameById.get(cat.parentId) ?? '—') : <span className="text-[#d4d4d8]">—</span>}
+                    </Table.Td>
+                    <Table.Td ta="right">{productCount.get(cat.id) ?? 0}</Table.Td>
+                    <Table.Td>
+                      <div className="flex gap-0.5 justify-end">
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          size="sm"
+                          onClick={() => handleEditClick(cat)}
+                          aria-label="Edit"
+                        >
+                          <NotePencilIcon size={13} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="sm"
+                          onClick={() => handleDeleteClick(cat.id, cat.name)}
+                          aria-label="Delete"
+                        >
+                          <TrashIcon size={13} />
+                        </ActionIcon>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </div>
       </div>
     </div>
   )

@@ -15,10 +15,10 @@ import {
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { CheckIcon, EyeSlashIcon, MagnifyingGlassIcon, StarIcon, TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
-import { FiCheck, FiEyeOff, FiSearch, FiStar, FiTrash2 } from 'react-icons/fi'
 
 const PAGE_SIZE = 20
 
@@ -34,7 +34,7 @@ const STATUS_OPTIONS = [
 const StarRating = ({ rating }: { rating: number }) => (
   <div className="flex items-center gap-0.5">
     {[1, 2, 3, 4, 5].map((s) => (
-      <FiStar
+      <StarIcon
         key={s}
         size={11}
         className={s <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'}
@@ -127,7 +127,7 @@ const ReviewList = () => {
         <TextInput
           placeholder="Search by reviewer or comment..."
           size="xs"
-          leftSection={<FiSearch size={13} />}
+          leftSection={<MagnifyingGlassIcon size={13} />}
           value={search}
           onChange={(e) => {
             setSearch(e.currentTarget.value)
@@ -149,115 +149,117 @@ const ReviewList = () => {
       </div>
 
       <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <Table
-          verticalSpacing={6}
-          horizontalSpacing={8}
-          highlightOnHover
-          classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
-            td: '!text-[12px]',
-          }}
-        >
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th w={140}>Reviewer</Table.Th>
-              <Table.Th w={90}>Rating</Table.Th>
-              <Table.Th>Comment</Table.Th>
-              <Table.Th w={90}>Status</Table.Th>
-              <Table.Th w={100}>Date</Table.Th>
-              <Table.Th w={90} ta="right">
-                Actions
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <div className="overflow-x-auto">
+          <Table
+            verticalSpacing={6}
+            horizontalSpacing={8}
+            highlightOnHover
+            classNames={{
+              th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
+              td: '!text-[12px]',
+            }}
+          >
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={6}>
-                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading reviews…</div>
-                </Table.Td>
+                <Table.Th w={140}>Reviewer</Table.Th>
+                <Table.Th w={90}>Rating</Table.Th>
+                <Table.Th>Comment</Table.Th>
+                <Table.Th w={90}>Status</Table.Th>
+                <Table.Th w={100}>Date</Table.Th>
+                <Table.Th w={90} ta="right">
+                  Actions
+                </Table.Th>
               </Table.Tr>
-            ) : paged.length === 0 ? (
-              <Table.Tr>
-                <Table.Td colSpan={6}>
-                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No reviews found.</div>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              paged.map((r) => {
-                const isActing = approvingVar?.id === r.id || hidingVar?.id === r.id
-                return (
-                  <Table.Tr key={r.id}>
-                    <Table.Td className="!font-medium">{r.userName}</Table.Td>
-                    <Table.Td>
-                      <StarRating rating={r.rating} />
-                    </Table.Td>
-                    <Table.Td className="!text-muted-foreground max-w-xs truncate">{r.comment}</Table.Td>
-                    <Table.Td>
-                      {r.isHidden ? (
-                        <Badge size="xs" color="red" variant="light">
-                          Hidden
-                        </Badge>
-                      ) : r.isApproved ? (
-                        <Badge size="xs" color="green" variant="light">
-                          Approved
-                        </Badge>
-                      ) : (
-                        <Badge size="xs" color="gray" variant="light">
-                          Pending
-                        </Badge>
-                      )}
-                    </Table.Td>
-                    <Table.Td className="!text-muted-foreground">{dayjs(r.createdAt).format('DD/MM/YYYY')}</Table.Td>
-                    <Table.Td>
-                      <div className="flex items-center justify-end gap-1">
-                        {!r.isApproved && (
-                          <Tooltip label="Approve" withArrow>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={6}>
+                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading reviews…</div>
+                  </Table.Td>
+                </Table.Tr>
+              ) : paged.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={6}>
+                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No reviews found.</div>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                paged.map((r) => {
+                  const isActing = approvingVar?.id === r.id || hidingVar?.id === r.id
+                  return (
+                    <Table.Tr key={r.id}>
+                      <Table.Td className="font-medium!">{r.userName}</Table.Td>
+                      <Table.Td>
+                        <StarRating rating={r.rating} />
+                      </Table.Td>
+                      <Table.Td className="text-muted-foreground! max-w-xs truncate">{r.comment}</Table.Td>
+                      <Table.Td>
+                        {r.isHidden ? (
+                          <Badge size="xs" color="red" variant="light">
+                            Hidden
+                          </Badge>
+                        ) : r.isApproved ? (
+                          <Badge size="xs" color="green" variant="light">
+                            Approved
+                          </Badge>
+                        ) : (
+                          <Badge size="xs" color="gray" variant="light">
+                            Pending
+                          </Badge>
+                        )}
+                      </Table.Td>
+                      <Table.Td className="text-muted-foreground!">{dayjs(r.createdAt).format('DD/MM/YYYY')}</Table.Td>
+                      <Table.Td>
+                        <div className="flex items-center justify-end gap-1">
+                          {!r.isApproved && (
+                            <Tooltip label="Approve" withArrow>
+                              <ActionIcon
+                                variant="subtle"
+                                color="green"
+                                size="sm"
+                                loading={isActing}
+                                onClick={() => approve({ id: r.id })}
+                              >
+                                <CheckIcon size={13} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                          {!r.isHidden && (
+                            <Tooltip label="Hide" withArrow>
+                              <ActionIcon
+                                variant="subtle"
+                                color="yellow"
+                                size="sm"
+                                loading={isActing}
+                                onClick={() => hide({ id: r.id })}
+                              >
+                                <EyeSlashIcon size={13} />
+                              </ActionIcon>
+                            </Tooltip>
+                          )}
+                          <Tooltip label="Delete" withArrow>
                             <ActionIcon
                               variant="subtle"
-                              color="green"
+                              color="red"
                               size="sm"
-                              loading={isActing}
-                              onClick={() => approve({ id: r.id })}
+                              onClick={() => {
+                                setDeleteTarget(r)
+                                openDelete()
+                              }}
                             >
-                              <FiCheck size={13} />
+                              <TrashIcon size={13} />
                             </ActionIcon>
                           </Tooltip>
-                        )}
-                        {!r.isHidden && (
-                          <Tooltip label="Hide" withArrow>
-                            <ActionIcon
-                              variant="subtle"
-                              color="yellow"
-                              size="sm"
-                              loading={isActing}
-                              onClick={() => hide({ id: r.id })}
-                            >
-                              <FiEyeOff size={13} />
-                            </ActionIcon>
-                          </Tooltip>
-                        )}
-                        <Tooltip label="Delete" withArrow>
-                          <ActionIcon
-                            variant="subtle"
-                            color="red"
-                            size="sm"
-                            onClick={() => {
-                              setDeleteTarget(r)
-                              openDelete()
-                            }}
-                          >
-                            <FiTrash2 size={13} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </div>
-                    </Table.Td>
-                  </Table.Tr>
-                )
-              })
-            )}
-          </Table.Tbody>
-        </Table>
+                        </div>
+                      </Table.Td>
+                    </Table.Tr>
+                  )
+                })
+              )}
+            </Table.Tbody>
+          </Table>
+        </div>
       </div>
 
       {totalPages > 1 && (

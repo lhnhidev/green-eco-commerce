@@ -1,9 +1,10 @@
 import { getGetAllProductsQueryKey, useCreateProduct, useGetAllCategories, useGetAllMaterials } from '@api'
+import { MultiImageDropzone } from '@components/features/upload/ImageDropzone'
 import { ActionIcon, Button, MultiSelect, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { ArrowLeftIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
-import { FiArrowLeft } from 'react-icons/fi'
 import { Link, useNavigate } from 'react-router'
 
 const ProductCreate = () => {
@@ -76,7 +77,7 @@ const ProductCreate = () => {
     <div className="w-full max-w-2xl mx-auto h-full">
       <div className="flex items-center gap-4 mb-6">
         <ActionIcon component={Link} to="/admin/product" variant="light" color="gray" radius="xl" size="lg">
-          <FiArrowLeft />
+          <ArrowLeftIcon />
         </ActionIcon>
         <div>
           <h1 className="text-2xl font-semibold text-gray-800">Add New Product</h1>
@@ -120,6 +121,12 @@ const ProductCreate = () => {
             data={materialOptions}
             searchable
             {...form.getInputProps('materialIds')}
+          />
+
+          <MultiImageDropzone
+            label="Product Images"
+            value={form.values.imageUrl}
+            onChange={(urls) => form.setFieldValue('imageUrl', urls)}
           />
 
           <div className="grid grid-cols-2 gap-6">

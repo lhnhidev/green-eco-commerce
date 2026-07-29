@@ -4,9 +4,9 @@ import Loading from '@components/ui/status/Loading'
 import { ActionIcon, Badge, Button, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { MagnifyingGlassIcon, NotePencilIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { FiEdit2, FiPlus, FiSearch, FiTrash2 } from 'react-icons/fi'
 import { Link } from 'react-router'
 
 const typeOptions = Object.values(MaterialTypeEnum).map((t) => ({ value: t, label: t }))
@@ -118,7 +118,7 @@ const MaterialList = () => {
               {stats.avgEco}
               <span className="text-[12px] font-medium text-muted-foreground">/100</span>
             </p>
-            <div className="flex-1 h-[5px] rounded-full bg-[#f4f4f5] overflow-hidden">
+            <div className="flex-1 h-1.25 rounded-full bg-[#f4f4f5] overflow-hidden">
               <div className="h-full bg-primary rounded-full" style={{ width: `${stats.avgEco}%` }} />
             </div>
           </div>
@@ -129,7 +129,7 @@ const MaterialList = () => {
         <TextInput
           placeholder="Search materials..."
           size="xs"
-          leftSection={<FiSearch size={13} />}
+          leftSection={<MagnifyingGlassIcon size={13} />}
           value={search}
           onChange={(e) => setSearch(e.currentTarget.value)}
           w={220}
@@ -143,82 +143,90 @@ const MaterialList = () => {
           to="/admin/material/create"
           color="primary"
           size="xs"
-          leftSection={<FiPlus size={13} />}
+          leftSection={<PlusIcon size={13} />}
         >
           Add new material
         </Button>
       </div>
 
       <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <Table
-          verticalSpacing={6}
-          horizontalSpacing={8}
-          highlightOnHover
-          classNames={{
-            th: 'text-[11px]! font-semibold! uppercase! tracking-[0.04em]! text-muted-foreground! bg-[#fafafa]!',
-            td: 'text-[12px]!',
-          }}
-        >
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Material</Table.Th>
-              <Table.Th w={140}>Type</Table.Th>
-              <Table.Th w={200}>Eco rating</Table.Th>
-              <Table.Th w={70} ta="right">
-                Actions
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {filtered.length === 0 ? (
+        <div className="overflow-x-auto">
+          <Table
+            verticalSpacing={6}
+            horizontalSpacing={8}
+            highlightOnHover
+            classNames={{
+              th: 'text-[11px]! font-semibold! uppercase! tracking-[0.04em]! text-muted-foreground! bg-[#fafafa]!',
+              td: 'text-[12px]!',
+            }}
+          >
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={4}>
-                  <p className="text-center text-[12px] text-[#a1a1aa] py-8">No materials found.</p>
-                </Table.Td>
+                <Table.Th>Material</Table.Th>
+                <Table.Th w={140}>Type</Table.Th>
+                <Table.Th w={200}>Eco rating</Table.Th>
+                <Table.Th w={70} ta="right">
+                  Actions
+                </Table.Th>
               </Table.Tr>
-            ) : (
-              filtered.map((m) => (
-                <Table.Tr key={m.id}>
-                  <Table.Td className="font-medium!">{m.name}</Table.Td>
-                  <Table.Td>
-                    <Badge size="xs" variant="light" color="primary" radius="xl">
-                      {m.type}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 max-w-[120px] h-[5px] rounded-full bg-[#f4f4f5] overflow-hidden">
-                        <div
-                          className="h-full bg-primary rounded-full"
-                          style={{ width: `${Math.min(Number(m.ecoRating), 100)}%` }}
-                        />
-                      </div>
-                      <span className="text-[11px] text-muted-foreground whitespace-nowrap">
-                        {Number(m.ecoRating)}/100
-                      </span>
-                    </div>
-                  </Table.Td>
-                  <Table.Td>
-                    <div className="flex gap-0.5 justify-end">
-                      <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(m)} aria-label="Edit">
-                        <FiEdit2 size={13} />
-                      </ActionIcon>
-                      <ActionIcon
-                        variant="subtle"
-                        color="red"
-                        size="sm"
-                        onClick={() => setDeleting(m)}
-                        aria-label="Delete"
-                      >
-                        <FiTrash2 size={13} />
-                      </ActionIcon>
-                    </div>
+            </Table.Thead>
+            <Table.Tbody>
+              {filtered.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={4}>
+                    <p className="text-center text-[12px] text-[#a1a1aa] py-8">No materials found.</p>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ) : (
+                filtered.map((m) => (
+                  <Table.Tr key={m.id}>
+                    <Table.Td className="font-medium!">{m.name}</Table.Td>
+                    <Table.Td>
+                      <Badge size="xs" variant="light" color="primary" radius="xl">
+                        {m.type}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 max-w-30 h-1.25 rounded-full bg-[#f4f4f5] overflow-hidden">
+                          <div
+                            className="h-full bg-primary rounded-full"
+                            style={{ width: `${Math.min(Number(m.ecoRating), 100)}%` }}
+                          />
+                        </div>
+                        <span className="text-[11px] text-muted-foreground whitespace-nowrap">
+                          {Number(m.ecoRating)}/100
+                        </span>
+                      </div>
+                    </Table.Td>
+                    <Table.Td>
+                      <div className="flex gap-0.5 justify-end">
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          size="sm"
+                          onClick={() => openEdit(m)}
+                          aria-label="Edit"
+                        >
+                          <NotePencilIcon size={13} />
+                        </ActionIcon>
+                        <ActionIcon
+                          variant="subtle"
+                          color="red"
+                          size="sm"
+                          onClick={() => setDeleting(m)}
+                          aria-label="Delete"
+                        >
+                          <TrashIcon size={13} />
+                        </ActionIcon>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </div>
       </div>
 
       <Modal opened={editing !== null} onClose={closeEdit} title="Edit material" centered size="sm">

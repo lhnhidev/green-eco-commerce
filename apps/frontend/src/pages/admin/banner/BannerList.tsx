@@ -1,12 +1,14 @@
 import { getGetAllBannersQueryKey, useCreateBanner, useDeleteBanner, useGetAllBanners, useUpdateBanner } from '@api'
 import type { BannerDto } from '@api/schemas'
+import { ImageDropzone } from '@components/features/upload/ImageDropzone'
 import { ActionIcon, Badge, Button, NumberInput, Switch, Table, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { LinkIcon, NotePencilIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { FiEdit2, FiExternalLink, FiPlus, FiTrash2 } from 'react-icons/fi'
 
 interface BannerForm {
   title: string
@@ -120,7 +122,7 @@ const BannerList = () => {
           <h1 className="text-xl font-bold text-gray-800">Banner Management</h1>
           <p className="text-[13px] text-muted-foreground mt-0.5">Manage homepage promotional banners</p>
         </div>
-        <Button size="sm" color="primary" leftSection={<FiPlus size={14} />} onClick={openCreate}>
+        <Button size="sm" color="primary" leftSection={<PlusIcon size={14} />} onClick={openCreate}>
           Add Banner
         </Button>
       </div>
@@ -145,14 +147,12 @@ const BannerList = () => {
               minRows={2}
               {...form.getInputProps('subtitle')}
             />
-            <TextInput label="Image URL" withAsterisk placeholder="https://..." {...form.getInputProps('imageUrl')} />
-            {form.values.imageUrl && (
-              <img
-                src={form.values.imageUrl}
-                alt="preview"
-                className="h-32 w-full object-cover rounded-xl border border-green-200"
-              />
-            )}
+            <ImageDropzone
+              label="Banner Image"
+              value={form.values.imageUrl}
+              onChange={(url) => form.setFieldValue('imageUrl', url)}
+            />
+            {form.errors.imageUrl && <p className="text-xs text-red-500">{form.errors.imageUrl}</p>}
             <div className="flex items-center gap-4">
               <NumberInput label="Sort Order" min={1} w={120} {...form.getInputProps('sortOrder')} />
               <div className="mt-6">
@@ -185,89 +185,97 @@ const BannerList = () => {
 
       {/* Table */}
       <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <Table highlightOnHover>
-          <Table.Thead className="bg-gray-50 border-b border-[#ececee]">
-            <Table.Tr>
-              <Table.Th className="!text-[11px] !font-semibold !text-gray-500 !uppercase !tracking-wide">
-                Preview
-              </Table.Th>
-              <Table.Th className="!text-[11px] !font-semibold !text-gray-500 !uppercase !tracking-wide">
-                Title
-              </Table.Th>
-              <Table.Th className="!text-[11px] !font-semibold !text-gray-500 !uppercase !tracking-wide">Link</Table.Th>
-              <Table.Th className="!text-[11px] !font-semibold !text-gray-500 !uppercase !tracking-wide">
-                Order
-              </Table.Th>
-              <Table.Th className="!text-[11px] !font-semibold !text-gray-500 !uppercase !tracking-wide">
-                Status
-              </Table.Th>
-              <Table.Th className="!text-[11px] !font-semibold !text-gray-500 !uppercase !tracking-wide">
-                Created
-              </Table.Th>
-              <Table.Th />
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <div className="overflow-x-auto">
+          <Table highlightOnHover>
+            <Table.Thead className="bg-gray-50 border-b border-[#ececee]">
               <Table.Tr>
-                <Table.Td colSpan={7} className="text-center py-8 text-gray-400">
-                  Loading…
-                </Table.Td>
+                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
+                  Preview
+                </Table.Th>
+                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
+                  Title
+                </Table.Th>
+                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
+                  Link
+                </Table.Th>
+                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
+                  Order
+                </Table.Th>
+                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
+                  Status
+                </Table.Th>
+                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
+                  Created
+                </Table.Th>
+                <Table.Th />
               </Table.Tr>
-            ) : banners.length === 0 ? (
-              <Table.Tr>
-                <Table.Td colSpan={7} className="text-center py-8 text-gray-400">
-                  No banners yet. Click "Add Banner" to create one.
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              banners.map((b) => (
-                <Table.Tr key={b.id}>
-                  <Table.Td>
-                    <img src={b.imageUrl} alt={b.title} className="w-20 h-12 object-cover rounded-md bg-gray-100" />
-                  </Table.Td>
-                  <Table.Td>
-                    <div className="font-semibold text-sm text-gray-800">{b.title}</div>
-                    {b.subtitle && <div className="text-xs text-gray-400 truncate max-w-48">{b.subtitle}</div>}
-                  </Table.Td>
-                  <Table.Td>
-                    {b.linkUrl ? (
-                      <a
-                        href={b.linkUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex items-center gap-1 text-xs text-primary hover:underline"
-                      >
-                        <FiExternalLink size={12} /> {b.linkUrl}
-                      </a>
-                    ) : (
-                      <span className="text-xs text-gray-400">—</span>
-                    )}
-                  </Table.Td>
-                  <Table.Td className="!text-sm !font-semibold text-center">{b.sortOrder}</Table.Td>
-                  <Table.Td>
-                    <Badge size="xs" radius="sm" color={b.isActive ? 'green' : 'gray'} variant="light">
-                      {b.isActive ? 'Active' : 'Inactive'}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td className="!text-xs !text-muted-foreground">
-                    {dayjs(b.createdAt).format('DD MMM YYYY')}
-                  </Table.Td>
-                  <Table.Td>
-                    <div className="flex items-center gap-1">
-                      <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(b)}>
-                        <FiEdit2 size={14} />
-                      </ActionIcon>
-                      <ActionIcon variant="subtle" color="red" size="sm" onClick={() => remove({ id: b.id })}>
-                        <FiTrash2 size={14} />
-                      </ActionIcon>
-                    </div>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={7} className="text-center py-8 text-gray-400">
+                    Loading…
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ) : banners.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={7} className="text-center py-8 text-gray-400">
+                    No banners yet. Click "Add Banner" to create one.
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                banners.map((b) => (
+                  <Table.Tr key={b.id}>
+                    <Table.Td>
+                      <img
+                        src={resolveImageUrl(b.imageUrl)}
+                        alt={b.title}
+                        className="w-20 h-12 object-cover rounded-md bg-gray-100"
+                      />
+                    </Table.Td>
+                    <Table.Td>
+                      <div className="font-semibold text-sm text-gray-800">{b.title}</div>
+                      {b.subtitle && <div className="text-xs text-gray-400 truncate max-w-48">{b.subtitle}</div>}
+                    </Table.Td>
+                    <Table.Td>
+                      {b.linkUrl ? (
+                        <a
+                          href={b.linkUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-1 text-xs text-primary hover:underline"
+                        >
+                          <LinkIcon size={12} /> {b.linkUrl}
+                        </a>
+                      ) : (
+                        <span className="text-xs text-gray-400">—</span>
+                      )}
+                    </Table.Td>
+                    <Table.Td className="text-sm! font-semibold! text-center">{b.sortOrder}</Table.Td>
+                    <Table.Td>
+                      <Badge size="xs" radius="sm" color={b.isActive ? 'green' : 'gray'} variant="light">
+                        {b.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td className="text-xs! text-muted-foreground!">
+                      {dayjs(b.createdAt).format('DD MMM YYYY')}
+                    </Table.Td>
+                    <Table.Td>
+                      <div className="flex items-center gap-1">
+                        <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(b)}>
+                          <NotePencilIcon size={14} />
+                        </ActionIcon>
+                        <ActionIcon variant="subtle" color="red" size="sm" onClick={() => remove({ id: b.id })}>
+                          <TrashIcon size={14} />
+                        </ActionIcon>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </div>
       </div>
     </div>
   )

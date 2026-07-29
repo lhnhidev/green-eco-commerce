@@ -18,10 +18,10 @@ import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
+import { NotePencilIcon, PlusIcon, TagIcon, TrashIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
-import { FiEdit2, FiPlus, FiTag, FiTrash2 } from 'react-icons/fi'
 
 type CouponForm = {
   code: string
@@ -141,7 +141,7 @@ const CouponList = () => {
         onClose={closeModal}
         title={
           <div className="flex items-center gap-2">
-            <FiTag size={16} className="text-primary" />
+            <TagIcon size={16} className="text-primary" />
             <span>{editTarget ? 'Edit Coupon' : 'New Coupon'}</span>
           </div>
         }
@@ -216,116 +216,120 @@ const CouponList = () => {
 
       <div className="flex items-center justify-between mb-2.5">
         <span className="text-[11px] text-muted-foreground">{coupons.length} coupons total</span>
-        <Button size="xs" leftSection={<FiPlus size={13} />} color="primary" onClick={openCreate}>
+        <Button size="xs" leftSection={<PlusIcon size={13} />} color="primary" onClick={openCreate}>
           New Coupon
         </Button>
       </div>
 
       <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <Table
-          verticalSpacing={6}
-          horizontalSpacing={8}
-          highlightOnHover
-          classNames={{
-            th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
-            td: '!text-[12px]',
-          }}
-        >
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th w={110}>Code</Table.Th>
-              <Table.Th w={100}>Type</Table.Th>
-              <Table.Th w={90}>Value</Table.Th>
-              <Table.Th w={90}>Min Order</Table.Th>
-              <Table.Th w={80}>Usage</Table.Th>
-              <Table.Th w={130}>Expires</Table.Th>
-              <Table.Th w={80}>Status</Table.Th>
-              <Table.Th w={70} ta="right">
-                Actions
-              </Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
+        <div className="overflow-x-auto">
+          <Table
+            verticalSpacing={6}
+            horizontalSpacing={8}
+            highlightOnHover
+            classNames={{
+              th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
+              td: '!text-[12px]',
+            }}
+          >
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={8}>
-                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading coupons…</div>
-                </Table.Td>
+                <Table.Th w={110}>Code</Table.Th>
+                <Table.Th w={100}>Type</Table.Th>
+                <Table.Th w={90}>Value</Table.Th>
+                <Table.Th w={90}>Min Order</Table.Th>
+                <Table.Th w={80}>Usage</Table.Th>
+                <Table.Th w={130}>Expires</Table.Th>
+                <Table.Th w={80}>Status</Table.Th>
+                <Table.Th w={70} ta="right">
+                  Actions
+                </Table.Th>
               </Table.Tr>
-            ) : coupons.length === 0 ? (
-              <Table.Tr>
-                <Table.Td colSpan={8}>
-                  <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No coupons yet.</div>
-                </Table.Td>
-              </Table.Tr>
-            ) : (
-              coupons.map((c) => (
-                <Table.Tr key={c.id}>
-                  <Table.Td>
-                    <span className="font-mono font-bold text-primary">{c.code}</span>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge
-                      size="xs"
-                      variant="outline"
-                      color={c.discountType === CouponDiscountTypeEnum.Percent ? 'violet' : 'blue'}
-                      radius="sm"
-                    >
-                      {c.discountType === CouponDiscountTypeEnum.Percent ? 'Percent' : 'Fixed'}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td className="!font-semibold">
-                    {c.discountType === CouponDiscountTypeEnum.Percent ? `${c.discountValue}%` : `$${c.discountValue}`}
-                  </Table.Td>
-                  <Table.Td className="text-muted-foreground!">${c.minOrderAmount}</Table.Td>
-                  <Table.Td className="text-muted-foreground!">
-                    {c.usedCount}/{c.maxUses}
-                  </Table.Td>
-                  <Table.Td className={`text-muted-foreground! ${c.expiresAt >= new Date() ? 'text-red-400!' : ''}`}>
-                    {dayjs(c.expiresAt).format('DD/MM/YY HH:mm')}
-                  </Table.Td>
-                  <Table.Td>
-                    {c.expiresAt >= new Date() ? (
-                      <Badge size="xs" color="red" variant="light">
-                        Expired
-                      </Badge>
-                    ) : c.isActive ? (
-                      <Badge size="xs" color="green" variant="light">
-                        Active
-                      </Badge>
-                    ) : (
-                      <Badge size="xs" color="gray" variant="light">
-                        Disabled
-                      </Badge>
-                    )}
-                  </Table.Td>
-                  <Table.Td>
-                    <div className="flex items-center justify-end gap-1">
-                      <Tooltip label="Edit" withArrow>
-                        <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(c)}>
-                          <FiEdit2 size={13} />
-                        </ActionIcon>
-                      </Tooltip>
-                      <Tooltip label="Delete" withArrow>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size="sm"
-                          onClick={() => {
-                            setDeleteTarget(c)
-                            openDelete()
-                          }}
-                        >
-                          <FiTrash2 size={13} />
-                        </ActionIcon>
-                      </Tooltip>
-                    </div>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                <Table.Tr>
+                  <Table.Td colSpan={8}>
+                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading coupons…</div>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ) : coupons.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={8}>
+                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No coupons yet.</div>
+                  </Table.Td>
+                </Table.Tr>
+              ) : (
+                coupons.map((c) => (
+                  <Table.Tr key={c.id}>
+                    <Table.Td>
+                      <span className="font-mono font-bold text-primary">{c.code}</span>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge
+                        size="xs"
+                        variant="outline"
+                        color={c.discountType === CouponDiscountTypeEnum.Percent ? 'violet' : 'blue'}
+                        radius="sm"
+                      >
+                        {c.discountType === CouponDiscountTypeEnum.Percent ? 'Percent' : 'Fixed'}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td className="font-semibold!">
+                      {c.discountType === CouponDiscountTypeEnum.Percent
+                        ? `${c.discountValue}%`
+                        : `$${c.discountValue}`}
+                    </Table.Td>
+                    <Table.Td className="text-muted-foreground!">${c.minOrderAmount}</Table.Td>
+                    <Table.Td className="text-muted-foreground!">
+                      {c.usedCount}/{c.maxUses}
+                    </Table.Td>
+                    <Table.Td className={`text-muted-foreground! ${c.expiresAt >= new Date() ? 'text-red-400!' : ''}`}>
+                      {dayjs(c.expiresAt).format('DD/MM/YY HH:mm')}
+                    </Table.Td>
+                    <Table.Td>
+                      {c.expiresAt >= new Date() ? (
+                        <Badge size="xs" color="red" variant="light">
+                          Expired
+                        </Badge>
+                      ) : c.isActive ? (
+                        <Badge size="xs" color="green" variant="light">
+                          Active
+                        </Badge>
+                      ) : (
+                        <Badge size="xs" color="gray" variant="light">
+                          Disabled
+                        </Badge>
+                      )}
+                    </Table.Td>
+                    <Table.Td>
+                      <div className="flex items-center justify-end gap-1">
+                        <Tooltip label="Edit" withArrow>
+                          <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(c)}>
+                            <NotePencilIcon size={13} />
+                          </ActionIcon>
+                        </Tooltip>
+                        <Tooltip label="Delete" withArrow>
+                          <ActionIcon
+                            variant="subtle"
+                            color="red"
+                            size="sm"
+                            onClick={() => {
+                              setDeleteTarget(c)
+                              openDelete()
+                            }}
+                          >
+                            <TrashIcon size={13} />
+                          </ActionIcon>
+                        </Tooltip>
+                      </div>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
+        </div>
       </div>
     </div>
   )
