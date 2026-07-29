@@ -48,6 +48,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     // Notifications
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    // Address book
+    public DbSet<Address> Addresses => Set<Address>();
+
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
             Database.BeginTransactionAsync(ct);
 

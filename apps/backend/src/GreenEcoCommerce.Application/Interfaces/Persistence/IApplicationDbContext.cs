@@ -44,6 +44,9 @@ public interface IApplicationDbContext
     // Notifications
     DbSet<Notification> Notifications { get; }
 
+    // Address book
+    DbSet<Address> Addresses { get; }
+
     // Automatic transaction
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 
