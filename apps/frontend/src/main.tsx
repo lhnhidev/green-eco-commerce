@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { RouterProvider } from 'react-router/dom'
 import './index.css'
+import { GoogleOAuthProvider } from '@react-oauth/google'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import axios from 'axios'
 import { router } from '@/router'
@@ -67,13 +68,15 @@ const queryClient = new QueryClient({
 createRoot(document.getElementById('root')!).render(
   // <StrictMode>
   <QueryClientProvider client={queryClient}>
-    <Provider store={store}>
-      <AuthBootstrap />
-      <MantineProvider theme={theme}>
-        <Notifications position="bottom-right" />
-        <RouterProvider router={router} />
-      </MantineProvider>
-    </Provider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ''}>
+      <Provider store={store}>
+        <AuthBootstrap />
+        <MantineProvider theme={theme}>
+          <Notifications position="bottom-right" />
+          <RouterProvider router={router} />
+        </MantineProvider>
+      </Provider>
+    </GoogleOAuthProvider>
     {/* <ReactQueryDevtools initialIsOpen={false} position="bottom" /> */}
   </QueryClientProvider>,
   // </StrictMode>,
