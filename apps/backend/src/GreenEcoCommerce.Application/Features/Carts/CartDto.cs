@@ -41,7 +41,7 @@ public static partial class CartDtoMapper
     [MapValue(nameof(CartDto.PointsGained), 0)]
     public static partial CartDto ToDto(this Cart cart);
 
-    private static string MapImageUrlsToSingleImage(string[] imageUrls) => imageUrls.Length > 0 ? imageUrls[0] : string.Empty;
+    private static string MapImageUrlsToSingleImage(string[] imageUrls) => imageUrls.FirstOrDefault() ?? string.Empty;
 
     private static decimal MapProductToUnitCo2Saved(Product product) => product.BaselineCarbonIndex > product.CarbonIndex ? product.BaselineCarbonIndex - product.CarbonIndex : 0;
 
