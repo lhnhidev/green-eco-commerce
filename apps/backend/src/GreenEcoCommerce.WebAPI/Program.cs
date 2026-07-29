@@ -284,6 +284,7 @@ app.MapWishlistEndpoints();
 app.MapDocumentEndpoints();
 app.MapUploadEndpoints();
 app.MapNotificationEndpoints();
+app.MapAddressEndpoints();
 
 app.MapFallbackToFile("index.html");
 
