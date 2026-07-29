@@ -23,7 +23,7 @@ const HeroSection = () => {
                   Shop Sustainably
                 </Button>
               </Link>
-              <Link to="/remedies">
+              <Link to="/products">
                 <Button
                   variant="outline"
                   size="lg"

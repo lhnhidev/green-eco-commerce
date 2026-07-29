@@ -46,14 +46,12 @@ const Footer = () => {
             <h4 className="font-semibold mb-4">Support</h4>
             <ul className="space-y-2 text-sm text-white/80">
               <li>
-                <button type="button" onClick={() => navigate('/remedies')}>
+                <button type="button" onClick={() => navigate('/products')}>
                   Sustainability Guide
                 </button>
               </li>
               <li>
-                <button type="button" onClick={() => navigate('/feedback')}>
-                  Feedback
-                </button>
+                <a href="mailto:support@greencart.com">Feedback</a>
               </li>
               <li>FAQ</li>
               <li>Contact</li>
