@@ -38,6 +38,9 @@ public interface IApplicationDbContext
     DbSet<Coupon> Coupons { get; }
     DbSet<Banner> Banners { get; }
 
+    // Wishlist
+    DbSet<WishlistItem> WishlistItems { get; }
+
     // Automatic transaction
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 
