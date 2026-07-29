@@ -1,4 +1,5 @@
 ﻿using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 using MediatR;
 
@@ -14,6 +15,19 @@ public record UpdateOrderStatusCommand(Guid OrderId, OrderStatusEnum Status) : I
                         throw new KeyNotFoundException($"Order with ID {command.OrderId} not found.");
 
             order.Status = command.Status;
+
+            await dbContext.Notifications.AddAsync(
+                new Notification
+                {
+                    UserId = order.UserId,
+                    Title = "Order status updated",
+                    Message = $"Your order #{order.Id.ToString()[..8].ToUpperInvariant()} is now {command.Status}.",
+                    Type = NotificationTypeEnum.OrderUpdate,
+                    Link = $"/my-orders/{order.Id}",
+                    CreatedAt = DateTimeOffset.UtcNow
+                },
+                ct);
+
             await dbContext.SaveChangesAsync(ct);
         }
     }

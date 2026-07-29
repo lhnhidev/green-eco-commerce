@@ -32,6 +32,8 @@ using GreenEcoCommerce.WebAPI.Endpoints;
 using GreenEcoCommerce.WebAPI.OpenApi;
 using Microsoft.AspNetCore.OpenApi;
 
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
