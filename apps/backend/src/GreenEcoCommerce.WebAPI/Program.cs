@@ -175,6 +175,7 @@ builder.AddNpgsqlDbContext<ApplicationDbContext>(
         options.UseNpgsql(npgsqlOptions =>
         {
             npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
+            npgsqlOptions.UseVector();
         }).AddInterceptors(auditingInterceptor).UseExceptionProcessor();
     });
 builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>(provider =>
