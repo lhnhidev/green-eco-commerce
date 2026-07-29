@@ -15,7 +15,9 @@ public static class ProductEndpoints
                 .ProducesProblem(StatusCodes.Status500InternalServerError);
 
         group.MapGet("/", GetAllProducts);
+        group.MapGet("/compare", GetProductsByIds);
         group.MapGet("/{id:guid}", GetProductById);
+        group.MapGet("/{id:guid}/related", GetRelatedProducts);
         group.MapPost("/", CreateProduct).RequireAuthorization("AdminOnly");
         group.MapPut("/{id:guid}", UpdateProduct).RequireAuthorization("AdminOnly");
         group.MapDelete("/{id:guid}", DeleteProduct).RequireAuthorization("AdminOnly");
@@ -28,10 +30,22 @@ public static class ProductEndpoints
         return TypedResults.Ok(products);
     }
 
+    private static async Task<Ok<ProductDto[]>> GetProductsByIds(Guid[] ids, ISender sender)
+    {
+        var products = await sender.Send(new GetProductsByIdsQuery(ids));
+        return TypedResults.Ok(products);
+    }
+
     private static async Task<Results<Ok<ProductDto>, NotFound>> GetProductById(Guid id, ISender sender)
     {
         var product = await sender.Send(new GetProductByIdQuery(id));
         return product != null ? TypedResults.Ok(product) : TypedResults.NotFound();
+    }
+
+    private static async Task<Ok<ProductDto[]>> GetRelatedProducts(Guid id, ISender sender, int limit = 8)
+    {
+        var products = await sender.Send(new GetRelatedProductsQuery(id, limit));
+        return TypedResults.Ok(products);
     }
 
     private static async Task<Created<ProductDto>> CreateProduct(ProductPayloadDto payload, ISender sender)
@@ -53,3 +67,4 @@ public static class ProductEndpoints
         return TypedResults.NoContent();
     }
 }
+
