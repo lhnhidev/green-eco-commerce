@@ -208,11 +208,6 @@ builder.Services.AddProblemDetails();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
-builder.Services.AddHttpClient<IAiService, AiService>(client =>
-{
-    client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
-});
-
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
 builder.Services.AddScoped<IAppConfigurationRepository, AppConfigurationRepository>();
 builder.Services.AddScoped<IApplicationConfiguration, ApplicationConfiguration>();
