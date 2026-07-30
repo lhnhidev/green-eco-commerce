@@ -6,11 +6,13 @@
  * OpenAPI spec version: v1
  */
 import type { OrderSortBy } from './orderSortBy';
+import type { OrderStatusEnum } from './orderStatusEnum';
 
 export type GetMyOrdersParams = {
 sortBy?: OrderSortBy;
 sortDescending?: boolean;
 search?: string;
+status?: OrderStatusEnum;
 pageNumber?: number;
 pageSize?: number;
 };

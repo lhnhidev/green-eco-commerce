@@ -7,6 +7,8 @@
  */
 import type { OrderItemDto } from './orderItemDto';
 import type { OrderStatusEnum } from './orderStatusEnum';
+import type { PaymentMethodEnum } from './paymentMethodEnum';
+import type { PaymentStatusEnum } from './paymentStatusEnum';
 
 export interface OrderDto {
   id: string;
@@ -20,4 +22,6 @@ export interface OrderDto {
   earnedPoints: number;
   items: OrderItemDto[];
   createdAt: Date;
+  paymentStatus: PaymentStatusEnum;
+  paymentMethod: PaymentMethodEnum;
 }

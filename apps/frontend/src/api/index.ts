@@ -50,6 +50,7 @@ import type {
   GetAllProductsParams,
   GetAllReviewsParams,
   GetAllUsersParams,
+  GetApplicationSettingsQueryResponse,
   GetBestSellingProductsParams,
   GetBestSellingProductsQueryResponse,
   GetInfoAnalystParams,
@@ -79,6 +80,7 @@ import type {
   ReviewDto,
   ReviewPayloadDto,
   SearchAddressesParams,
+  UpdateApplicationSettingsCommand,
   UpdateCouponCommand,
   UpdateOrderStatusRequest,
   UpdatePaymentStatusCommand,
@@ -4557,6 +4559,152 @@ export function useGetBestSellingProducts<TData = Awaited<ReturnType<typeof getB
 
 
 
+
+export const getApplicationSettings = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<GetApplicationSettingsQueryResponse>(
+      {url: `/api/admin/settings`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getGetApplicationSettingsQueryKey = () => {
+    return [
+    `/api/admin/settings`
+    ] as const;
+    }
+
+
+export const getGetApplicationSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getApplicationSettings>>, TError = ProblemDetails>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApplicationSettings>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetApplicationSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getApplicationSettings>>> = ({ signal }) => getApplicationSettings(signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getApplicationSettings>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type GetApplicationSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getApplicationSettings>>>
+export type GetApplicationSettingsQueryError = ProblemDetails
+
+
+export function useGetApplicationSettings<TData = Awaited<ReturnType<typeof getApplicationSettings>>, TError = ProblemDetails>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApplicationSettings>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApplicationSettings>>,
+          TError,
+          Awaited<ReturnType<typeof getApplicationSettings>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApplicationSettings<TData = Awaited<ReturnType<typeof getApplicationSettings>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApplicationSettings>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof getApplicationSettings>>,
+          TError,
+          Awaited<ReturnType<typeof getApplicationSettings>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useGetApplicationSettings<TData = Awaited<ReturnType<typeof getApplicationSettings>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApplicationSettings>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useGetApplicationSettings<TData = Awaited<ReturnType<typeof getApplicationSettings>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getApplicationSettings>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getGetApplicationSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const updateApplicationSettings = (
+    updateApplicationSettingsCommand: UpdateApplicationSettingsCommand,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<void>(
+      {url: `/api/admin/settings`, method: 'PUT',
+      headers: {'Content-Type': 'application/json', },
+      data: updateApplicationSettingsCommand, signal
+    },
+      );
+    }
+
+
+
+
+export const getUpdateApplicationSettingsMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateApplicationSettings>>, TError,{data: UpdateApplicationSettingsCommand}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof updateApplicationSettings>>, TError,{data: UpdateApplicationSettingsCommand}, TContext> => {
+
+const mutationKey = ['updateApplicationSettings'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateApplicationSettings>>, {data: UpdateApplicationSettingsCommand}> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateApplicationSettings(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateApplicationSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateApplicationSettings>>>
+    export type UpdateApplicationSettingsMutationBody = UpdateApplicationSettingsCommand
+    export type UpdateApplicationSettingsMutationError = ProblemDetails
+
+    export const useUpdateApplicationSettings = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateApplicationSettings>>, TError,{data: UpdateApplicationSettingsCommand}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof updateApplicationSettings>>,
+        TError,
+        {data: UpdateApplicationSettingsCommand},
+        TContext
+      > => {
+      return useMutation(getUpdateApplicationSettingsMutationOptions(options), queryClient);
+    }
 
 export const processCheckout = (
     checkoutRequest: CheckoutRequest,
