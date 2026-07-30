@@ -1,4 +1,5 @@
 using ClosedXML.Excel;
+using GreenEcoCommerce.Application.Features.Admin.Commands;
 using GreenEcoCommerce.Application.Features.Admin.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -18,6 +19,20 @@ public static class AdminEndpoints
         group.MapGet("/analyst", GetInfoAnalyst);
         group.MapGet("/analyst/export.xlsx", ExportAnalystExcel);
         group.MapGet("/best-selling", GetBestSellingProducts);
+        group.MapGet("/settings", GetApplicationSettings);
+        group.MapPut("/settings", UpdateApplicationSettings);
+    }
+
+    private static async Task<Ok<GetApplicationSettingsQuery.Response>> GetApplicationSettings(ISender sender)
+    {
+        var result = await sender.Send(new GetApplicationSettingsQuery());
+        return TypedResults.Ok(result);
+    }
+
+    private static async Task<NoContent> UpdateApplicationSettings(UpdateApplicationSettingsCommand command, ISender sender)
+    {
+        await sender.Send(command);
+        return TypedResults.NoContent();
     }
 
     private static async Task<Ok<GetInfoAnalystQuery.Response>> GetInfoAnalyst([AsParameters] GetInfoAnalystQuery query, ISender sender)
