@@ -1,4 +1,4 @@
-import { getGetWishlistQueryKey, useGetWishlist, useRemoveFromWishlist } from '@api'
+import { invalidateGetWishlist, useGetWishlist, useRemoveFromWishlist } from '@api'
 import ProductCard from '@components/features/products/ProductCard'
 import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
@@ -22,7 +22,7 @@ const WishlistPage = () => {
   const { mutate: remove, isPending: removing } = useRemoveFromWishlist({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
+        await invalidateGetWishlist(queryClient)
         notifications.show({ title: 'Removed', message: 'Product removed from wishlist.', color: 'green' })
       },
     },

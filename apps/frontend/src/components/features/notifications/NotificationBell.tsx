@@ -1,6 +1,6 @@
 import {
-  getGetMyNotificationsQueryKey,
-  getGetUnreadCountQueryKey,
+  invalidateGetMyNotifications,
+  invalidateGetUnreadCount,
   useGetMyNotifications,
   useGetUnreadCount,
   useMarkAllRead,
@@ -25,8 +25,8 @@ const NotificationBell = () => {
   const notificationItems = data?.items ?? []
 
   const invalidate = () => {
-    queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() })
-    queryClient.invalidateQueries({ queryKey: getGetMyNotificationsQueryKey(PARAMS) })
+    invalidateGetUnreadCount(queryClient)
+    invalidateGetMyNotifications(queryClient, PARAMS)
   }
 
   const { mutate: markRead } = useMarkRead({ mutation: { onSuccess: invalidate } })

@@ -1,4 +1,4 @@
-import { getGetProductByIdQueryKey, getGetProductReviewsQueryKey, useCreateReview, useGetProductReviews } from '@api'
+import { invalidateGetProductById, invalidateGetProductReviews, useCreateReview, useGetProductReviews } from '@api'
 import type { ProblemDetails } from '@api/schemas'
 import { useAuth } from '@hooks/useAuth'
 import { Avatar, Button, Pagination, Progress, Rating, Select, Textarea } from '@mantine/core'
@@ -65,8 +65,8 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
     mutation: {
       onSuccess: async () => {
         await Promise.all([
-          queryClient.invalidateQueries({ queryKey: getGetProductReviewsQueryKey(productId) }),
-          queryClient.invalidateQueries({ queryKey: getGetProductByIdQueryKey(productId) }),
+          invalidateGetProductReviews(queryClient, productId),
+          invalidateGetProductById(queryClient, productId),
         ])
         form.reset()
         setPage(1)

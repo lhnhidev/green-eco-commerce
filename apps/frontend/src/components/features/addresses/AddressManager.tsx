@@ -1,4 +1,4 @@
-import { getGetMyAddressesQueryKey, useDeleteAddress, useGetMyAddresses, useSetDefaultAddress } from '@api'
+import { invalidateGetMyAddresses, useDeleteAddress, useGetMyAddresses, useSetDefaultAddress } from '@api'
 import type { AddressDto } from '@api/schemas'
 import EmptyState from '@components/ui/primitives/EmptyState'
 import Panel from '@components/ui/primitives/Panel'
@@ -16,7 +16,7 @@ const AddressManager = () => {
   const [formOpened, setFormOpened] = useState(false)
   const [editingAddress, setEditingAddress] = useState<AddressDto | null>(null)
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetMyAddressesQueryKey() })
+  const invalidate = () => invalidateGetMyAddresses(queryClient)
 
   const { mutate: deleteAddress } = useDeleteAddress({
     mutation: {

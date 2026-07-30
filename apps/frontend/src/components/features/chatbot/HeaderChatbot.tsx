@@ -1,6 +1,6 @@
 /** biome-ignore-all lint/a11y/useButtonType: <> */
 
-import { getGetAllChatSessionsQueryKey, useDeleteChatSession, useGetAllChatSessions } from '@api'
+import { invalidateGetAllChatSessions, useDeleteChatSession, useGetAllChatSessions } from '@api'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { ActionIcon, Menu, ScrollArea, Text, Tooltip } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
@@ -29,7 +29,7 @@ const HeaderChatbot = ({ activeSessionId, onNewChat, onSelectSession }: HeaderCh
   const { mutate: deleteSession } = useDeleteChatSession({
     mutation: {
       onSuccess: (_data, variables) => {
-        queryClient.invalidateQueries({ queryKey: getGetAllChatSessionsQueryKey() })
+        invalidateGetAllChatSessions(queryClient)
         if (variables.id === activeSessionId) onNewChat()
       },
       onError: () => notifications.show({ title: 'Error', message: 'Could not delete conversation.', color: 'red' }),

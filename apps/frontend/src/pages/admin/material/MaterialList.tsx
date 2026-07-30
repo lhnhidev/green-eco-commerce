@@ -1,5 +1,5 @@
 import {
-  getGetAllMaterialsQueryKey,
+  invalidateGetAllMaterials,
   useCreateMaterial,
   useDeleteMaterial,
   useGetAllMaterials,
@@ -28,7 +28,7 @@ const MaterialList = () => {
   const [editing, setEditing] = useState<MaterialDto | null>(null)
   const [formOpened, setFormOpened] = useState(false)
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
+  const invalidate = () => invalidateGetAllMaterials(queryClient)
 
   const { mutate: createMaterial, isPending: isCreating } = useCreateMaterial({
     mutation: {

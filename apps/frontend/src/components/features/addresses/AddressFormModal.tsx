@@ -1,4 +1,4 @@
-import { getGetMyAddressesQueryKey, useCreateAddress, useUpdateAddress } from '@api'
+import { invalidateGetMyAddresses, useCreateAddress, useUpdateAddress } from '@api'
 import type { AddressDto, ProblemDetails } from '@api/schemas'
 import { Button, Checkbox, Modal, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
@@ -69,7 +69,7 @@ const AddressFormModal = ({ opened, onClose, address }: AddressFormModalProps) =
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [opened, address])
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetMyAddressesQueryKey() })
+  const invalidate = () => invalidateGetMyAddresses(queryClient)
 
   const handleError = (error: unknown) => {
     const detail = (error as AxiosError<ProblemDetails>).response?.data?.detail

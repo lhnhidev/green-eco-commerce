@@ -1,4 +1,4 @@
-import { getGetCartQueryKey, useRemoveCartItem, useUpdateCartItem } from '@api'
+import { invalidateGetCart, useRemoveCartItem, useUpdateCartItem } from '@api'
 import type { CartItemDto } from '@api/schemas'
 import { notifications } from '@mantine/notifications'
 import { MinusIcon, PlusIcon, TrashIcon, WarningIcon } from '@phosphor-icons/react'
@@ -9,7 +9,7 @@ import { Link } from 'react-router'
 
 const CartLineItem = ({ cartItem }: { cartItem: CartItemDto }) => {
   const queryClient = useQueryClient()
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+  const invalidate = () => invalidateGetCart(queryClient)
 
   const { mutate: updateQty, isPending: updatingQty } = useUpdateCartItem({
     mutation: {

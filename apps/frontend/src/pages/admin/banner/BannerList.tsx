@@ -1,4 +1,4 @@
-import { getGetAllBannersQueryKey, useCreateBanner, useDeleteBanner, useGetAllBanners, useUpdateBanner } from '@api'
+import { invalidateGetAllBanners, useCreateBanner, useDeleteBanner, useGetAllBanners, useUpdateBanner } from '@api'
 import type { BannerDto } from '@api/schemas'
 import { ImageDropzone } from '@components/features/upload/ImageDropzone'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
@@ -51,7 +51,7 @@ const BannerList = () => {
     },
   })
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetAllBannersQueryKey() })
+  const invalidate = () => invalidateGetAllBanners(queryClient)
 
   const { mutate: create, isPending: creating } = useCreateBanner({
     mutation: {

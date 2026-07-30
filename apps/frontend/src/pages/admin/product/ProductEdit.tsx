@@ -1,4 +1,4 @@
-import { getGetAllProductsQueryKey, useGetProductById, useUpdateProduct } from '@api'
+import { invalidateGetAllProducts, useGetProductById, useUpdateProduct } from '@api'
 import ProductForm, { type ProductFormValues } from '@components/features/products/ProductForm'
 import Loading from '@components/ui/status/Loading'
 import { notifications } from '@mantine/notifications'
@@ -16,7 +16,7 @@ const ProductEdit = () => {
   const { mutate: updateProduct, isPending } = useUpdateProduct({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
+        await invalidateGetAllProducts(queryClient)
       },
     },
   })

@@ -1,4 +1,4 @@
-import { getGetAllProductsQueryKey, useCreateProduct } from '@api'
+import { invalidateGetAllProducts, useCreateProduct } from '@api'
 import ProductForm, { type ProductFormValues } from '@components/features/products/ProductForm'
 import { notifications } from '@mantine/notifications'
 import { useQueryClient } from '@tanstack/react-query'
@@ -10,7 +10,7 @@ const ProductCreate = () => {
   const { mutate: createProduct, isPending } = useCreateProduct({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
+        await invalidateGetAllProducts(queryClient)
       },
     },
   })

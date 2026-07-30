@@ -1,4 +1,4 @@
-import { getGetAllCouponsQueryKey, useCreateCoupon, useDeleteCoupon, useGetAllCoupons, useUpdateCoupon } from '@api'
+import { invalidateGetAllCoupons, useCreateCoupon, useDeleteCoupon, useGetAllCoupons, useUpdateCoupon } from '@api'
 import { CouponDiscountTypeEnum, type CouponDto } from '@api/schemas'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
@@ -43,7 +43,7 @@ const CouponList = () => {
   const [deleteTarget, setDeleteTarget] = useState<CouponDto | null>(null)
 
   const queryClient = useQueryClient()
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetAllCouponsQueryKey() })
+  const invalidate = () => invalidateGetAllCoupons(queryClient)
 
   const { data: coupons = [], isLoading } = useGetAllCoupons()
 

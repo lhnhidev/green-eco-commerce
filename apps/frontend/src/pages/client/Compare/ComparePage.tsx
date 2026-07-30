@@ -1,4 +1,4 @@
-import { getGetCartQueryKey, useAddCartItem, useGetProductsByIds } from '@api'
+import { invalidateGetCart, useAddCartItem, useGetProductsByIds } from '@api'
 import { removeFromCompare } from '@components/features/compare/compare.slice'
 import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
@@ -62,7 +62,7 @@ const ComparePage = () => {
   const { mutate: addToCart } = useAddCartItem({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+        await invalidateGetCart(queryClient)
       },
     },
   })

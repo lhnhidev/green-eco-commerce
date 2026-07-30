@@ -1,4 +1,4 @@
-import { getGetAllChatSessionsQueryKey, useAskChatbot, useGetChatSessionMessages } from '@api'
+import { invalidateGetAllChatSessions, useAskChatbot, useGetChatSessionMessages } from '@api'
 import { ChatRole } from '@api/schemas'
 import { Loader, TextInput, Tooltip } from '@mantine/core'
 import { Leaf, PaperPlaneRight } from '@phosphor-icons/react'
@@ -99,7 +99,7 @@ const ChatComunication = () => {
           if (response.sessionId !== sessionId) {
             setSessionId(response.sessionId)
             localStorage.setItem(SESSION_STORAGE_KEY, response.sessionId)
-            queryClient.invalidateQueries({ queryKey: getGetAllChatSessionsQueryKey() })
+            invalidateGetAllChatSessions(queryClient)
           }
           const botMessage: Message = {
             id: Date.now() + 1,

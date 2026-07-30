@@ -1,6 +1,6 @@
 import {
-  getGetCartQueryKey,
-  getGetMyAddressesQueryKey,
+  invalidateGetCart,
+  invalidateGetMyAddresses,
   useCreateAddress,
   useGetCart,
   useGetGreenWallet,
@@ -84,7 +84,7 @@ const CheckoutPage = () => {
   const { mutate: createAddress } = useCreateAddress({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetMyAddressesQueryKey() })
+        await invalidateGetMyAddresses(queryClient)
         notifications.show({ title: 'Address saved', message: 'Added to your address book.', color: 'green' })
       },
       onError: () => notifications.show({ title: 'Error', message: 'Could not save this address.', color: 'red' }),
@@ -115,7 +115,7 @@ const CheckoutPage = () => {
   const { mutate: checkout, isPending: checkingOut } = useProcessCheckout({
     mutation: {
       onSuccess: (data) => {
-        queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+        invalidateGetCart(queryClient)
         notifications.show({
           title: 'Order placed!',
           message: `Your order #${data.orderId.substring(0, 8).toUpperCase()} has been placed.`,

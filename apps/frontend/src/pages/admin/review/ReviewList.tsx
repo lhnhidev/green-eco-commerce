@@ -1,4 +1,4 @@
-import { getGetAllReviewsQueryKey, useApproveReview, useDeleteReview, useGetAllReviews, useHideReview } from '@api'
+import { invalidateGetAllReviews, useApproveReview, useDeleteReview, useGetAllReviews, useHideReview } from '@api'
 import type { ReviewDto } from '@api/schemas'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
@@ -45,7 +45,7 @@ const ReviewList = () => {
   const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
 
   const queryClient = useQueryClient()
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetAllReviewsQueryKey() })
+  const invalidate = () => invalidateGetAllReviews(queryClient)
 
   const queryParams = useMemo(() => {
     if (statusFilter === 'pending') return { isApproved: false, isHidden: false }
