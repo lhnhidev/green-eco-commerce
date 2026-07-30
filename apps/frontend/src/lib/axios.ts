@@ -4,13 +4,17 @@ import Axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 
 
 export const API_BASE_URL = import.meta.env.VITE_API_ROOT ?? 'http://localhost:5244'
 
-export const axiosInstance = Axios.create({
+const baseConfig = {
   baseURL: API_BASE_URL,
   withCredentials: true, // ← Tương đương credentials: "include"
   paramsSerializer: {
     indexes: null, // Removes the [] brackets
   },
-})
+}
+
+export const axiosInstance = Axios.create(baseConfig)
+
+export const axiosAuthInstance = Axios.create(baseConfig)
 
 let isRefreshing = false
 let failedQueue: Array<{
@@ -27,7 +31,6 @@ const processQueue = (error?: any) => {
     }
   })
   failedQueue = []
-  isRefreshing = false
 }
 
 axiosInstance.interceptors.response.use(
@@ -39,21 +42,27 @@ axiosInstance.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject })
-        }).then(() => axiosInstance(originalRequest))
+        })
+          .then(() => axiosInstance(originalRequest))
+          .catch((err) => Promise.reject(err)) // Catch errors from queued requests
       }
 
       originalRequest._retry = true
       isRefreshing = true
 
       try {
-        await axiosInstance.post('/api/auth/refresh-token', null, {
-          _retry: true, // Đánh dấu true ngay từ đầu để interceptor bỏ qua nếu lỗi 401
-        } as any)
+        await axiosAuthInstance.post('/api/auth/refresh-token')
+
         processQueue()
         return axiosInstance(originalRequest)
       } catch (err) {
         processQueue(err)
+
+        await axiosAuthInstance.post('/api/auth/logout')
+
         return Promise.reject(err)
+      } finally {
+        isRefreshing = false
       }
     }
 
