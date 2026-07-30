@@ -1,68 +1,210 @@
-/* @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"); */
+@layer mantine, theme, base, components, utilities;
 
 @import "@mantine/core/styles.css";
 @import "@mantine/notifications/styles.css";
 @import "@mantine/dropzone/styles.css";
 @import "@mantine/charts/styles.css";
 @import "@mantine/spotlight/styles.css";
+@import "@mantine/dates/styles.css";
+@import "@mantine/carousel/styles.css";
 
 @import "tailwindcss";
 
+:root {
+  /* type */
+  --ds-text-2xs: 0.6875rem; /* 11 */
+  --ds-text-xs: 0.75rem; /* 12 */
+  --ds-text-sm: 0.8125rem; /* 13 */
+  --ds-text-base: 0.875rem; /* 14 — body */
+  --ds-text-md: 0.9375rem; /* 15 */
+  --ds-text-lg: 1rem; /* 16 */
+  --ds-text-xl: 1.125rem; /* 18 */
+  --ds-text-2xl: 1.25rem; /* 20 */
+  --ds-text-3xl: 1.5rem; /* 24 */
+  --ds-text-4xl: 1.75rem; /* 28 */
+  --ds-text-5xl: 2rem; /* 32 — ceiling */
+  --ds-text-6xl: 2.25rem; /* 36 */
+  --ds-text-7xl: 2.5rem; /* 40 */
+
+  /* radius */
+  --ds-radius-xs: 2px;
+  --ds-radius-sm: 4px;
+  --ds-radius-md: 6px;
+  --ds-radius-lg: 8px;
+  --ds-radius-xl: 10px;
+  --ds-radius-2xl: 12px;
+  --ds-radius-3xl: 14px;
+  --ds-radius-4xl: 16px;
+
+  /* named layout spacing */
+  --ds-space-section: 2.5rem; /* 40 */
+  --ds-space-section-lg: 3.5rem; /* 56 — hero only */
+  --ds-space-gutter: 1.5rem; /* 24 */
+  --ds-space-panel: 1.25rem; /* 20 */
+  --ds-space-panel-sm: 1rem; /* 16 — admin */
+
+  /* mantine spacing ramp */
+  --ds-space-xs: 0.375rem; /* 6 */
+  --ds-space-sm: 0.5rem; /* 8 */
+  --ds-space-md: 0.75rem; /* 12 */
+  --ds-space-lg: 1rem; /* 16 */
+  --ds-space-xl: 1.5rem; /* 24 */
+
+  /* shadows — flat, retail */
+  --ds-shadow-2xs: 0 1px 1px rgba(24, 24, 27, 0.03);
+  --ds-shadow-xs: 0 1px 2px rgba(24, 24, 27, 0.04);
+  --ds-shadow-sm: 0 1px 2px rgba(24, 24, 27, 0.06), 0 1px 3px rgba(24, 24, 27, 0.04);
+  --ds-shadow-md: 0 2px 6px rgba(24, 24, 27, 0.06), 0 1px 2px rgba(24, 24, 27, 0.04);
+  --ds-shadow-lg: 0 8px 24px -8px rgba(24, 24, 27, 0.12);
+  --ds-shadow-xl: 0 12px 32px -12px rgba(24, 24, 27, 0.14);
+
+  /* surfaces & lines — replaces hard-coded hexes like #ececee */
+  --ds-color-border: #e7e7ea;
+  --ds-color-border-strong: #d4d4d8;
+  --ds-color-surface: #ffffff;
+  --ds-color-surface-subtle: #fafafa;
+  --ds-color-surface-sunken: #f6f6f7;
+  --ds-color-fg-subtle: #a1a1aa;
+
+  /* layout constants for sticky offsets */
+  --ds-header-h: 56px;
+  --ds-container: 1280px;
+  --ds-container-wide: 1440px;
+  --ds-admin-navbar-w: 224px;
+}
+
 @theme inline {
-    --color-background: #ffffff;
-    --color-foreground: #09090b;
-    --color-primary: #10b157;
-    --color-secondary: #d7f7de;
-    --color-primary-foreground: #ffffff;
-    --color-muted: #f4f4f5;
-    --color-muted-foreground: #71717a;
-    --color-input-muted: #f4f4f5;
+  --color-background: #ffffff;
+  --color-foreground: #09090b;
+  --color-primary: #10b157;
+  --color-secondary: #d7f7de;
+  --color-primary-foreground: #ffffff;
+  --color-muted: #f4f4f5;
+  --color-muted-foreground: #71717a;
+  --color-input-muted: #f4f4f5;
+
+  --color-border: var(--ds-color-border);
+  --color-border-strong: var(--ds-color-border-strong);
+  --color-surface: var(--ds-color-surface);
+  --color-surface-subtle: var(--ds-color-surface-subtle);
+  --color-surface-sunken: var(--ds-color-surface-sunken);
+  --color-fg-subtle: var(--ds-color-fg-subtle);
+  --color-primary-hover: #059d4c;
+  --color-primary-subtle: #eefcf1;
+
+  --text-2xs: var(--ds-text-2xs);
+  --text-2xs--line-height: 1.45;
+  --text-xs: var(--ds-text-xs);
+  --text-xs--line-height: 1.45;
+  --text-sm: var(--ds-text-sm);
+  --text-sm--line-height: 1.5;
+  --text-base: var(--ds-text-base);
+  --text-base--line-height: 1.55;
+  --text-md: var(--ds-text-md);
+  --text-md--line-height: 1.55;
+  --text-lg: var(--ds-text-lg);
+  --text-lg--line-height: 1.5;
+  --text-xl: var(--ds-text-xl);
+  --text-xl--line-height: 1.4;
+  --text-2xl: var(--ds-text-2xl);
+  --text-2xl--line-height: 1.3;
+  --text-3xl: var(--ds-text-3xl);
+  --text-3xl--line-height: 1.25;
+  --text-4xl: var(--ds-text-4xl);
+  --text-4xl--line-height: 1.2;
+  --text-5xl: var(--ds-text-5xl);
+  --text-5xl--line-height: 1.15;
+  --text-6xl: var(--ds-text-6xl);
+  --text-6xl--line-height: 1.1;
+  --text-7xl: var(--ds-text-7xl);
+  --text-7xl--line-height: 1.1;
+
+  --radius-xs: var(--ds-radius-xs);
+  --radius-sm: var(--ds-radius-sm);
+  --radius-md: var(--ds-radius-md);
+  --radius-lg: var(--ds-radius-lg);
+  --radius-xl: var(--ds-radius-xl);
+  --radius-2xl: var(--ds-radius-2xl);
+  --radius-3xl: var(--ds-radius-3xl);
+  --radius-4xl: var(--ds-radius-4xl);
+
+  /* → p-section, py-section, gap-gutter, p-panel, top-header */
+  --spacing-section: var(--ds-space-section);
+  --spacing-section-lg: var(--ds-space-section-lg);
+  --spacing-gutter: var(--ds-space-gutter);
+  --spacing-panel: var(--ds-space-panel);
+  --spacing-panel-sm: var(--ds-space-panel-sm);
+  --spacing-header: var(--ds-header-h);
+
+  --shadow-2xs: var(--ds-shadow-2xs);
+  --shadow-xs: var(--ds-shadow-xs);
+  --shadow-sm: var(--ds-shadow-sm);
+  --shadow-md: var(--ds-shadow-md);
+  --shadow-lg: var(--ds-shadow-lg);
+  --shadow-xl: var(--ds-shadow-xl);
+  --shadow-2xl: var(--ds-shadow-xl); /* caps shadow-2xl globally */
+
+  --container-page: var(--ds-container);
+  --container-wide: var(--ds-container-wide);
 }
 
 @layer base {
-    body {
-        font-family: "Inter Variable", sans-serif;
-        background-color: var(--color-background);
-        color: var(--color-foreground);
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+  body {
+    font-family: "Inter Variable", sans-serif;
+    font-size: var(--ds-text-base);
+    line-height: 1.55;
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Replaces OrderList's window.open + innerHTML invoice printing (Phase 8) */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #invoice-print,
+  #invoice-print * {
+    visibility: visible;
+  }
+  #invoice-print {
+    position: absolute;
+    inset: 0;
+    padding: 24px;
+  }
 }
 
 /* Custom plant-themed utilities */
 .plant-gradient {
-    background: linear-gradient(135deg, #d7f7de 0%, #eefcf1 100%);
-}
-
-.plant-shadow {
-    box-shadow: 0 4px 12px -2px rgba(16, 177, 87, 0.08),
-    0 2px 6px -1px rgba(16, 177, 87, 0.04);
+  background: linear-gradient(135deg, #d7f7de 0%, #eefcf1 100%);
 }
 
 /* 1. Định dạng thanh cuộn tổng thể */
 ::-webkit-scrollbar {
-    width: 8px; /* Độ rộng của thanh cuộn dọc */
-    height: 8px; /* Độ cao của thanh cuộn ngang */
+  width: 8px; /* Độ rộng của thanh cuộn dọc */
+  height: 8px; /* Độ cao của thanh cuộn ngang */
 }
 
 /* 2. Phần nền bên dưới thanh cuộn (Track) */
 ::-webkit-scrollbar-track {
-    background: transparent; /* Notion để nền trong suốt để tạo sự tối giản */
+  background: transparent; /* Notion để nền trong suốt để tạo sự tối giản */
 }
 
 /* 3. Thanh kéo (Thumb) - Trạng thái bình thường */
 ::-webkit-scrollbar-thumb {
-    background: rgba(15, 15, 15, 0.1); /* Màu xám nhạt, trong suốt nhẹ */
-    border-radius: 20px; /* Bo tròn góc giống Notion */
+  background: rgba(15, 15, 15, 0.1); /* Màu xám nhạt, trong suốt nhẹ */
+  border-radius: 20px; /* Bo tròn góc giống Notion */
 }
 
 /* 4. Thanh kéo (Thumb) - Khi di chuột qua (Hover) */
 ::-webkit-scrollbar-thumb:hover {
-    background: rgba(15, 15, 15, 0.2); /* Đậm lên một chút khi hover */
+  background: rgba(15, 15, 15, 0.2); /* Đậm lên một chút khi hover */
 }
 
 /* 5. Hỗ trợ cho Firefox (Firefox sử dụng thuộc tính khác) */
 * {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(15, 15, 15, 0.1) transparent;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(15, 15, 15, 0.1) transparent;
 }
