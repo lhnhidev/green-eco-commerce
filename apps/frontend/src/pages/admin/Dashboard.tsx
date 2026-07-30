@@ -1,54 +1,38 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/** biome-ignore-all lint/suspicious/noGlobalIsNan: <> */
-/** biome-ignore-all lint/suspicious/noExplicitAny: <> */
-/** biome-ignore-all lint/style/noNonNullAssertion: <> */
-
 import { useGetInfoAnalyst } from '@api'
-import CardDisplayNumber from '@components/features/cards/CardDisplayNumber'
-import BestSellingProducts from '@components/features/products/BestSellingProducts'
 import LowStockProducts from '@components/features/dashboard/LowStockProducts'
 import MonthlyStatisticsChart from '@components/features/dashboard/MonthlyStatisticsChart'
 import RecentOrders from '@components/features/dashboard/RecentOrders'
+import BestSellingProducts from '@components/features/products/BestSellingProducts'
+import AdminPageShell from '@components/ui/primitives/AdminPageShell'
+import StatCard from '@components/ui/primitives/StatCard'
 import Loading from '@components/ui/status/Loading'
 import { Button } from '@mantine/core'
 import { MonthPickerInput } from '@mantine/dates'
 import { notifications } from '@mantine/notifications'
-import { DownloadSimpleIcon, MoneyIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
+import { DownloadSimpleIcon, LeafIcon, MoneyIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
 import { downloadFile } from '@utils/downloadFile'
 import { useState } from 'react'
-import { MdCo2 } from 'react-icons/md'
 
 const Dashboard = () => {
-  // 1. Chuyển đổi State sang kiểu Date | string | null để tương thích hoàn toàn với prop `value` và `onChange`
   const [value, setValue] = useState<Date | string | null>(new Date())
   const [exporting, setExporting] = useState(false)
 
-  // 2. Hàm phụ trợ để an toàn lấy ra đối tượng Date thực sự từ State (dù nó là string hay Date)
   const getDateObject = (val: Date | string | null): Date => {
     if (!val) return new Date()
     if (val instanceof Date) return val
     const parsed = new Date(val)
-    return isNaN(parsed.getTime()) ? new Date() : parsed
+    return Number.isNaN(parsed.getTime()) ? new Date() : parsed
   }
 
   const activeDate = getDateObject(value)
 
-  // 3. Truyền tháng/năm chuẩn vào API thông qua biến activeDate đã parse
   const { data: analysted, isLoading } = useGetInfoAnalyst({
     month: activeDate.getMonth() + 1,
     year: activeDate.getFullYear(),
   })
 
-  // 4. Hàm handle chuẩn khớp hoàn toàn với type '(value: string | null) => void'
-  // (Dùng kiểu `any` ở tham số đầu vào để nuốt trọn mọi xung đột type từ thư viện)
-  const handleDateChange = (newValue: any) => {
-    setValue(newValue)
-  }
-
-  if (isLoading) return <Loading text="Loading" />
-
-  const getGrowth = (m: { isGrowth?: boolean; growthPercentage?: number }) =>
-    m.isGrowth === true ? 'up' : Number(m.growthPercentage).toFixed(0) === '0' ? 'balance' : 'down'
+  const getGrowth = (m: { isGrowth?: boolean; growthPercentage?: number }): 'up' | 'down' | 'flat' =>
+    m.isGrowth === true ? 'up' : Number(m.growthPercentage).toFixed(0) === '0' ? 'flat' : 'down'
 
   const handleExportExcel = async () => {
     setExporting(true)
@@ -64,11 +48,14 @@ const Dashboard = () => {
     }
   }
 
+  if (isLoading || !analysted) return <Loading text="Loading" />
+
   return (
-    <div className="w-full h-full">
-      <div className="flex items-center justify-between mb-3">
-        <div className="text-[13px] text-muted-foreground">Overview of store performance</div>
-        <div className="flex items-center gap-2">
+    <AdminPageShell
+      title="Dashboard"
+      description="Overview of store performance"
+      actions={
+        <>
           <Button
             size="xs"
             variant="light"
@@ -81,60 +68,53 @@ const Dashboard = () => {
           </Button>
           <MonthPickerInput
             placeholder="Select month..."
-            value={value as any}
-            onChange={handleDateChange}
+            value={value as never}
+            onChange={(v) => setValue(v as never)}
             clearable
             size="xs"
             dropdownType="popover"
             valueFormat="MM/YYYY"
             w={140}
           />
-        </div>
-      </div>
-
+        </>
+      }
+    >
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 mb-2.5">
-        <CardDisplayNumber
-          icon={<MoneyIcon weight="fill" />}
-          title="Total Revenue"
-          currentData={Number(analysted!.totalRevenue.currentValue).toLocaleString('en-US', {
-            maximumFractionDigits: 0,
-          })}
-          previousData={Number(analysted!.totalRevenue.previousValue).toFixed(2)}
-          isGrowth={getGrowth(analysted!.totalRevenue)}
-          showDollarIcon={true}
-          showPercentIcon={true}
-          growthValue={Number(analysted!.totalRevenue.growthPercentage).toFixed(1)}
+        <StatCard
+          label="Total Revenue"
+          icon={MoneyIcon}
+          value={`$${Number(analysted.totalRevenue.currentValue).toLocaleString('en-US', { maximumFractionDigits: 0 })}`}
+          delta={{
+            value: Number(Number(analysted.totalRevenue.growthPercentage).toFixed(1)),
+            direction: getGrowth(analysted.totalRevenue),
+          }}
         />
-        <CardDisplayNumber
-          icon={<ShoppingCartIcon />}
-          title="Total Orders"
-          currentData={Number(analysted!.amountOrders.currentValue).toFixed(0)}
-          previousData={Number(analysted!.amountOrders.previousValue).toFixed(0)}
-          isGrowth={getGrowth(analysted!.amountOrders)}
-          showDollarIcon={false}
-          showPercentIcon={true}
-          growthValue={Number(analysted!.amountOrders.growthPercentage).toFixed(1)}
+        <StatCard
+          label="Total Orders"
+          icon={ShoppingCartIcon}
+          value={Number(analysted.amountOrders.currentValue).toFixed(0)}
+          delta={{
+            value: Number(Number(analysted.amountOrders.growthPercentage).toFixed(1)),
+            direction: getGrowth(analysted.amountOrders),
+          }}
         />
-        <CardDisplayNumber
-          icon={<UserIcon />}
-          title="New Users"
-          currentData={Number(analysted!.amountUsers.currentValue).toFixed(0)}
-          previousData={Number(analysted!.amountUsers.previousValue).toFixed(0)}
-          isGrowth={getGrowth(analysted!.amountUsers)}
-          showDollarIcon={false}
-          showPercentIcon={true}
-          growthValue={Number(analysted!.amountUsers.growthPercentage).toFixed(1)}
+        <StatCard
+          label="New Users"
+          icon={UserIcon}
+          value={Number(analysted.amountUsers.currentValue).toFixed(0)}
+          delta={{
+            value: Number(Number(analysted.amountUsers.growthPercentage).toFixed(1)),
+            direction: getGrowth(analysted.amountUsers),
+          }}
         />
-        <CardDisplayNumber
-          icon={<MdCo2 />}
-          title="CO₂ Saved"
-          currentData={Number(analysted!.totalCo2Saved.currentValue).toFixed(1)}
-          previousData={Number(analysted!.totalCo2Saved.previousValue).toFixed(1)}
-          isGrowth={getGrowth(analysted!.totalCo2Saved)}
-          showDollarIcon={false}
-          showPercentIcon={true}
-          growthValue={Number(analysted!.totalCo2Saved.growthPercentage).toFixed(1)}
-          unit="kg"
+        <StatCard
+          label="CO₂ Saved"
+          icon={LeafIcon}
+          value={`${Number(analysted.totalCo2Saved.currentValue).toFixed(1)} kg`}
+          delta={{
+            value: Number(Number(analysted.totalCo2Saved.growthPercentage).toFixed(1)),
+            direction: getGrowth(analysted.totalCo2Saved),
+          }}
         />
       </div>
 
@@ -152,7 +132,7 @@ const Dashboard = () => {
       <div className="mt-4">
         <BestSellingProducts top={10} />
       </div>
-    </div>
+    </AdminPageShell>
   )
 }
 

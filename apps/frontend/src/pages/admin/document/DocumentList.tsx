@@ -1,8 +1,16 @@
 import { getGetDocumentsQueryKey, useDeleteDocument, useGetDocuments, useUploadDocument } from '@api'
+import type { DocumentDto } from '@api/schemas'
 import { DocumentFileTypeEnum } from '@api/schemas'
-import { ActionIcon, Badge, Button, FileInput, Table, Text, TextInput } from '@mantine/core'
+import AdminPageShell from '@components/ui/primitives/AdminPageShell'
+import ConfirmModal from '@components/ui/primitives/ConfirmModal'
+import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
+import Panel from '@components/ui/primitives/Panel'
+import RowActions from '@components/ui/primitives/RowActions'
+import Toolbar from '@components/ui/primitives/Toolbar'
+import { Badge, Button, FileInput, TextInput } from '@mantine/core'
+import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { CloudArrowUpIcon, MagnifyingGlassIcon, TrashIcon } from '@phosphor-icons/react'
+import { CloudArrowUpIcon, FilesIcon, MagnifyingGlassIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -10,6 +18,8 @@ import { useState } from 'react'
 const DocumentList = () => {
   const [search, setSearch] = useState('')
   const [file, setFile] = useState<File | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<DocumentDto | null>(null)
+  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
   const queryClient = useQueryClient()
 
   const { data: documents, isLoading } = useGetDocuments()
@@ -30,42 +40,93 @@ const DocumentList = () => {
       onSuccess: async () => {
         await queryClient.invalidateQueries({ queryKey: getGetDocumentsQueryKey() })
         notifications.show({ title: 'Deleted', message: 'Document removed', color: 'green' })
+        closeDelete()
       },
     },
   })
 
   const handleUpload = () => {
-    if (file) upload({ file })
+    if (file) upload({ data: { file } })
   }
 
   const filteredDocs = (documents ?? []).filter((d) => d.fileName.toLowerCase().includes(search.toLowerCase()))
 
-  return (
-    <div className="w-full h-full">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-gray-800">Knowledge Base</h1>
-          <p className="text-gray-500 mt-1">Upload and manage documents to train the AI Chatbot.</p>
-        </div>
-      </div>
+  const columns: DataTableColumn<DocumentDto>[] = [
+    { key: 'name', header: 'Document Name', render: (doc) => <span className="font-medium">{doc.fileName}</span> },
+    {
+      key: 'type',
+      header: 'Type',
+      width: 90,
+      render: (doc) => (
+        <Badge
+          size="xs"
+          variant="light"
+          color={
+            doc.fileType === DocumentFileTypeEnum.Pdf
+              ? 'red'
+              : doc.fileType === DocumentFileTypeEnum.Docx
+                ? 'blue'
+                : 'gray'
+          }
+        >
+          {doc.fileType.toUpperCase()}
+        </Badge>
+      ),
+    },
+    {
+      key: 'chunks',
+      header: 'Chunks',
+      width: 90,
+      render: (doc) => <span className="text-muted-foreground">{doc.embeddingCount}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 100,
+      render: () => (
+        <Badge size="xs" variant="dot" color="green">
+          Vectorized
+        </Badge>
+      ),
+    },
+    {
+      key: 'uploaded',
+      header: 'Uploaded At',
+      width: 140,
+      render: (doc) => <span className="text-muted-foreground">{dayjs(doc.createdAt).format('DD/MM/YYYY HH:mm')}</span>,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      width: 70,
+      align: 'right',
+      render: (doc) => (
+        <RowActions
+          onDelete={() => {
+            setDeleteTarget(doc)
+            openDelete()
+          }}
+        />
+      ),
+    },
+  ]
 
-      {/* Upload Section */}
-      <div className="bg-white rounded-2xl p-6 shadow-sm border border-primary/10 mb-6">
-        <h2 className="text-lg font-medium text-gray-800 mb-4">Upload New Document</h2>
-        <div className="flex gap-4 items-end">
+  return (
+    <AdminPageShell title="Knowledge Base" description="Upload and manage documents to train the AI Chatbot">
+      <Panel variant="admin" padding="md" className="mb-3">
+        <h2 className="font-semibold text-sm text-gray-800 mb-3">Upload New Document</h2>
+        <div className="flex gap-3 items-end">
           <FileInput
             label="Select file (.pdf, .docx, .txt)"
             placeholder="Click to choose a file"
             value={file}
             onChange={setFile}
             accept=".pdf,.docx,.txt"
-            radius="md"
             className="flex-1"
           />
           <Button
-            color="primary"
-            leftSection={<CloudArrowUpIcon />}
+            size="sm"
+            leftSection={<CloudArrowUpIcon size={15} />}
             disabled={!file}
             loading={uploading}
             onClick={handleUpload}
@@ -73,100 +134,45 @@ const DocumentList = () => {
             Upload to Vector DB
           </Button>
         </div>
-      </div>
+      </Panel>
 
-      {/* Search */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-primary/10 mb-6">
-        <TextInput
-          placeholder="Search documents..."
-          leftSection={<MagnifyingGlassIcon className="text-muted-foreground" />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          radius="xl"
-        />
-      </div>
+      <Toolbar
+        left={
+          <TextInput
+            placeholder="Search documents..."
+            size="xs"
+            leftSection={<MagnifyingGlassIcon size={13} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            w={240}
+          />
+        }
+      />
 
-      {/* Table Placeholder */}
-      <div className="bg-white rounded-2xl shadow-sm border border-primary/10 overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table verticalSpacing="md" horizontalSpacing="lg" highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Document Name</Table.Th>
-                <Table.Th>Type</Table.Th>
-                <Table.Th>Size</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Uploaded At</Table.Th>
-                <Table.Th>Actions</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {isLoading ? (
-                <Table.Tr>
-                  <Table.Td colSpan={6}>
-                    <div className="text-center py-12 text-muted-foreground">Loading documents...</div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : filteredDocs.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={6}>
-                    <div className="text-center py-12 text-muted-foreground">
-                      No documents found in the Knowledge Base.
-                    </div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                filteredDocs.map((doc) => (
-                  <Table.Tr key={doc.id}>
-                    <Table.Td className="font-medium text-gray-700">{doc.fileName}</Table.Td>
-                    <Table.Td>
-                      <Badge
-                        size="sm"
-                        variant="light"
-                        color={
-                          doc.fileType === DocumentFileTypeEnum.Pdf
-                            ? 'red'
-                            : doc.fileType === DocumentFileTypeEnum.Docx
-                              ? 'blue'
-                              : 'gray'
-                        }
-                      >
-                        {doc.fileType.toUpperCase()}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <Text size="sm" c="dimmed">
-                        {doc.embeddingCount} chunks
-                      </Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge size="sm" variant="dot" color="green">
-                        Vectorized
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td className="text-muted-foreground">
-                      {dayjs(doc.createdAt).format('DD/MM/YYYY HH:mm')}
-                    </Table.Td>
-                    <Table.Td>
-                      <ActionIcon
-                        color="red"
-                        variant="subtle"
-                        loading={deleting}
-                        onClick={() => {
-                          if (confirm('Are you sure?')) deleteDoc({ id: doc.id })
-                        }}
-                      >
-                        <TrashIcon />
-                      </ActionIcon>
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              )}
-            </Table.Tbody>
-          </Table>
-        </div>
-      </div>
-    </div>
+      <DataTable
+        columns={columns}
+        rows={filteredDocs}
+        getRowKey={(doc) => doc.id}
+        isLoading={isLoading}
+        emptyIcon={FilesIcon}
+        emptyTitle="No documents found"
+        emptyDescription="Upload a document above to add it to the Knowledge Base."
+      />
+
+      <ConfirmModal
+        opened={deleteOpened}
+        onClose={closeDelete}
+        onConfirm={() => deleteTarget && deleteDoc({ id: deleteTarget.id })}
+        title="Delete document"
+        message={
+          <>
+            Delete <strong className="text-gray-700">{deleteTarget?.fileName}</strong>? This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        loading={deleting}
+      />
+    </AdminPageShell>
   )
 }
 

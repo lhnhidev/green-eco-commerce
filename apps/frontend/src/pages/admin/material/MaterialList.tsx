@@ -1,15 +1,23 @@
-import { getGetAllMaterialsQueryKey, useDeleteMaterial, useGetAllMaterials, useUpdateMaterial } from '@api'
-import { type MaterialDto, MaterialTypeEnum } from '@api/schemas'
-import Loading from '@components/ui/status/Loading'
-import { ActionIcon, Badge, Button, Modal, NumberInput, Select, Table, TextInput } from '@mantine/core'
-import { useForm } from '@mantine/form'
+import {
+  getGetAllMaterialsQueryKey,
+  useCreateMaterial,
+  useDeleteMaterial,
+  useGetAllMaterials,
+  useUpdateMaterial,
+} from '@api'
+import type { MaterialDto } from '@api/schemas'
+import MaterialForm, { type MaterialFormValues } from '@components/features/material/MaterialForm'
+import AdminPageShell from '@components/ui/primitives/AdminPageShell'
+import ConfirmModal from '@components/ui/primitives/ConfirmModal'
+import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
+import RowActions from '@components/ui/primitives/RowActions'
+import StatCard from '@components/ui/primitives/StatCard'
+import Toolbar from '@components/ui/primitives/Toolbar'
+import { Badge, Button, Modal, TextInput } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { MagnifyingGlassIcon, NotePencilIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
+import { LeafIcon, MagnifyingGlassIcon, PlusIcon, StackIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useMemo, useState } from 'react'
-import { Link } from 'react-router'
-
-const typeOptions = Object.values(MaterialTypeEnum).map((t) => ({ value: t, label: t }))
 
 const MaterialList = () => {
   const queryClient = useQueryClient()
@@ -18,58 +26,61 @@ const MaterialList = () => {
   const [search, setSearch] = useState('')
   const [deleting, setDeleting] = useState<MaterialDto | null>(null)
   const [editing, setEditing] = useState<MaterialDto | null>(null)
+  const [formOpened, setFormOpened] = useState(false)
 
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
+
+  const { mutate: createMaterial, isPending: isCreating } = useCreateMaterial({
+    mutation: {
+      onSuccess: async () => {
+        await invalidate()
+        setFormOpened(false)
+        notifications.show({ title: 'Created', message: 'Material created successfully.', color: 'green' })
+      },
+      onError: () => notifications.show({ title: 'Error', message: 'Could not create material.', color: 'red' }),
+    },
+  })
   const { mutate: deleteMaterial, isPending: isDeleting } = useDeleteMaterial({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
+        await invalidate()
       },
     },
   })
   const { mutate: updateMaterial, isPending: isUpdating } = useUpdateMaterial({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() })
+        await invalidate()
+        setFormOpened(false)
+        setEditing(null)
+        notifications.show({ title: 'Updated', message: 'Material updated successfully.', color: 'green' })
       },
+      onError: () =>
+        notifications.show({ title: 'Update failed', message: 'Could not update this material.', color: 'red' }),
     },
   })
 
-  const form = useForm({
-    initialValues: {
-      name: '',
-      type: MaterialTypeEnum.Recycled as MaterialTypeEnum,
-      ecoRating: 50,
-    },
-    validate: {
-      name: (val) => (val.trim().length === 0 ? 'Name is required' : null),
-    },
-  })
+  const openCreate = () => {
+    setEditing(null)
+    setFormOpened(true)
+  }
 
   const openEdit = (m: MaterialDto) => {
-    form.setValues({ name: m.name, type: m.type, ecoRating: Number(m.ecoRating) })
-    form.resetDirty()
     setEditing(m)
+    setFormOpened(true)
   }
 
-  const closeEdit = () => {
+  const closeForm = () => {
+    setFormOpened(false)
     setEditing(null)
-    form.reset()
   }
 
-  const handleUpdate = (values: typeof form.values) => {
-    if (!editing) return
-    updateMaterial(
-      { id: editing.id, data: values },
-      {
-        onSuccess: () => {
-          notifications.show({ title: 'Updated', message: 'Material updated successfully.', color: 'green' })
-          closeEdit()
-        },
-        onError: () => {
-          notifications.show({ title: 'Update failed', message: 'Could not update this material.', color: 'red' })
-        },
-      },
-    )
+  const handleFormSubmit = (values: MaterialFormValues) => {
+    if (editing) {
+      updateMaterial({ id: editing.id, data: values })
+    } else {
+      createMaterial({ data: values })
+    }
   }
 
   const filtered = useMemo(() => {
@@ -102,164 +113,114 @@ const MaterialList = () => {
     )
   }
 
-  if (isLoading) return <Loading text="Loading materials..." />
+  const columns: DataTableColumn<MaterialDto>[] = [
+    { key: 'name', header: 'Material', render: (m) => <span className="font-medium">{m.name}</span> },
+    {
+      key: 'type',
+      header: 'Type',
+      width: 140,
+      render: (m) => (
+        <Badge size="xs" variant="light" color="primary">
+          {m.type}
+        </Badge>
+      ),
+    },
+    {
+      key: 'ecoRating',
+      header: 'Eco rating',
+      width: 200,
+      render: (m) => (
+        <div className="flex items-center gap-2">
+          <div className="flex-1 max-w-30 h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-primary rounded-full"
+              style={{ width: `${Math.min(Number(m.ecoRating), 100)}%` }}
+            />
+          </div>
+          <span className="text-2xs text-muted-foreground whitespace-nowrap">{Number(m.ecoRating)}/100</span>
+        </div>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      width: 70,
+      align: 'right',
+      render: (m) => <RowActions onEdit={() => openEdit(m)} onDelete={() => setDeleting(m)} />,
+    },
+  ]
 
   return (
-    <div className="w-full h-full">
-      <div className="flex gap-2.5 mb-2.5">
-        <div className="w-52 bg-white border border-[#ececee] rounded-xl shadow-[0_1px_2px_rgba(24,24,27,0.04)] px-3.5 py-2.5">
-          <p className="text-[11px] text-muted-foreground">Total materials</p>
-          <p className="text-[20px] font-bold text-[#18181b] leading-tight mt-0.5">{stats.total}</p>
-        </div>
-        <div className="w-52 bg-white border border-[#ececee] rounded-xl shadow-[0_1px_2px_rgba(24,24,27,0.04)] px-3.5 py-2.5">
-          <p className="text-[11px] text-muted-foreground">Average eco rating</p>
-          <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-[20px] font-bold text-[#18181b] leading-tight">
-              {stats.avgEco}
-              <span className="text-[12px] font-medium text-muted-foreground">/100</span>
-            </p>
-            <div className="flex-1 h-1.25 rounded-full bg-[#f4f4f5] overflow-hidden">
-              <div className="h-full bg-primary rounded-full" style={{ width: `${stats.avgEco}%` }} />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-2.5 mb-2.5">
-        <TextInput
-          placeholder="Search materials..."
-          size="xs"
-          leftSection={<MagnifyingGlassIcon size={13} />}
-          value={search}
-          onChange={(e) => setSearch(e.currentTarget.value)}
-          w={220}
-        />
-        <span className="text-[11px] text-muted-foreground">
-          {filtered.length} of {materials?.length ?? 0} shown
-        </span>
-        <div className="flex-1" />
-        <Button
-          component={Link}
-          to="/admin/material/create"
-          color="primary"
-          size="xs"
-          leftSection={<PlusIcon size={13} />}
-        >
+    <AdminPageShell
+      title="Materials"
+      actions={
+        <Button size="xs" leftSection={<PlusIcon size={13} />} onClick={openCreate}>
           Add new material
         </Button>
+      }
+    >
+      <div className="flex gap-2.5 mb-2.5">
+        <StatCard label="Total materials" value={stats.total} icon={StackIcon} />
+        <StatCard label="Average eco rating" value={`${stats.avgEco}/100`} icon={LeafIcon} tone="primary" />
       </div>
 
-      <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table
-            verticalSpacing={6}
-            horizontalSpacing={8}
-            highlightOnHover
-            classNames={{
-              th: 'text-[11px]! font-semibold! uppercase! tracking-[0.04em]! text-muted-foreground! bg-[#fafafa]!',
-              td: 'text-[12px]!',
-            }}
-          >
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Material</Table.Th>
-                <Table.Th w={140}>Type</Table.Th>
-                <Table.Th w={200}>Eco rating</Table.Th>
-                <Table.Th w={70} ta="right">
-                  Actions
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {filtered.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={4}>
-                    <p className="text-center text-[12px] text-[#a1a1aa] py-8">No materials found.</p>
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                filtered.map((m) => (
-                  <Table.Tr key={m.id}>
-                    <Table.Td className="font-medium!">{m.name}</Table.Td>
-                    <Table.Td>
-                      <Badge size="xs" variant="light" color="primary" radius="xl">
-                        {m.type}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="flex items-center gap-2">
-                        <div className="flex-1 max-w-30 h-1.25 rounded-full bg-[#f4f4f5] overflow-hidden">
-                          <div
-                            className="h-full bg-primary rounded-full"
-                            style={{ width: `${Math.min(Number(m.ecoRating), 100)}%` }}
-                          />
-                        </div>
-                        <span className="text-[11px] text-muted-foreground whitespace-nowrap">
-                          {Number(m.ecoRating)}/100
-                        </span>
-                      </div>
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="flex gap-0.5 justify-end">
-                        <ActionIcon
-                          variant="subtle"
-                          color="gray"
-                          size="sm"
-                          onClick={() => openEdit(m)}
-                          aria-label="Edit"
-                        >
-                          <NotePencilIcon size={13} />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size="sm"
-                          onClick={() => setDeleting(m)}
-                          aria-label="Delete"
-                        >
-                          <TrashIcon size={13} />
-                        </ActionIcon>
-                      </div>
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              )}
-            </Table.Tbody>
-          </Table>
-        </div>
-      </div>
+      <Toolbar
+        left={
+          <TextInput
+            placeholder="Search materials..."
+            size="xs"
+            leftSection={<MagnifyingGlassIcon size={13} />}
+            value={search}
+            onChange={(e) => setSearch(e.currentTarget.value)}
+            w={220}
+          />
+        }
+        right={
+          <span className="text-2xs text-muted-foreground">
+            {filtered.length} of {materials?.length ?? 0} shown
+          </span>
+        }
+      />
 
-      <Modal opened={editing !== null} onClose={closeEdit} title="Edit material" centered size="sm">
-        <form onSubmit={form.onSubmit(handleUpdate)} className="flex flex-col gap-3">
-          <TextInput label="Name" size="xs" withAsterisk {...form.getInputProps('name')} />
-          <Select label="Type" size="xs" data={typeOptions} allowDeselect={false} {...form.getInputProps('type')} />
-          <NumberInput label="Eco rating" size="xs" min={0} max={100} {...form.getInputProps('ecoRating')} />
-          <div className="flex justify-end gap-2 mt-2">
-            <Button variant="default" size="xs" onClick={closeEdit}>
-              Cancel
-            </Button>
-            <Button type="submit" color="primary" size="xs" loading={isUpdating}>
-              Save changes
-            </Button>
-          </div>
-        </form>
+      <DataTable
+        columns={columns}
+        rows={filtered}
+        getRowKey={(m) => m.id}
+        isLoading={isLoading}
+        emptyIcon={StackIcon}
+        emptyTitle="No materials found"
+      />
+
+      <Modal
+        opened={formOpened}
+        onClose={closeForm}
+        title={editing ? 'Edit material' : 'New material'}
+        centered
+        size="sm"
+      >
+        <MaterialForm
+          editingMaterial={editing}
+          onSubmit={handleFormSubmit}
+          onCancel={closeForm}
+          isSubmitting={isCreating || isUpdating}
+        />
       </Modal>
 
-      <Modal opened={deleting !== null} onClose={() => setDeleting(null)} title="Delete material" centered size="sm">
-        <p className="text-[13px] text-muted-foreground">
-          Are you sure you want to delete <span className="font-semibold text-[#18181b]">{deleting?.name}</span>? This
-          action cannot be undone.
-        </p>
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="default" size="xs" onClick={() => setDeleting(null)}>
-            Cancel
-          </Button>
-          <Button color="red" size="xs" loading={isDeleting} onClick={confirmDelete}>
-            Delete
-          </Button>
-        </div>
-      </Modal>
-    </div>
+      <ConfirmModal
+        opened={deleting !== null}
+        onClose={() => setDeleting(null)}
+        onConfirm={confirmDelete}
+        title="Delete material"
+        message={
+          <>
+            Are you sure you want to delete <span className="font-semibold text-gray-900">{deleting?.name}</span>? This
+            action cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        loading={isDeleting}
+      />
+    </AdminPageShell>
   )
 }
 

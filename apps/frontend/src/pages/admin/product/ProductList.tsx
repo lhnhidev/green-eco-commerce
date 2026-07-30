@@ -1,8 +1,14 @@
 import { getGetAllProductsQueryKey, useDeleteProduct, useGetAllProducts } from '@api'
-import { ActionIcon, Badge, Button, Modal, Pagination, Table, Text, TextInput } from '@mantine/core'
-import { useDisclosure } from '@mantine/hooks'
+import type { ProductDto } from '@api/schemas'
+import AdminPageShell from '@components/ui/primitives/AdminPageShell'
+import ConfirmModal from '@components/ui/primitives/ConfirmModal'
+import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
+import RowActions from '@components/ui/primitives/RowActions'
+import Toolbar from '@components/ui/primitives/Toolbar'
+import { Badge, Button, TextInput } from '@mantine/core'
+import { useDebouncedValue, useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { MagnifyingGlassIcon, NotePencilIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon, PackageIcon, PlusIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatCurrency } from '@utils/formatCurrency'
 import { useState } from 'react'
@@ -12,9 +18,9 @@ const PAGE_SIZE = 20
 
 const ProductList = () => {
   const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 300)
   const [page, setPage] = useState(1)
-  const [deleteId, setDeleteId] = useState<string | null>(null)
-  const [deleteName, setDeleteName] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<ProductDto | null>(null)
   const [opened, { open, close }] = useDisclosure(false)
 
   const navigate = useNavigate()
@@ -30,28 +36,27 @@ const ProductList = () => {
   const { data, isLoading } = useGetAllProducts({
     pageNumber: page,
     pageSize: PAGE_SIZE,
-    search: search || undefined,
+    search: debouncedSearch || undefined,
   })
 
   const products = data?.items ?? []
   const totalCount = data?.totalCount ?? 0
   const totalPages = data?.totalPages ?? 1
 
-  const handleDeleteClick = (id: string, name: string) => {
-    setDeleteId(id)
-    setDeleteName(name)
+  const handleDeleteClick = (product: ProductDto) => {
+    setDeleteTarget(product)
     open()
   }
 
   const handleConfirmDelete = () => {
-    if (!deleteId) return
+    if (!deleteTarget) return
     deleteProduct(
-      { id: deleteId },
+      { id: deleteTarget.id },
       {
         onSuccess: () => {
           notifications.show({ title: 'Deleted', message: 'Product has been removed.', color: 'green' })
           close()
-          setDeleteId(null)
+          setDeleteTarget(null)
         },
         onError: () => {
           notifications.show({ title: 'Error', message: 'Could not delete product.', color: 'red' })
@@ -60,154 +65,122 @@ const ProductList = () => {
     )
   }
 
-  return (
-    <div className="w-full h-full">
-      {/* Delete Confirmation Modal */}
-      <Modal opened={opened} onClose={close} title="Delete Product" centered size="sm">
-        <Text size="sm" c="dimmed" mb="lg">
-          Are you sure you want to delete <strong className="text-gray-700">{deleteName}</strong>? This action cannot be
-          undone.
-        </Text>
-        <div className="flex justify-end gap-2">
-          <Button variant="default" size="xs" onClick={close}>
-            Cancel
-          </Button>
-          <Button color="red" size="xs" loading={isDeleting} onClick={handleConfirmDelete}>
-            Delete
-          </Button>
+  const columns: DataTableColumn<ProductDto>[] = [
+    { key: 'name', header: 'Product name', render: (p) => <span className="font-medium">{p.name}</span> },
+    { key: 'price', header: 'Price', width: 90, render: (p) => formatCurrency(p.price) },
+    {
+      key: 'stock',
+      header: 'Stock',
+      width: 70,
+      render: (p) => <span className={p.stockQty < 20 ? 'text-red-500 font-semibold' : ''}>{p.stockQty}</span>,
+    },
+    {
+      key: 'materials',
+      header: 'Materials',
+      width: 150,
+      render: (p) => (
+        <div className="flex gap-1 flex-nowrap items-center overflow-hidden">
+          {p.materials?.slice(0, 1).map((m) => (
+            <Badge key={m.id} size="xs" variant="light" color="primary">
+              {m.name}
+            </Badge>
+          ))}
+          {(p.materials?.length ?? 0) > 1 && (
+            <span className="text-2xs text-fg-subtle shrink-0">+{p.materials.length - 1}</span>
+          )}
         </div>
-      </Modal>
+      ),
+    },
+    {
+      key: 'carbon',
+      header: 'Carbon index',
+      width: 95,
+      render: (p) => (
+        <span className="text-muted-foreground">
+          {p.carbonIndex} <span className="text-fg-subtle">/ {p.baselineCarbonIndex}</span>
+        </span>
+      ),
+    },
+    {
+      key: 'recycle',
+      header: 'Recycle',
+      width: 90,
+      render: (p) => <span className="text-muted-foreground">{p.recyclePercent}%</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 80,
+      render: (p) => (
+        <Badge size="xs" variant="light" color={p.isActive ? 'primary' : 'gray'}>
+          {p.isActive ? 'Active' : 'Inactive'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      width: 70,
+      align: 'right',
+      render: (p) => (
+        <RowActions onEdit={() => navigate(`/admin/product/${p.id}/edit`)} onDelete={() => handleDeleteClick(p)} />
+      ),
+    },
+  ]
 
-      <div className="flex items-center gap-2.5 mb-2.5">
-        <TextInput
-          placeholder="Search products..."
-          size="xs"
-          leftSection={<MagnifyingGlassIcon size={13} />}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.currentTarget.value)
-            setPage(1)
-          }}
-          w={220}
-        />
-        <span className="text-[11px] text-muted-foreground">{totalCount} products total</span>
-        <div className="flex-1" />
-        <Button
-          component={Link}
-          to="/admin/product/create"
-          color="primary"
-          size="xs"
-          leftSection={<PlusIcon size={13} />}
-        >
+  return (
+    <AdminPageShell
+      title="Products"
+      actions={
+        <Button component={Link} to="/admin/product/create" size="xs" leftSection={<PlusIcon size={13} />}>
           Add new product
         </Button>
-      </div>
-
-      <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table
-            verticalSpacing={6}
-            horizontalSpacing={8}
-            highlightOnHover
-            classNames={{
-              th: '!text-[11px] font-semibold! !uppercase !tracking-[0.04em] text-muted-foreground! !bg-[#fafafa]',
-              td: '!text-[12px]',
+      }
+    >
+      <Toolbar
+        left={
+          <TextInput
+            placeholder="Search products..."
+            size="xs"
+            leftSection={<MagnifyingGlassIcon size={13} />}
+            value={search}
+            onChange={(e) => {
+              setSearch(e.currentTarget.value)
+              setPage(1)
             }}
-          >
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>Product name</Table.Th>
-                <Table.Th w={90}>Price</Table.Th>
-                <Table.Th w={70}>Stock</Table.Th>
-                <Table.Th w={150}>Materials</Table.Th>
-                <Table.Th w={95}>Carbon index</Table.Th>
-                <Table.Th w={90}>Recycle</Table.Th>
-                <Table.Th w={80}>Status</Table.Th>
-                <Table.Th w={70} ta="right">
-                  Actions
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {isLoading ? (
-                <Table.Tr>
-                  <Table.Td colSpan={8}>
-                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading products…</div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : products.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={8}>
-                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No products found.</div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                products.map((p) => (
-                  <Table.Tr key={p.id}>
-                    <Table.Td className="font-medium!">{p.name}</Table.Td>
-                    <Table.Td>{formatCurrency(p.price)}</Table.Td>
-                    <Table.Td>
-                      <span className={p.stockQty < 20 ? 'text-red-500 font-semibold' : ''}>{p.stockQty}</span>
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="flex gap-1 flex-nowrap items-center overflow-hidden">
-                        {p.materials?.slice(0, 1).map((m) => (
-                          <Badge key={m.id} size="xs" variant="light" color="primary" radius="xl">
-                            {m.name}
-                          </Badge>
-                        ))}
-                        {(p.materials?.length ?? 0) > 1 && (
-                          <span className="text-[11px] text-[#a1a1aa] shrink-0">+{p.materials.length - 1}</span>
-                        )}
-                      </div>
-                    </Table.Td>
-                    <Table.Td>
-                      <span className="text-muted-foreground">
-                        {p.carbonIndex} <span className="text-[#a1a1aa]">/ {p.baselineCarbonIndex}</span>
-                      </span>
-                    </Table.Td>
-                    <Table.Td className="text-muted-foreground!">{p.recyclePercent}%</Table.Td>
-                    <Table.Td>
-                      <Badge size="xs" variant="light" color={p.isActive ? 'primary' : 'gray'} radius="xl">
-                        {p.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="flex gap-0.5 justify-end">
-                        <ActionIcon
-                          variant="subtle"
-                          color="gray"
-                          size="sm"
-                          onClick={() => navigate(`/admin/product/${p.id}/edit`)}
-                          aria-label="Edit"
-                        >
-                          <NotePencilIcon size={13} />
-                        </ActionIcon>
-                        <ActionIcon
-                          variant="subtle"
-                          color="red"
-                          size="sm"
-                          onClick={() => handleDeleteClick(p.id, p.name)}
-                          aria-label="Delete"
-                        >
-                          <TrashIcon size={13} />
-                        </ActionIcon>
-                      </div>
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              )}
-            </Table.Tbody>
-          </Table>
-        </div>
-      </div>
+            w={220}
+          />
+        }
+        right={<span className="text-2xs text-muted-foreground">{totalCount} products total</span>}
+      />
 
-      {totalPages > 1 && (
-        <div className="flex justify-end mt-3">
-          <Pagination total={totalPages} value={page} onChange={setPage} size="xs" />
-        </div>
-      )}
-    </div>
+      <DataTable
+        columns={columns}
+        rows={products}
+        getRowKey={(p) => p.id}
+        isLoading={isLoading}
+        emptyIcon={PackageIcon}
+        emptyTitle="No products found"
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
+
+      <ConfirmModal
+        opened={opened}
+        onClose={close}
+        onConfirm={handleConfirmDelete}
+        title="Delete Product"
+        message={
+          <>
+            Are you sure you want to delete <strong className="text-gray-700">{deleteTarget?.name}</strong>? This action
+            cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        loading={isDeleting}
+      />
+    </AdminPageShell>
   )
 }
 

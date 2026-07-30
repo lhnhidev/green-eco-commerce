@@ -1,10 +1,16 @@
 import { getGetAllBannersQueryKey, useCreateBanner, useDeleteBanner, useGetAllBanners, useUpdateBanner } from '@api'
 import type { BannerDto } from '@api/schemas'
 import { ImageDropzone } from '@components/features/upload/ImageDropzone'
-import { ActionIcon, Badge, Button, NumberInput, Switch, Table, Textarea, TextInput } from '@mantine/core'
+import AdminPageShell from '@components/ui/primitives/AdminPageShell'
+import ConfirmModal from '@components/ui/primitives/ConfirmModal'
+import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
+import Panel from '@components/ui/primitives/Panel'
+import RowActions from '@components/ui/primitives/RowActions'
+import { Badge, Button, NumberInput, Switch, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { LinkIcon, NotePencilIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react'
+import { ImageIcon, LinkIcon, PlusIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import dayjs from 'dayjs'
@@ -33,6 +39,8 @@ const BannerList = () => {
   const { data: banners = [], isLoading } = useGetAllBanners()
   const [editing, setEditing] = useState<BannerDto | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<BannerDto | null>(null)
+  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
 
   const form = useForm<BannerForm>({
     initialValues: defaultForm,
@@ -70,14 +78,27 @@ const BannerList = () => {
     },
   })
 
-  const { mutate: remove } = useDeleteBanner({
+  const { mutate: remove, isPending: deleting } = useDeleteBanner({
     mutation: {
       onSuccess: async () => {
         await invalidate()
+        closeDelete()
+        setDeleteTarget(null)
         notifications.show({ title: 'Banner deleted', message: '', color: 'orange' })
       },
+      onError: () => notifications.show({ title: 'Error', message: 'Failed to delete banner.', color: 'red' }),
     },
   })
+
+  const handleDeleteClick = (banner: BannerDto) => {
+    setDeleteTarget(banner)
+    openDelete()
+  }
+
+  const handleConfirmDelete = () => {
+    if (!deleteTarget) return
+    remove({ id: deleteTarget.id })
+  }
 
   const openCreate = () => {
     setEditing(null)
@@ -114,23 +135,91 @@ const BannerList = () => {
     }
   }
 
+  const columns: DataTableColumn<BannerDto>[] = [
+    {
+      key: 'preview',
+      header: 'Preview',
+      width: 90,
+      render: (b) => (
+        <img
+          src={resolveImageUrl(b.imageUrl)}
+          alt={b.title}
+          className="w-20 h-12 object-cover rounded-md bg-gray-100"
+        />
+      ),
+    },
+    {
+      key: 'title',
+      header: 'Title',
+      render: (b) => (
+        <>
+          <div className="font-medium">{b.title}</div>
+          {b.subtitle && <div className="text-xs text-muted-foreground truncate max-w-48">{b.subtitle}</div>}
+        </>
+      ),
+    },
+    {
+      key: 'link',
+      header: 'Link',
+      render: (b) =>
+        b.linkUrl ? (
+          <a
+            href={b.linkUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1 text-xs text-primary hover:underline"
+          >
+            <LinkIcon size={12} /> {b.linkUrl}
+          </a>
+        ) : (
+          <span className="text-xs text-muted-foreground">—</span>
+        ),
+    },
+    {
+      key: 'order',
+      header: 'Order',
+      width: 70,
+      align: 'center',
+      render: (b) => <span className="font-semibold">{b.sortOrder}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 90,
+      render: (b) => (
+        <Badge size="xs" color={b.isActive ? 'green' : 'gray'} variant="light">
+          {b.isActive ? 'Active' : 'Inactive'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'created',
+      header: 'Created',
+      width: 110,
+      render: (b) => <span className="text-muted-foreground">{dayjs(b.createdAt).format('DD MMM YYYY')}</span>,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      width: 70,
+      align: 'right',
+      render: (b) => <RowActions onEdit={() => openEdit(b)} onDelete={() => handleDeleteClick(b)} />,
+    },
+  ]
+
   return (
-    <div className="flex flex-col gap-5">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-bold text-gray-800">Banner Management</h1>
-          <p className="text-[13px] text-muted-foreground mt-0.5">Manage homepage promotional banners</p>
-        </div>
-        <Button size="sm" color="primary" leftSection={<PlusIcon size={14} />} onClick={openCreate}>
+    <AdminPageShell
+      title="Banners"
+      description="Manage homepage promotional banners"
+      actions={
+        <Button size="xs" leftSection={<PlusIcon size={13} />} onClick={openCreate}>
           Add Banner
         </Button>
-      </div>
-
-      {/* Form panel */}
+      }
+    >
       {showForm && (
-        <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100 p-5">
-          <h2 className="font-semibold text-gray-800 mb-4">{editing ? 'Edit Banner' : 'New Banner'}</h2>
+        <Panel variant="admin" padding="md" className="mb-3">
+          <h2 className="font-semibold text-sm text-gray-800 mb-3">{editing ? 'Edit Banner' : 'New Banner'}</h2>
           <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <TextInput
@@ -155,19 +244,18 @@ const BannerList = () => {
             {form.errors.imageUrl && <p className="text-xs text-red-500">{form.errors.imageUrl}</p>}
             <div className="flex items-center gap-4">
               <NumberInput label="Sort Order" min={1} w={120} {...form.getInputProps('sortOrder')} />
-              <div className="mt-6">
-                <Switch
-                  label="Active"
-                  checked={form.values.isActive}
-                  onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
-                  color="green"
-                />
-              </div>
+              <Switch
+                label="Active"
+                className="mt-6"
+                checked={form.values.isActive}
+                onChange={(e) => form.setFieldValue('isActive', e.currentTarget.checked)}
+              />
             </div>
             <div className="flex gap-2 justify-end mt-1">
               <Button
                 variant="subtle"
                 color="gray"
+                size="xs"
                 onClick={() => {
                   setShowForm(false)
                   form.reset()
@@ -175,109 +263,39 @@ const BannerList = () => {
               >
                 Cancel
               </Button>
-              <Button type="submit" color="primary" loading={creating || updating}>
+              <Button type="submit" size="xs" loading={creating || updating}>
                 {editing ? 'Save Changes' : 'Create'}
               </Button>
             </div>
           </form>
-        </div>
+        </Panel>
       )}
 
-      {/* Table */}
-      <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table highlightOnHover>
-            <Table.Thead className="bg-gray-50 border-b border-[#ececee]">
-              <Table.Tr>
-                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
-                  Preview
-                </Table.Th>
-                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
-                  Title
-                </Table.Th>
-                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
-                  Link
-                </Table.Th>
-                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
-                  Order
-                </Table.Th>
-                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
-                  Status
-                </Table.Th>
-                <Table.Th className="text-[11px]! font-semibold! text-gray-500! uppercase! tracking-wide!">
-                  Created
-                </Table.Th>
-                <Table.Th />
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {isLoading ? (
-                <Table.Tr>
-                  <Table.Td colSpan={7} className="text-center py-8 text-gray-400">
-                    Loading…
-                  </Table.Td>
-                </Table.Tr>
-              ) : banners.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={7} className="text-center py-8 text-gray-400">
-                    No banners yet. Click "Add Banner" to create one.
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                banners.map((b) => (
-                  <Table.Tr key={b.id}>
-                    <Table.Td>
-                      <img
-                        src={resolveImageUrl(b.imageUrl)}
-                        alt={b.title}
-                        className="w-20 h-12 object-cover rounded-md bg-gray-100"
-                      />
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="font-semibold text-sm text-gray-800">{b.title}</div>
-                      {b.subtitle && <div className="text-xs text-gray-400 truncate max-w-48">{b.subtitle}</div>}
-                    </Table.Td>
-                    <Table.Td>
-                      {b.linkUrl ? (
-                        <a
-                          href={b.linkUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="flex items-center gap-1 text-xs text-primary hover:underline"
-                        >
-                          <LinkIcon size={12} /> {b.linkUrl}
-                        </a>
-                      ) : (
-                        <span className="text-xs text-gray-400">—</span>
-                      )}
-                    </Table.Td>
-                    <Table.Td className="text-sm! font-semibold! text-center">{b.sortOrder}</Table.Td>
-                    <Table.Td>
-                      <Badge size="xs" radius="sm" color={b.isActive ? 'green' : 'gray'} variant="light">
-                        {b.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td className="text-xs! text-muted-foreground!">
-                      {dayjs(b.createdAt).format('DD MMM YYYY')}
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="flex items-center gap-1">
-                        <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(b)}>
-                          <NotePencilIcon size={14} />
-                        </ActionIcon>
-                        <ActionIcon variant="subtle" color="red" size="sm" onClick={() => remove({ id: b.id })}>
-                          <TrashIcon size={14} />
-                        </ActionIcon>
-                      </div>
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              )}
-            </Table.Tbody>
-          </Table>
-        </div>
-      </div>
-    </div>
+      <DataTable
+        columns={columns}
+        rows={banners}
+        getRowKey={(b) => b.id}
+        isLoading={isLoading}
+        emptyIcon={ImageIcon}
+        emptyTitle="No banners yet"
+        emptyDescription='Click "Add Banner" to create one.'
+      />
+
+      <ConfirmModal
+        opened={deleteOpened}
+        onClose={closeDelete}
+        onConfirm={handleConfirmDelete}
+        title="Delete Banner"
+        message={
+          <>
+            Are you sure you want to delete <strong className="text-gray-700">{deleteTarget?.title}</strong>? This
+            action cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        loading={deleting}
+      />
+    </AdminPageShell>
   )
 }
 

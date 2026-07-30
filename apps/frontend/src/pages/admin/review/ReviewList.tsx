@@ -1,21 +1,14 @@
 import { getGetAllReviewsQueryKey, useApproveReview, useDeleteReview, useGetAllReviews, useHideReview } from '@api'
 import type { ReviewDto } from '@api/schemas'
-import {
-  ActionIcon,
-  Badge,
-  Button,
-  Group,
-  Modal,
-  Pagination,
-  Select,
-  Table,
-  Text,
-  TextInput,
-  Tooltip,
-} from '@mantine/core'
+import AdminPageShell from '@components/ui/primitives/AdminPageShell'
+import ConfirmModal from '@components/ui/primitives/ConfirmModal'
+import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
+import RowActions from '@components/ui/primitives/RowActions'
+import Toolbar from '@components/ui/primitives/Toolbar'
+import { ActionIcon, Badge, Select, TextInput, Tooltip } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { CheckIcon, EyeSlashIcon, MagnifyingGlassIcon, StarIcon, TrashIcon } from '@phosphor-icons/react'
+import { ChatCircleTextIcon, CheckIcon, EyeSlashIcon, MagnifyingGlassIcon, StarIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useMemo, useState } from 'react'
@@ -40,7 +33,7 @@ const StarRating = ({ rating }: { rating: number }) => (
         className={s <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'}
       />
     ))}
-    <span className="ml-1 text-[11px] text-muted-foreground">{rating}/5</span>
+    <span className="ml-1 text-2xs text-muted-foreground">{rating}/5</span>
   </div>
 )
 
@@ -61,6 +54,9 @@ const ReviewList = () => {
     return {}
   }, [statusFilter])
 
+  // useGetAllReviews returns the full matching set in one call (no server pagination exists for
+  // this endpoint), so paging below is genuinely client-side over an already-complete list —
+  // not the page-scoped-filter bug this pattern represents elsewhere in the app.
   const { data: reviews = [], isLoading } = useGetAllReviews(queryParams)
 
   const { mutate: approve, variables: approvingVar } = useApproveReview({
@@ -106,168 +102,146 @@ const ReviewList = () => {
     if (deleteTarget) deleteReview({ id: deleteTarget.id })
   }
 
-  return (
-    <div className="w-full h-full">
-      {/* Delete Modal */}
-      <Modal opened={deleteOpened} onClose={closeDelete} title="Delete Review?" centered size="sm">
-        <Text size="sm" c="dimmed" mb="md">
-          This will permanently remove "{deleteTarget?.comment?.substring(0, 60)}…"
-        </Text>
-        <Group justify="flex-end">
-          <Button variant="subtle" color="gray" onClick={closeDelete}>
-            Cancel
-          </Button>
-          <Button color="red" onClick={handleDelete} loading={deleting}>
-            Delete
-          </Button>
-        </Group>
-      </Modal>
-
-      <div className="flex items-center gap-2.5 mb-2.5">
-        <TextInput
-          placeholder="Search by reviewer or comment..."
-          size="xs"
-          leftSection={<MagnifyingGlassIcon size={13} />}
-          value={search}
-          onChange={(e) => {
-            setSearch(e.currentTarget.value)
-            setPage(1)
-          }}
-          w={260}
-        />
-        <Select
-          size="xs"
-          data={STATUS_OPTIONS}
-          value={statusFilter}
-          onChange={(v) => {
-            setStatusFilter((v as StatusFilter) ?? 'all')
-            setPage(1)
-          }}
-          w={140}
-        />
-        <span className="text-[11px] text-muted-foreground">{filtered.length} reviews</span>
-      </div>
-
-      <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table
-            verticalSpacing={6}
-            horizontalSpacing={8}
-            highlightOnHover
-            classNames={{
-              th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
-              td: '!text-[12px]',
+  const columns: DataTableColumn<ReviewDto>[] = [
+    {
+      key: 'reviewer',
+      header: 'Reviewer',
+      width: 140,
+      render: (r) => <span className="font-medium">{r.userName}</span>,
+    },
+    { key: 'rating', header: 'Rating', width: 90, render: (r) => <StarRating rating={r.rating} /> },
+    {
+      key: 'comment',
+      header: 'Comment',
+      render: (r) => <span className="text-muted-foreground line-clamp-1">{r.comment}</span>,
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 90,
+      render: (r) =>
+        r.isHidden ? (
+          <Badge size="xs" color="red" variant="light">
+            Hidden
+          </Badge>
+        ) : r.isApproved ? (
+          <Badge size="xs" color="green" variant="light">
+            Approved
+          </Badge>
+        ) : (
+          <Badge size="xs" color="gray" variant="light">
+            Pending
+          </Badge>
+        ),
+    },
+    {
+      key: 'date',
+      header: 'Date',
+      width: 100,
+      render: (r) => <span className="text-muted-foreground">{dayjs(r.createdAt).format('DD/MM/YYYY')}</span>,
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      width: 90,
+      align: 'right',
+      render: (r) => {
+        const isActing = approvingVar?.id === r.id || hidingVar?.id === r.id
+        return (
+          <RowActions
+            onDelete={() => {
+              setDeleteTarget(r)
+              openDelete()
             }}
-          >
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th w={140}>Reviewer</Table.Th>
-                <Table.Th w={90}>Rating</Table.Th>
-                <Table.Th>Comment</Table.Th>
-                <Table.Th w={90}>Status</Table.Th>
-                <Table.Th w={100}>Date</Table.Th>
-                <Table.Th w={90} ta="right">
-                  Actions
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {isLoading ? (
-                <Table.Tr>
-                  <Table.Td colSpan={6}>
-                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading reviews…</div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : paged.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={6}>
-                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No reviews found.</div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                paged.map((r) => {
-                  const isActing = approvingVar?.id === r.id || hidingVar?.id === r.id
-                  return (
-                    <Table.Tr key={r.id}>
-                      <Table.Td className="font-medium!">{r.userName}</Table.Td>
-                      <Table.Td>
-                        <StarRating rating={r.rating} />
-                      </Table.Td>
-                      <Table.Td className="text-muted-foreground! max-w-xs truncate">{r.comment}</Table.Td>
-                      <Table.Td>
-                        {r.isHidden ? (
-                          <Badge size="xs" color="red" variant="light">
-                            Hidden
-                          </Badge>
-                        ) : r.isApproved ? (
-                          <Badge size="xs" color="green" variant="light">
-                            Approved
-                          </Badge>
-                        ) : (
-                          <Badge size="xs" color="gray" variant="light">
-                            Pending
-                          </Badge>
-                        )}
-                      </Table.Td>
-                      <Table.Td className="text-muted-foreground!">{dayjs(r.createdAt).format('DD/MM/YYYY')}</Table.Td>
-                      <Table.Td>
-                        <div className="flex items-center justify-end gap-1">
-                          {!r.isApproved && (
-                            <Tooltip label="Approve" withArrow>
-                              <ActionIcon
-                                variant="subtle"
-                                color="green"
-                                size="sm"
-                                loading={isActing}
-                                onClick={() => approve({ id: r.id })}
-                              >
-                                <CheckIcon size={13} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          {!r.isHidden && (
-                            <Tooltip label="Hide" withArrow>
-                              <ActionIcon
-                                variant="subtle"
-                                color="yellow"
-                                size="sm"
-                                loading={isActing}
-                                onClick={() => hide({ id: r.id })}
-                              >
-                                <EyeSlashIcon size={13} />
-                              </ActionIcon>
-                            </Tooltip>
-                          )}
-                          <Tooltip label="Delete" withArrow>
-                            <ActionIcon
-                              variant="subtle"
-                              color="red"
-                              size="sm"
-                              onClick={() => {
-                                setDeleteTarget(r)
-                                openDelete()
-                              }}
-                            >
-                              <TrashIcon size={13} />
-                            </ActionIcon>
-                          </Tooltip>
-                        </div>
-                      </Table.Td>
-                    </Table.Tr>
-                  )
-                })
-              )}
-            </Table.Tbody>
-          </Table>
-        </div>
-      </div>
+            extra={
+              <>
+                {!r.isApproved && (
+                  <Tooltip label="Approve" withArrow>
+                    <ActionIcon
+                      variant="subtle"
+                      color="green"
+                      size="sm"
+                      loading={isActing}
+                      onClick={() => approve({ id: r.id })}
+                    >
+                      <CheckIcon size={13} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+                {!r.isHidden && (
+                  <Tooltip label="Hide" withArrow>
+                    <ActionIcon
+                      variant="subtle"
+                      color="yellow"
+                      size="sm"
+                      loading={isActing}
+                      onClick={() => hide({ id: r.id })}
+                    >
+                      <EyeSlashIcon size={13} />
+                    </ActionIcon>
+                  </Tooltip>
+                )}
+              </>
+            }
+          />
+        )
+      },
+    },
+  ]
 
-      {totalPages > 1 && (
-        <div className="flex justify-end mt-3">
-          <Pagination total={totalPages} value={page} onChange={setPage} size="xs" />
-        </div>
-      )}
-    </div>
+  return (
+    <AdminPageShell title="Reviews">
+      <Toolbar
+        left={
+          <>
+            <TextInput
+              placeholder="Search by reviewer or comment..."
+              size="xs"
+              leftSection={<MagnifyingGlassIcon size={13} />}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.currentTarget.value)
+                setPage(1)
+              }}
+              w={260}
+            />
+            <Select
+              size="xs"
+              data={STATUS_OPTIONS}
+              value={statusFilter}
+              onChange={(v) => {
+                setStatusFilter((v as StatusFilter) ?? 'all')
+                setPage(1)
+              }}
+              w={140}
+            />
+          </>
+        }
+        right={<span className="text-2xs text-muted-foreground">{filtered.length} reviews</span>}
+      />
+
+      <DataTable
+        columns={columns}
+        rows={paged}
+        getRowKey={(r) => r.id}
+        isLoading={isLoading}
+        emptyIcon={ChatCircleTextIcon}
+        emptyTitle="No reviews found"
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />
+
+      <ConfirmModal
+        opened={deleteOpened}
+        onClose={closeDelete}
+        onConfirm={handleDelete}
+        title="Delete Review?"
+        message={`This will permanently remove "${deleteTarget?.comment?.substring(0, 60)}…"`}
+        confirmLabel="Delete"
+        loading={deleting}
+      />
+    </AdminPageShell>
   )
 }
 

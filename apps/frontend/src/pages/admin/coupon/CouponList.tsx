@@ -1,24 +1,15 @@
 import { getGetAllCouponsQueryKey, useCreateCoupon, useDeleteCoupon, useGetAllCoupons, useUpdateCoupon } from '@api'
 import { CouponDiscountTypeEnum, type CouponDto } from '@api/schemas'
-import {
-  ActionIcon,
-  Badge,
-  Button,
-  Group,
-  Modal,
-  NumberInput,
-  Select,
-  Switch,
-  Table,
-  Text,
-  TextInput,
-  Tooltip,
-} from '@mantine/core'
+import AdminPageShell from '@components/ui/primitives/AdminPageShell'
+import ConfirmModal from '@components/ui/primitives/ConfirmModal'
+import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
+import RowActions from '@components/ui/primitives/RowActions'
+import { Badge, Button, Modal, NumberInput, Select, Switch, TextInput } from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { NotePencilIcon, PlusIcon, TagIcon, TrashIcon } from '@phosphor-icons/react'
+import { PlusIcon, SealPercentIcon, TagIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -42,6 +33,8 @@ const defaultForm: CouponForm = {
   expiresAt: null,
   isActive: true,
 }
+
+const isExpired = (expiresAt: string | Date) => new Date(expiresAt).getTime() < Date.now()
 
 const CouponList = () => {
   const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
@@ -133,8 +126,121 @@ const CouponList = () => {
     }
   }
 
+  const columns: DataTableColumn<CouponDto>[] = [
+    {
+      key: 'code',
+      header: 'Code',
+      width: 110,
+      render: (c) => <span className="font-mono font-semibold text-primary">{c.code}</span>,
+    },
+    {
+      key: 'type',
+      header: 'Type',
+      width: 100,
+      render: (c) => (
+        <Badge
+          size="xs"
+          variant="outline"
+          color={c.discountType === CouponDiscountTypeEnum.Percent ? 'violet' : 'blue'}
+        >
+          {c.discountType === CouponDiscountTypeEnum.Percent ? 'Percent' : 'Fixed'}
+        </Badge>
+      ),
+    },
+    {
+      key: 'value',
+      header: 'Value',
+      width: 90,
+      render: (c) => (
+        <span className="font-semibold">
+          {c.discountType === CouponDiscountTypeEnum.Percent ? `${c.discountValue}%` : `$${c.discountValue}`}
+        </span>
+      ),
+    },
+    {
+      key: 'minOrder',
+      header: 'Min Order',
+      width: 90,
+      render: (c) => <span className="text-muted-foreground">${c.minOrderAmount}</span>,
+    },
+    {
+      key: 'usage',
+      header: 'Usage',
+      width: 80,
+      render: (c) => (
+        <span className="text-muted-foreground">
+          {c.usedCount}/{c.maxUses}
+        </span>
+      ),
+    },
+    {
+      key: 'expires',
+      header: 'Expires',
+      width: 130,
+      render: (c) => (
+        <span className={isExpired(c.expiresAt) ? 'text-red-400' : 'text-muted-foreground'}>
+          {dayjs(c.expiresAt).format('DD/MM/YY HH:mm')}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      width: 80,
+      render: (c) =>
+        isExpired(c.expiresAt) ? (
+          <Badge size="xs" color="red" variant="light">
+            Expired
+          </Badge>
+        ) : c.isActive ? (
+          <Badge size="xs" color="green" variant="light">
+            Active
+          </Badge>
+        ) : (
+          <Badge size="xs" color="gray" variant="light">
+            Disabled
+          </Badge>
+        ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      width: 70,
+      align: 'right',
+      render: (c) => (
+        <RowActions
+          onEdit={() => openEdit(c)}
+          onDelete={() => {
+            setDeleteTarget(c)
+            openDelete()
+          }}
+        />
+      ),
+    },
+  ]
+
   return (
-    <div className="w-full h-full">
+    <AdminPageShell
+      title="Coupons"
+      actions={
+        <Button size="xs" leftSection={<PlusIcon size={13} />} onClick={openCreate}>
+          New Coupon
+        </Button>
+      }
+    >
+      <div className="flex items-center justify-end mb-2.5">
+        <span className="text-2xs text-muted-foreground">{coupons.length} coupons total</span>
+      </div>
+
+      <DataTable
+        columns={columns}
+        rows={coupons}
+        getRowKey={(c) => c.id}
+        isLoading={isLoading}
+        emptyIcon={SealPercentIcon}
+        emptyTitle="No coupons yet"
+      />
+
       {/* Create/Edit Modal */}
       <Modal
         opened={modalOpened}
@@ -146,7 +252,6 @@ const CouponList = () => {
           </div>
         }
         size="md"
-        centered
       >
         <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-4">
           <TextInput
@@ -188,150 +293,31 @@ const CouponList = () => {
             {...form.getInputProps('expiresAt')}
           />
           {editTarget && <Switch label="Active" {...form.getInputProps('isActive', { type: 'checkbox' })} />}
-          <Group justify="flex-end" mt="sm">
-            <Button variant="subtle" color="gray" onClick={closeModal}>
+          <div className="flex justify-end gap-2 mt-1">
+            <Button variant="subtle" color="gray" size="xs" onClick={closeModal}>
               Cancel
             </Button>
-            <Button type="submit" color="primary" loading={creating || updating}>
+            <Button type="submit" size="xs" loading={creating || updating}>
               {editTarget ? 'Save Changes' : 'Create Coupon'}
             </Button>
-          </Group>
+          </div>
         </form>
       </Modal>
 
-      {/* Delete Modal */}
-      <Modal opened={deleteOpened} onClose={closeDelete} title="Delete Coupon?" centered size="sm">
-        <Text size="sm" c="dimmed" mb="md">
-          Delete coupon <strong>{deleteTarget?.code}</strong>? This cannot be undone.
-        </Text>
-        <Group justify="flex-end">
-          <Button variant="subtle" color="gray" onClick={closeDelete}>
-            Cancel
-          </Button>
-          <Button color="red" loading={deleting} onClick={() => deleteTarget && deleteCoupon({ id: deleteTarget.id })}>
-            Delete
-          </Button>
-        </Group>
-      </Modal>
-
-      <div className="flex items-center justify-between mb-2.5">
-        <span className="text-[11px] text-muted-foreground">{coupons.length} coupons total</span>
-        <Button size="xs" leftSection={<PlusIcon size={13} />} color="primary" onClick={openCreate}>
-          New Coupon
-        </Button>
-      </div>
-
-      <div className="bg-white rounded-xl border border-[#ececee] shadow-[0_1px_2px_rgba(24,24,27,0.04)] overflow-hidden">
-        <div className="overflow-x-auto">
-          <Table
-            verticalSpacing={6}
-            horizontalSpacing={8}
-            highlightOnHover
-            classNames={{
-              th: '!text-[11px] !font-semibold !uppercase !tracking-[0.04em] !text-muted-foreground !bg-[#fafafa]',
-              td: '!text-[12px]',
-            }}
-          >
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th w={110}>Code</Table.Th>
-                <Table.Th w={100}>Type</Table.Th>
-                <Table.Th w={90}>Value</Table.Th>
-                <Table.Th w={90}>Min Order</Table.Th>
-                <Table.Th w={80}>Usage</Table.Th>
-                <Table.Th w={130}>Expires</Table.Th>
-                <Table.Th w={80}>Status</Table.Th>
-                <Table.Th w={70} ta="right">
-                  Actions
-                </Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {isLoading ? (
-                <Table.Tr>
-                  <Table.Td colSpan={8}>
-                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">Loading coupons…</div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : coupons.length === 0 ? (
-                <Table.Tr>
-                  <Table.Td colSpan={8}>
-                    <div className="text-center py-8 text-[12px] text-[#a1a1aa]">No coupons yet.</div>
-                  </Table.Td>
-                </Table.Tr>
-              ) : (
-                coupons.map((c) => (
-                  <Table.Tr key={c.id}>
-                    <Table.Td>
-                      <span className="font-mono font-bold text-primary">{c.code}</span>
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge
-                        size="xs"
-                        variant="outline"
-                        color={c.discountType === CouponDiscountTypeEnum.Percent ? 'violet' : 'blue'}
-                        radius="sm"
-                      >
-                        {c.discountType === CouponDiscountTypeEnum.Percent ? 'Percent' : 'Fixed'}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td className="font-semibold!">
-                      {c.discountType === CouponDiscountTypeEnum.Percent
-                        ? `${c.discountValue}%`
-                        : `$${c.discountValue}`}
-                    </Table.Td>
-                    <Table.Td className="text-muted-foreground!">${c.minOrderAmount}</Table.Td>
-                    <Table.Td className="text-muted-foreground!">
-                      {c.usedCount}/{c.maxUses}
-                    </Table.Td>
-                    <Table.Td className={`text-muted-foreground! ${c.expiresAt >= new Date() ? 'text-red-400!' : ''}`}>
-                      {dayjs(c.expiresAt).format('DD/MM/YY HH:mm')}
-                    </Table.Td>
-                    <Table.Td>
-                      {c.expiresAt >= new Date() ? (
-                        <Badge size="xs" color="red" variant="light">
-                          Expired
-                        </Badge>
-                      ) : c.isActive ? (
-                        <Badge size="xs" color="green" variant="light">
-                          Active
-                        </Badge>
-                      ) : (
-                        <Badge size="xs" color="gray" variant="light">
-                          Disabled
-                        </Badge>
-                      )}
-                    </Table.Td>
-                    <Table.Td>
-                      <div className="flex items-center justify-end gap-1">
-                        <Tooltip label="Edit" withArrow>
-                          <ActionIcon variant="subtle" color="gray" size="sm" onClick={() => openEdit(c)}>
-                            <NotePencilIcon size={13} />
-                          </ActionIcon>
-                        </Tooltip>
-                        <Tooltip label="Delete" withArrow>
-                          <ActionIcon
-                            variant="subtle"
-                            color="red"
-                            size="sm"
-                            onClick={() => {
-                              setDeleteTarget(c)
-                              openDelete()
-                            }}
-                          >
-                            <TrashIcon size={13} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </div>
-                    </Table.Td>
-                  </Table.Tr>
-                ))
-              )}
-            </Table.Tbody>
-          </Table>
-        </div>
-      </div>
-    </div>
+      <ConfirmModal
+        opened={deleteOpened}
+        onClose={closeDelete}
+        onConfirm={() => deleteTarget && deleteCoupon({ id: deleteTarget.id })}
+        title="Delete Coupon?"
+        message={
+          <>
+            Delete coupon <strong>{deleteTarget?.code}</strong>? This cannot be undone.
+          </>
+        }
+        confirmLabel="Delete"
+        loading={deleting}
+      />
+    </AdminPageShell>
   )
 }
 
