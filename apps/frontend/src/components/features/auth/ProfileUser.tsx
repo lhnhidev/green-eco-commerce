@@ -3,16 +3,7 @@ import { RoleEnum } from '@api/schemas'
 import { useAuth } from '@hooks/useAuth'
 import { Avatar, Divider, Group, Menu, Skeleton, Stack, Text } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import {
-  GaugeIcon,
-  HeartIcon,
-  type Icon,
-  LeafIcon,
-  PackageIcon,
-  ScalesIcon,
-  SignOutIcon,
-  UserIcon,
-} from '@phosphor-icons/react'
+import { HeartIcon, type Icon, LeafIcon, PackageIcon, ScalesIcon, SignOutIcon, UserIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { Link, useNavigate } from 'react-router'
@@ -123,28 +114,24 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
 
         <Divider my="xs" />
 
-        {menuList.map((menuItem) => (
-          <Menu.Item
-            key={menuItem.id}
-            component={Link}
-            to={menuItem.url}
-            leftSection={<menuItem.icon size={16} className="text-gray-400" />}
-          >
-            {menuItem.label}
-          </Menu.Item>
-        ))}
-
-        {user.role === RoleEnum.Admin && (
-          <Menu.Item
-            component={Link}
-            to="/admin/dashboard"
-            leftSection={<GaugeIcon size={16} className="text-gray-400" />}
-          >
-            Admin dashboard
-          </Menu.Item>
+        {user.role === RoleEnum.User && (
+          <>
+            {
+              // Regular customers see the full list
+              menuList.map((menuItem) => (
+                <Menu.Item
+                  key={menuItem.id}
+                  component={Link}
+                  to={menuItem.url}
+                  leftSection={<menuItem.icon size={16} className="text-gray-400" />}
+                >
+                  {menuItem.label}
+                </Menu.Item>
+              ))
+            }
+            <Divider my="xs" />
+          </>
         )}
-
-        <Divider my="xs" />
 
         <Menu.Item color="red" leftSection={<SignOutIcon size={16} />} onClick={handleLogout}>
           Log out
