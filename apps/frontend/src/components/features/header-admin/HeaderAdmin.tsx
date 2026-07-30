@@ -76,10 +76,9 @@ const HeaderAdmin = () => {
   return (
     <AppShell.Header px="md" className="flex items-center justify-between gap-3">
       <div className="flex items-center gap-3">
-        <Burger hiddenFrom="sm" size="sm" onClick={() => dispatch(toggleMobileSidebar())} aria-label="Toggle sidebar" />
+        <Burger hiddenFrom="sm" onClick={() => dispatch(toggleMobileSidebar())} aria-label="Toggle sidebar" />
         <Burger
           visibleFrom="sm"
-          size="sm"
           onClick={() => dispatch(toggleDesktopSidebar())}
           aria-label="Toggle sidebar"
         />
