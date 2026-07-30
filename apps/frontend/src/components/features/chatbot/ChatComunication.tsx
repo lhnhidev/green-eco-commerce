@@ -1,7 +1,7 @@
 import { getGetAllChatSessionsQueryKey, useAskChatbot, useGetChatSessionMessages } from '@api'
 import { ChatRole } from '@api/schemas'
-import { TextInput, Tooltip } from '@mantine/core'
-import { PaperPlaneTiltIcon } from '@phosphor-icons/react'
+import { Loader, TextInput, Tooltip } from '@mantine/core'
+import { Leaf, PaperPlaneRight } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import type * as React from 'react'
 import { useEffect, useRef, useState } from 'react'
@@ -62,7 +62,7 @@ const ChatComunication = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <>
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, isPending])
 
   const handleNewChat = () => {
     localStorage.removeItem(SESSION_STORAGE_KEY)
@@ -127,63 +127,64 @@ const ChatComunication = () => {
   }
 
   return (
-    <div className="fixed flex flex-col justify-between bottom-24 right-6 lg:bottom-10 lg:right-10 text-sm rounded-2xl bg-white shadow-2xl z-50 px-3 py-4 border border-gray-300 min-h-125 min-w-96">
-      <div className="max-h-150 overflow-auto">
-        <HeaderChatbot activeSessionId={sessionId} onNewChat={handleNewChat} onSelectSession={handleSelectSession} />
-        <div className="mt-6">
-          <ChatBanner />
-        </div>
+    <div className="fixed flex flex-col justify-between bottom-24 right-6 lg:bottom-10 lg:right-10 text-sm rounded-2xl bg-white/90 backdrop-blur-xl shadow-2xl shadow-green-900/10 z-50 border border-white/50 w-[420px] max-w-[calc(100vw-48px)] h-[600px] max-h-[calc(100vh-120px)] overflow-hidden transition-all duration-300">
+      <HeaderChatbot activeSessionId={sessionId} onNewChat={handleNewChat} onSelectSession={handleSelectSession} />
 
-        <div className="flex-1 mt-4 px-1">
-          <div className="flex flex-col gap-3 py-2">
+      <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50/50 custom-scrollbar scroll-smooth">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full gap-4 opacity-90">
+            <ChatBanner />
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
             {messages.map((msg) => (
               <MessageBox key={msg.id} message={msg.message} time={msg.time} isBot={msg.isBot} />
             ))}
 
-            {/* Typing indicator khi đang chờ bot trả lời */}
+            {/* Typing indicator */}
             {isPending && (
-              <div className="flex items-end gap-2">
-                <span className="text-lg">🤖</span>
-                <div
-                  className="px-4 py-2 rounded-lg rounded-bl-sm text-xs text-gray-400"
-                  style={{ backgroundColor: '#f1f3f5' }}
-                >
-                  Typing
-                  <span className="animate-pulse">...</span>
+              <div className="flex items-end gap-3 mt-2 animate-pulse">
+                <div className="mb-1 shrink-0 bg-linear-to-br from-green-100 to-emerald-200 border-2 border-white shadow-sm rounded-full w-8 h-8 flex items-center justify-center">
+                  <Leaf weight="fill" color="#059669" size={16} />
+                </div>
+                <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-white border border-green-100 text-gray-500 shadow-sm flex gap-1 items-center">
+                  <Loader size="xs" color="teal" type="dots" />
                 </div>
               </div>
             )}
-
-            {/* Anchor để scroll xuống */}
-            <div ref={bottomRef} />
+            <div ref={bottomRef} className="h-1" />
           </div>
-        </div>
+        )}
       </div>
 
-      <div className="px-4">
+      <div className="p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
         <TextInput
-          classNames={{ input: '!py-7 !px-5' }}
-          placeholder="Enter your question here"
+          classNames={{
+            input:
+              '!py-6 !px-5 !bg-gray-50/80 !border-gray-200 focus:!border-green-400 focus:!ring-green-400/20 !rounded-xl !text-sm transition-all',
+          }}
+          placeholder="Ask me about eco-friendly living..."
           value={inputValue}
           onChange={(e) => setInputValue(e.currentTarget.value)}
           onKeyDown={handleKeyDown}
           disabled={isPending}
           rightSection={
-            <Tooltip label="Send">
+            <Tooltip label="Send" withArrow>
               {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
               {/** biome-ignore lint/a11y/useKeyWithClickEvents: <> */}
               <div
-                className={`p-5 mr-5 transition-all ${
+                className={`flex items-center justify-center w-10 h-10 mr-2 rounded-lg transition-all duration-200 ${
                   isPending || !inputValue.trim()
-                    ? 'text-gray-300 cursor-not-allowed'
-                    : 'cursor-pointer hover:text-primary'
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-green-500 text-white cursor-pointer hover:bg-green-600 hover:scale-105 hover:shadow-md'
                 }`}
                 onClick={handleSend}
               >
-                <PaperPlaneTiltIcon weight="fill" />
+                <PaperPlaneRight weight="fill" size={18} />
               </div>
             </Tooltip>
           }
+          rightSectionWidth={56}
         />
       </div>
     </div>

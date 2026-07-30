@@ -15,7 +15,7 @@ const StaticPageLayout = ({ title, path, children }: StaticPageLayoutProps) => {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-3xl">
+    <div className="container mx-auto px-4 py-10">
       <Seo title={title} />
       <PageBreadcrumbs items={breadcrumbItems} mb="lg" />
       <h1 className="text-3xl font-bold text-gray-900 mb-6">{title}</h1>

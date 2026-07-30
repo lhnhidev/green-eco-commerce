@@ -1,5 +1,6 @@
 import { Avatar, Paper, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
+import { Leaf, User } from '@phosphor-icons/react'
 
 interface MessageBoxProps {
   message: string
@@ -19,27 +20,28 @@ const MessageBox = ({ message, time, isBot, avatar }: MessageBoxProps) => {
   const preview = isLong ? lines.slice(0, LINE_LIMIT).join('\n') : message
 
   return (
-    <div className={`flex items-end gap-2 w-full ${isBot ? 'justify-start' : 'justify-end'}`}>
+    <div className={`flex items-end gap-3 w-full ${isBot ? 'justify-start' : 'justify-end'}`}>
       {/* Avatar bot (bên trái) */}
       {isBot && (
-        <Avatar src={avatar} alt="Bot" size="sm" radius="xl" color="green" className="mb-1 shrink-0">
-          🤖
+        <Avatar
+          src={avatar}
+          alt="Bot"
+          size="md"
+          radius="xl"
+          className="mb-1 shrink-0 bg-linear-to-br from-green-100 to-emerald-200 border-2 border-white shadow-sm"
+        >
+          <Leaf weight="fill" color="#059669" size={20} />
         </Avatar>
       )}
 
       <div className={`flex flex-col gap-1 max-w-[75%] ${isBot ? 'items-start' : 'items-end'}`}>
-        <Paper
-          shadow="xs"
-          px="md"
-          py="sm"
-          radius="lg"
-          style={{
-            borderBottomLeftRadius: isBot ? 4 : undefined,
-            borderBottomRightRadius: !isBot ? 4 : undefined,
-            backgroundColor: isBot ? '#f1f3f5' : 'var(--mantine-color-green-6)',
-            color: isBot ? '#1a1a1a' : '#ffffff',
-            wordBreak: 'break-word',
-          }}
+        <div
+          className={`px-4 py-3 shadow-md ${
+            isBot
+              ? 'rounded-2xl rounded-bl-sm bg-white border border-green-100 text-gray-800'
+              : 'rounded-2xl rounded-br-sm bg-linear-to-br from-green-500 to-emerald-600 text-white'
+          }`}
+          style={{ wordBreak: 'break-word' }}
         >
           {/* Nội dung tin nhắn */}
           <Text size="sm" style={{ whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
@@ -50,29 +52,36 @@ const MessageBox = ({ message, time, isBot, avatar }: MessageBoxProps) => {
           {isLong && (
             <Text
               size="xs"
-              mt={4}
+              mt={6}
+              fw={600}
               style={{
                 cursor: 'pointer',
-                color: isBot ? 'var(--mantine-color-green-7)' : 'rgba(255,255,255,0.8)',
+                color: isBot ? '#059669' : 'rgba(255,255,255,0.9)',
                 userSelect: 'none',
+                display: 'inline-block',
               }}
+              className="hover:underline"
               onClick={toggle}
             >
               {expanded ? '▲ Show less' : '▼ Show more...'}
             </Text>
           )}
-        </Paper>
+        </div>
 
         {/* Thời gian */}
-        <Text size="xs" c="dimmed" px={4}>
+        <Text size="xs" c="dimmed" px={4} className="opacity-70 font-medium">
           {time}
         </Text>
       </div>
 
       {/* Avatar user (bên phải) */}
       {!isBot && (
-        <Avatar size="sm" radius="xl" color="blue" className="mb-1 shrink-0">
-          👤
+        <Avatar
+          size="md"
+          radius="xl"
+          className="mb-1 shrink-0 bg-linear-to-br from-gray-100 to-gray-200 border-2 border-white shadow-sm"
+        >
+          <User weight="fill" color="#4b5563" size={20} />
         </Avatar>
       )}
     </div>
