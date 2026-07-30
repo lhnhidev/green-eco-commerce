@@ -1,6 +1,7 @@
 using GreenEcoCommerce.Application.Common.Models;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.Enums;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Orders.Queries;
@@ -24,6 +25,11 @@ public record GetAllOrdersQuery(Guid? UserId, GetAllOrdersQuery.Parameters Query
                 orderQuery = orderQuery.Where(o => o.UserId == request.UserId);
             }
 
+            if (request.Query.Status.HasValue)
+            {
+                orderQuery = orderQuery.Where(o => o.Status == request.Query.Status);
+            }
+
             return await request.Query.ApplyAsync(orderQuery, OrderDtoSummaryMapper.ProjectToSummaryDto, ct);
         }
     }
@@ -33,6 +39,7 @@ public record GetAllOrdersQuery(Guid? UserId, GetAllOrdersQuery.Parameters Query
         public OrderSortBy? SortBy { get; init; }
         public bool? SortDescending { get; init; }
         public string? Search { get; init; }
+        public OrderStatusEnum? Status { get; init; }
 
         public IQueryable<Order> ApplySearching(IQueryable<Order> query)
         {
