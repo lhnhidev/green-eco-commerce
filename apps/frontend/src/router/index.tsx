@@ -10,6 +10,7 @@ import MyOrdersPage from '@pages/client/Order/MyOrdersPage'
 import OrderDetailPage from '@pages/client/Order/OrderDetailPage'
 import OrderSuccessPage from '@pages/client/Order/OrderSuccessPage'
 import PaymentPage from '@pages/client/Payment/PaymentPage'
+import PaymentQrPage from '@pages/client/Payment/PaymentQrPage'
 import ProductDetailPage from '@pages/client/Product/ProductDetailPage'
 import ProductPage from '@pages/client/Product/ProductPage'
 import ProfilePage from '@pages/client/Profile/ProfilePage'
@@ -25,7 +26,7 @@ import WishlistPage from '@pages/client/Wishlist/WishlistPage'
 import ErrorPage from '@pages/ErrorPage'
 import NotFoundPage from '@pages/NotFoundPage'
 import { lazy } from 'react'
-import { createBrowserRouter } from 'react-router'
+import { createBrowserRouter, Navigate } from 'react-router'
 
 // Admin pages are lazy-loaded — they're a separate console the vast majority of
 // storefront visitors never open, and shouldn't bloat the customer-facing bundle.
@@ -34,15 +35,14 @@ const ProductList = lazy(() => import('@pages/admin/product/ProductList'))
 const ProductCreate = lazy(() => import('@pages/admin/product/ProductCreate'))
 const ProductEdit = lazy(() => import('@pages/admin/product/ProductEdit'))
 const CategoryList = lazy(() => import('@pages/admin/category/CategoryList'))
-const CategoryCreate = lazy(() => import('@pages/admin/category/CategoryCreate'))
 const MaterialList = lazy(() => import('@pages/admin/material/MaterialList'))
-const MaterialCreate = lazy(() => import('@pages/admin/material/MaterialCreate'))
 const OrderList = lazy(() => import('@pages/admin/order/OrderList'))
 const UserList = lazy(() => import('@pages/admin/user/UserList'))
 const BannerList = lazy(() => import('@pages/admin/banner/BannerList'))
 const ReviewList = lazy(() => import('@pages/admin/review/ReviewList'))
 const CouponList = lazy(() => import('@pages/admin/coupon/CouponList'))
 const DocumentList = lazy(() => import('@pages/admin/document/DocumentList'))
+const SettingsPage = lazy(() => import('@pages/admin/SettingsPage'))
 
 export const router = createBrowserRouter([
   {
@@ -70,6 +70,7 @@ export const router = createBrowserRouter([
         ),
       },
       { path: '/payment', element: <PaymentPage /> },
+      { path: '/payment/qr', element: <PaymentQrPage /> },
       { path: '/auth', element: <AuthPage /> },
       {
         path: '/my-orders',
@@ -135,21 +136,20 @@ export const router = createBrowserRouter([
     element: <RootLayoutAdmin />,
     errorElement: <ErrorPage />,
     children: [
+      { index: true, element: <Navigate to="dashboard" replace /> },
       { path: 'dashboard', element: <Dashboard /> },
       { path: 'product', element: <ProductList /> },
       { path: 'product/create', element: <ProductCreate /> },
       { path: 'product/:id/edit', element: <ProductEdit /> },
       { path: 'category', element: <CategoryList /> },
-      { path: 'category/create', element: <CategoryCreate /> },
       { path: 'material', element: <MaterialList /> },
-      { path: 'material/create', element: <MaterialCreate /> },
       { path: 'order', element: <OrderList /> },
       { path: 'user', element: <UserList /> },
       { path: 'banner', element: <BannerList /> },
       { path: 'review', element: <ReviewList /> },
       { path: 'coupon', element: <CouponList /> },
       { path: 'document', element: <DocumentList /> },
-      { path: 'analyst', element: <Dashboard /> },
+      { path: 'settings', element: <SettingsPage /> },
     ],
   },
 ])
