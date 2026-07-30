@@ -1,24 +1,25 @@
-import { useGetMe, useUpdateUserProfile } from '@api'
-import { setAuthUser } from '@components/features/auth/auth.slice'
+import { getGetMeQueryKey, useGetMe, useUpdateUserProfile } from '@api'
+import AddressManager from '@components/features/addresses/AddressManager'
 import StatisticsTab from '@components/features/statistics/StatisticsTab'
-import { useAppDispatch } from '@hooks/useAppDispatch'
-import { Anchor, Avatar, Breadcrumbs, Button, Divider, PasswordInput, Tabs, TextInput } from '@mantine/core'
+import { ImageDropzone } from '@components/features/upload/ImageDropzone'
+import Container from '@components/ui/primitives/Container'
+import PageHeader from '@components/ui/primitives/PageHeader'
+import Panel from '@components/ui/primitives/Panel'
+import { Avatar, Button, Divider, PasswordInput, Skeleton, Tabs, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
 import { notifications } from '@mantine/notifications'
+import { ChartBarIcon, MapPinIcon, UserIcon } from '@phosphor-icons/react'
+import { useQueryClient } from '@tanstack/react-query'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { useEffect } from 'react'
-import { FiBarChart2, FiUser } from 'react-icons/fi'
 
 const breadcrumbItems = [
   { title: 'Home', href: '/' },
   { title: 'Profile', href: '/profile' },
-].map((item) => (
-  <Anchor href={item.href} key={item.href} size="sm">
-    {item.title}
-  </Anchor>
-))
+]
 
 const ProfilePage = () => {
-  const dispatch = useAppDispatch()
+  const queryClient = useQueryClient()
   const { data: user, isLoading } = useGetMe()
   const { mutate: updateProfile, isPending } = useUpdateUserProfile()
 
@@ -67,7 +68,7 @@ const ProfilePage = () => {
       },
       {
         onSuccess: (updated) => {
-          dispatch(setAuthUser(updated))
+          queryClient.setQueryData(getGetMeQueryKey(), updated)
           notifications.show({ title: 'Profile updated', message: 'Your info has been saved.', color: 'green' })
           form.setFieldValue('password', '')
         },
@@ -81,33 +82,31 @@ const ProfilePage = () => {
   const initials = user ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() : ''
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <Breadcrumbs mb="lg">{breadcrumbItems}</Breadcrumbs>
-
-      <div className="flex items-center gap-3 mb-6">
-        <FiUser className="text-2xl text-primary" />
-        <h1 className="text-2xl font-bold text-gray-800">My Profile</h1>
-      </div>
+    <Container width="narrow" className="py-6">
+      <PageHeader breadcrumbItems={breadcrumbItems} icon={UserIcon} title="My Profile" />
 
       <Tabs defaultValue="profile" keepMounted={false}>
         <Tabs.List mb="lg">
-          <Tabs.Tab value="profile" leftSection={<FiUser />}>
+          <Tabs.Tab value="profile" leftSection={<UserIcon />}>
             Profile
           </Tabs.Tab>
-          <Tabs.Tab value="stats" leftSection={<FiBarChart2 />}>
+          <Tabs.Tab value="addresses" leftSection={<MapPinIcon />}>
+            Addresses
+          </Tabs.Tab>
+          <Tabs.Tab value="stats" leftSection={<ChartBarIcon />}>
             Statistics
           </Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="profile">
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <Panel padding="lg">
             {/* Avatar section */}
             <div className="flex items-center gap-4 mb-6">
-              <Avatar src={user?.avatar || null} size={72} radius="xl" color="green">
+              <Avatar src={resolveImageUrl(user?.avatar) ?? null} size={64} radius="xl" color="green">
                 {!user?.avatar && initials}
               </Avatar>
               <div>
-                <p className="font-semibold text-gray-800 text-lg">
+                <p className="font-semibold text-gray-800 text-md">
                   {user?.firstName} {user?.lastName}
                 </p>
                 <p className="text-sm text-gray-400">{user?.email}</p>
@@ -118,7 +117,16 @@ const ProfilePage = () => {
             <Divider mb="lg" />
 
             {isLoading ? (
-              <div className="text-center py-8 text-gray-400">Loading profile…</div>
+              <div className="flex flex-col gap-5">
+                <div className="grid grid-cols-2 gap-5">
+                  <Skeleton height={60} radius="md" />
+                  <Skeleton height={60} radius="md" />
+                </div>
+                <Skeleton height={60} radius="md" />
+                <Skeleton height={60} radius="md" />
+                <Skeleton height={100} radius="md" />
+                <Skeleton height={60} radius="md" />
+              </div>
             ) : (
               <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-5">
                 <div className="grid grid-cols-2 gap-5">
@@ -150,10 +158,10 @@ const ProfilePage = () => {
                   {...form.getInputProps('address')}
                 />
 
-                <TextInput
-                  label="Avatar URL"
-                  placeholder="https://example.com/avatar.jpg"
-                  {...form.getInputProps('avatar')}
+                <ImageDropzone
+                  label="Avatar"
+                  value={form.values.avatar}
+                  onChange={(url) => form.setFieldValue('avatar', url)}
                 />
 
                 <PasswordInput
@@ -170,14 +178,20 @@ const ProfilePage = () => {
                 </div>
               </form>
             )}
-          </div>
+          </Panel>
+        </Tabs.Panel>
+
+        <Tabs.Panel value="addresses">
+          <Panel padding="lg">
+            <AddressManager />
+          </Panel>
         </Tabs.Panel>
 
         <Tabs.Panel value="stats">
           <StatisticsTab />
         </Tabs.Panel>
       </Tabs>
-    </div>
+    </Container>
   )
 }
 

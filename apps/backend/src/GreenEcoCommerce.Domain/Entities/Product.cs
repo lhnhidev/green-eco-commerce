@@ -1,6 +1,8 @@
+using GreenEcoCommerce.Domain.Interfaces;
+
 namespace GreenEcoCommerce.Domain.Entities;
 
-public class Product
+public class Product : IHasCreatedAt
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public Guid CategoryId { get; set; }
@@ -14,6 +16,7 @@ public class Product
     public decimal RecyclePercent { get; set; }
     public string[] ImageUrl { get; set; } = [];
     public bool IsActive { get; set; } = true;
+    public DateTimeOffset CreatedAt { get; set; }
 
     // Navigation Properties
     public Category Category { get; set; } = null!;

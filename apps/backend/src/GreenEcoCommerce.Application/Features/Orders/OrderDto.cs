@@ -4,7 +4,14 @@ using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.Orders;
 
-public record OrderItemDto(Guid ProductId, int Quantity, decimal UnitPrice, decimal UnitCo2Saved);
+public record OrderItemDto(
+    Guid ProductId,
+    string ProductName,
+    string? ProductImage,
+    int Quantity,
+    decimal UnitPrice,
+    decimal UnitCo2Saved
+);
 
 public record OrderDto(
     Guid Id,
@@ -12,19 +19,28 @@ public record OrderDto(
     OrderStatusEnum Status,
     string DeliveryAddress,
     decimal TotalAmount,
+    decimal FinalAmount,
     decimal DiscountAmount,
     decimal TotalCo2Saved,
     decimal EarnedPoints,
     OrderItemDto[] Items,
-    DateTimeOffset CreatedAt
+    DateTimeOffset CreatedAt,
+    PaymentStatusEnum PaymentStatus,
+    PaymentMethodEnum PaymentMethod
 );
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public static partial class OrderDtoMapper
 {
+    [MapProperty(nameof(OrderItem.Product), nameof(OrderItemDto.ProductImage), Use = nameof(MapProductImage))]
+    private static partial OrderItemDto ToDto(this OrderItem orderItem);
+
     [MapProperty(nameof(Order.OrderItems), nameof(OrderDto.TotalAmount), Use = nameof(MapItemsToTotalAmount))]
+    [MapProperty(nameof(Order.Payment), nameof(OrderDto.FinalAmount), Use = nameof(MapPaymentToFinalAmount))]
     [MapProperty(nameof(Order.OrderItems), nameof(OrderDto.TotalCo2Saved), Use = nameof(MapItemsToTotalCo2Saved))]
     [MapProperty(nameof(Order.OrderItems), nameof(OrderDto.Items))]
+    [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentStatus), Use = nameof(MapPaymentToStatus))]
+    [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentMethod), Use = nameof(MapPaymentToMethod))]
     public static partial OrderDto ToDto(this Order order);
 
     public static partial IQueryable<OrderDto> ProjectToDto(this IQueryable<Order> orders);
@@ -36,14 +52,29 @@ public static partial class OrderDtoMapper
     [UserMapping(Default = false)]
     public static decimal MapItemsToTotalCo2Saved(ICollection<OrderItem> items) =>
             items.Sum(item => item.UnitCo2Saved * item.Quantity);
+
+    [UserMapping(Default = false)]
+    public static decimal MapPaymentToFinalAmount(Payment? payment) => payment?.Amount ?? 0;
+
+    [UserMapping(Default = false)]
+    public static PaymentStatusEnum MapPaymentToStatus(Payment? payment) => payment?.Status ?? PaymentStatusEnum.Pending;
+
+    [UserMapping(Default = false)]
+    public static PaymentMethodEnum MapPaymentToMethod(Payment? payment) => payment?.Method ?? PaymentMethodEnum.Bank;
+
+    [UserMapping(Default = false)]
+    private static string? MapProductImage(Product product) => product.ImageUrl.FirstOrDefault();
 }
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
 public static partial class OrderDtoSummaryMapper
 {
     [MapProperty(nameof(Order.OrderItems), nameof(OrderDto.TotalAmount), Use = nameof(@OrderDtoMapper.MapItemsToTotalAmount))]
+    [MapProperty(nameof(Order.Payment), nameof(OrderDto.FinalAmount), Use = nameof(@OrderDtoMapper.MapPaymentToFinalAmount))]
     [MapProperty(nameof(Order.OrderItems), nameof(OrderDto.TotalCo2Saved), Use = nameof(@OrderDtoMapper.MapItemsToTotalCo2Saved))]
     [MapValue(nameof(OrderDto.Items), Use = nameof(DefaultEmptyOrderItems))]
+    [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentStatus), Use = nameof(@OrderDtoMapper.MapPaymentToStatus))]
+    [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentMethod), Use = nameof(@OrderDtoMapper.MapPaymentToMethod))]
     public static partial OrderDto ToSummaryDto(this Order order);
 
     public static partial IQueryable<OrderDto> ProjectToSummaryDto(this IQueryable<Order> orders);

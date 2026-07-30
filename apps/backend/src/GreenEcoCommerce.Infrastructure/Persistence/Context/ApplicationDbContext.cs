@@ -42,6 +42,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Coupon> Coupons => Set<Coupon>();
     public DbSet<Banner> Banners => Set<Banner>();
 
+    // Wishlist
+    public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
+
+    // Notifications
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    // Address book
+    public DbSet<Address> Addresses => Set<Address>();
+
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
             Database.BeginTransactionAsync(ct);
 
@@ -55,6 +64,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.HasPostgresExtension("vector");
 
         // Supabase mặc định dùng schema public
         modelBuilder.HasDefaultSchema("public");

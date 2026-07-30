@@ -1,22 +1,60 @@
-import { getGetCartQueryKey, useAddCartItem, useGetProductById } from '@api'
+import {
+  getGetCartQueryKey,
+  getGetWishlistQueryKey,
+  getIsInWishlistQueryKey,
+  useAddCartItem,
+  useAddToWishlist,
+  useGetProductById,
+  useIsInWishlist,
+  useRemoveFromWishlist,
+} from '@api'
+import { MAX_COMPARE_ITEMS, toggleCompare } from '@components/features/compare/compare.slice'
+import RecentlyViewedProducts from '@components/features/products/RecentlyViewedProducts'
+import { recordProductView } from '@components/features/products/recentlyViewed.slice'
+import RelatedProducts from '@components/features/products/RelatedProducts'
 import ProductReviews from '@components/features/reviews/ProductReviews'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
+import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
+import Container from '@components/ui/primitives/Container'
+import PriceTag from '@components/ui/primitives/PriceTag'
+import Prose from '@components/ui/primitives/Prose'
+import Stat from '@components/ui/primitives/Stat'
+import Seo from '@components/ui/Seo'
 import Loading from '@components/ui/status/Loading'
+import StockBadge from '@components/ui/StockBadge'
+import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
-import { Anchor, Breadcrumbs, NumberInput, Rating } from '@mantine/core'
+import { useAuth } from '@hooks/useAuth'
+import { ActionIcon, Badge, Button, Modal, NumberInput, Rating, Tabs } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { HeartIcon, LeafIcon, ShieldCheckIcon, ShoppingCartIcon, TreeIcon } from '@phosphor-icons/react'
+import {
+  ArrowsOutIcon,
+  CaretLeftIcon,
+  CaretRightIcon,
+  HeartIcon,
+  LeafIcon,
+  ScalesIcon,
+  ShieldCheckIcon,
+  ShoppingCartIcon,
+  TreeIcon,
+  XIcon,
+} from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatParam } from '@utils/formatParam'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import type * as React from 'react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
 const ProductDetailPage = () => {
   const { id } = useParams()
+  const { user } = useAuth()
+  const dispatch = useAppDispatch()
+  const compareIds = useAppSelector((state) => state.compare.productIds)
+  const isComparing = !!id && compareIds.includes(id)
 
-  const [isShowMore, setIsShowMore] = useState<boolean>(false)
   const [amountProduct, setAmountProduct] = useState<number>(1)
+  const [activeTab, setActiveTab] = useState<string | null>('description')
 
   const {
     data: product,
@@ -29,8 +67,21 @@ const ProductDetailPage = () => {
     },
   })
 
-  const imgUrlActive = useAppSelector((state) => state.imgSlider.imgUrlActive)
+  const [activeImg, setActiveImg] = useState('')
+  const [lightboxOpen, setLightboxOpen] = useState(false)
   const [zoomStyle, setZoomStyle] = useState({ transformOrigin: 'center' })
+
+  const resolvedImages = product?.imageUrl.map((url) => resolveImageUrl(url) ?? url) ?? []
+
+  // Reset the active image (and record the view) whenever we land on a different product —
+  // this component instance is reused across navigations between /products/:id routes.
+  useEffect(() => {
+    if (product) {
+      setActiveImg(resolveImageUrl(product.imageUrl[0]) ?? product.imageUrl[0] ?? '')
+      dispatch(recordProductView(product.id))
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id])
 
   const queryClient = useQueryClient()
 
@@ -41,6 +92,42 @@ const ProductDetailPage = () => {
       },
     },
   })
+
+  const { data: isWishlisted } = useIsInWishlist(id ?? '', {
+    query: {
+      enabled: !!user && !!id,
+      staleTime: 1000 * 60 * 5,
+    },
+  })
+  const invalidateWishlist = () => {
+    queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
+    if (id) queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(id) })
+  }
+  const { mutate: addWishlist } = useAddToWishlist({ mutation: { onSuccess: invalidateWishlist } })
+  const { mutate: removeWishlist } = useRemoveFromWishlist({ mutation: { onSuccess: invalidateWishlist } })
+
+  const handleWishlist = () => {
+    if (!id) return
+    if (!user) {
+      notifications.show({ title: 'Login required', message: 'Please log in to save to wishlist.', color: 'orange' })
+      return
+    }
+    if (isWishlisted) removeWishlist({ productId: id })
+    else addWishlist({ productId: id })
+  }
+
+  const handleCompare = () => {
+    if (!id) return
+    if (!isComparing && compareIds.length >= MAX_COMPARE_ITEMS) {
+      notifications.show({
+        title: 'Compare list full',
+        message: `You can compare up to ${MAX_COMPARE_ITEMS} products at a time.`,
+        color: 'orange',
+      })
+      return
+    }
+    dispatch(toggleCompare(id))
+  }
 
   const handleAddToCart = (productId: string | undefined, quantity: number) => {
     if (!productId) return
@@ -55,15 +142,15 @@ const ProductDetailPage = () => {
       {
         onSuccess: () => {
           notifications.show({
-            title: 'Add Product Sucessed!',
-            message: `Product: ${product?.name} - Amount: ${quantity}`,
+            title: 'Added to cart',
+            message: `${product?.name} — qty ${quantity}`,
             color: 'green',
           })
         },
         onError: () => {
           notifications.show({
-            title: 'Add Product Failed!',
-            message: 'Add product failed. Please try again!',
+            title: 'Action failed',
+            message: 'Could not add product to cart. Please try again.',
             color: 'red',
           })
         },
@@ -73,29 +160,27 @@ const ProductDetailPage = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-200 flex items-center justify-center">
-        <Loading text="Loading product details..."></Loading>
+      <div className="min-h-150 flex items-center justify-center">
+        <Loading text="Loading product details..." />
       </div>
     )
   }
 
   if (isError || product === undefined) {
     return (
-      <div className="min-h-200 flex items-center justify-center text-red-500 font-medium">
+      <div className="min-h-150 flex items-center justify-center text-red-500 font-medium">
         Oops! We couldn't find this product.
       </div>
     )
   }
 
-  const items = [
-    { id: 1, title: 'Home', href: '/' },
-    { id: 2, title: 'Products', href: '/products' },
-    { id: 3, title: product.name, href: `/products/${product.id}` },
-  ].map((item) => (
-    <Anchor href={item.href} key={item.id} className="text-sm text-gray-500 hover:text-primary transition-colors">
-      {item.title}
-    </Anchor>
-  ))
+  const breadcrumbItems = [
+    { title: 'Home', href: '/' },
+    { title: 'Products', href: '/products' },
+    { title: product.name, href: `/products/${product.id}` },
+  ]
+
+  const outOfStock = product.stockQty <= 0
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
@@ -108,210 +193,254 @@ const ProductDetailPage = () => {
     setZoomStyle({ transformOrigin: 'center' })
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50/30">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20">
-        <Breadcrumbs separator="/" className="mb-8">
-          {items}
-        </Breadcrumbs>
+  const carbonSaved =
+    product.baselineCarbonIndex > product.carbonIndex
+      ? (((product.baselineCarbonIndex - product.carbonIndex) / product.baselineCarbonIndex) * 100).toFixed(0)
+      : null
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-          {/* Image Gallery Section */}
-          <div className="lg:col-span-6 flex flex-col gap-6">
-            {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
+  return (
+    <div className="min-h-screen bg-white pb-20 lg:pb-0">
+      <Seo
+        title={product.name}
+        description={product.description ?? undefined}
+        image={resolveImageUrl(product.imageUrl[0]) ?? undefined}
+      />
+
+      <Container className="py-6">
+        <PageBreadcrumbs items={breadcrumbItems} className="mb-4" separator="/" />
+
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10">
+          {/* Image Gallery */}
+          <div className="flex flex-col gap-3">
+            {/** biome-ignore lint/a11y/noStaticElementInteractions: mouse-driven zoom, not a control */}
             <div
-              className="relative w-full aspect-square overflow-hidden rounded-3xl bg-white shadow-sm border border-gray-100 group cursor-zoom-in"
+              className="relative w-full aspect-square overflow-hidden rounded-lg bg-white border border-border group cursor-zoom-in"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >
               <img
-                className="w-full h-full object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-150"
+                className="w-full h-full object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-105"
                 style={zoomStyle}
                 alt={product.name}
-                src={imgUrlActive}
+                src={activeImg}
               />
-              <div className="absolute top-4 left-4">
-                <div className="backdrop-blur-md bg-white/70 px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm border border-white/50">
-                  <LeafIcon weight="fill" className="text-green-600 text-sm" />
-                  <span className="text-[11px] font-bold tracking-widest text-green-800 uppercase">Eco-Certified</span>
-                </div>
+              <div className="absolute top-3 left-3">
+                <Badge size="sm" color="primary" variant="light" leftSection={<LeafIcon weight="fill" size={11} />}>
+                  Eco-certified
+                </Badge>
               </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setLightboxOpen(true)
+                }}
+                className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-600 hover:text-primary transition-colors"
+                aria-label="View full size image"
+              >
+                <ArrowsOutIcon size={15} />
+              </button>
             </div>
 
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100">
-              <ImgSlider imgs={product.imageUrl} isAuto={false} delayTime={0} percent="25%" />
-            </div>
+            <ImgSlider
+              imgs={resolvedImages}
+              isAuto={false}
+              delayTime={0}
+              percent="25%"
+              activeImg={activeImg}
+              onSelect={setActiveImg}
+            />
           </div>
 
-          {/* Product Details Section */}
-          <div className="lg:col-span-6 flex flex-col">
-            <div className="mb-6">
-              <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">{product.name}</h1>
-
-              <div className="flex items-center gap-6 mb-6">
-                <div className="text-3xl font-extrabold text-transparent bg-clip-text bg-linear-to-r from-green-600 to-emerald-400">
-                  ${product.price.toFixed(2)}
-                </div>
-                <div className="h-6 w-px bg-gray-200" />
-                <div className="flex items-center gap-2">
-                  <Rating value={product?.rating ?? 0} fractions={2} readOnly size="sm" />
-                  <a
-                    href="#reviews"
-                    className="text-sm font-medium text-gray-500 hover:text-primary transition-colors border-b border-dashed border-gray-400"
-                  >
-                    {product.reviewsCount === 1 ? '1 Review' : `${product.reviewsCount} Reviews`}
-                  </a>
-                </div>
+          {/* Buy box */}
+          <div className="lg:sticky lg:top-[72px] lg:self-start flex flex-col gap-3">
+            {product.materials && product.materials.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {product.materials.map((material) => (
+                  <Badge key={material.id} size="sm" variant="light" color="gray">
+                    {material.name}
+                  </Badge>
+                ))}
               </div>
+            )}
 
-              {/* Eco Impact Premium Card */}
-              <div className="relative overflow-hidden bg-linear-to-br from-green-50 to-emerald-50/30 rounded-3xl p-8 mb-8 border border-green-100/50 shadow-sm transition-all duration-300 hover:shadow-md hover:border-green-200 group">
-                <div className="absolute top-0 right-0 -mt-4 -mr-4 w-32 h-32 bg-green-400/10 rounded-full blur-3xl group-hover:bg-green-400/20 transition-all duration-500" />
-                <div className="absolute bottom-0 left-0 -mb-4 -ml-4 w-24 h-24 bg-emerald-300/10 rounded-full blur-2xl group-hover:bg-emerald-300/20 transition-all duration-500" />
+            <h1 className="text-2xl font-semibold text-gray-900 leading-tight">{product.name}</h1>
 
-                <div className="relative z-10">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="bg-white p-2 rounded-xl shadow-sm">
-                      <TreeIcon weight="fill" className="text-2xl text-green-500" />
-                    </div>
-                    <h3 className="text-sm font-bold uppercase tracking-widest text-green-800">Environmental Impact</h3>
-                  </div>
+            <div className="flex items-center gap-2">
+              <Rating value={product?.rating ?? 0} fractions={2} readOnly size="xs" />
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab('reviews')
+                  document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' })
+                }}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                {product.reviewsCount === 1 ? '1 review' : `${product.reviewsCount} reviews`}
+              </button>
+            </div>
 
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="flex flex-col">
-                      <div className="flex items-end gap-1 mb-1">
-                        <span className="text-4xl font-black text-green-700">{product.carbonIndex}</span>
-                        <span className="text-sm font-bold text-green-600 mb-1">kg CO₂e</span>
-                      </div>
-                      <span className="text-xs uppercase tracking-wider text-green-600/80 font-semibold">
-                        Product Carbon Footprint
-                      </span>
-                    </div>
+            <PriceTag value={product.price} size="lg" />
 
-                    <div className="flex flex-col border-l border-green-200/50 pl-8">
-                      <div className="flex items-end gap-1 mb-1">
-                        <span className="text-4xl font-black text-gray-400">{product.baselineCarbonIndex}</span>
-                        <span className="text-sm font-bold text-gray-400 mb-1">kg CO₂e</span>
-                      </div>
-                      <span className="text-xs uppercase tracking-wider text-gray-500 font-semibold">
-                        Standard Baseline
-                      </span>
-                    </div>
-                  </div>
-
-                  {product.baselineCarbonIndex > product.carbonIndex && (
-                    <div className="mt-6 inline-flex items-center gap-2 bg-white/60 backdrop-blur-sm px-4 py-2 rounded-full border border-green-100 shadow-sm">
-                      <ShieldCheckIcon weight="fill" className="text-green-500 text-lg" />
-                      <span className="text-xs font-bold text-green-800">
-                        {(
-                          ((product.baselineCarbonIndex - product.carbonIndex) / product.baselineCarbonIndex) *
-                          100
-                        ).toFixed(0)}
-                        % less emissions than conventional alternatives
-                      </span>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Description */}
-              <div className="mb-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-bold text-gray-900">About this product</h3>
-                  {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
-                  {/** biome-ignore lint/a11y/useKeyWithClickEvents: <> */}
-                  <span
-                    onClick={() => setIsShowMore(!isShowMore)}
-                    className="text-sm font-semibold text-primary cursor-pointer hover:text-green-600 transition-colors flex items-center gap-1"
-                  >
-                    Read {isShowMore ? 'less' : 'more'}
-                  </span>
-                </div>
-                <div
-                  className={`prose prose-sm md:prose-base prose-green max-w-none text-gray-600 leading-relaxed whitespace-pre-line ${isShowMore ? '' : 'line-clamp-3'}`}
-                >
-                  {formatParam(product.description, '\n\n')}
-                </div>
-              </div>
-
-              {/* Actions Section */}
-              <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 mb-8">
-                <div className="flex items-end gap-6 mb-6">
-                  <div className="flex-1 max-w-35">
-                    {/* biome-ignore lint/a11y/noLabelWithoutControl: <explanation> */}
-                    <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 ml-1">
-                      Quantity
-                    </label>
-                    <NumberInput
-                      min={1}
-                      value={amountProduct}
-                      size="md"
-                      radius="xl"
-                      classNames={{
-                        input: '!text-center !font-bold !text-lg !border-gray-200 focus:!border-primary',
-                        control: '!border-none !bg-gray-50 hover:!bg-gray-100',
-                      }}
-                      onChange={(value) =>
-                        setAmountProduct(typeof value === 'number' ? value : parseInt(value.toString(), 10) || 1)
-                      }
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Total Price</div>
-                    <div className="text-2xl font-bold text-gray-900">
-                      ${(product.price * amountProduct).toFixed(2)}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  {/** biome-ignore lint/a11y/useButtonType: <> */}
-                  <button
-                    onClick={() => handleAddToCart(product.id, amountProduct)}
-                    className="flex-1 cursor-pointer bg-linear-to-r from-green-600 to-emerald-500 text-white font-bold py-4 px-6 rounded-xl tracking-wide flex items-center justify-center gap-3 hover:shadow-lg hover:shadow-green-500/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300"
-                  >
-                    <ShoppingCartIcon weight="bold" className="text-xl" />
-                    <span>Add to Cart</span>
-                  </button>
-                  {/** biome-ignore lint/a11y/useButtonType: <> */}
-                  <button
-                    className="sm:flex-none cursor-pointer px-6 bg-white border-2 border-gray-200 text-gray-600 py-4 rounded-xl font-bold flex items-center justify-center hover:border-red-200 hover:text-red-500 hover:bg-red-50 active:scale-[0.98] transition-all duration-300"
-                    title="Save to Favorites"
-                  >
-                    <HeartIcon weight="bold" className="text-xl" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Materials */}
-              {product.materials && product.materials.length > 0 && (
-                <div className="bg-gray-50/80 rounded-2xl p-6 border border-gray-100">
-                  <h3 className="text-sm font-bold uppercase tracking-widest text-gray-500 mb-4">
-                    Materials & Sourcing
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {product.materials.map((material) => (
-                      <div
-                        key={material.id}
-                        className="px-4 py-2 bg-white border border-gray-200 text-gray-700 rounded-full text-sm font-medium shadow-sm hover:border-green-300 hover:text-green-700 transition-colors cursor-default"
-                      >
-                        {material.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
+            <div className="flex items-center gap-2">
+              <StockBadge stockQty={product.stockQty} />
+              {carbonSaved && (
+                <span className="inline-flex items-center gap-1 text-xs text-primary">
+                  <ShieldCheckIcon weight="fill" size={13} />
+                  {carbonSaved}% less CO₂e than baseline
+                </span>
               )}
             </div>
+
+            <div className="flex items-end gap-3 pt-1">
+              <NumberInput
+                label="Quantity"
+                min={1}
+                max={product.stockQty}
+                value={amountProduct}
+                disabled={outOfStock}
+                w={90}
+                onChange={(value) => {
+                  const parsed = typeof value === 'number' ? value : parseInt(value.toString(), 10) || 1
+                  setAmountProduct(Math.min(Math.max(1, parsed), product.stockQty))
+                }}
+              />
+              <span className="text-sm text-muted-foreground pb-2">
+                Total: <PriceTag value={product.price * amountProduct} size="sm" colorClassName="text-gray-900" />
+              </span>
+            </div>
+
+            <Button
+              size="md"
+              fullWidth
+              disabled={outOfStock}
+              onClick={() => handleAddToCart(product.id, amountProduct)}
+              leftSection={<ShoppingCartIcon weight="bold" size={16} />}
+            >
+              {outOfStock ? 'Out of stock' : 'Add to cart'}
+            </Button>
+
+            <div className="flex items-center gap-2">
+              <ActionIcon
+                variant="subtle"
+                size="lg"
+                color={isWishlisted ? 'red' : 'gray'}
+                onClick={handleWishlist}
+                aria-label={isWishlisted ? 'Remove from favorites' : 'Save to favorites'}
+                title={isWishlisted ? 'Remove from favorites' : 'Save to favorites'}
+              >
+                <HeartIcon weight={isWishlisted ? 'fill' : 'bold'} size={17} />
+              </ActionIcon>
+              <ActionIcon
+                variant="subtle"
+                size="lg"
+                color={isComparing ? 'primary' : 'gray'}
+                onClick={handleCompare}
+                aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
+                title={isComparing ? 'Remove from compare' : 'Add to compare'}
+              >
+                <ScalesIcon weight={isComparing ? 'fill' : 'bold'} size={17} />
+              </ActionIcon>
+            </div>
           </div>
         </div>
+
+        <Tabs id="product-tabs" value={activeTab} onChange={setActiveTab} className="mt-section">
+          <Tabs.List>
+            <Tabs.Tab value="description">Description</Tabs.Tab>
+            <Tabs.Tab value="sustainability">Sustainability</Tabs.Tab>
+            <Tabs.Tab value="reviews">Reviews ({product.reviewsCount})</Tabs.Tab>
+          </Tabs.List>
+
+          <Tabs.Panel value="description" pt="md">
+            <Prose>{formatParam(product.description, '\n\n')}</Prose>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="sustainability" pt="md">
+            <div className="flex items-center gap-2 mb-4">
+              <TreeIcon weight="fill" size={18} className="text-primary" />
+              <h3 className="text-sm font-semibold text-gray-800">Environmental impact</h3>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Stat label="Product carbon footprint" value={`${product.carbonIndex} kg`} tone="primary" />
+              <Stat label="Standard baseline" value={`${product.baselineCarbonIndex} kg`} />
+              {carbonSaved && <Stat label="CO₂e saved" value={`${carbonSaved}%`} tone="primary" />}
+            </div>
+          </Tabs.Panel>
+
+          <Tabs.Panel value="reviews" pt="md">
+            <ProductReviews productId={product.id} reviewsCount={product.reviewsCount} averageRating={product.rating} />
+          </Tabs.Panel>
+        </Tabs>
+
+        <RelatedProducts productId={product.id} />
+        <RecentlyViewedProducts excludeProductId={product.id} />
+      </Container>
+
+      {/* Sticky mobile add-to-cart bar */}
+      <div className="lg:hidden fixed bottom-14 left-0 right-0 z-30 bg-white border-t border-border px-4 py-2.5 flex items-center gap-3">
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-gray-400 truncate">{product.name}</p>
+          <PriceTag value={product.price * amountProduct} size="md" />
+        </div>
+        <Button
+          size="sm"
+          disabled={outOfStock}
+          onClick={() => handleAddToCart(product.id, amountProduct)}
+          leftSection={<ShoppingCartIcon weight="bold" size={14} />}
+        >
+          {outOfStock ? 'Out of stock' : 'Add to cart'}
+        </Button>
       </div>
 
-      {/* Customer Reviews */}
-      {product && (
-        <div id="reviews" className="container mx-auto px-4 max-w-7xl pb-16 scroll-mt-24">
-          <ProductReviews productId={product.id} reviewsCount={product.reviewsCount} averageRating={product.rating} />
-        </div>
-      )}
+      {/* Lightbox */}
+      <Modal
+        opened={lightboxOpen}
+        onClose={() => setLightboxOpen(false)}
+        size="auto"
+        centered
+        padding={0}
+        withCloseButton={false}
+        classNames={{ body: 'relative bg-black', content: 'bg-black' }}
+      >
+        <button
+          type="button"
+          onClick={() => setLightboxOpen(false)}
+          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+          aria-label="Close"
+        >
+          <XIcon size={18} />
+        </button>
+        <img src={activeImg} alt={product.name} className="max-w-[90vw] max-h-[85vh] object-contain mx-auto" />
+        {resolvedImages.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={() => {
+                const idx = resolvedImages.indexOf(activeImg)
+                const prevIdx = (idx - 1 + resolvedImages.length) % resolvedImages.length
+                setActiveImg(resolvedImages[prevIdx])
+              }}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+              aria-label="Previous image"
+            >
+              <CaretLeftIcon size={20} />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const idx = resolvedImages.indexOf(activeImg)
+                const nextIdx = (idx + 1) % resolvedImages.length
+                setActiveImg(resolvedImages[nextIdx])
+              }}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+              aria-label="Next image"
+            >
+              <CaretRightIcon size={20} />
+            </button>
+          </>
+        )}
+      </Modal>
     </div>
   )
 }

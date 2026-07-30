@@ -11,6 +11,7 @@ public class Order: IHasCreatedAt
     public required string DeliveryAddress { get; set; }
     public decimal DiscountAmount { get; set; }
     public decimal EarnedPoints { get; set; }
+    public string? CouponCode { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     // Navigation Properties

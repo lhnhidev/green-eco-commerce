@@ -38,6 +38,15 @@ public interface IApplicationDbContext
     DbSet<Coupon> Coupons { get; }
     DbSet<Banner> Banners { get; }
 
+    // Wishlist
+    DbSet<WishlistItem> WishlistItems { get; }
+
+    // Notifications
+    DbSet<Notification> Notifications { get; }
+
+    // Address book
+    DbSet<Address> Addresses { get; }
+
     // Automatic transaction
     Task<int> SaveChangesAsync(CancellationToken ct = default);
 

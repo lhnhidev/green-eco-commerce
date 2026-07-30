@@ -1,4 +1,4 @@
-﻿using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Exceptions;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,11 +11,14 @@ public record GetOrderDetailsQuery(Guid OrderId) : IRequest<OrderDto>
     {
         public async Task<OrderDto> Handle(GetOrderDetailsQuery request, CancellationToken ct)
         {
-            var orderQuery = dbContext.Orders;
+            var order = await dbContext.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Include(o => o.Payment)
+                .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
+                ?? throw new KeyNotFoundException($"Order {request.OrderId} not found.");
 
-            var order = await orderQuery.ProjectToDto().FirstOrDefaultAsync(o => o.Id == request.OrderId, ct);
-
-            return order ?? throw new NotFoundException("Order not found");
+            return order.ToDto();
         }
     }
 }

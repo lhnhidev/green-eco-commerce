@@ -1,6 +1,7 @@
 using GreenEcoCommerce.Application.Common.Models;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.Enums;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Orders.Queries;
@@ -11,22 +12,42 @@ public enum OrderSortBy
     TotalAmount
 }
 
-public record GetAllOrdersQuery(GetAllOrdersQuery.Parameters Query) : IRequest<PagedResult<OrderDto>>
+public record GetAllOrdersQuery(Guid? UserId, GetAllOrdersQuery.Parameters Query) : IRequest<PagedResult<OrderDto>>
 {
     public class Handler(IApplicationDbContext dbContext) : IRequestHandler<GetAllOrdersQuery, PagedResult<OrderDto>>
     {
         public async Task<PagedResult<OrderDto>> Handle(GetAllOrdersQuery request, CancellationToken ct)
         {
-            var orderQuery = dbContext.Orders;
+            IQueryable<Order> orderQuery = dbContext.Orders;
+
+            if (request.UserId.HasValue)
+            {
+                orderQuery = orderQuery.Where(o => o.UserId == request.UserId);
+            }
+
+            if (request.Query.Status.HasValue)
+            {
+                orderQuery = orderQuery.Where(o => o.Status == request.Query.Status);
+            }
+
             return await request.Query.ApplyAsync(orderQuery, OrderDtoSummaryMapper.ProjectToSummaryDto, ct);
         }
     }
 
-    public class Parameters : QueryParameters<Order>, ISortParameters<Order>, IFilterParameters<Order>
+    public class Parameters : QueryParameters<Order>, ISortParameters<Order>, ISearchParameters<Order>
     {
         public OrderSortBy? SortBy { get; init; }
         public bool? SortDescending { get; init; }
-        public Guid? UserId { get; init; }
+        public string? Search { get; init; }
+        public OrderStatusEnum? Status { get; init; }
+
+        public IQueryable<Order> ApplySearching(IQueryable<Order> query)
+        {
+            if (string.IsNullOrWhiteSpace(Search)) { return query; }
+
+            string term = Search.ToLower();
+            return query.Where(o => o.Id.ToString().ToLower().Contains(term) || o.DeliveryAddress.ToLower().Contains(term));
+        }
 
         public IQueryable<Order> ApplySorting(IQueryable<Order> query)
         {
@@ -38,13 +59,6 @@ public record GetAllOrdersQuery(GetAllOrdersQuery.Parameters Query) : IRequest<P
                     SortDescending),
                 _ => query.ApplySorting(o => o.Id, SortDescending)
             };
-        }
-
-        public IQueryable<Order> ApplyFiltering(IQueryable<Order> query)
-        {
-            if (UserId.HasValue) { query = query.Where(o => o.UserId == UserId.Value); }
-
-            return query;
         }
     }
 }

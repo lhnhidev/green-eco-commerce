@@ -1,116 +1,97 @@
-/** biome-ignore-all lint/a11y/useKeyWithClickEvents: <> */
-/** biome-ignore-all lint/a11y/noStaticElementInteractions: <> */
-
 import Brand from '@components/ui/Brand'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
-import { FaHome, FaUser } from 'react-icons/fa'
-import { FaTableCells } from 'react-icons/fa6'
-import { IoIosDocument, IoIosSettings } from 'react-icons/io'
-import { IoReceipt } from 'react-icons/io5'
-import { MdCategory } from 'react-icons/md'
-import { RiCoupon3Line } from 'react-icons/ri'
-import { TbCategory, TbMessageStar, TbPhoto } from 'react-icons/tb'
-import { Link } from 'react-router'
-import NavigationIndex from './NavigationIndex'
-import { type ActiveType, closeMobileSidebar, setActive } from './navigation.slice'
 import { AppShell, Burger } from '@mantine/core'
+import {
+  ChatCircleTextIcon,
+  FilesIcon,
+  GearIcon,
+  HouseIcon,
+  ImageIcon,
+  ReceiptIcon,
+  SealPercentIcon,
+  SquaresFourIcon,
+  StackIcon,
+  TableIcon,
+  UserIcon,
+} from '@phosphor-icons/react'
+import type * as React from 'react'
+import { NavLink } from 'react-router'
+import NavigationIndex from './NavigationIndex'
+import { closeMobileSidebar } from './navigation.slice'
 
-const navigateMems = [
+type NavItem = {
+  to: string
+  icon: React.ComponentType<{ className?: string; size?: number }>
+  text: string
+}
+
+const navSections: { label: string; items: NavItem[] }[] = [
   {
-    id: 'dashboard',
-    icon: FaHome,
-    text: 'Dashboard',
+    label: 'Overview',
+    items: [{ to: '/admin/dashboard', icon: HouseIcon, text: 'Dashboard' }],
   },
   {
-    id: 'product',
-    icon: FaTableCells,
-    text: 'Products',
+    label: 'Catalog',
+    items: [
+      { to: '/admin/product', icon: TableIcon, text: 'Products' },
+      { to: '/admin/category', icon: SquaresFourIcon, text: 'Categories' },
+      { to: '/admin/material', icon: StackIcon, text: 'Materials' },
+      { to: '/admin/banner', icon: ImageIcon, text: 'Banners' },
+    ],
   },
   {
-    id: 'category',
-    icon: MdCategory,
-    text: 'Category',
+    label: 'Sales',
+    items: [
+      { to: '/admin/order', icon: ReceiptIcon, text: 'Orders' },
+      { to: '/admin/coupon', icon: SealPercentIcon, text: 'Coupons' },
+    ],
   },
   {
-    id: 'user',
-    icon: FaUser,
-    text: 'User',
+    label: 'Customers',
+    items: [
+      { to: '/admin/user', icon: UserIcon, text: 'Users' },
+      { to: '/admin/review', icon: ChatCircleTextIcon, text: 'Reviews' },
+    ],
   },
   {
-    id: 'order',
-    icon: IoReceipt,
-    text: 'Orders',
-  },
-  {
-    id: 'material',
-    icon: TbCategory,
-    text: 'Material',
-  },
-  {
-    id: 'review',
-    icon: TbMessageStar,
-    text: 'Reviews',
-  },
-  {
-    id: 'coupon',
-    icon: RiCoupon3Line,
-    text: 'Coupons',
-  },
-  {
-    id: 'banner',
-    icon: TbPhoto,
-    text: 'Banners',
-  },
-  {
-    id: 'document',
-    icon: IoIosDocument,
-    text: 'Document',
-  },
-  {
-    id: 'analyst',
-    icon: FaTableCells,
-    text: 'Analyst',
+    label: 'Knowledge',
+    items: [{ to: '/admin/document', icon: FilesIcon, text: 'Documents' }],
   },
 ]
 
 const SidebarContent = () => {
   const dispatch = useAppDispatch()
-  const active = useAppSelector((state) => state.theNavigation.active)
   const mobileSidebarOpen = useAppSelector((state) => state.theNavigation.mobileSidebarOpen)
 
   return (
-    <AppShell.Navbar p="md">
-      <div className="flex mb-4">
+    <AppShell.Navbar p="sm">
+      <div className="flex mb-4 px-1">
         <Burger opened={mobileSidebarOpen} onClick={() => dispatch(closeMobileSidebar())} hiddenFrom="sm" size="sm" />
-        <Brand linkToHome={true} size="md" />
+        <Brand linkToHome size="sm" />
       </div>
-      <div className="flex flex-col gap-px">
-        {navigateMems.map((item) => (
-          <Link
-            to={`${item.id}`}
-            key={item.id}
-            onClick={() => {
-              dispatch(setActive(item.id as ActiveType))
-              dispatch(closeMobileSidebar())
-            }}
-            className="w-full text-left"
-          >
-            <NavigationIndex icon={item.icon} text={item.text} isActive={active.toLocaleLowerCase() === item.id} />
-          </Link>
+
+      <div className="flex flex-col gap-3 flex-1 overflow-y-auto">
+        {navSections.map((section) => (
+          <div key={section.label}>
+            <p className="text-2xs uppercase tracking-wide text-fg-subtle px-2 pt-1 pb-1 font-semibold">
+              {section.label}
+            </p>
+            <div className="flex flex-col gap-px">
+              {section.items.map((item) => (
+                <NavLink key={item.to} to={item.to} onClick={() => dispatch(closeMobileSidebar())} className="block">
+                  {({ isActive }) => <NavigationIndex icon={item.icon} text={item.text} isActive={isActive} />}
+                </NavLink>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
 
-      <div className="mt-auto pt-1.5 border-t border-[#ececee]">
-        <button
-          type="button"
-          onClick={() => {
-            dispatch(setActive('setting'))
-          }}
-          className="w-full text-left"
-        >
-          <NavigationIndex icon={IoIosSettings} text="Setting" isActive={active === 'setting'} />
-        </button>
+      <div className="pt-1.5 border-t border-border">
+        <NavLink to="/admin/settings" onClick={() => dispatch(closeMobileSidebar())} className="block">
+          {({ isActive }) => <NavigationIndex icon={GearIcon} text="Settings" isActive={isActive} />}
+        </NavLink>
       </div>
     </AppShell.Navbar>
   )

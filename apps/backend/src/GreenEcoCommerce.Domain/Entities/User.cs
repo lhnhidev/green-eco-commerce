@@ -17,6 +17,8 @@ public class User: IHasCreatedAt, IHasUpdatedAt
     public RoleEnum Role { get; set; } = RoleEnum.User;
     public bool IsActive { get; set; } = true;
     public bool IsDeleted { get; set; }
+    public string? GoogleId { get; set; }
+    public string? FacebookId { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; }
 

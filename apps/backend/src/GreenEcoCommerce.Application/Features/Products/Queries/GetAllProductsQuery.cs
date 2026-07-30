@@ -11,7 +11,10 @@ public enum ProductSortBy
 {
     Name,
     Price,
-    CarbonIndex
+    CarbonIndex,
+    Newest,
+    Rating,
+    BestSelling
 }
 
 public record GetAllProductsQuery(GetAllProductsQuery.Parameters Query)
@@ -86,6 +89,12 @@ public record GetAllProductsQuery(GetAllProductsQuery.Parameters Query)
                 ProductSortBy.Price => query.ApplySorting(p => p.Price, SortDescending),
                 ProductSortBy.CarbonIndex => query.ApplySorting(p => p.CarbonIndex, SortDescending),
                 ProductSortBy.Name => query.ApplySorting(p => p.Name, SortDescending),
+                ProductSortBy.Newest => query.ApplySorting(p => p.CreatedAt, SortDescending ?? true),
+                ProductSortBy.Rating => query.ApplySorting(
+                    p => p.Reviews.Where(r => r.IsApproved && !r.IsHidden).Select(r => (double?)r.Rating).Average() ?? 0,
+                    SortDescending ?? true),
+                ProductSortBy.BestSelling => query.ApplySorting(
+                    p => p.OrderItems.Sum(oi => oi.Quantity), SortDescending ?? true),
                 _ => query.ApplySorting(p => p.Id, SortDescending) // default
             };
         }

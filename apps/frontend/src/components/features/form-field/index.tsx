@@ -1,3 +1,4 @@
+import type { Icon } from '@phosphor-icons/react'
 import type { ComponentType } from 'react'
 import {
   type Control,
@@ -7,7 +8,6 @@ import {
   type Path,
   type RegisterOptions,
 } from 'react-hook-form'
-import type { IconType } from 'react-icons/lib'
 import { getDefaultRules } from './rules'
 
 type InputProps = {
@@ -15,7 +15,7 @@ type InputProps = {
   placeholder?: string
   radius?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-  Icon?: IconType
+  Icon?: Icon
 }
 
 type FormFieldProps<T extends FieldValues = FieldValues> = {

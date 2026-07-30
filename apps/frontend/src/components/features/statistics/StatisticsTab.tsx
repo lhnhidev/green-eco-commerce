@@ -1,11 +1,18 @@
 import Loading from '@components/ui/status/Loading'
 import { useMyStatistics } from '@hooks/useMyStatistics'
 import { Alert, Center, Group, Paper, SegmentedControl, SimpleGrid, Stack, Text, Tooltip } from '@mantine/core'
+import {
+  ClockIcon,
+  CoinsIcon,
+  InfoIcon,
+  LeafIcon,
+  ShoppingCartIcon,
+  TrayIcon,
+  WalletIcon,
+  WarningCircleIcon,
+} from '@phosphor-icons/react'
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { FiAlertCircle, FiClock, FiInbox, FiInfo } from 'react-icons/fi'
-import { IoCartOutline, IoLeafOutline } from 'react-icons/io5'
-import { LuCoins, LuWallet } from 'react-icons/lu'
 import CategoryChart from './CategoryChart'
 import SpendingChart from './SpendingChart'
 import StatusChart from './StatusChart'
@@ -38,7 +45,7 @@ const StatCard = ({ icon, title, value, hint, tooltip }: StatCardProps) => (
         {tooltip && (
           <Tooltip label={tooltip} withArrow multiline w={220} events={{ hover: true, focus: true, touch: true }}>
             <span className="text-gray-400 cursor-help flex items-center">
-              <FiInfo size={12} />
+              <InfoIcon size={12} />
             </span>
           </Tooltip>
         )}
@@ -82,7 +89,7 @@ const StatisticsTab = () => {
 
   if (isError || !data) {
     return (
-      <Alert icon={<FiAlertCircle />} color="red" title="Couldn't load statistics" variant="light">
+      <Alert icon={<WarningCircleIcon />} color="red" title="Couldn't load statistics" variant="light">
         <Text size="sm" mb="sm">
           Something went wrong while loading your statistics.
         </Text>
@@ -97,8 +104,8 @@ const StatisticsTab = () => {
 
   if (summary.totalOrders === 0) {
     return (
-      <Center className="flex-col py-16 text-center">
-        <FiInbox className="text-4xl text-gray-300 mb-3" />
+      <Center className="flex-col py-10 text-center">
+        <TrayIcon className="text-3xl text-gray-300 mb-3" />
         <Text fw={600} className="text-gray-600">
           You have no orders yet
         </Text>
@@ -117,9 +124,9 @@ const StatisticsTab = () => {
       </Group>
 
       <SimpleGrid cols={{ base: 1, xs: 2, md: 4 }} spacing="sm">
-        <StatCard icon={<IoCartOutline />} title="Total orders" value={formatNumber(summary.totalOrders)} />
+        <StatCard icon={<ShoppingCartIcon />} title="Total orders" value={formatNumber(summary.totalOrders)} />
         <StatCard
-          icon={<LuWallet />}
+          icon={<WalletIcon />}
           title="Total spending"
           tooltip="Total value of orders that aren't cancelled. Cancelled orders are excluded."
           value={formatVnd(summary.totalSpending)}
@@ -131,12 +138,12 @@ const StatisticsTab = () => {
           }
         />
         <StatCard
-          icon={<IoLeafOutline />}
+          icon={<LeafIcon />}
           title="CO₂ saved"
           value={`${formatNumber(Number(summary.totalCo2Saved.toFixed(1)))} kg`}
         />
         <StatCard
-          icon={<LuCoins />}
+          icon={<CoinsIcon />}
           title="Available points"
           tooltip="Available points can be redeemed for discounts at checkout. Lifetime is every point you've ever earned."
           value={formatNumber(summary.currentPoints)}
@@ -153,9 +160,9 @@ const StatisticsTab = () => {
           events={{ hover: true, focus: true, touch: true }}
         >
           <div className="inline-flex items-center gap-1.5 self-start rounded-md border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-700 cursor-help">
-            <FiClock size={13} />
+            <ClockIcon size={13} />
             Pending refund: {formatVnd(summary.refundPendingSpending)}
-            <FiInfo size={12} className="text-amber-500" />
+            <InfoIcon size={12} className="text-amber-500" />
           </div>
         </Tooltip>
       )}

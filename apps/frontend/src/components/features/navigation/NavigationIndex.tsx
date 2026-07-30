@@ -9,13 +9,13 @@ type NavigationIndexType = {
 const NavigationIndex = ({ text, isActive, icon: Icon }: NavigationIndexType) => {
   return (
     <div
-      className={`px-2.5 py-1.5 rounded-lg transition-colors duration-150 flex items-center gap-2 text-[13px] ${
+      className={`h-8 px-2 rounded-md transition-colors duration-150 flex items-center gap-2 text-sm ${
         isActive
           ? 'bg-primary text-white font-medium'
-          : 'text-muted-foreground hover:cursor-pointer hover:bg-[#f4f4f5] hover:text-[#18181b]'
+          : 'text-muted-foreground hover:cursor-pointer hover:bg-muted hover:text-foreground'
       }`}
     >
-      <Icon size={15} />
+      <Icon size={16} />
       <span>{text}</span>
     </div>
   )

@@ -3,14 +3,11 @@ import type { ProblemDetails } from '@api/schemas'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { Button } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
+import { EnvelopeIcon, LockIcon, MapPinIcon, PhoneIcon, UserIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import type { LocalRegisterFormValues } from '@types'
 import type { AxiosError } from 'axios'
 import { useForm } from 'react-hook-form'
-import { CiUser } from 'react-icons/ci'
-import { FaPhoneAlt, FaRegEnvelope } from 'react-icons/fa'
-import { FaLocationDot } from 'react-icons/fa6'
-import { MdLockOutline } from 'react-icons/md'
 import FormField from '../form-field'
 import EmailInput from '../form-field/email-input'
 import TheTextInput from '../form-field/input'
@@ -58,16 +55,16 @@ const RegisterForm = () => {
           queryClient.clear()
           dispatch(changeActive('login'))
           notifications.show({
-            title: 'Register sucessed!',
-            message: 'Welcome to our shop. Please login your account to shop',
+            title: 'Account created',
+            message: 'Please log in to start shopping.',
             color: 'green',
           })
         },
         onError: (error) => {
           const axiosError = error as AxiosError<ProblemDetails>
           notifications.show({
-            title: 'Register failed!',
-            message: axiosError.response?.data.detail || 'Register failed. Please try again!',
+            title: 'Registration failed',
+            message: axiosError.response?.data.detail || 'Please try again.',
             color: 'red',
           })
         },
@@ -86,7 +83,7 @@ const RegisterForm = () => {
                 control={control}
                 label="First name"
                 placeholder="Joe"
-                Icon={CiUser}
+                Icon={UserIcon}
                 errorMessage={errors.firstName?.message}
                 Component={TheTextInput}
               />
@@ -108,7 +105,7 @@ const RegisterForm = () => {
             control={control}
             label="Phone number"
             placeholder="0932397440"
-            Icon={FaPhoneAlt}
+            Icon={PhoneIcon}
             errorMessage={errors.phone?.message}
             Component={TheTextInput}
           />
@@ -118,7 +115,7 @@ const RegisterForm = () => {
             control={control}
             label="Address"
             placeholder="Enter your address"
-            Icon={FaLocationDot}
+            Icon={MapPinIcon}
             errorMessage={errors.address?.message}
             Component={TheTextInput}
           />
@@ -128,7 +125,7 @@ const RegisterForm = () => {
             control={control}
             label="Email"
             placeholder="Enter your email"
-            Icon={FaRegEnvelope}
+            Icon={EnvelopeIcon}
             errorMessage={errors.email?.message}
             Component={EmailInput}
           />
@@ -138,7 +135,7 @@ const RegisterForm = () => {
             control={control}
             label="Password"
             placeholder="Enter your password"
-            Icon={MdLockOutline}
+            Icon={LockIcon}
             errorMessage={errors.password?.message}
             Component={PasswordInputV2}
           />
@@ -148,22 +145,13 @@ const RegisterForm = () => {
             control={control}
             label="Repeat password"
             placeholder="Enter your repeat password"
-            Icon={MdLockOutline}
+            Icon={LockIcon}
             errorMessage={errors.repeatPassword?.message}
             Component={PasswordInputV2}
           />
         </div>
 
-        <Button
-          type="submit"
-          size="xs"
-          radius="xl"
-          color="green.9"
-          loading={isPending}
-          classNames={{
-            root: '!w-full',
-          }}
-        >
+        <Button type="submit" size="md" fullWidth loading={isPending}>
           Register
         </Button>
       </form>

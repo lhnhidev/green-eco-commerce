@@ -2,8 +2,10 @@
 /** biome-ignore-all lint/suspicious/noExplicitAny: <> */
 import Axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
 
+export const API_BASE_URL = import.meta.env.VITE_API_ROOT ?? 'http://localhost:5244'
+
 export const axiosInstance = Axios.create({
-  baseURL: 'http://localhost:5244',
+  baseURL: API_BASE_URL,
   withCredentials: true, // ← Tương đương credentials: "include"
   paramsSerializer: {
     indexes: null, // Removes the [] brackets
