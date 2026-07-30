@@ -1,4 +1,4 @@
-import { getGetCartQueryKey, useRemoveCartItem } from '@api'
+import { getGetCartQueryKey, invalidateGetCart, useRemoveCartItem } from '@api'
 import type { CartDto, CartItemDto } from '@api/schemas'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
 import { useDisclosure } from '@mantine/hooks'
@@ -47,7 +47,7 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
         })
       },
       onSettled: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+        await invalidateGetCart(queryClient)
       },
     },
   })

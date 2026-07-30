@@ -1,4 +1,4 @@
-import { getGetDocumentsQueryKey, useDeleteDocument, useGetDocuments, useUploadDocument } from '@api'
+import { invalidateGetDocuments, useDeleteDocument, useGetDocuments, useUploadDocument } from '@api'
 import type { DocumentDto } from '@api/schemas'
 import { DocumentFileTypeEnum } from '@api/schemas'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
@@ -27,7 +27,7 @@ const DocumentList = () => {
   const { mutate: upload, isPending: uploading } = useUploadDocument({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetDocumentsQueryKey() })
+        await invalidateGetDocuments(queryClient)
         notifications.show({ title: 'Success', message: 'Document uploaded and vectorized!', color: 'green' })
         setFile(null)
       },
@@ -38,7 +38,7 @@ const DocumentList = () => {
   const { mutate: deleteDoc, isPending: deleting } = useDeleteDocument({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetDocumentsQueryKey() })
+        await invalidateGetDocuments(queryClient)
         notifications.show({ title: 'Deleted', message: 'Document removed', color: 'green' })
         closeDelete()
       },

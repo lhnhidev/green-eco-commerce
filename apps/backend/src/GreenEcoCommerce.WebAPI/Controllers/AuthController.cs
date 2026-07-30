@@ -108,20 +108,21 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
     }
 
     [HttpPost("logout", Name = nameof(Logout))]
-    [Authorize]
-    public async Task<Results<NoContent, BadRequest<ProblemDetails>>> Logout()
+    public async Task<NoContent> Logout()
     {
-        var userId = CheckUserIdClaim(User);
-        if (!userId.HasValue)
-        {
-            return TypedResults.BadRequest(new ProblemDetails
-            {
-                Title = "Invalid User",
-                Detail = "Invalid user ID in token"
-            });
-        }
+        string? token = Request.Cookies["AccessToken"];
 
-        await sender.Send(new LogoutCommand(userId.Value));
+        if (!string.IsNullOrEmpty(token))
+        {
+            var claimsPrincipal = jwtService.ValidateToken(token, validateLifetime: false);
+
+            var userId = CheckUserIdClaim(claimsPrincipal);
+
+            if (userId.HasValue)
+            {
+                await sender.Send(new LogoutCommand(userId.Value));
+            }
+        }
 
         Response.Cookies.Delete("AccessToken");
         Response.Cookies.Delete("RefreshToken");

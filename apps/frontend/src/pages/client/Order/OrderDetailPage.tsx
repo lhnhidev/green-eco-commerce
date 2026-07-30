@@ -1,4 +1,4 @@
-import { getGetMyOrderByIdQueryKey, useCancelMyOrder, useGetMyOrderById } from '@api'
+import { invalidateGetMyOrderById, invalidateGetMyOrders, useCancelMyOrder, useGetMyOrderById } from '@api'
 import { OrderStatusEnum } from '@api/schemas'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
 import Container from '@components/ui/primitives/Container'
@@ -32,8 +32,8 @@ const OrderDetailPage = () => {
   const { mutate: cancel, isPending: cancelling } = useCancelMyOrder({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetMyOrderByIdQueryKey(id ?? '') })
-        await queryClient.invalidateQueries({ queryKey: ['/api/me/orders'] })
+        await invalidateGetMyOrderById(queryClient, id ?? '')
+        await invalidateGetMyOrders(queryClient)
         notifications.show({ title: 'Order Cancelled', message: 'Your order has been cancelled.', color: 'green' })
       },
       onError: () =>

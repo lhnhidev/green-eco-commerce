@@ -1,5 +1,5 @@
 import {
-  getGetAllOrdersQueryKey,
+  invalidateGetAllOrders,
   useGetAllOrders,
   useGetOrderByIdAdmin,
   useUpdateOrderStatus,
@@ -110,7 +110,7 @@ const OrderList = () => {
   const { mutate: changeStatus, variables: pendingChange } = useUpdateOrderStatus({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllOrdersQueryKey() })
+        await invalidateGetAllOrders(queryClient)
         notifications.show({ title: 'Updated', message: 'Order status changed.', color: 'green' })
       },
       onError: () => {
@@ -122,7 +122,7 @@ const OrderList = () => {
   const { mutate: changePaymentStatus, variables: pendingPaymentChange } = useUpdatePaymentStatus({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllOrdersQueryKey() })
+        await invalidateGetAllOrders(queryClient)
         notifications.show({ title: 'Updated', message: 'Payment status changed.', color: 'green' })
       },
       onError: () => {

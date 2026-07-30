@@ -57,7 +57,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
         queryClient.removeQueries({ queryKey: getGetMeQueryKey() })
         navigate('/')
         notifications.show({
-          title: 'Logout successed!',
+          title: 'Logout success!',
           message: 'See you later...',
           color: 'blue',
         })

@@ -1,4 +1,4 @@
-import { getGetCartQueryKey, useRemoveCartItem, useUpdateCartItem } from '@api'
+import { invalidateGetCart, useRemoveCartItem, useUpdateCartItem } from '@api'
 import type { CartItemDto } from '@api/schemas'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { notifications } from '@mantine/notifications'
@@ -13,7 +13,7 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
   const dispatch = useAppDispatch()
   const queryClient = useQueryClient()
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+  const invalidate = () => invalidateGetCart(queryClient)
 
   const { mutate: updateQty, isPending: updatingQty } = useUpdateCartItem({
     mutation: {

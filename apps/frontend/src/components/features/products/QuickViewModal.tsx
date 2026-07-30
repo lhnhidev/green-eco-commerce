@@ -1,4 +1,4 @@
-import { getGetCartQueryKey, useAddCartItem } from '@api'
+import { invalidateGetCart, useAddCartItem } from '@api'
 import type { ProductDto } from '@api/schemas'
 import PriceTag from '@components/ui/primitives/PriceTag'
 import StockBadge from '@components/ui/StockBadge'
@@ -25,7 +25,7 @@ const QuickViewModal = ({ product, onClose }: QuickViewModalProps) => {
   const { mutate, isPending } = useAddCartItem({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+        await invalidateGetCart(queryClient)
         notifications.show({
           title: 'Added to cart!',
           message: `${product?.name} has been added to your cart.`,

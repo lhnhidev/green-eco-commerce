@@ -1,7 +1,7 @@
 import {
-  getGetCartQueryKey,
-  getGetWishlistQueryKey,
-  getIsInWishlistQueryKey,
+  invalidateGetCart,
+  invalidateGetWishlist,
+  invalidateIsInWishlist,
   useAddCartItem,
   useAddToWishlist,
   useIsInWishlist,
@@ -34,7 +34,7 @@ const ProductCard = ({ product }: { product: ProductDto }) => {
   const { mutate, isPending } = useAddCartItem({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+        await invalidateGetCart(queryClient)
       },
     },
   })
@@ -42,17 +42,17 @@ const ProductCard = ({ product }: { product: ProductDto }) => {
   const { data: isWishlisted } = useIsInWishlist(product.id, { query: { enabled: !!user, staleTime: 1000 * 60 * 5 } })
   const { mutate: addWishlist } = useAddToWishlist({
     mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
-        queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(product.id) })
+      onSuccess: async () => {
+        await invalidateGetWishlist(queryClient)
+        await invalidateIsInWishlist(queryClient, product.id)
       },
     },
   })
   const { mutate: removeWishlist } = useRemoveFromWishlist({
     mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
-        queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(product.id) })
+      onSuccess: async () => {
+        await invalidateGetWishlist(queryClient)
+        await invalidateIsInWishlist(queryClient, product.id)
       },
     },
   })

@@ -1,4 +1,4 @@
-import { getGetApplicationSettingsQueryKey, useGetApplicationSettings, useUpdateApplicationSettings } from '@api'
+import { invalidateGetApplicationSettings, useGetApplicationSettings, useUpdateApplicationSettings } from '@api'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
 import FormPanel from '@components/ui/primitives/FormPanel'
 import { NumberInput, Skeleton } from '@mantine/core'
@@ -31,7 +31,7 @@ const SettingsPage = () => {
       { data: values },
       {
         onSuccess: async () => {
-          await queryClient.invalidateQueries({ queryKey: getGetApplicationSettingsQueryKey() })
+          await invalidateGetApplicationSettings(queryClient)
           notifications.show({
             title: 'Settings saved',
             message: 'Application settings have been updated.',

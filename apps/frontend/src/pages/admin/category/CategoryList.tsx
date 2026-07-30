@@ -1,5 +1,5 @@
 import {
-  getGetAllCategoriesQueryKey,
+  invalidateGetAllCategories,
   useCreateCategory,
   useDeleteCategory,
   useGetAllCategories,
@@ -29,7 +29,7 @@ const CategoryList = () => {
   const [editingCategory, setEditingCategory] = useState<CategoryDto | null>(null)
   const [deletingCategory, setDeletingCategory] = useState<{ id: string; name: string } | null>(null)
 
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() })
+  const invalidate = () => invalidateGetAllCategories(queryClient)
 
   const { mutate: createCategory, isPending: isCreating } = useCreateCategory({
     mutation: {

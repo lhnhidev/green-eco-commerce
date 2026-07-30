@@ -13,6 +13,7 @@ import type {
   DataTag,
   DefinedInitialDataOptions,
   DefinedUseQueryResult,
+  InvalidateOptions,
   MutationFunction,
   QueryClient,
   QueryFunction,
@@ -201,6 +202,15 @@ export function useGetProductReviews<TData = Awaited<ReturnType<typeof getProduc
 }
 
 
+export const invalidateGetProductReviews = async (
+ queryClient: QueryClient, productId: string,
+    params?: GetProductReviewsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetProductReviewsQueryKey(productId,params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -407,6 +417,14 @@ export function useGetActiveBanners<TData = Awaited<ReturnType<typeof getActiveB
 }
 
 
+export const invalidateGetActiveBanners = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetActiveBannersQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -495,6 +513,14 @@ export function useSearchAddresses<TData = Awaited<ReturnType<typeof searchAddre
 }
 
 
+export const invalidateSearchAddresses = async (
+ queryClient: QueryClient, params: SearchAddressesParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getSearchAddressesQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -582,6 +608,14 @@ export function useGetAllCategories<TData = Awaited<ReturnType<typeof getAllCate
 }
 
 
+export const invalidateGetAllCategories = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllCategoriesQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -728,6 +762,14 @@ export function useGetCategoryById<TData = Awaited<ReturnType<typeof getCategory
 }
 
 
+export const invalidateGetCategoryById = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetCategoryByIdQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -932,6 +974,14 @@ export function useGetAllMaterials<TData = Awaited<ReturnType<typeof getAllMater
 }
 
 
+export const invalidateGetAllMaterials = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllMaterialsQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -1078,6 +1128,14 @@ export function useGetMaterialById<TData = Awaited<ReturnType<typeof getMaterial
 }
 
 
+export const invalidateGetMaterialById = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMaterialByIdQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -1283,6 +1341,14 @@ export function useGetAllProducts<TData = Awaited<ReturnType<typeof getAllProduc
 }
 
 
+export const invalidateGetAllProducts = async (
+ queryClient: QueryClient, params?: GetAllProductsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -1430,6 +1496,14 @@ export function useGetProductsByIds<TData = Awaited<ReturnType<typeof getProduct
 }
 
 
+export const invalidateGetProductsByIds = async (
+ queryClient: QueryClient, params: GetProductsByIdsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetProductsByIdsQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -1517,6 +1591,14 @@ export function useGetProductById<TData = Awaited<ReturnType<typeof getProductBy
 }
 
 
+export const invalidateGetProductById = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetProductByIdQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -1729,6 +1811,15 @@ export function useGetRelatedProducts<TData = Awaited<ReturnType<typeof getRelat
 }
 
 
+export const invalidateGetRelatedProducts = async (
+ queryClient: QueryClient, id: string,
+    params?: GetRelatedProductsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetRelatedProductsQueryKey(id,params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -1876,6 +1967,14 @@ export function useGetAllUsers<TData = Awaited<ReturnType<typeof getAllUsers>>, 
 }
 
 
+export const invalidateGetAllUsers = async (
+ queryClient: QueryClient, params?: GetAllUsersParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -2081,6 +2180,14 @@ export function useGetCart<TData = Awaited<ReturnType<typeof getCart>>, TError =
 }
 
 
+export const invalidateGetCart = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -2400,6 +2507,14 @@ export function useGetAllChatSessions<TData = Awaited<ReturnType<typeof getAllCh
 }
 
 
+export const invalidateGetAllChatSessions = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllChatSessionsQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -2546,6 +2661,14 @@ export function useGetChatSessionById<TData = Awaited<ReturnType<typeof getChatS
 }
 
 
+export const invalidateGetChatSessionById = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetChatSessionByIdQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -2750,6 +2873,14 @@ export function useGetChatSessionMessages<TData = Awaited<ReturnType<typeof getC
 }
 
 
+export const invalidateGetChatSessionMessages = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetChatSessionMessagesQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -2838,6 +2969,14 @@ export function useGetAllOrders<TData = Awaited<ReturnType<typeof getAllOrders>>
 }
 
 
+export const invalidateGetAllOrders = async (
+ queryClient: QueryClient, params?: GetAllOrdersParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllOrdersQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -2925,6 +3064,14 @@ export function useExportOrdersCsv<TData = Awaited<ReturnType<typeof exportOrder
 }
 
 
+export const invalidateExportOrdersCsv = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getExportOrdersCsvQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3012,6 +3159,14 @@ export function useExportOrdersExcel<TData = Awaited<ReturnType<typeof exportOrd
 }
 
 
+export const invalidateExportOrdersExcel = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getExportOrdersExcelQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3099,6 +3254,14 @@ export function useGetOrderByIdAdmin<TData = Awaited<ReturnType<typeof getOrderB
 }
 
 
+export const invalidateGetOrderByIdAdmin = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetOrderByIdAdminQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3186,6 +3349,14 @@ export function useGetOrderInvoicePdfAdmin<TData = Awaited<ReturnType<typeof get
 }
 
 
+export const invalidateGetOrderInvoicePdfAdmin = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetOrderInvoicePdfAdminQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3334,6 +3505,14 @@ export function useGetMyOrders<TData = Awaited<ReturnType<typeof getMyOrders>>, 
 }
 
 
+export const invalidateGetMyOrders = async (
+ queryClient: QueryClient, params?: GetMyOrdersParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMyOrdersQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3421,6 +3600,14 @@ export function useGetMyOrderById<TData = Awaited<ReturnType<typeof getMyOrderBy
 }
 
 
+export const invalidateGetMyOrderById = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMyOrderByIdQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3508,6 +3695,14 @@ export function useGetMyOrderInvoicePdf<TData = Awaited<ReturnType<typeof getMyO
 }
 
 
+export const invalidateGetMyOrderInvoicePdf = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMyOrderInvoicePdfQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3653,6 +3848,14 @@ export function useGetMyStatistics<TData = Awaited<ReturnType<typeof getMyStatis
 }
 
 
+export const invalidateGetMyStatistics = async (
+ queryClient: QueryClient, params?: GetMyStatisticsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMyStatisticsQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3740,6 +3943,14 @@ export function useGetTotalRevenue<TData = Awaited<ReturnType<typeof getTotalRev
 }
 
 
+export const invalidateGetTotalRevenue = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetTotalRevenueQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3886,6 +4097,14 @@ export function useGetGreenWallet<TData = Awaited<ReturnType<typeof getGreenWall
 }
 
 
+export const invalidateGetGreenWallet = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetGreenWalletQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -3973,6 +4192,14 @@ export function useExportUsersExcel<TData = Awaited<ReturnType<typeof exportUser
 }
 
 
+export const invalidateExportUsersExcel = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getExportUsersExcelQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -4060,6 +4287,14 @@ export function useGetUserById<TData = Awaited<ReturnType<typeof getUserById>>, 
 }
 
 
+export const invalidateGetUserById = async (
+ queryClient: QueryClient, id: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetUserByIdQueryKey(id) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -4379,6 +4614,14 @@ export function useGetInfoAnalyst<TData = Awaited<ReturnType<typeof getInfoAnaly
 }
 
 
+export const invalidateGetInfoAnalyst = async (
+ queryClient: QueryClient, params: GetInfoAnalystParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetInfoAnalystQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -4467,6 +4710,14 @@ export function useExportAnalystExcel<TData = Awaited<ReturnType<typeof exportAn
 }
 
 
+export const invalidateExportAnalystExcel = async (
+ queryClient: QueryClient, params: ExportAnalystExcelParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getExportAnalystExcelQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -4555,6 +4806,14 @@ export function useGetBestSellingProducts<TData = Awaited<ReturnType<typeof getB
 }
 
 
+export const invalidateGetBestSellingProducts = async (
+ queryClient: QueryClient, params?: GetBestSellingProductsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetBestSellingProductsQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -4642,6 +4901,14 @@ export function useGetApplicationSettings<TData = Awaited<ReturnType<typeof getA
 }
 
 
+export const invalidateGetApplicationSettings = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetApplicationSettingsQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -4848,6 +5115,14 @@ export function useGetAllReviews<TData = Awaited<ReturnType<typeof getAllReviews
 }
 
 
+export const invalidateGetAllReviews = async (
+ queryClient: QueryClient, params?: GetAllReviewsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllReviewsQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -5106,6 +5381,14 @@ export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons
 }
 
 
+export const invalidateGetAllCoupons = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllCouponsQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -5369,6 +5652,14 @@ export function useGetAllBanners<TData = Awaited<ReturnType<typeof getAllBanners
 }
 
 
+export const invalidateGetAllBanners = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetAllBannersQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -5632,6 +5923,14 @@ export function useGetWishlist<TData = Awaited<ReturnType<typeof getWishlist>>, 
 }
 
 
+export const invalidateGetWishlist = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -5833,6 +6132,14 @@ export function useIsInWishlist<TData = Awaited<ReturnType<typeof isInWishlist>>
 }
 
 
+export const invalidateIsInWishlist = async (
+ queryClient: QueryClient, productId: string, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(productId) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -5920,6 +6227,14 @@ export function useGetDocuments<TData = Awaited<ReturnType<typeof getDocuments>>
 }
 
 
+export const invalidateGetDocuments = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetDocumentsQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -6187,6 +6502,14 @@ export function useGetMyNotifications<TData = Awaited<ReturnType<typeof getMyNot
 }
 
 
+export const invalidateGetMyNotifications = async (
+ queryClient: QueryClient, params?: GetMyNotificationsParams, options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMyNotificationsQueryKey(params) }, options);
+
+  return queryClient;
+}
 
 
 
@@ -6274,6 +6597,14 @@ export function useGetUnreadCount<TData = Awaited<ReturnType<typeof getUnreadCou
 }
 
 
+export const invalidateGetUnreadCount = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetUnreadCountQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -6475,6 +6806,14 @@ export function useGetMyAddresses<TData = Awaited<ReturnType<typeof getMyAddress
 }
 
 
+export const invalidateGetMyAddresses = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMyAddressesQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -7104,6 +7443,14 @@ export function useGetMe<TData = Awaited<ReturnType<typeof getMe>>, TError = Pro
 }
 
 
+export const invalidateGetMe = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetMeQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 
@@ -7248,6 +7595,14 @@ export function useGetApiTest<TData = Awaited<ReturnType<typeof getApiTest>>, TE
 }
 
 
+export const invalidateGetApiTest = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getGetApiTestQueryKey() }, options);
+
+  return queryClient;
+}
 
 
 

@@ -1,9 +1,9 @@
-import { getGetCartQueryKey, useClearCart, useGetCart } from '@api'
+import { invalidateGetCart, useClearCart, useGetCart } from '@api'
 import CartLineItem from '@components/features/cart/CartLineItem'
 import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
-import Panel from '@components/ui/primitives/Panel'
 import PageHeader from '@components/ui/primitives/PageHeader'
+import Panel from '@components/ui/primitives/Panel'
 import PriceTag from '@components/ui/primitives/PriceTag'
 import SectionHeading from '@components/ui/primitives/SectionHeading'
 import Seo from '@components/ui/Seo'
@@ -28,7 +28,7 @@ const CartPage = () => {
   const { mutate: clearCart, isPending: clearing } = useClearCart({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+        await invalidateGetCart(queryClient)
         notifications.show({ title: 'Cart cleared', message: 'All items removed from your cart.', color: 'green' })
       },
       onError: () =>

@@ -1,7 +1,7 @@
 import {
-  getGetCartQueryKey,
-  getGetWishlistQueryKey,
-  getIsInWishlistQueryKey,
+  invalidateGetCart,
+  invalidateGetWishlist,
+  invalidateIsInWishlist,
   useAddCartItem,
   useAddToWishlist,
   useGetProductById,
@@ -10,8 +10,8 @@ import {
 } from '@api'
 import { MAX_COMPARE_ITEMS, toggleCompare } from '@components/features/compare/compare.slice'
 import RecentlyViewedProducts from '@components/features/products/RecentlyViewedProducts'
-import { recordProductView } from '@components/features/products/recentlyViewed.slice'
 import RelatedProducts from '@components/features/products/RelatedProducts'
+import { recordProductView } from '@components/features/products/recentlyViewed.slice'
 import ProductReviews from '@components/features/reviews/ProductReviews'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
@@ -20,8 +20,8 @@ import PriceTag from '@components/ui/primitives/PriceTag'
 import Prose from '@components/ui/primitives/Prose'
 import Stat from '@components/ui/primitives/Stat'
 import Seo from '@components/ui/Seo'
-import Loading from '@components/ui/status/Loading'
 import StockBadge from '@components/ui/StockBadge'
+import Loading from '@components/ui/status/Loading'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { useAuth } from '@hooks/useAuth'
@@ -88,7 +88,7 @@ const ProductDetailPage = () => {
   const { mutate } = useAddCartItem({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetCartQueryKey() })
+        await invalidateGetCart(queryClient)
       },
     },
   })
@@ -99,9 +99,9 @@ const ProductDetailPage = () => {
       staleTime: 1000 * 60 * 5,
     },
   })
-  const invalidateWishlist = () => {
-    queryClient.invalidateQueries({ queryKey: getGetWishlistQueryKey() })
-    if (id) queryClient.invalidateQueries({ queryKey: getIsInWishlistQueryKey(id) })
+  const invalidateWishlist = async () => {
+    await invalidateGetWishlist(queryClient)
+    if (id) await invalidateIsInWishlist(queryClient, id)
   }
   const { mutate: addWishlist } = useAddToWishlist({ mutation: { onSuccess: invalidateWishlist } })
   const { mutate: removeWishlist } = useRemoveFromWishlist({ mutation: { onSuccess: invalidateWishlist } })

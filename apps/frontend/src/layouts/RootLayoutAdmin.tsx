@@ -1,4 +1,3 @@
-import { useGetMe } from '@api'
 import { RoleEnum } from '@api/schemas'
 import HeaderAdmin from '@components/features/header-admin/HeaderAdmin'
 import SidebarContent from '@components/features/navigation/TheNavigation'
@@ -8,12 +7,13 @@ import { notifications } from '@mantine/notifications'
 import { Suspense, useEffect } from 'react'
 import { Outlet, useNavigate } from 'react-router'
 import { useAppSelector } from '@/hooks/useAppSelector'
+import { useAuth } from '@/hooks/useAuth'
 
 const RootLayoutAdmin = () => {
   const navigate = useNavigate()
   const desktopSidebarOpen = useAppSelector((state) => state.theNavigation.desktopSidebarOpen)
   const mobileSidebarOpen = useAppSelector((state) => state.theNavigation.mobileSidebarOpen)
-  const { data: me, isPending: authPending } = useGetMe({ query: { staleTime: 1000 * 60 * 5 } })
+  const { user: me, isPending: authPending } = useAuth()
 
   // ── Role Guard ──────────────────────────────────────────────────────────────
   useEffect(() => {

@@ -1,5 +1,5 @@
 import {
-  getGetAllUsersQueryKey,
+  invalidateGetAllUsers,
   useActivateUser,
   useCreateUser,
   useDeactivateUser,
@@ -67,7 +67,7 @@ const UserList = () => {
   const { mutate: activateUser, variables: activatingVar } = useActivateUser({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() })
+        await invalidateGetAllUsers(queryClient)
         notifications.show({ title: 'Activated', message: 'User account has been activated.', color: 'green' })
       },
       onError: () => notifications.show({ title: 'Error', message: 'Could not activate user.', color: 'red' }),
@@ -76,14 +76,14 @@ const UserList = () => {
   const { mutate: deactivateUser, variables: deactivatingVar } = useDeactivateUser({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() })
+        await invalidateGetAllUsers(queryClient)
         notifications.show({ title: 'Deactivated', message: 'User account has been deactivated.', color: 'yellow' })
       },
       onError: () => notifications.show({ title: 'Error', message: 'Could not deactivate user.', color: 'red' }),
     },
   })
 
-  const invalidateUsers = () => queryClient.invalidateQueries({ queryKey: getGetAllUsersQueryKey() })
+  const invalidateUsers = () => invalidateGetAllUsers(queryClient)
 
   const { mutate: createUser, isPending: creating } = useCreateUser({
     mutation: {

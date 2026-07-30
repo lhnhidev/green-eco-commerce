@@ -1,4 +1,4 @@
-import { getGetAllProductsQueryKey, useDeleteProduct, useGetAllProducts } from '@api'
+import { invalidateGetAllProducts, useDeleteProduct, useGetAllProducts } from '@api'
 import type { ProductDto } from '@api/schemas'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
@@ -28,7 +28,7 @@ const ProductList = () => {
   const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct({
     mutation: {
       onSuccess: async () => {
-        await queryClient.invalidateQueries({ queryKey: getGetAllProductsQueryKey() })
+        await invalidateGetAllProducts(queryClient)
       },
     },
   })
