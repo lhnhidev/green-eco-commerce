@@ -1,4 +1,5 @@
 import { useGetAllCategories } from '@api'
+import Panel from '@components/ui/primitives/Panel'
 import { Skeleton } from '@mantine/core'
 import {
   BasketIcon,
@@ -28,10 +29,10 @@ const CategoryTiles = ({ limit = 6 }: { limit?: number }) => {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         {Array.from({ length: limit }).map((_, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loader
-          <Skeleton key={i} height={120} radius="xl" />
+          <Skeleton key={i} radius="lg" className="aspect-square" />
         ))}
       </div>
     )
@@ -40,20 +41,21 @@ const CategoryTiles = ({ limit = 6 }: { limit?: number }) => {
   if (topCategories.length === 0) return null
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
       {topCategories.map((category, i) => {
         const CategoryIcon = ICON_CYCLE[i % ICON_CYCLE.length]
         return (
-          <Link
-            key={category.id}
-            to={`/products?categoryId=${category.id}`}
-            className="group flex flex-col items-center gap-2 bg-white border border-gray-100 rounded-2xl p-5 text-center shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-green-200 transition-all duration-300"
-          >
-            <div className="w-12 h-12 rounded-full bg-green-50 flex items-center justify-center group-hover:bg-green-100 transition-colors">
-              <CategoryIcon size={22} weight="fill" className="text-primary" />
-            </div>
-            <span className="font-semibold text-sm text-gray-800 line-clamp-1">{category.name}</span>
-            <span className="text-xs text-gray-400">{category.productCount} products</span>
+          <Link key={category.id} to={`/products?categoryId=${category.id}`}>
+            <Panel
+              interactive
+              className="aspect-square flex flex-col items-center justify-center gap-2 text-center p-3"
+            >
+              <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center">
+                <CategoryIcon size={18} weight="fill" className="text-primary" />
+              </div>
+              <span className="font-medium text-xs text-gray-800 line-clamp-1">{category.name}</span>
+              <span className="text-2xs text-muted-foreground">{category.productCount} products</span>
+            </Panel>
           </Link>
         )
       })}

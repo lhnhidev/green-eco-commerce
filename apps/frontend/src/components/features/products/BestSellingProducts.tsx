@@ -1,5 +1,6 @@
 import { useGetBestSellingProducts } from '@api'
-import { Avatar, Badge, Paper, Skeleton, Table, Text, Title } from '@mantine/core'
+import Panel from '@components/ui/primitives/Panel'
+import { Avatar, Badge, Skeleton, Table, Text } from '@mantine/core'
 import { TrophyIcon } from '@phosphor-icons/react'
 import { formatCurrency } from '@utils/formatCurrency'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
@@ -8,10 +9,10 @@ const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
   const { data: products, isLoading } = useGetBestSellingProducts({ top })
 
   return (
-    <Paper withBorder radius="xl" p="lg" className="h-full">
-      <div className="flex items-center gap-2 mb-4">
-        <TrophyIcon className="text-amber-500 text-xl" />
-        <Title order={5}>Best-Selling Products</Title>
+    <Panel variant="admin" padding="md" className="h-full">
+      <div className="flex items-center gap-2 mb-3">
+        <TrophyIcon className="text-amber-500 text-lg" />
+        <h3 className="text-sm font-semibold text-gray-800">Best-Selling Products</h3>
       </div>
 
       {isLoading ? (
@@ -22,12 +23,7 @@ const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
           ))}
         </div>
       ) : (
-        <Table
-          verticalSpacing={8}
-          horizontalSpacing={10}
-          highlightOnHover
-          classNames={{ th: '!text-xs !uppercase !text-gray-400 !bg-gray-50', td: '!text-sm' }}
-        >
+        <Table>
           <Table.Thead>
             <Table.Tr>
               <Table.Th w={40}>#</Table.Th>
@@ -54,7 +50,6 @@ const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
                       size="sm"
                       variant="light"
                       color={i === 0 ? 'yellow' : i === 1 ? 'gray' : i === 2 ? 'orange' : 'blue'}
-                      radius="xl"
                     >
                       {i + 1}
                     </Badge>
@@ -92,7 +87,7 @@ const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
           </Table.Tbody>
         </Table>
       )}
-    </Paper>
+    </Panel>
   )
 }
 

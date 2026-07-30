@@ -1,5 +1,6 @@
 import { getGetCartQueryKey, useAddCartItem, useGetProductsByIds } from '@api'
 import { removeFromCompare } from '@components/features/compare/compare.slice'
+import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
 import PageHeader from '@components/ui/primitives/PageHeader'
 import Panel from '@components/ui/primitives/Panel'
@@ -74,19 +75,19 @@ const ComparePage = () => {
           notifications.show({
             title: 'Added to cart!',
             message: `${name} has been added to your cart.`,
-            color: 'green'
+            color: 'green',
           }),
       },
     )
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Container className="py-6">
       <Seo title="Compare Products" description="Compare eco-friendly products side by side." />
       <PageHeader
         breadcrumbItems={breadcrumbItems}
         icon={ScalesIcon}
-        iconClassName="text-2xl text-primary"
+        iconClassName="text-xl text-primary"
         title="Compare Products"
       />
 
@@ -99,7 +100,7 @@ const ComparePage = () => {
           title="Nothing to compare yet"
           description="Add 2 or more products from the catalog to compare their specs side by side."
           action={
-            <Button component={Link} to="/products" variant="light" color="green" mt="md">
+            <Button component={Link} to="/products" variant="light" mt="sm">
               Browse Products
             </Button>
           }
@@ -108,63 +109,65 @@ const ComparePage = () => {
         <div className="overflow-x-auto">
           <table className="w-full border-collapse min-w-175">
             <thead>
-            <tr>
-              <th className="text-left p-3 w-40 text-xs font-bold uppercase tracking-wide text-gray-400 align-bottom">
-                Spec
-              </th>
-              {products.map((p) => (
-                <th key={p.id} className="p-3 text-left align-bottom min-w-52">
-                  <Panel className="p-4 flex flex-col gap-3">
-                    <div className="flex justify-end">
-                      <button
-                        type="button"
-                        onClick={() => dispatch(removeFromCompare(p.id))}
-                        className="text-gray-300 hover:text-red-500 transition-colors"
-                        aria-label="Remove from compare"
-                      >
-                        <TrashIcon size={16} />
-                      </button>
-                    </div>
-                    <Link to={`/products/${p.id}`}>
-                      <img
-                        src={resolveImageUrl(p.imageUrl.at(0)) || '/placeholder.png'}
-                        alt={p.name}
-                        className="w-full h-32 object-cover rounded-xl bg-gray-50"
-                      />
-                    </Link>
-                    <Link to={`/products/${p.id}`} className="font-bold text-gray-900 hover:text-primary line-clamp-2">
-                      {p.name}
-                    </Link>
-                    <Button
-                      size="xs"
-                      color="primary"
-                      leftSection={<ShoppingCartIcon size={14} />}
-                      disabled={p.stockQty <= 0}
-                      onClick={() => handleAddToCart(p.id, p.name)}
-                    >
-                      Add to Cart
-                    </Button>
-                  </Panel>
+              <tr>
+                <th className="text-left p-3 w-40 text-2xs font-semibold uppercase tracking-wide text-gray-400 align-bottom">
+                  Spec
                 </th>
-              ))}
-            </tr>
-            </thead>
-            <tbody>
-            {specRows.map((row) => (
-              <tr key={row.label} className="border-t border-gray-100">
-                <td className="p-3 text-sm font-semibold text-gray-600">{row.label}</td>
                 {products.map((p) => (
-                  <td key={p.id} className="p-3 text-sm text-gray-700">
-                    {row.render(p)}
-                  </td>
+                  <th key={p.id} className="p-3 text-left align-bottom min-w-48">
+                    <Panel padding="md" className="flex flex-col gap-2">
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => dispatch(removeFromCompare(p.id))}
+                          className="text-gray-300 hover:text-red-500 transition-colors"
+                          aria-label="Remove from compare"
+                        >
+                          <TrashIcon size={14} />
+                        </button>
+                      </div>
+                      <Link to={`/products/${p.id}`}>
+                        <img
+                          src={resolveImageUrl(p.imageUrl.at(0)) || '/placeholder.png'}
+                          alt={p.name}
+                          className="w-full aspect-[4/3] object-cover rounded-md bg-gray-50"
+                        />
+                      </Link>
+                      <Link
+                        to={`/products/${p.id}`}
+                        className="font-medium text-sm text-gray-900 hover:text-primary line-clamp-2"
+                      >
+                        {p.name}
+                      </Link>
+                      <Button
+                        size="xs"
+                        leftSection={<ShoppingCartIcon size={13} />}
+                        disabled={p.stockQty <= 0}
+                        onClick={() => handleAddToCart(p.id, p.name)}
+                      >
+                        Add to Cart
+                      </Button>
+                    </Panel>
+                  </th>
                 ))}
               </tr>
-            ))}
+            </thead>
+            <tbody>
+              {specRows.map((row) => (
+                <tr key={row.label} className="border-t border-border">
+                  <td className="p-3 text-sm font-medium text-gray-600">{row.label}</td>
+                  {products.map((p) => (
+                    <td key={p.id} className="p-3 text-sm text-gray-700">
+                      {row.render(p)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       )}
-    </div>
+    </Container>
   )
 }
 

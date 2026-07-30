@@ -1,6 +1,7 @@
 import { getGetMyOrderByIdQueryKey, useCancelMyOrder, useGetMyOrderById } from '@api'
 import { OrderStatusEnum } from '@api/schemas'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
+import Container from '@components/ui/primitives/Container'
 import Loading from '@components/ui/status/Loading'
 import { Badge, Button, Divider, Group, Image, Paper, Stack, Text, Title } from '@mantine/core'
 import { modals } from '@mantine/modals'
@@ -49,14 +50,14 @@ const OrderDetailPage = () => {
   if (isLoading) return <Loading text="Loading order details..." />
   if (isError || !order) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
+      <Container width="narrow" className="py-8 text-center">
         <Title order={3} c="dimmed">
           Order not found
         </Title>
         <Button mt="md" variant="light" leftSection={<ArrowLeftIcon />} onClick={() => navigate('/my-orders')}>
           Back to Orders
         </Button>
-      </div>
+      </Container>
     )
   }
 
@@ -84,8 +85,8 @@ const OrderDetailPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-3xl">
-      <PageBreadcrumbs items={breadcrumbItems} mb="lg" />
+    <Container width="narrow" className="py-6">
+      <PageBreadcrumbs items={breadcrumbItems} mb="sm" />
 
       <Group justify="space-between" align="flex-start" mb="md">
         <div>
@@ -96,7 +97,7 @@ const OrderDetailPage = () => {
             <Text size="sm" c="dimmed" ff="mono">
               #{order.id?.substring(0, 8).toUpperCase()}
             </Text>
-            <Badge size="sm" variant="light" color={statusColor[order.status] ?? 'gray'} radius="xl">
+            <Badge size="sm" variant="light" color={statusColor[order.status] ?? 'gray'}>
               {order.status}
             </Badge>
           </Group>
@@ -133,10 +134,10 @@ const OrderDetailPage = () => {
           {order.items.map((item) => (
             <div key={item.productId} className="flex gap-3 items-center">
               <Image
-                src={resolveImageUrl(item.productImage) || 'https://placehold.co/64x64?text=Eco'}
+                src={resolveImageUrl(item.productImage) || 'https://placehold.co/48x48?text=Eco'}
                 alt={item.productName}
-                w={64}
-                h={64}
+                w={48}
+                h={48}
                 fit="cover"
                 radius="sm"
               />
@@ -230,7 +231,7 @@ const OrderDetailPage = () => {
           Cancel Order
         </Button>
       )}
-    </div>
+    </Container>
   )
 }
 

@@ -1,6 +1,8 @@
 import { useGetRelatedProducts } from '@api'
 import ProductCard from '@components/features/products/ProductCard'
-import { Skeleton, Text, Title } from '@mantine/core'
+import ProductGrid from '@components/ui/primitives/ProductGrid'
+import SectionHeading from '@components/ui/primitives/SectionHeading'
+import { Skeleton } from '@mantine/core'
 import { LeafIcon } from '@phosphor-icons/react'
 
 type Props = {
@@ -13,16 +15,16 @@ const RelatedProducts = ({ productId }: Props) => {
 
   if (isLoading) {
     return (
-      <div className="mt-12">
-        <Title order={3} mb="md">
+      <div className="mt-section">
+        <SectionHeading icon={LeafIcon} size="md" className="mb-4">
           Related Products
-        </Title>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        </SectionHeading>
+        <ProductGrid variant="showcase">
           {Array.from({ length: 4 }).map((_, i) => (
-            // biome-ignore lint/suspicious/noArrayIndexKey: Skeleton key
-            <Skeleton key={i} height={280} radius="md" />
+            // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loader, static count
+            <Skeleton key={i} height={240} radius="md" />
           ))}
-        </div>
+        </ProductGrid>
       </div>
     )
   }
@@ -30,19 +32,20 @@ const RelatedProducts = ({ productId }: Props) => {
   if (!products?.length) return null
 
   return (
-    <div className="mt-12">
-      <div className="flex items-center gap-2 mb-6">
-        <LeafIcon className="text-green-600 text-2xl" />
-        <Title order={3}>Related Eco Products</Title>
-        <Text size="sm" c="dimmed" mt={2}>
-          ({products.length} more in this category)
-        </Text>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="mt-section">
+      <SectionHeading
+        icon={LeafIcon}
+        size="md"
+        description={`${products.length} more in this category`}
+        className="mb-4"
+      >
+        Related Eco Products
+      </SectionHeading>
+      <ProductGrid variant="showcase">
         {products.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
-      </div>
+      </ProductGrid>
     </div>
   )
 }

@@ -55,16 +55,16 @@ const RegisterForm = () => {
           queryClient.clear()
           dispatch(changeActive('login'))
           notifications.show({
-            title: 'Register sucessed!',
-            message: 'Welcome to our shop. Please login your account to shop',
+            title: 'Account created',
+            message: 'Please log in to start shopping.',
             color: 'green',
           })
         },
         onError: (error) => {
           const axiosError = error as AxiosError<ProblemDetails>
           notifications.show({
-            title: 'Register failed!',
-            message: axiosError.response?.data.detail || 'Register failed. Please try again!',
+            title: 'Registration failed',
+            message: axiosError.response?.data.detail || 'Please try again.',
             color: 'red',
           })
         },
@@ -151,16 +151,7 @@ const RegisterForm = () => {
           />
         </div>
 
-        <Button
-          type="submit"
-          size="xs"
-          radius="xl"
-          color="green.9"
-          loading={isPending}
-          classNames={{
-            root: '!w-full',
-          }}
-        >
+        <Button type="submit" size="md" fullWidth loading={isPending}>
           Register
         </Button>
       </form>

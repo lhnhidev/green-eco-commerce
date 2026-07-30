@@ -56,11 +56,11 @@ const QuickViewModal = ({ product, onClose }: QuickViewModalProps) => {
         <img
           src={resolveImageUrl(product.imageUrl?.at(0)) || '/placeholder.png'}
           alt={product.name}
-          className="w-full aspect-square object-cover rounded-xl bg-gray-50"
+          className="w-full aspect-square object-cover rounded-lg bg-gray-50"
         />
 
         <div className="flex flex-col gap-3">
-          <h2 className="text-xl font-bold text-gray-900 line-clamp-2">{product.name}</h2>
+          <h2 className="text-lg font-semibold text-gray-900 line-clamp-2">{product.name}</h2>
 
           <div className="flex items-center gap-2">
             <Rating value={product.rating} fractions={2} readOnly size="sm" />
@@ -92,9 +92,9 @@ const QuickViewModal = ({ product, onClose }: QuickViewModalProps) => {
               type="button"
               disabled={outOfStock || isPending}
               onClick={handleAddToCart}
-              className="flex-1 cursor-pointer bg-primary text-white font-bold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 hover:bg-green-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 cursor-pointer bg-primary text-white font-semibold text-sm py-2 px-4 rounded-md flex items-center justify-center gap-2 hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ShoppingCartIcon weight="bold" size={16} />
+              <ShoppingCartIcon weight="bold" size={15} />
               {outOfStock ? 'Out of Stock' : 'Add to Cart'}
             </button>
           </div>

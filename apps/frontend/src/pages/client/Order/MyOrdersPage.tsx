@@ -1,5 +1,6 @@
 import { useGetMyOrders } from '@api'
 import { OrderSortBy, OrderStatusEnum } from '@api/schemas'
+import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
 import PageHeader from '@components/ui/primitives/PageHeader'
 import Panel from '@components/ui/primitives/Panel'
@@ -48,7 +49,7 @@ const MyOrdersPage = () => {
   const filtered = statusFilter ? orders.filter((o) => o.status === statusFilter) : orders
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Container className="py-6">
       <PageHeader breadcrumbItems={breadcrumbItems} icon={ReceiptIcon} title="My Orders" />
 
       <div className="flex items-center gap-2.5 mb-4 flex-wrap">
@@ -76,102 +77,92 @@ const MyOrdersPage = () => {
 
       <Panel className="overflow-hidden">
         <div className="overflow-x-auto">
-        <Table
-          verticalSpacing={10}
-          horizontalSpacing={14}
-          highlightOnHover
-          classNames={{
-            th: '!text-xs font-semibold! !uppercase !tracking-wide !text-gray-400 !bg-gray-50',
-            td: '!text-sm !text-gray-700',
-          }}
-        >
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th>Order ID</Table.Th>
-              <Table.Th>Delivery Address</Table.Th>
-              <Table.Th w={110}>Date</Table.Th>
-              <Table.Th w={90}>Total</Table.Th>
-              <Table.Th w={110}>CO₂ Saved</Table.Th>
-              <Table.Th w={110}>Points Earned</Table.Th>
-              <Table.Th w={120}>Status</Table.Th>
-              <Table.Th w={80}>Action</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {isLoading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loader
-                <Table.Tr key={i}>
-                  <Table.Td colSpan={8}>
-                    <Skeleton height={20} radius="xl" />
-                  </Table.Td>
-                </Table.Tr>
-              ))
-            ) : filtered.length === 0 ? (
+          <Table>
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={8}>
-                  <EmptyState
-                    icon={ReceiptIcon}
-                    color="gray"
-                    description={
-                      statusFilter && orders.length > 0
-                        ? 'No orders on this page match that status. Try clearing the filter or checking another page.'
-                        : 'No orders found.'
-                    }
-                    className="py-4"
-                  />
-                </Table.Td>
+                <Table.Th>Order ID</Table.Th>
+                <Table.Th>Delivery Address</Table.Th>
+                <Table.Th w={110}>Date</Table.Th>
+                <Table.Th w={90}>Total</Table.Th>
+                <Table.Th w={110}>CO₂ Saved</Table.Th>
+                <Table.Th w={110}>Points Earned</Table.Th>
+                <Table.Th w={120}>Status</Table.Th>
+                <Table.Th w={80}>Action</Table.Th>
               </Table.Tr>
-            ) : (
-              filtered.map((order) => (
-                <Table.Tr key={order.id} className="hover:bg-green-50/30 transition-colors">
-                  <Table.Td>
-                    <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
-                      #{order.id?.substring(0, 8).toUpperCase()}
-                    </span>
-                  </Table.Td>
-                  <Table.Td className="max-w-52! truncate!">{order.deliveryAddress || '—'}</Table.Td>
-                  <Table.Td className="text-gray-400!">
-                    {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
-                  </Table.Td>
-                  <Table.Td className="font-semibold! text-primary!">
-                    {formatCurrency(order.finalAmount)}
-                  </Table.Td>
-                  <Table.Td className="text-green-600!">{Number(order.totalCo2Saved ?? 0).toFixed(2)} kg</Table.Td>
-                  <Table.Td>
-                    <span className="text-amber-500 font-medium">+{order.earnedPoints} pts</span>
-                  </Table.Td>
-                  <Table.Td>
-                    <Badge size="sm" variant="light" color={statusColor[order.status] ?? 'gray'} radius="xl">
-                      {order.status}
-                    </Badge>
-                  </Table.Td>
-                  <Table.Td>
-                    <Button
-                      component={Link}
-                      to={`/my-orders/${order.id}`}
-                      size="compact-xs"
-                      variant="subtle"
-                      color="green"
-                      leftSection={<EyeIcon size={12} />}
-                    >
-                      View
-                    </Button>
+            </Table.Thead>
+            <Table.Tbody>
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loader
+                  <Table.Tr key={i}>
+                    <Table.Td colSpan={8}>
+                      <Skeleton height={20} radius="xl" />
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              ) : filtered.length === 0 ? (
+                <Table.Tr>
+                  <Table.Td colSpan={8}>
+                    <EmptyState
+                      icon={ReceiptIcon}
+                      color="gray"
+                      description={
+                        statusFilter && orders.length > 0
+                          ? 'No orders on this page match that status. Try clearing the filter or checking another page.'
+                          : 'No orders found.'
+                      }
+                      className="py-4"
+                    />
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ) : (
+                filtered.map((order) => (
+                  <Table.Tr key={order.id} className="hover:bg-green-50/30 transition-colors">
+                    <Table.Td>
+                      <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
+                        #{order.id?.substring(0, 8).toUpperCase()}
+                      </span>
+                    </Table.Td>
+                    <Table.Td className="max-w-52 truncate">{order.deliveryAddress || '—'}</Table.Td>
+                    <Table.Td className="text-gray-400">
+                      {order.createdAt ? dayjs(order.createdAt).format('DD/MM/YYYY') : '—'}
+                    </Table.Td>
+                    <Table.Td className="font-semibold text-primary">{formatCurrency(order.finalAmount)}</Table.Td>
+                    <Table.Td className="text-green-600">{Number(order.totalCo2Saved ?? 0).toFixed(2)} kg</Table.Td>
+                    <Table.Td>
+                      <span className="text-amber-500 font-medium">+{order.earnedPoints} pts</span>
+                    </Table.Td>
+                    <Table.Td>
+                      <Badge size="sm" variant="light" color={statusColor[order.status] ?? 'gray'}>
+                        {order.status}
+                      </Badge>
+                    </Table.Td>
+                    <Table.Td>
+                      <Button
+                        component={Link}
+                        to={`/my-orders/${order.id}`}
+                        size="compact-xs"
+                        variant="subtle"
+                        color="green"
+                        leftSection={<EyeIcon size={12} />}
+                      >
+                        View
+                      </Button>
+                    </Table.Td>
+                  </Table.Tr>
+                ))
+              )}
+            </Table.Tbody>
+          </Table>
         </div>
       </Panel>
 
       {totalPages > 1 && (
         <div className="flex justify-end mt-4">
-          <Pagination total={totalPages} value={page} onChange={setPage} size="sm" />
+          <Pagination total={totalPages} value={page} onChange={setPage} />
         </div>
       )}
-    </div>
+    </Container>
   )
 }
 

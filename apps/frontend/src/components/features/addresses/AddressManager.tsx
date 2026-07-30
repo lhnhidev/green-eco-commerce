@@ -48,11 +48,7 @@ const AddressManager = () => {
   const handleDelete = (address: AddressDto) => {
     modals.openConfirmModal({
       title: 'Delete address',
-      children: (
-        <p className="text-sm text-gray-600">
-          Delete "{address.label}"? This can't be undone.
-        </p>
-      ),
+      children: <p className="text-sm text-gray-600">Delete "{address.label}"? This can't be undone.</p>,
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
       onConfirm: () => deleteAddress({ id: address.id }),
@@ -92,13 +88,13 @@ const AddressManager = () => {
       ) : (
         <div className="flex flex-col gap-3">
           {addresses.map((address) => (
-            <Panel key={address.id} className="p-4">
+            <Panel key={address.id} padding="md">
               <div className="flex justify-between items-start gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-gray-800">{address.label}</span>
+                    <span className="font-semibold text-sm text-gray-800">{address.label}</span>
                     {address.isDefault && (
-                      <Badge size="xs" color="green" variant="light" radius="xl">
+                      <Badge size="xs" color="primary" variant="light">
                         Default
                       </Badge>
                     )}

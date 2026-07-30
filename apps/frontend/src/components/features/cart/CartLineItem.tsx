@@ -41,24 +41,24 @@ const CartLineItem = ({ cartItem }: { cartItem: CartItemDto }) => {
 
   return (
     <div
-      className={`flex gap-4 items-center py-5 border-b border-gray-100 last:border-0 transition-opacity ${isBusy ? 'opacity-50 pointer-events-none' : ''}`}
+      className={`flex gap-3 items-center py-4 border-b border-gray-100 last:border-0 transition-opacity ${isBusy ? 'opacity-50 pointer-events-none' : ''}`}
     >
       <Link to={`/products/${cartItem.productId}`} className="shrink-0">
         <img
           src={resolveImageUrl(cartItem.productImageUrl)}
           alt={cartItem.productName}
-          className="w-24 h-24 rounded-xl object-cover bg-gray-50 border border-gray-100"
+          className="w-16 h-16 rounded-md object-cover bg-gray-50 border border-border"
         />
       </Link>
 
       <div className="flex-1 min-w-0">
         <Link
           to={`/products/${cartItem.productId}`}
-          className="font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-1"
+          className="font-medium text-sm text-gray-900 hover:text-primary transition-colors line-clamp-1"
         >
           {cartItem.productName}
         </Link>
-        <p className="text-sm text-gray-400 mt-0.5">{formatCurrency(cartItem.productPrice)} each</p>
+        <p className="text-xs text-gray-400 mt-0.5">{formatCurrency(cartItem.productPrice)} each</p>
 
         {outOfStock ? (
           <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-red-500">
@@ -94,7 +94,7 @@ const CartLineItem = ({ cartItem }: { cartItem: CartItemDto }) => {
       </div>
 
       <div className="flex flex-col items-end gap-3 shrink-0">
-        <span className="font-bold text-gray-900">{formatCurrency(lineTotal)}</span>
+        <span className="font-semibold text-sm text-gray-900">{formatCurrency(lineTotal)}</span>
         <button
           type="button"
           onClick={() => remove({ productId: cartItem.productId })}

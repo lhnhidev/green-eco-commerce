@@ -4,10 +4,15 @@ import { getGetAllChatSessionsQueryKey, useDeleteChatSession, useGetAllChatSessi
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { ActionIcon, Menu, ScrollArea, Text, Tooltip } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
-import { ArrowsInSimpleIcon, ClockCounterClockwiseIcon, Leaf, TrashIcon } from '@phosphor-icons/react'
+import {
+  ArrowsInSimpleIcon,
+  ChatCircleTextIcon,
+  ClockCounterClockwiseIcon,
+  Leaf,
+  TrashIcon,
+} from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
-import { BiMessageRoundedAdd } from 'react-icons/bi'
 import { setIsShow } from './chatbot.slice'
 
 interface HeaderChatbotProps {
@@ -32,7 +37,7 @@ const HeaderChatbot = ({ activeSessionId, onNewChat, onSelectSession }: HeaderCh
   })
 
   return (
-    <header className="flex justify-between items-center px-4 py-3 bg-linear-to-r from-green-50 to-emerald-100 rounded-t-2xl border-b border-green-200/50 shadow-sm">
+    <header className="flex justify-between items-center px-4 py-3 bg-linear-to-r from-green-50 to-emerald-100 rounded-t-lg border-b border-green-200/50">
       <div className="flex items-center gap-2">
         <div className="bg-linear-to-br from-green-500 to-emerald-600 p-1.5 rounded-full text-white shadow-sm">
           <Leaf weight="fill" size={16} />
@@ -100,7 +105,7 @@ const HeaderChatbot = ({ activeSessionId, onNewChat, onSelectSession }: HeaderCh
             onClick={onNewChat}
             className="cursor-pointer text-gray-600 hover:text-green-700 hover:bg-green-200/50 transition-all rounded-full p-1.5"
           >
-            <BiMessageRoundedAdd size={18} />
+            <ChatCircleTextIcon size={18} />
           </button>
         </Tooltip>
 

@@ -1,3 +1,5 @@
+import Container from '@components/ui/primitives/Container'
+import Prose from '@components/ui/primitives/Prose'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
 import Seo from '@components/ui/Seo'
 import type { ReactNode } from 'react'
@@ -15,14 +17,12 @@ const StaticPageLayout = ({ title, path, children }: StaticPageLayoutProps) => {
   ]
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <Container width="narrow" className="py-8">
       <Seo title={title} />
-      <PageBreadcrumbs items={breadcrumbItems} mb="lg" />
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">{title}</h1>
-      <div className="prose prose-sm md:prose-base prose-green max-w-none text-gray-600 leading-relaxed">
-        {children}
-      </div>
-    </div>
+      <PageBreadcrumbs items={breadcrumbItems} mb="sm" />
+      <h1 className="text-2xl font-semibold text-gray-900 mb-5">{title}</h1>
+      <Prose size="md">{children}</Prose>
+    </Container>
   )
 }
 

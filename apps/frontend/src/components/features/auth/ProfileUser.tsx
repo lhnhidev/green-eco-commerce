@@ -6,6 +6,7 @@ import { notifications } from '@mantine/notifications'
 import {
   GaugeIcon,
   HeartIcon,
+  type Icon,
   LeafIcon,
   PackageIcon,
   ScalesIcon,
@@ -14,14 +15,13 @@ import {
 } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
-import type { IconType } from 'react-icons/lib'
 import { Link, useNavigate } from 'react-router'
 import LoginComponent from './LoginComponent'
 
 type MenuItemType = {
   id: number
   label: string
-  icon: IconType
+  icon: Icon
   url: string
 }
 
@@ -91,14 +91,14 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
           alt="it's me"
           className="cursor-pointer"
           classNames={{
-            placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
+            placeholder: 'transition-colors hover:bg-green-50 cursor-pointer',
           }}
         >
           {!user?.avatar && fullName}
         </Avatar>
       </Menu.Target>
 
-      <Menu.Dropdown className="!p-4">
+      <Menu.Dropdown className="p-4">
         <Group gap="sm" px={4}>
           <Avatar
             src={resolveImageUrl(user?.avatar)}
@@ -106,7 +106,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
             radius="xl"
             alt="it's me"
             classNames={{
-              placeholder: '!transition-colors hover:!bg-green-50 !cursor-pointer',
+              placeholder: 'transition-colors hover:bg-green-50 cursor-pointer',
             }}
           >
             {!user?.avatar && fullName}
@@ -135,7 +135,11 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
         ))}
 
         {user.role === RoleEnum.Admin && (
-          <Menu.Item component={Link} to="/admin/dashboard" leftSection={<GaugeIcon size={16} className="text-gray-400" />}>
+          <Menu.Item
+            component={Link}
+            to="/admin/dashboard"
+            leftSection={<GaugeIcon size={16} className="text-gray-400" />}
+          >
             Admin dashboard
           </Menu.Item>
         )}

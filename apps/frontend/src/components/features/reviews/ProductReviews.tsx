@@ -97,11 +97,11 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
   }
 
   return (
-    <div className="mt-10">
+    <div>
       {/* Header */}
-      <div className="flex items-center gap-2 mb-6">
-        <ChatIcon className="text-xl text-primary" />
-        <h2 className="text-xl font-bold text-gray-800">Customer Reviews</h2>
+      <div className="flex items-center gap-2 mb-4">
+        <ChatIcon className="text-lg text-primary" />
+        <h2 className="text-lg font-semibold text-gray-800">Customer Reviews</h2>
         {reviewsCount > 0 && (
           <div className="flex items-center gap-1.5 ml-2">
             <Rating value={averageRating} fractions={2} readOnly size="sm" />
@@ -114,8 +114,8 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
 
       {/* Rating distribution */}
       {!isLoading && reviews.length > 0 && (
-        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 mb-6">
-          <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-3">
+        <div className="bg-white rounded-lg border border-border p-4 mb-4">
+          <p className="text-2xs font-semibold uppercase tracking-wide text-gray-400 mb-2">
             Rating breakdown{totalPages > 1 ? ' (this page)' : ''}
           </p>
           <div className="flex flex-col gap-1.5">
@@ -127,7 +127,7 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
                   <span className="text-xs font-semibold text-gray-600 w-8 flex items-center gap-0.5">
                     {star} <StarIcon weight="fill" size={11} className="text-amber-400" />
                   </span>
-                  <Progress value={percent} color="green.6" size="sm" radius="xl" className="flex-1" />
+                  <Progress value={percent} color="primary" size="sm" className="flex-1" />
                   <span className="text-xs text-gray-400 w-6 text-right">{count}</span>
                 </div>
               )
@@ -157,16 +157,16 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
       {isLoading ? (
         <div className="text-center py-8 text-gray-400">Loading reviews…</div>
       ) : reviews.length === 0 ? (
-        <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-2xl border border-gray-100">
-          <ChatIcon className="mx-auto text-3xl mb-2 text-gray-300" />
-          <p>No reviews yet. Be the first to review this product!</p>
+        <div className="text-center py-8 text-gray-400 bg-gray-50 rounded-lg border border-border">
+          <ChatIcon className="mx-auto text-2xl mb-2 text-gray-300" />
+          <p className="text-sm">No reviews yet. Be the first to review this product!</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-4 mb-8">
+        <div className="flex flex-col gap-3 mb-6">
           {sortedReviews.map((r) => (
-            <div key={r.id} className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
+            <div key={r.id} className="bg-white rounded-lg border border-border p-4">
               <div className="flex items-start gap-3">
-                <Avatar size={36} radius="xl" color="green">
+                <Avatar size={32} radius="xl" color="green">
                   {r.userName?.[0]?.toUpperCase()}
                 </Avatar>
                 <div className="flex-1">
@@ -191,9 +191,9 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
 
       {/* Submit form */}
       {user ? (
-        <div className="bg-linear-to-br from-green-50 to-emerald-50 rounded-2xl border border-green-100 p-6 mt-4">
-          <h3 className="font-semibold text-gray-800 mb-4">Write a Review</h3>
-          <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-4">
+        <div className="bg-green-50 rounded-lg border border-green-100 p-4">
+          <h3 className="font-semibold text-sm text-gray-800 mb-3">Write a Review</h3>
+          <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-3">
             <div>
               <label className="text-sm font-medium text-gray-700 mb-1 block" htmlFor="rating">
                 Your Rating
@@ -209,14 +209,14 @@ const ProductReviews = ({ productId, reviewsCount, averageRating }: ProductRevie
               {...form.getInputProps('comment')}
             />
             <div className="flex justify-end">
-              <Button type="submit" color="primary" loading={isPending}>
+              <Button type="submit" loading={isPending}>
                 Submit Review
               </Button>
             </div>
           </form>
         </div>
       ) : (
-        <div className="text-center py-6 bg-gray-50 rounded-2xl border border-gray-100">
+        <div className="text-center py-5 bg-gray-50 rounded-lg border border-border">
           <p className="text-sm text-gray-500">
             Please{' '}
             <Link

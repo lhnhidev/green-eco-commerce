@@ -1,4 +1,4 @@
-import { Avatar, Paper, Text } from '@mantine/core'
+import { Avatar, Text } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { Leaf, User } from '@phosphor-icons/react'
 
@@ -36,10 +36,10 @@ const MessageBox = ({ message, time, isBot, avatar }: MessageBoxProps) => {
 
       <div className={`flex flex-col gap-1 max-w-[75%] ${isBot ? 'items-start' : 'items-end'}`}>
         <div
-          className={`px-4 py-3 shadow-md ${
+          className={`px-3 py-2 shadow-xs ${
             isBot
-              ? 'rounded-2xl rounded-bl-sm bg-white border border-green-100 text-gray-800'
-              : 'rounded-2xl rounded-br-sm bg-linear-to-br from-green-500 to-emerald-600 text-white'
+              ? 'rounded-lg rounded-bl-sm bg-white border border-green-100 text-gray-800'
+              : 'rounded-lg rounded-br-sm bg-linear-to-br from-green-500 to-emerald-600 text-white'
           }`}
           style={{ wordBreak: 'break-word' }}
         >

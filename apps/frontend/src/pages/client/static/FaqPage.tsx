@@ -14,7 +14,7 @@ const faqs = [
   {
     question: 'How do Green Points work?',
     answer:
-      'Every order earns Green Points based on the CO₂ your purchase saved. Points sit in your Green Wallet and can be redeemed for a discount at checkout (20 points = $1 off), though they can\'t be combined with a coupon on the same order.',
+      "Every order earns Green Points based on the CO₂ your purchase saved. Points sit in your Green Wallet and can be redeemed for a discount at checkout (20 points = $1 off), though they can't be combined with a coupon on the same order.",
   },
   {
     question: 'What do the carbon footprint numbers mean?',
@@ -35,12 +35,12 @@ const faqs = [
 const FaqPage = () => (
   <StaticPageLayout title="Frequently Asked Questions" path="/faq">
     <p>Answers to the questions we hear most. Can't find what you're looking for?</p>
-    <div className="not-prose mt-6">
-      <Accordion variant="separated" radius="lg">
+    <div className="mt-5">
+      <Accordion variant="separated" radius="md">
         {faqs.map((faq) => (
           <Accordion.Item key={faq.question} value={faq.question}>
-            <Accordion.Control className="font-semibold text-gray-800">{faq.question}</Accordion.Control>
-            <Accordion.Panel className="text-gray-600">{faq.answer}</Accordion.Panel>
+            <Accordion.Control className="font-semibold text-sm text-gray-800">{faq.question}</Accordion.Control>
+            <Accordion.Panel className="text-sm text-gray-600">{faq.answer}</Accordion.Panel>
           </Accordion.Item>
         ))}
       </Accordion>

@@ -127,7 +127,7 @@ const ChatComunication = () => {
   }
 
   return (
-    <div className="fixed flex flex-col justify-between bottom-24 right-6 lg:bottom-10 lg:right-10 text-sm rounded-2xl bg-white/90 backdrop-blur-xl shadow-2xl shadow-green-900/10 z-50 border border-white/50 w-[420px] max-w-[calc(100vw-48px)] h-[600px] max-h-[calc(100vh-120px)] overflow-hidden transition-all duration-300">
+    <div className="fixed flex flex-col justify-between bottom-24 right-6 lg:bottom-10 lg:right-10 text-sm rounded-lg bg-white shadow-lg z-50 border border-border w-[380px] max-w-[calc(100vw-48px)] h-[560px] max-h-[calc(100vh-120px)] overflow-hidden">
       <HeaderChatbot activeSessionId={sessionId} onNewChat={handleNewChat} onSelectSession={handleSelectSession} />
 
       <div className="flex-1 overflow-y-auto px-4 py-4 bg-gray-50/50 custom-scrollbar scroll-smooth">
@@ -147,7 +147,7 @@ const ChatComunication = () => {
                 <div className="mb-1 shrink-0 bg-linear-to-br from-green-100 to-emerald-200 border-2 border-white shadow-sm rounded-full w-8 h-8 flex items-center justify-center">
                   <Leaf weight="fill" color="#059669" size={16} />
                 </div>
-                <div className="px-4 py-3 rounded-2xl rounded-bl-sm bg-white border border-green-100 text-gray-500 shadow-sm flex gap-1 items-center">
+                <div className="px-3 py-2 rounded-lg rounded-bl-sm bg-white border border-green-100 text-gray-500 shadow-xs flex gap-1 items-center">
                   <Loader size="xs" color="teal" type="dots" />
                 </div>
               </div>
@@ -160,8 +160,7 @@ const ChatComunication = () => {
       <div className="p-4 bg-white/80 backdrop-blur-md border-t border-gray-100">
         <TextInput
           classNames={{
-            input:
-              '!py-6 !px-5 !bg-gray-50/80 !border-gray-200 focus:!border-green-400 focus:!ring-green-400/20 !rounded-xl !text-sm transition-all',
+            input: 'bg-gray-50 border-gray-200 focus:border-green-400 rounded-md',
           }}
           placeholder="Ask me about eco-friendly living..."
           value={inputValue}

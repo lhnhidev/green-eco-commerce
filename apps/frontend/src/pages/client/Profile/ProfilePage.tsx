@@ -2,6 +2,7 @@ import { getGetMeQueryKey, useGetMe, useUpdateUserProfile } from '@api'
 import AddressManager from '@components/features/addresses/AddressManager'
 import StatisticsTab from '@components/features/statistics/StatisticsTab'
 import { ImageDropzone } from '@components/features/upload/ImageDropzone'
+import Container from '@components/ui/primitives/Container'
 import PageHeader from '@components/ui/primitives/PageHeader'
 import Panel from '@components/ui/primitives/Panel'
 import { Avatar, Button, Divider, PasswordInput, Skeleton, Tabs, TextInput } from '@mantine/core'
@@ -81,7 +82,7 @@ const ProfilePage = () => {
   const initials = user ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase() : ''
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
+    <Container width="narrow" className="py-6">
       <PageHeader breadcrumbItems={breadcrumbItems} icon={UserIcon} title="My Profile" />
 
       <Tabs defaultValue="profile" keepMounted={false}>
@@ -98,14 +99,14 @@ const ProfilePage = () => {
         </Tabs.List>
 
         <Tabs.Panel value="profile">
-          <Panel className="p-8">
+          <Panel padding="lg">
             {/* Avatar section */}
             <div className="flex items-center gap-4 mb-6">
-              <Avatar src={resolveImageUrl(user?.avatar) ?? null} size={72} radius="xl" color="green">
+              <Avatar src={resolveImageUrl(user?.avatar) ?? null} size={64} radius="xl" color="green">
                 {!user?.avatar && initials}
               </Avatar>
               <div>
-                <p className="font-semibold text-gray-800 text-lg">
+                <p className="font-semibold text-gray-800 text-md">
                   {user?.firstName} {user?.lastName}
                 </p>
                 <p className="text-sm text-gray-400">{user?.email}</p>
@@ -181,7 +182,7 @@ const ProfilePage = () => {
         </Tabs.Panel>
 
         <Tabs.Panel value="addresses">
-          <Panel className="p-8">
+          <Panel padding="lg">
             <AddressManager />
           </Panel>
         </Tabs.Panel>
@@ -190,7 +191,7 @@ const ProfilePage = () => {
           <StatisticsTab />
         </Tabs.Panel>
       </Tabs>
-    </div>
+    </Container>
   )
 }
 

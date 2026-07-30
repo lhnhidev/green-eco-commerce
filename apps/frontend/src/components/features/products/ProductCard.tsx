@@ -115,72 +115,71 @@ const ProductCard = ({ product }: { product: ProductDto }) => {
 
   return (
     <>
-    <Link to={`/products/${product.id}`} className="group block h-full">
-      <div className="relative flex h-full flex-col overflow-hidden rounded-2xl bg-white border border-gray-100 transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(16,177,87,0.15)] plant-shadow">
-        {/* Image Section */}
-        <div className="relative aspect-4/3 overflow-hidden bg-gray-50/50">
-          <img
-            alt={product.name}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
-            src={resolveImageUrl(product?.imageUrl?.at(0)) || '/placeholder.png'}
-          />
+      <Link to={`/products/${product.id}`} className="group block h-full">
+        <div className="relative flex h-full flex-col overflow-hidden rounded-lg bg-white border border-border shadow-xs transition-shadow duration-200 hover:shadow-md">
+          {/* Image Section */}
+          <div className="relative aspect-[4/5] overflow-hidden bg-gray-50/50">
+            <img
+              alt={product.name}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              src={resolveImageUrl(product?.imageUrl?.at(0)) || '/placeholder.png'}
+            />
 
-          {/* Subtle dark gradient overlay on hover to make icons pop */}
-          <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/0 to-black/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+            {/* Subtle dark gradient overlay on hover to make icons pop */}
+            <div className="absolute inset-0 bg-linear-to-t from-black/50 via-black/0 to-black/0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
 
-          {/* Material & Stock Badges */}
-          <div className="absolute left-3 top-3 z-10 flex flex-col gap-2 items-start">
-            {product.materials?.at(0) !== undefined && (
-              <span className="bg-secondary/95 text-primary border border-primary/20 px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider shadow-sm backdrop-blur-md">
-                {product.materials?.at(0)?.name}
-              </span>
-            )}
-            <StockBadge stockQty={product.stockQty} />
-          </div>
+            {/* Material & Stock Badges */}
+            <div className="absolute left-3 top-3 z-10 flex flex-col gap-2 items-start">
+              {product.materials?.at(0) !== undefined && (
+                <span className="bg-secondary/95 text-primary border border-primary/20 px-2 py-0.5 text-2xs font-medium rounded-full shadow-sm backdrop-blur-md">
+                  {product.materials?.at(0)?.name}
+                </span>
+              )}
+              <StockBadge stockQty={product.stockQty} />
+            </div>
 
-          {/* Dim the image when unavailable */}
-          {outOfStock && <div className="absolute inset-0 bg-white/40 z-[5]" />}
+            {/* Dim the image when unavailable */}
+            {outOfStock && <div className="absolute inset-0 bg-white/40 z-[5]" />}
 
-          {/* Wishlist, Compare & Quick View Buttons */}
-          <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300">
-            {user && (
+            {/* Wishlist, Compare & Quick View Buttons */}
+            <div className="absolute top-3 right-3 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+              {user && (
+                <button
+                  type="button"
+                  onClick={handleWishlist}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-105"
+                  aria-label="Toggle wishlist"
+                >
+                  <HeartIcon size={16} className={isWishlisted ? 'fill-rose-500 text-rose-500' : 'text-gray-500'} />
+                </button>
+              )}
               <button
                 type="button"
-                onClick={handleWishlist}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110"
-                aria-label="Toggle wishlist"
+                onClick={handleCompare}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-105"
+                aria-label="Toggle compare"
               >
-                <HeartIcon size={15} className={isWishlisted ? 'fill-rose-500 text-rose-500' : 'text-gray-500'} />
+                <ScalesIcon
+                  size={16}
+                  weight={isComparing ? 'fill' : 'regular'}
+                  className={isComparing ? 'text-primary' : 'text-gray-500'}
+                />
               </button>
-            )}
-            <button
-              type="button"
-              onClick={handleCompare}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110"
-              aria-label="Toggle compare"
-            >
-              <ScalesIcon
-                size={15}
-                weight={isComparing ? 'fill' : 'regular'}
-                className={isComparing ? 'text-primary' : 'text-gray-500'}
-              />
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-                setQuickViewOpen(true)
-              }}
-              className="flex h-8 w-8 items-center justify-center rounded-full bg-white/80 shadow-sm backdrop-blur-sm transition-all duration-300 hover:scale-110"
-              aria-label="Quick view"
-            >
-              <EyeIcon size={15} className="text-gray-500" />
-            </button>
-          </div>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  setQuickViewOpen(true)
+                }}
+                className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm backdrop-blur-sm transition-transform hover:scale-105"
+                aria-label="Quick view"
+              >
+                <EyeIcon size={16} className="text-gray-500" />
+              </button>
+            </div>
 
-          {/* Floating Add to Cart Button */}
-          <div className="absolute bottom-4 right-4 z-10 translate-y-4 opacity-0 transition-all duration-300 ease-out group-hover:translate-y-0 group-hover:opacity-100">
+            {/* Add to cart reveal */}
             <button
               type="button"
               disabled={isPending || outOfStock}
@@ -189,43 +188,35 @@ const ProductCard = ({ product }: { product: ProductDto }) => {
                 e.stopPropagation()
                 handleAddToCart(product.id, 1)
               }}
-              className="flex h-11 w-11 items-center justify-center rounded-full bg-primary text-white shadow-lg shadow-primary/30 transition-all hover:scale-110 hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="absolute inset-x-2 bottom-2 z-10 h-9 rounded-md bg-white/95 text-xs font-semibold text-gray-800 shadow-sm backdrop-blur-sm translate-y-2 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100 flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Add to cart"
               title={outOfStock ? 'Out of stock' : 'Add to cart'}
             >
-              <ShoppingCartIcon size={20} />
+              <ShoppingCartIcon size={14} />
+              {outOfStock ? 'Out of stock' : 'Add to cart'}
             </button>
           </div>
-        </div>
 
-        {/* Content Section */}
-        <div className="flex flex-1 flex-col p-5">
-          <div className="mb-2 flex flex-col items-start gap-1">
-            <h2 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
-              {product.name}
-            </h2>
-            <PriceTag value={product.price} />
-          </div>
+          {/* Content Section */}
+          <div className="flex flex-1 flex-col p-3">
+            <div className="mb-1.5 flex flex-col items-start gap-1">
+              <h2 className="text-md font-medium text-gray-900 line-clamp-2 group-hover:text-primary transition-colors">
+                {product.name}
+              </h2>
+              <PriceTag value={product.price} size="md" />
+            </div>
 
-          {/* Footer (Rating & Reviews) */}
-          <div className="mt-auto flex items-center justify-between pt-4 border-t border-gray-100/80">
-            <Rating value={product.rating} fractions={2} readOnly />
-            <span className="text-xs font-medium text-gray-400 hover:text-primary transition-colors">
-              ({product.rating.toFixed(1)}) · {product.reviewsCount} {product.reviewsCount === 1 ? 'review' : 'reviews'}
-            </span>
-            {/*<div className="flex items-center gap-1.5 text-amber-400">*/}
-            {/*  <FaStar size={14} />*/}
-            {/*  <FaStar size={14} />*/}
-            {/*  <FaStar size={14} />*/}
-            {/*  <FaStar size={14} />*/}
-            {/*  <FaStarHalfAlt size={14} />*/}
-            {/*</div>*/}
-            {/*<span className="text-xs font-medium text-gray-400 hover:text-primary transition-colors">124 reviews</span>*/}
+            {/* Footer (Rating & Reviews) */}
+            <div className="mt-auto flex items-center gap-1.5 pt-2 border-t border-gray-100">
+              <Rating value={product.rating} fractions={2} readOnly size="xs" />
+              <span className="text-2xs text-gray-400">
+                ({product.rating.toFixed(1)}) · {product.reviewsCount}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
-    </Link>
-    <QuickViewModal product={quickViewOpen ? product : null} onClose={() => setQuickViewOpen(false)} />
+      </Link>
+      <QuickViewModal product={quickViewOpen ? product : null} onClose={() => setQuickViewOpen(false)} />
     </>
   )
 }

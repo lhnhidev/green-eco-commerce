@@ -1,7 +1,9 @@
 import { getGetWishlistQueryKey, useGetWishlist, useRemoveFromWishlist } from '@api'
 import ProductCard from '@components/features/products/ProductCard'
+import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
 import PageHeader from '@components/ui/primitives/PageHeader'
+import ProductGrid from '@components/ui/primitives/ProductGrid'
 import Loading from '@components/ui/status/Loading'
 import { Button } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
@@ -29,13 +31,13 @@ const WishlistPage = () => {
   if (isLoading) return <Loading text="Loading your wishlist..." />
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Container className="py-6">
       <PageHeader
         breadcrumbItems={breadcrumbItems}
         icon={HeartIcon}
-        iconClassName="text-2xl text-rose-500"
+        iconClassName="text-xl text-rose-500"
         title="My Wishlist"
-        suffix={<span className="text-sm text-gray-400 mt-1">({products?.length ?? 0} items)</span>}
+        suffix={<span className="text-sm text-gray-400">({products?.length ?? 0} items)</span>}
       />
 
       {!products?.length ? (
@@ -45,13 +47,13 @@ const WishlistPage = () => {
           title="Your wishlist is empty"
           description="Save products you love to view them here."
           action={
-            <Button component={Link} to="/products" variant="light" color="green" mt="md">
+            <Button component={Link} to="/products" variant="light" mt="sm">
               Browse Products
             </Button>
           }
         />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5">
+        <ProductGrid variant="showcase">
           {products.map((product) => (
             <div key={product.id} className="relative group">
               <ProductCard product={product} />
@@ -67,9 +69,9 @@ const WishlistPage = () => {
               </Button>
             </div>
           ))}
-        </div>
+        </ProductGrid>
       )}
-    </div>
+    </Container>
   )
 }
 

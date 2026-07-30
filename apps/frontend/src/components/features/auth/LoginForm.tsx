@@ -36,13 +36,13 @@ const LoginForm = () => {
     queryClient.clear()
     const returnTo = searchParams.get('returnTo')
     navigate(returnTo || (profile.role === 'Admin' ? '/admin/dashboard' : '/'))
-    notifications.show({ title: 'Login sucessed!', message: 'Welcome to our shop.', color: 'green' })
+    notifications.show({ title: 'Welcome back', message: 'You have signed in successfully.', color: 'green' })
   }
 
   const handleAuthError = (error: unknown, fallback: string) => {
     const axiosError = error as AxiosError<ProblemDetails>
     notifications.show({
-      title: 'Login failed!',
+      title: 'Login failed',
       message: axiosError.response?.data?.detail || fallback,
       color: 'red',
     })
@@ -116,16 +116,7 @@ const LoginForm = () => {
         </div>
 
         <div>
-          <Button
-            type="submit"
-            size="xs"
-            radius="xl"
-            color="green.9"
-            loading={isPending}
-            classNames={{
-              root: '!w-full',
-            }}
-          >
+          <Button type="submit" size="md" fullWidth loading={isPending}>
             Sign in
           </Button>
 
@@ -135,16 +126,12 @@ const LoginForm = () => {
         <div className="flex gap-4 items-center">
           <Button
             variant="default"
-            size="xs"
-            radius="xl"
+            size="sm"
             leftSection={<FacebookLogoIcon />}
             loading={facebookPending}
             disabled={!isFacebookReady}
             onClick={handleFacebookClick}
-            classNames={{
-              root: '!flex-1 !rounded-xl !hover:bg-[var(--color-input-muted)]',
-              label: '!text-xs',
-            }}
+            className="flex-1"
           >
             Facebook
           </Button>

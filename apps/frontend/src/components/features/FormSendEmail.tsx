@@ -32,12 +32,11 @@ const FormSendEmail = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex items-start flex-col sm:flex-row gap-4 max-w-md mx-auto">
+    <form onSubmit={handleSubmit} className="flex items-start flex-col sm:flex-row gap-3 max-w-md mx-auto">
       <div className="flex-1 w-full">
         <TextInput
           type="email"
           placeholder="Enter your email"
-          radius="xl"
           size="md"
           value={email}
           onChange={(e) => {
@@ -47,7 +46,7 @@ const FormSendEmail = () => {
           error={error}
         />
       </div>
-      <Button type="submit" radius="xl" color="green.9" className="px-8">
+      <Button type="submit" size="md">
         Subscribe
       </Button>
     </form>

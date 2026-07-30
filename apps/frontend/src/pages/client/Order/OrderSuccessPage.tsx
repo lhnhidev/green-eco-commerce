@@ -1,4 +1,5 @@
 import { useGetMyOrderById } from '@api'
+import Container from '@components/ui/primitives/Container'
 import Loading from '@components/ui/status/Loading'
 import { Button, Divider, Group, Image, Paper, Stack, Text, Title } from '@mantine/core'
 import { CheckCircleIcon, DownloadSimpleIcon, LeafIcon, StarIcon } from '@phosphor-icons/react'
@@ -18,14 +19,14 @@ const OrderSuccessPage = () => {
 
   if (isError || !order) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
+      <Container width="narrow" className="py-8 text-center">
         <Title order={3} c="dimmed">
           Order not found
         </Title>
         <Button mt="md" variant="light" onClick={() => navigate('/my-orders')}>
           Go to My Orders
         </Button>
-      </div>
+      </Container>
     )
   }
 
@@ -41,10 +42,10 @@ const OrderSuccessPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-10 max-w-2xl">
-      <div className="flex flex-col items-center text-center mb-8">
-        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-4">
-          <CheckCircleIcon weight="fill" size={44} className="text-green-500" />
+    <Container width="narrow" className="py-8">
+      <div className="flex flex-col items-center text-center mb-6">
+        <div className="w-14 h-14 bg-green-50 rounded-full flex items-center justify-center mb-3">
+          <CheckCircleIcon weight="fill" size={28} className="text-green-500" />
         </div>
         <Title order={2} mb={4}>
           Order placed!
@@ -65,10 +66,10 @@ const OrderSuccessPage = () => {
           {order.items.map((item) => (
             <div key={item.productId} className="flex gap-3 items-center">
               <Image
-                src={resolveImageUrl(item.productImage) || 'https://placehold.co/64x64?text=Eco'}
+                src={resolveImageUrl(item.productImage) || 'https://placehold.co/48x48?text=Eco'}
                 alt={item.productName}
-                w={56}
-                h={56}
+                w={48}
+                h={48}
                 fit="cover"
                 radius="sm"
               />
@@ -139,7 +140,7 @@ const OrderSuccessPage = () => {
           Continue Shopping
         </Button>
       </div>
-    </div>
+    </Container>
   )
 }
 

@@ -1,4 +1,5 @@
 import { useGetGreenWallet } from '@api'
+import Container from '@components/ui/primitives/Container'
 import PageHeader from '@components/ui/primitives/PageHeader'
 import Panel from '@components/ui/primitives/Panel'
 import { Badge, RingProgress, Skeleton, Table, Text } from '@mantine/core'
@@ -17,50 +18,49 @@ const GreenWalletPage = () => {
   const progress = wallet ? Math.min((wallet.balance / Math.max(wallet.earnedTotal, 1)) * 100, 100) : 0
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <Container className="py-6">
       <PageHeader breadcrumbItems={breadcrumbItems} icon={LeafIcon} title="Green Wallet" />
 
       {isLoading ? (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <Skeleton height={130} radius="xl" />
-            <Skeleton height={130} radius="xl" />
-            <Skeleton height={130} radius="xl" />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
+            <Skeleton height={110} radius="lg" />
+            <Skeleton height={110} radius="lg" />
+            <Skeleton height={110} radius="lg" />
           </div>
-          <Skeleton height={220} radius="xl" />
+          <Skeleton height={180} radius="lg" />
         </>
       ) : !wallet ? (
-        <div className="text-center py-16 text-gray-400">Wallet not found.</div>
+        <div className="text-center py-10 text-gray-400">Wallet not found.</div>
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-5">
             {/* Balance Card */}
-            <div
-              className="bg-linear-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white col-span-1 sm:col-span-1 flex flex-col justify-between">
-              <p className="text-green-100 text-sm font-medium">Current Balance</p>
-              <div className="flex items-end justify-between mt-4">
-                <span className="text-4xl font-bold">{wallet.balance.toLocaleString()}</span>
-                <LeafIcon size={32} className="text-green-200 mb-1" />
+            <div className="bg-primary rounded-lg p-5 text-white flex flex-col justify-between">
+              <p className="text-white/80 text-sm font-medium">Current Balance</p>
+              <div className="flex items-end justify-between mt-3">
+                <span className="text-2xl font-semibold">{wallet.balance.toLocaleString()}</span>
+                <LeafIcon size={24} className="text-white/70" />
               </div>
-              <p className="text-green-100 text-xs mt-1">Green Points</p>
+              <p className="text-white/80 text-xs mt-1">Green Points</p>
             </div>
 
             {/* Total Earned */}
-            <Panel className="p-6 flex flex-col justify-between">
+            <Panel padding="md" className="flex flex-col justify-between">
               <p className="text-gray-400 text-sm font-medium">Total Earned</p>
-              <p className="text-3xl font-bold text-gray-800 mt-2">{wallet.earnedTotal.toLocaleString()}</p>
+              <p className="text-2xl font-semibold text-gray-800 mt-2">{wallet.earnedTotal.toLocaleString()}</p>
               <p className="text-gray-400 text-xs mt-1">All-time points</p>
             </Panel>
 
             {/* Progress */}
-            <Panel className="p-6 flex flex-col items-center justify-center">
+            <Panel padding="md" className="flex flex-col items-center justify-center">
               <RingProgress
-                size={90}
-                thickness={8}
-                sections={[{ value: progress, color: 'green' }]}
+                size={72}
+                thickness={6}
+                sections={[{ value: progress, color: 'primary' }]}
                 label={
-                  <Text ta="center" size="xs" fw={700} c="green">
+                  <Text ta="center" size="xs" fw={700} c="primary">
                     {Math.round(progress)}%
                   </Text>
                 }
@@ -70,8 +70,8 @@ const GreenWalletPage = () => {
           </div>
 
           {/* Tips */}
-          <div className="bg-green-50 border border-green-100 rounded-2xl p-4 mb-6 flex items-start gap-3">
-            <LeafIcon size={20} className="text-green-500 mt-0.5 shrink-0" />
+          <div className="bg-green-50 border border-green-100 rounded-lg p-4 mb-5 flex items-start gap-3">
+            <LeafIcon size={18} className="text-green-500 mt-0.5 shrink-0" />
             <div>
               <p className="text-sm font-semibold text-green-800">How to earn more points?</p>
               <p className="text-xs text-green-600 mt-0.5">
@@ -89,59 +89,53 @@ const GreenWalletPage = () => {
 
           {/* Transaction History */}
           <Panel className="overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-gray-50">
-              <ShoppingBagIcon className="text-gray-400" />
+            <div className="flex items-center gap-2 px-4 py-3 border-b border-gray-100">
+              <ShoppingBagIcon className="text-gray-400" size={16} />
               <p className="font-semibold text-gray-700 text-sm">Transaction History</p>
-              <Badge size="xs" variant="light" color="green" radius="xl" ml="auto">
+              <Badge size="xs" variant="light" color="primary" ml="auto">
                 {wallet.transactions.length} records
               </Badge>
             </div>
 
             {wallet.transactions.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 text-sm">No transactions yet.</div>
+              <div className="text-center py-8 text-gray-400 text-sm">No transactions yet.</div>
             ) : (
               <div className="overflow-x-auto">
-              <Table
-                verticalSpacing={10}
-                horizontalSpacing={14}
-                highlightOnHover
-                classNames={{
-                  th: '!text-xs font-semibold! !uppercase !tracking-wide !text-gray-400 !bg-gray-50',
-                  td: '!text-sm',
-                }}
-              >
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>Description</Table.Th>
-                    <Table.Th w={130}>Date</Table.Th>
-                    <Table.Th w={100} ta="right">
-                      Points
-                    </Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {[...wallet.transactions]
-                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                    .map((tx) => (
-                      <Table.Tr key={tx.id}>
-                        <Table.Td className="text-gray-600!">{tx.description || '—'}</Table.Td>
-                        <Table.Td className="text-gray-400!">{dayjs(tx.createdAt).format('DD/MM/YYYY HH:mm')}</Table.Td>
-                        <Table.Td ta="right">
-                          <span className={`font-semibold ${tx.amount >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                            {tx.amount >= 0 ? '+' : ''}
-                            {tx.amount}
-                          </span>
-                        </Table.Td>
-                      </Table.Tr>
-                    ))}
-                </Table.Tbody>
-              </Table>
+                <Table>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Description</Table.Th>
+                      <Table.Th w={130}>Date</Table.Th>
+                      <Table.Th w={100} ta="right">
+                        Points
+                      </Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {[...wallet.transactions]
+                      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                      .map((tx) => (
+                        <Table.Tr key={tx.id}>
+                          <Table.Td className="text-gray-600">{tx.description || '—'}</Table.Td>
+                          <Table.Td className="text-gray-400">
+                            {dayjs(tx.createdAt).format('DD/MM/YYYY HH:mm')}
+                          </Table.Td>
+                          <Table.Td ta="right">
+                            <span className={`font-semibold ${tx.amount >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                              {tx.amount >= 0 ? '+' : ''}
+                              {tx.amount}
+                            </span>
+                          </Table.Td>
+                        </Table.Tr>
+                      ))}
+                  </Table.Tbody>
+                </Table>
               </div>
             )}
           </Panel>
         </>
       )}
-    </div>
+    </Container>
   )
 }
 

@@ -109,12 +109,7 @@ const AddressFormModal = ({ opened, onClose, address }: AddressFormModalProps) =
   return (
     <Modal opened={opened} onClose={onClose} title={isEdit ? 'Edit Address' : 'Add Address'} centered>
       <form onSubmit={form.onSubmit(handleSubmit)} className="flex flex-col gap-4">
-        <TextInput
-          label="Label"
-          placeholder="Home, Work, ..."
-          withAsterisk
-          {...form.getInputProps('label')}
-        />
+        <TextInput label="Label" placeholder="Home, Work, ..." withAsterisk {...form.getInputProps('label')} />
         <TextInput label="Recipient Name" withAsterisk {...form.getInputProps('recipientName')} />
         <TextInput label="Phone" withAsterisk {...form.getInputProps('phone')} />
         <AddressAutocomplete

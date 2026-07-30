@@ -1,5 +1,6 @@
 import { getGetCartQueryKey, useClearCart, useGetCart } from '@api'
 import CartLineItem from '@components/features/cart/CartLineItem'
+import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
 import Panel from '@components/ui/primitives/Panel'
 import PageHeader from '@components/ui/primitives/PageHeader'
@@ -53,23 +54,23 @@ const CartPage = () => {
   const hasBlockingStockIssue = items.some((item) => (item.currentStockQuantity ?? 0) <= 0)
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
+    <Container className="py-6">
       <Seo title="My Cart" />
       <PageHeader
         breadcrumbItems={breadcrumbItems}
         icon={ShoppingCartIcon}
         title="My Cart"
-        suffix={items.length > 0 && <span className="text-sm text-gray-400 mt-1">({items.length} items)</span>}
+        suffix={items.length > 0 && <span className="text-sm text-gray-400">({items.length} items)</span>}
       />
 
       {isError || items.length === 0 ? (
-        <Panel className="py-8">
+        <Panel padding="lg">
           <EmptyState
             icon={ShoppingCartIcon}
             title="Your cart is empty"
             description="Looks like you haven't added any eco-friendly products yet. Let's change that!"
             action={
-              <Button component={Link} to="/products" color="primary" radius="xl" mt="md">
+              <Button component={Link} to="/products" mt="sm">
                 Shop Now
               </Button>
             }
@@ -77,7 +78,7 @@ const CartPage = () => {
         </Panel>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-          <Panel className="lg:col-span-2 p-5">
+          <Panel padding="lg" className="lg:col-span-2">
             <div className="flex items-center justify-between mb-2">
               <span className="text-sm font-semibold text-gray-500">Items</span>
               <button
@@ -94,14 +95,14 @@ const CartPage = () => {
             ))}
           </Panel>
 
-          <Panel className="lg:sticky lg:top-24 p-6 flex flex-col gap-4">
+          <Panel padding="lg" className="lg:sticky lg:top-[72px] flex flex-col gap-4">
             <SectionHeading>Order Summary</SectionHeading>
 
-            <div className="flex items-center gap-2 px-3 py-2.5 bg-green-50 rounded-xl border border-green-100">
-              <LeafIcon className="text-green-600" weight="fill" />
+            <div className="flex items-center gap-2 px-3 py-2 bg-green-50 rounded-md border border-green-100">
+              <LeafIcon className="text-green-600" weight="fill" size={16} />
               <p className="text-xs font-semibold text-green-700">
-                You'll earn <span className="text-green-800 font-black">{cart?.pointsGained ?? 0}</span> Green Points
-                on this order
+                You'll earn <span className="text-green-800 font-bold">{cart?.pointsGained ?? 0}</span> Green Points on
+                this order
               </p>
             </div>
 
@@ -123,23 +124,16 @@ const CartPage = () => {
               </p>
             )}
 
-            <Button
-              fullWidth
-              color="primary"
-              radius="xl"
-              size="md"
-              disabled={hasBlockingStockIssue}
-              onClick={() => navigate('/checkout')}
-            >
+            <Button fullWidth size="md" disabled={hasBlockingStockIssue} onClick={() => navigate('/checkout')}>
               Proceed to Checkout
             </Button>
-            <Button fullWidth variant="light" color="gray" radius="xl" component={Link} to="/products">
+            <Button fullWidth variant="light" color="gray" component={Link} to="/products">
               Continue Shopping
             </Button>
           </Panel>
         </div>
       )}
-    </div>
+    </Container>
   )
 }
 

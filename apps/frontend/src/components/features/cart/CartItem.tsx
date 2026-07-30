@@ -51,7 +51,7 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
       <Link
         to={`/products/${cartItem?.productId}`}
         onClick={() => dispatch(setIsShow(false))}
-        className="relative w-20 h-20 rounded-xl overflow-hidden bg-gray-50 border border-gray-100 shrink-0 block hover:opacity-80 transition-opacity"
+        className="relative w-16 h-16 rounded-md overflow-hidden bg-gray-50 border border-border shrink-0 block hover:opacity-80 transition-opacity"
       >
         <img
           src={resolveImageUrl(cartItem?.productImageUrl)}

@@ -50,13 +50,13 @@ const MobileTabBar = () => {
   ]
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-16 bg-white border-t border-gray-100 shadow-[0_-2px_8px_rgba(0,0,0,0.04)] flex items-stretch">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 h-14 bg-white border-t border-border flex items-stretch">
       {tabs.map((tab) => (
         <button
           key={tab.key}
           type="button"
           onClick={tab.onClick}
-          className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors ${
+          className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 text-2xs font-semibold transition-colors ${
             tab.active ? 'text-primary' : 'text-gray-400'
           }`}
         >

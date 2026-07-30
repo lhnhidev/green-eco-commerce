@@ -6,9 +6,9 @@ const PrivacyPage = () => (
 
     <h2>Information we collect</h2>
     <p>
-      When you create an account, we collect your name, email, phone number, and delivery address.
-      When you place an order, we store the items, delivery address, and payment method you chose
-      so we can fulfill and let you track that order.
+      When you create an account, we collect your name, email, phone number, and delivery address. When you place an
+      order, we store the items, delivery address, and payment method you chose so we can fulfill and let you track that
+      order.
     </p>
 
     <h2>How we use your information</h2>
@@ -24,8 +24,8 @@ const PrivacyPage = () => (
 
     <h2>Your choices</h2>
     <p>
-      You can review and update your account details at any time from your Profile page, or contact
-      us to request that your account be deleted.
+      You can review and update your account details at any time from your Profile page, or contact us to request that
+      your account be deleted.
     </p>
 
     <h2>Contact</h2>

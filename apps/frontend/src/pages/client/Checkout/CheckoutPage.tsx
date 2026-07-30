@@ -14,6 +14,8 @@ import { PaymentMethodEnum } from '@api/schemas'
 import AddressAutocomplete from '@components/features/addresses/AddressAutocomplete'
 import OrderItem from '@components/features/order/OrderItem'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
+import Container from '@components/ui/primitives/Container'
+import Panel from '@components/ui/primitives/Panel'
 import SectionHeading from '@components/ui/primitives/SectionHeading'
 import Seo from '@components/ui/Seo'
 import Loading from '@components/ui/status/Loading'
@@ -27,21 +29,12 @@ import {
   NumberInput,
   Radio,
   Stack,
-  Stepper,
   Text,
   TextInput,
 } from '@mantine/core'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import {
-  ArrowLeftIcon,
-  ArrowRightIcon,
-  MapPinIcon,
-  MoneyWavyIcon,
-  ReceiptIcon,
-  ShoppingCartIcon,
-  TagIcon,
-} from '@phosphor-icons/react'
+import { MapPinIcon, MoneyWavyIcon, ReceiptIcon, ShoppingCartIcon, TagIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatCurrency } from '@utils/formatCurrency'
 import type { AxiosError } from 'axios'
@@ -71,9 +64,6 @@ const CheckoutPage = () => {
   const { data: wallet } = useGetGreenWallet()
   const { data: addresses } = useGetMyAddresses()
 
-  const [active, setActive] = useState(0)
-  const [highestStep, setHighestStep] = useState(0)
-
   const hasSavedAddresses = (addresses?.length ?? 0) > 0
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null)
   const [newAddressText, setNewAddressText] = useState('')
@@ -97,8 +87,7 @@ const CheckoutPage = () => {
         await queryClient.invalidateQueries({ queryKey: getGetMyAddressesQueryKey() })
         notifications.show({ title: 'Address saved', message: 'Added to your address book.', color: 'green' })
       },
-      onError: () =>
-        notifications.show({ title: 'Error', message: 'Could not save this address.', color: 'red' }),
+      onError: () => notifications.show({ title: 'Error', message: 'Could not save this address.', color: 'red' }),
     },
   })
 
@@ -165,49 +154,30 @@ const CheckoutPage = () => {
         ? (me?.address ?? '')
         : (selectedSavedAddress?.formattedAddress ?? '')
 
-  const goToStep = (step: number) => {
-    if (step <= highestStep) setActive(step)
-  }
-
-  const handleNext = () => {
-    if (active === 0) {
-      if (!deliveryAddress.trim()) {
-        notifications.show({
-          title: 'Address required',
-          message: 'Please enter a delivery address.',
-          color: 'orange',
-        })
-        return
-      }
-
-      if (selectedAddressId === NEW_ADDRESS_OPTION && saveNewAddress) {
-        createAddress({
-          data: {
-            label: 'Address',
-            recipientName: `${me?.firstName ?? ''} ${me?.lastName ?? ''}`.trim() || 'Recipient',
-            phone: me?.phone ?? '',
-            formattedAddress: newAddressText,
-            commune: newAddressPlace?.commune ?? null,
-            province: newAddressPlace?.province ?? null,
-            placeId: newAddressPlace?.placeId ?? null,
-            isDefault: false,
-          },
-        })
-      }
+  const maybeSaveNewAddress = () => {
+    if (selectedAddressId === NEW_ADDRESS_OPTION && saveNewAddress) {
+      createAddress({
+        data: {
+          label: 'Address',
+          recipientName: `${me?.firstName ?? ''} ${me?.lastName ?? ''}`.trim() || 'Recipient',
+          phone: me?.phone ?? '',
+          formattedAddress: newAddressText,
+          commune: newAddressPlace?.commune ?? null,
+          province: newAddressPlace?.province ?? null,
+          placeId: newAddressPlace?.placeId ?? null,
+          isDefault: false,
+        },
+      })
     }
-
-    const next = active + 1
-    setActive(next)
-    setHighestStep((h) => Math.max(h, next))
   }
-
-  const handleBack = () => setActive((a) => Math.max(0, a - 1))
 
   const handlePlaceOrder = () => {
     if (!deliveryAddress.trim()) {
       notifications.show({ title: 'Address required', message: 'Please enter a delivery address.', color: 'orange' })
       return
     }
+
+    maybeSaveNewAddress()
 
     if (paymentManner === 'Bank' || paymentManner === 'MoMo') {
       open() // show QR first, checkout on confirm
@@ -234,258 +204,235 @@ const CheckoutPage = () => {
   }
 
   return (
-    <div>
+    <Container className="py-6">
       <Seo title="Checkout" />
       <Modal opened={opened} onClose={close} title="Scan to Pay" centered>
         <PaymentQr amount={total} />
-        <Button fullWidth color="green.9" mt="md" loading={checkingOut} onClick={doCheckout}>
+        <Button fullWidth mt="md" loading={checkingOut} onClick={doCheckout}>
           I've Paid — Confirm Order
         </Button>
       </Modal>
 
-      <div className="container mx-auto px-4 pt-8 pb-10">
-        <PageBreadcrumbs items={breadcrumbItems} />
+      <PageBreadcrumbs items={breadcrumbItems} className="mb-4" />
 
-        <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Stepper + step content */}
-          <div className="lg:col-span-8 border border-gray-300 rounded-lg px-4 sm:px-6 py-6">
-            <Stepper active={active} onStepClick={goToStep} size="sm" color="green.9">
-              <Stepper.Step label="Delivery" description="Where to ship">
-                <div className="mt-6 flex flex-col gap-y-3">
-                  <SectionHeading icon={MapPinIcon} className="mb-2">Delivery Address</SectionHeading>
+      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="min-w-0 flex flex-col gap-4">
+          {/* Delivery address */}
+          <Panel padding="md">
+            <SectionHeading icon={MapPinIcon} className="mb-3">
+              Delivery Address
+            </SectionHeading>
 
-                  <Radio.Group
-                    name="addressManner"
-                    value={selectedAddressId}
-                    onChange={setSelectedAddressId}
-                  >
-                    <Stack gap="sm">
-                      {addresses?.map((a) => (
-                        <Radio
-                          key={a.id}
-                          value={a.id}
-                          label={
-                            <span>
-                              <span className="font-semibold">{a.label}</span>
-                              {a.isDefault && (
-                                <Badge size="xs" color="green" variant="light" radius="xl" ml={6}>
-                                  Default
-                                </Badge>
-                              )}
-                              <br />
-                              <span className="text-xs text-gray-500">
-                                {a.recipientName} · {a.phone} — {a.formattedAddress}
-                              </span>
-                            </span>
-                          }
-                        />
-                      ))}
-                      {!hasSavedAddresses && me?.address && (
-                        <Radio value={PROFILE_ADDRESS_OPTION} label={`Default: ${me.address}`} />
-                      )}
-                      <Radio value={NEW_ADDRESS_OPTION} label="Use a new address" />
-                    </Stack>
-                  </Radio.Group>
+            <Radio.Group name="addressManner" value={selectedAddressId} onChange={setSelectedAddressId}>
+              <Stack gap="sm">
+                {addresses?.map((a) => (
+                  <Radio
+                    key={a.id}
+                    value={a.id}
+                    label={
+                      <span>
+                        <span className="font-semibold text-sm">{a.label}</span>
+                        {a.isDefault && (
+                          <Badge size="xs" color="primary" variant="light" ml={6}>
+                            Default
+                          </Badge>
+                        )}
+                        <br />
+                        <span className="text-xs text-gray-500">
+                          {a.recipientName} · {a.phone} — {a.formattedAddress}
+                        </span>
+                      </span>
+                    }
+                  />
+                ))}
+                {!hasSavedAddresses && me?.address && (
+                  <Radio value={PROFILE_ADDRESS_OPTION} label={`Default: ${me.address}`} />
+                )}
+                <Radio value={NEW_ADDRESS_OPTION} label="Use a new address" />
+              </Stack>
+            </Radio.Group>
 
-                  {selectedAddressId === NEW_ADDRESS_OPTION && (
-                    <div className="flex flex-col gap-2 mt-1">
-                      <AddressAutocomplete
-                        value={newAddressText}
-                        onChange={setNewAddressText}
-                        onSelectSuggestion={(s) => {
-                          setNewAddressText(s.description)
-                          setNewAddressPlace({ commune: s.commune, province: s.province, placeId: s.placeId })
-                        }}
-                      />
-                      <Checkbox
-                        label="Save this address to my address book"
-                        checked={saveNewAddress}
-                        onChange={(e) => setSaveNewAddress(e.currentTarget.checked)}
-                      />
-                    </div>
-                  )}
-                </div>
-              </Stepper.Step>
+            {selectedAddressId === NEW_ADDRESS_OPTION && (
+              <div className="flex flex-col gap-2 mt-2">
+                <AddressAutocomplete
+                  value={newAddressText}
+                  onChange={setNewAddressText}
+                  onSelectSuggestion={(s) => {
+                    setNewAddressText(s.description)
+                    setNewAddressPlace({ commune: s.commune, province: s.province, placeId: s.placeId })
+                  }}
+                />
+                <Checkbox
+                  label="Save this address to my address book"
+                  checked={saveNewAddress}
+                  onChange={(e) => setSaveNewAddress(e.currentTarget.checked)}
+                />
+              </div>
+            )}
+          </Panel>
 
-              <Stepper.Step label="Payment" description="How you'll pay">
-                <div className="mt-6">
-                  <SectionHeading icon={MoneyWavyIcon} className="mb-2">Payment Method</SectionHeading>
-                  <Radio.Group
-                    name="paymentManner"
-                    value={paymentManner}
-                    onChange={(v) => setPaymentManner(v as 'COD' | 'Bank' | 'MoMo')}
-                  >
-                    <Group mt="xs">
-                      <Radio value="COD" label="COD (Cash on Delivery)" />
-                      <Radio value="Bank" label="Bank Transfer" />
-                      <Radio value="MoMo" label="MoMo Wallet" />
-                    </Group>
-                  </Radio.Group>
-                </div>
-              </Stepper.Step>
+          {/* Payment method */}
+          <Panel padding="md">
+            <SectionHeading icon={MoneyWavyIcon} className="mb-3">
+              Payment Method
+            </SectionHeading>
+            <Radio.Group
+              name="paymentManner"
+              value={paymentManner}
+              onChange={(v) => setPaymentManner(v as 'COD' | 'Bank' | 'MoMo')}
+            >
+              <Group>
+                <Radio value="COD" label="COD (Cash on Delivery)" />
+                <Radio value="Bank" label="Bank Transfer" />
+                <Radio value="MoMo" label="MoMo Wallet" />
+              </Group>
+            </Radio.Group>
+          </Panel>
 
-              <Stepper.Step label="Review" description="Confirm & place order">
-                <div className="mt-6 flex flex-col gap-y-4">
-                  <div>
-                    <SectionHeading icon={ShoppingCartIcon} className="mb-3">Items ({cart?.items?.length})</SectionHeading>
-                    <div className="flex flex-col gap-y-3 max-h-100 overflow-auto">
-                      {cart?.items?.map((item) => <OrderItem key={item.productId} product={item} />)}
-                    </div>
-                  </div>
+          {/* Items, coupon, points */}
+          <Panel padding="md">
+            <SectionHeading icon={ShoppingCartIcon} className="mb-3">
+              Items ({cart?.items?.length})
+            </SectionHeading>
+            <div className="flex flex-col gap-y-3 max-h-64 overflow-auto">
+              {cart?.items?.map((item) => (
+                <OrderItem key={item.productId} product={item} />
+              ))}
+            </div>
 
-                  <hr className="border-gray-300" />
+            <hr className="border-border my-4" />
 
-                  <div className="flex flex-col gap-1 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Deliver to</span>
-                      <span className="font-medium max-w-72 text-right truncate">{deliveryAddress || '—'}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">Payment method</span>
-                      <span className="font-medium">{paymentMethodLabel[paymentManner]}</span>
-                    </div>
-                  </div>
-
-                  <hr className="border-gray-300" />
-
-                  {/* Coupon (mutually exclusive with Green Points — see below) */}
-                  <div className="flex gap-2 items-end">
-                    <TextInput
-                      label="Coupon Code"
-                      placeholder={pointsToRedeem > 0 ? 'Clear Green Points to use a coupon' : 'Enter code...'}
-                      size="xs"
-                      leftSection={<TagIcon size={12} />}
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.currentTarget.value.toUpperCase())}
-                      className="flex-1"
-                      disabled={!!appliedCoupon || pointsToRedeem > 0}
-                    />
-                    {appliedCoupon ? (
-                      <Button
-                        size="xs"
-                        variant="subtle"
-                        color="red"
-                        onClick={() => {
-                          setAppliedCoupon(null)
-                          setCouponCode('')
-                        }}
-                      >
-                        Remove
-                      </Button>
-                    ) : (
-                      <Button
-                        size="xs"
-                        color="primary"
-                        loading={validatingCoupon}
-                        disabled={!couponCode.trim() || pointsToRedeem > 0}
-                        onClick={() => validateCoupon({ data: { code: couponCode, orderTotal: totalPrice } })}
-                      >
-                        Apply
-                      </Button>
-                    )}
-                  </div>
-
-                  {/* Green Points (mutually exclusive with a coupon) */}
-                  {walletBalance > 0 && (
-                    <div>
-                      <Text size="xs" fw={600} mb={4}>
-                        Green Points (Balance: {walletBalance} pts = {formatCurrency(walletBalance / 20)})
-                      </Text>
-                      <NumberInput
-                        size="xs"
-                        min={0}
-                        max={maxPoints}
-                        step={20}
-                        value={pointsToRedeem}
-                        onChange={(v) => setPointsToRedeem(typeof v === 'number' ? Math.floor(v / 20) * 20 : 0)}
-                        placeholder={appliedCoupon ? 'Remove coupon to redeem points' : 'Points to redeem (20pts = $1)'}
-                        description="20 points = $1 off"
-                        disabled={!!appliedCoupon}
-                      />
-                    </div>
-                  )}
-                </div>
-              </Stepper.Step>
-            </Stepper>
-
-            <Group justify="space-between" mt="xl">
-              <Button
-                variant="default"
-                leftSection={<ArrowLeftIcon size={14} />}
-                onClick={handleBack}
-                disabled={active === 0}
-              >
-                Back
-              </Button>
-              {active < 2 ? (
-                <Button color="green.9" rightSection={<ArrowRightIcon size={14} />} onClick={handleNext}>
-                  Continue
+            {/* Coupon (mutually exclusive with Green Points) */}
+            <div className="flex gap-2 items-end">
+              <TextInput
+                label="Coupon Code"
+                placeholder={pointsToRedeem > 0 ? 'Clear Green Points to use a coupon' : 'Enter code...'}
+                size="xs"
+                leftSection={<TagIcon size={12} />}
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.currentTarget.value.toUpperCase())}
+                className="flex-1"
+                disabled={!!appliedCoupon || pointsToRedeem > 0}
+              />
+              {appliedCoupon ? (
+                <Button
+                  size="xs"
+                  variant="subtle"
+                  color="red"
+                  onClick={() => {
+                    setAppliedCoupon(null)
+                    setCouponCode('')
+                  }}
+                >
+                  Remove
                 </Button>
               ) : (
                 <Button
-                  color="green.9"
-                  loading={checkingOut}
-                  disabled={!cart?.items?.length}
-                  onClick={handlePlaceOrder}
+                  size="xs"
+                  loading={validatingCoupon}
+                  disabled={!couponCode.trim() || pointsToRedeem > 0}
+                  onClick={() => validateCoupon({ data: { code: couponCode, orderTotal: totalPrice } })}
                 >
-                  {paymentManner === 'COD' ? 'Place Order (COD)' : 'Pay Now'}
+                  Apply
                 </Button>
               )}
-            </Group>
-          </div>
+            </div>
 
-          {/* Order summary */}
-          <div className="lg:col-span-4 lg:sticky lg:top-24 flex flex-col border border-gray-300 rounded-lg px-4 sm:px-6 py-4">
-            <SectionHeading icon={ReceiptIcon} className="mb-6">
+            {/* Green Points (mutually exclusive with a coupon) */}
+            {walletBalance > 0 && (
+              <div className="mt-4">
+                <Text size="xs" fw={600} mb={4}>
+                  Green Points (Balance: {walletBalance} pts = {formatCurrency(walletBalance / 20)})
+                </Text>
+                <NumberInput
+                  size="xs"
+                  min={0}
+                  max={maxPoints}
+                  step={20}
+                  value={pointsToRedeem}
+                  onChange={(v) => setPointsToRedeem(typeof v === 'number' ? Math.floor(v / 20) * 20 : 0)}
+                  placeholder={appliedCoupon ? 'Remove coupon to redeem points' : 'Points to redeem (20pts = $1)'}
+                  description="20 points = $1 off"
+                  disabled={!!appliedCoupon}
+                />
+              </div>
+            )}
+          </Panel>
+        </div>
+
+        {/* Order summary */}
+        <aside className="lg:sticky lg:top-[72px] lg:self-start">
+          <Panel padding="md" className="flex flex-col">
+            <SectionHeading icon={ReceiptIcon} className="mb-4">
               Order summary
             </SectionHeading>
 
-            <div className="flex flex-col gap-y-2">
+            <div className="flex flex-col gap-y-2 text-sm">
               <div className="flex justify-between">
-                <p>Subtotal:</p>
-                <p>{formatCurrency(totalPrice)}</p>
+                <span className="text-gray-500">Deliver to</span>
+                <span className="font-medium max-w-48 text-right truncate">{deliveryAddress || '—'}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Payment method</span>
+                <span className="font-medium">{paymentMethodLabel[paymentManner]}</span>
+              </div>
+
+              <hr className="border-border my-1" />
+
+              <div className="flex justify-between">
+                <span className="text-gray-500">Subtotal</span>
+                <span>{formatCurrency(totalPrice)}</span>
               </div>
               {appliedCoupon && (
                 <div className="flex justify-between text-green-600">
-                  <p className="flex items-center gap-1">
-                    <TagIcon size={13} /> Coupon ({appliedCoupon.code}):
-                  </p>
-                  <p>-{formatCurrency(couponDiscount)}</p>
+                  <span className="flex items-center gap-1">
+                    <TagIcon size={13} /> Coupon ({appliedCoupon.code})
+                  </span>
+                  <span>-{formatCurrency(couponDiscount)}</span>
                 </div>
               )}
               {pointsToRedeem > 0 && (
                 <div className="flex justify-between text-amber-600">
-                  <p>Green Points ({pointsToRedeem} pts):</p>
-                  <p>-{formatCurrency(pointsDiscount)}</p>
+                  <span>Green Points ({pointsToRedeem} pts)</span>
+                  <span>-{formatCurrency(pointsDiscount)}</span>
                 </div>
               )}
-              <div className="text-primary flex justify-between font-bold">
-                <p>Shipping:</p>
-                <p>FREE</p>
+              <div className="text-primary flex justify-between font-semibold">
+                <span>Shipping</span>
+                <span>FREE</span>
               </div>
-              <div className="text-primary text-lg flex justify-between font-bold">
-                <p>Total:</p>
-                <p>{formatCurrency(total)}</p>
+              <div className="text-primary text-lg flex justify-between font-semibold pt-1 border-t border-border">
+                <span>Total</span>
+                <span>{formatCurrency(total)}</span>
               </div>
             </div>
 
-            <div className="flex items-end justify-center flex-1 mt-6">
-              <div className="flex flex-wrap gap-3 justify-center">
-                <Anchor component={Link} to="/terms" size="sm" c="green.9" target="_blank" underline="always">
-                  Terms of service
-                </Anchor>
-                <Anchor component={Link} to="/shipping" size="sm" c="green.9" target="_blank" underline="always">
-                  Shipping
-                </Anchor>
-                <Anchor component={Link} to="/returns" size="sm" c="green.9" target="_blank" underline="always">
-                  Refund policy
-                </Anchor>
-              </div>
+            <Button
+              fullWidth
+              size="md"
+              className="mt-4"
+              loading={checkingOut}
+              disabled={!cart?.items?.length}
+              onClick={handlePlaceOrder}
+            >
+              {paymentManner === 'COD' ? 'Place Order (COD)' : 'Pay Now'}
+            </Button>
+
+            <div className="flex flex-wrap gap-3 justify-center mt-4">
+              <Anchor component={Link} to="/terms" size="xs" c="primary" target="_blank" underline="always">
+                Terms of service
+              </Anchor>
+              <Anchor component={Link} to="/shipping" size="xs" c="primary" target="_blank" underline="always">
+                Shipping
+              </Anchor>
+              <Anchor component={Link} to="/returns" size="xs" c="primary" target="_blank" underline="always">
+                Refund policy
+              </Anchor>
             </div>
-          </div>
-        </div>
+          </Panel>
+        </aside>
       </div>
-    </div>
+    </Container>
   )
 }
 

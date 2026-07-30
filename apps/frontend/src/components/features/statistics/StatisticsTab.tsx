@@ -104,8 +104,8 @@ const StatisticsTab = () => {
 
   if (summary.totalOrders === 0) {
     return (
-      <Center className="flex-col py-16 text-center">
-        <TrayIcon className="text-4xl text-gray-300 mb-3" />
+      <Center className="flex-col py-10 text-center">
+        <TrayIcon className="text-3xl text-gray-300 mb-3" />
         <Text fw={600} className="text-gray-600">
           You have no orders yet
         </Text>

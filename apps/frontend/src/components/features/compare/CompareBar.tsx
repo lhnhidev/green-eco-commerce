@@ -13,19 +13,13 @@ const CompareBar = () => {
   if (productIds.length === 0) return null
 
   return (
-    <div className="fixed bottom-20 lg:bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white shadow-2xl rounded-full border border-gray-200 pl-5 pr-2 py-2 flex items-center gap-3">
+    <div className="fixed bottom-16 lg:bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white shadow-lg rounded-full border border-border pl-4 pr-2 py-1.5 flex items-center gap-3">
       <div className="flex items-center gap-2 text-sm font-semibold text-gray-700">
-        <ScalesIcon size={18} className="text-primary" weight="fill" />
+        <ScalesIcon size={16} className="text-primary" weight="fill" />
         Compare ({productIds.length}/{MAX_COMPARE_ITEMS})
       </div>
 
-      <Button
-        size="xs"
-        color="primary"
-        radius="xl"
-        disabled={productIds.length < 2}
-        onClick={() => navigate('/compare')}
-      >
+      <Button size="xs" disabled={productIds.length < 2} onClick={() => navigate('/compare')}>
         Compare Now
       </Button>
       <button

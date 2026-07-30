@@ -1,6 +1,8 @@
 import { useGetProductsByIds } from '@api'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { ClockCounterClockwiseIcon } from '@phosphor-icons/react'
+import ProductGrid from '@components/ui/primitives/ProductGrid'
+import SectionHeading from '@components/ui/primitives/SectionHeading'
 import ProductCard from './ProductCard'
 
 const RecentlyViewedProducts = ({ excludeProductId }: { excludeProductId?: string }) => {
@@ -15,16 +17,15 @@ const RecentlyViewedProducts = ({ excludeProductId }: { excludeProductId?: strin
   const ordered = idsToShow.map((id) => products.find((p) => p.id === id)).filter((p) => p !== undefined)
 
   return (
-    <div className="mb-16">
-      <div className="flex items-center gap-2 mb-6">
-        <ClockCounterClockwiseIcon className="text-2xl text-primary" />
-        <h2 className="text-xl font-bold text-gray-800">Recently Viewed</h2>
-      </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
+    <div className="mb-section">
+      <SectionHeading icon={ClockCounterClockwiseIcon} size="md" className="mb-4">
+        Recently Viewed
+      </SectionHeading>
+      <ProductGrid variant="showcase">
         {ordered.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
-      </div>
+      </ProductGrid>
     </div>
   )
 }
