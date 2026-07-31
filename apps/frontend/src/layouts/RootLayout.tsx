@@ -22,7 +22,7 @@ const RootLayout = () => {
   }
 
   if (user?.role === RoleEnum.Admin) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/admin" replace />
   }
 
   return (
