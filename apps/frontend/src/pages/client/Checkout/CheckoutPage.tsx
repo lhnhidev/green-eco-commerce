@@ -118,7 +118,7 @@ const CheckoutPage = () => {
         invalidateGetCart(queryClient)
         notifications.show({
           title: 'Order placed!',
-          message: `Your order #${data.orderId.substring(0, 8).toUpperCase()} has been placed.`,
+          message: `Your order #${data.orderId.slice(-8).toUpperCase()} has been placed.`,
           color: 'green',
         })
         navigate(`/order-success/${data.orderId}`)

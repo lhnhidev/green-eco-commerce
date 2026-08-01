@@ -13,6 +13,7 @@ import RecentlyViewedProducts from '@components/features/products/RecentlyViewed
 import RelatedProducts from '@components/features/products/RelatedProducts'
 import { recordProductView } from '@components/features/products/recentlyViewed.slice'
 import ProductReviews from '@components/features/reviews/ProductReviews'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import ImgSlider from '@components/ui/img-slider/ImgSlider'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
 import Container from '@components/ui/primitives/Container'
@@ -218,7 +219,7 @@ const ProductDetailPage = () => {
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >
-              <img
+              <ImageWithFallback
                 className="w-full h-full object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-105"
                 style={zoomStyle}
                 alt={product.name}
@@ -249,6 +250,7 @@ const ProductDetailPage = () => {
               percent="25%"
               activeImg={activeImg}
               onSelect={setActiveImg}
+              alt={product.name}
             />
           </div>
 
@@ -411,7 +413,11 @@ const ProductDetailPage = () => {
         >
           <XIcon size={18} />
         </button>
-        <img src={activeImg} alt={product.name} className="max-w-[90vw] max-h-[85vh] object-contain mx-auto" />
+        <ImageWithFallback
+          src={activeImg}
+          alt={product.name}
+          className="max-w-[90vw] max-h-[85vh] object-contain mx-auto"
+        />
         {resolvedImages.length > 1 && (
           <>
             <button

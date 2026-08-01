@@ -15,6 +15,7 @@ public record GetOrderDetailsQuery(Guid OrderId) : IRequest<OrderDto>
                 .Include(o => o.OrderItems)
                 .ThenInclude(oi => oi.Product)
                 .Include(o => o.Payment)
+                .Include(o => o.User)
                 .FirstOrDefaultAsync(o => o.Id == request.OrderId, ct)
                 ?? throw new KeyNotFoundException($"Order {request.OrderId} not found.");
 

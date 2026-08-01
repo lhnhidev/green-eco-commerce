@@ -14,7 +14,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
     // ---------------------------------------------------------------------------
     // Container bootstrap
     // ---------------------------------------------------------------------------
-    private readonly PostgreSqlContainer container = new PostgreSqlBuilder("postgres:18-alpine")
+    private readonly PostgreSqlContainer container = new PostgreSqlBuilder("pgvector/pgvector:pg18")
             .WithDatabase("greenecommerce_test")
             .WithUsername("postgres")
             .WithPassword("postgres")
@@ -52,7 +52,7 @@ public sealed class PostgreSqlFixture : IAsyncLifetime
     public ApplicationDbContext CreateDbContext()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseNpgsql(ConnectionString)
+            .UseNpgsql(ConnectionString, npgsqlOptions => npgsqlOptions.UseVector())
             .Options;
 
         return new ApplicationDbContext(options);

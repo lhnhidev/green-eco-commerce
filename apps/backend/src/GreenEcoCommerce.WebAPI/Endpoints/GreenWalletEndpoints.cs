@@ -11,7 +11,8 @@ public static class GreenWalletEndpoints
     public static void MapGreenWalletEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/green-wallets").WithTags("GreenWallets")
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization("UserOnly");
 
         group.MapGet("/", GetGreenWallet);
     }

@@ -173,7 +173,7 @@ public static class OrderEndpoints
         try
         {
             var order = await sender.Send(new GetOrderDetailsQuery(id));
-            return TypedResults.File(GenerateInvoicePdf(order), "application/pdf", $"invoice_{id.ToString()[..8]}.pdf");
+            return TypedResults.File(GenerateInvoicePdf(order), "application/pdf", $"invoice_{id.ToString()[^8..]}.pdf");
         }
         catch (KeyNotFoundException)
         {
@@ -191,7 +191,7 @@ public static class OrderEndpoints
         {
             var order = await sender.Send(new GetOrderDetailsQuery(id));
             if (order.UserId != userId) return TypedResults.Forbid();
-            return TypedResults.File(GenerateInvoicePdf(order), "application/pdf", $"invoice_{id.ToString()[..8]}.pdf");
+            return TypedResults.File(GenerateInvoicePdf(order), "application/pdf", $"invoice_{id.ToString()[^8..]}.pdf");
         }
         catch (KeyNotFoundException)
         {
@@ -201,7 +201,7 @@ public static class OrderEndpoints
 
     private static byte[] GenerateInvoicePdf(OrderDto order)
     {
-        string shortId = order.Id.ToString()[..8].ToUpperInvariant();
+        string shortId = order.Id.ToString()[^8..].ToUpperInvariant();
 
         var document = Document.Create(container =>
         {

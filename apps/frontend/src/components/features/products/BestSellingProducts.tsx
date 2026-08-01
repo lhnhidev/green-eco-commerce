@@ -5,6 +5,9 @@ import { TrophyIcon } from '@phosphor-icons/react'
 import { formatCurrency } from '@utils/formatCurrency'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
 
+const rankColor = (i: number) => (i === 0 ? 'yellow' : i === 1 ? 'gray' : i === 2 ? 'orange' : 'blue')
+const carbonColor = (v: number) => (v < 2 ? 'green' : v < 5 ? 'yellow' : 'red')
+
 const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
   const { data: products, isLoading } = useGetBestSellingProducts({ top })
 
@@ -22,41 +25,69 @@ const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
             <Skeleton key={i} height={40} radius="sm" />
           ))}
         </div>
+      ) : (products ?? []).length === 0 ? (
+        <Text size="sm" c="dimmed" ta="center" py="sm">
+          No order data yet.
+        </Text>
       ) : (
-        <Table>
-          <Table.Thead>
-            <Table.Tr>
-              <Table.Th w={40}>#</Table.Th>
-              <Table.Th>Product</Table.Th>
-              <Table.Th w={80}>Units Sold</Table.Th>
-              <Table.Th w={100}>Revenue</Table.Th>
-              <Table.Th w={90}>CO₂ Index</Table.Th>
-            </Table.Tr>
-          </Table.Thead>
-          <Table.Tbody>
-            {(products ?? []).length === 0 ? (
+        <>
+          {/* Below sm (640px) a table can't fit "Product" + 3 numeric columns without
+              truncating the name and CO2 index — switch to a stacked card list instead.
+              Desktop/tablet (sm+) keeps the exact table below, untouched. */}
+          <div className="flex flex-col gap-2 sm:hidden">
+            {(products ?? []).map((p, i) => (
+              <div key={p.productId} className="flex gap-3 p-3 border border-border rounded-lg">
+                <Avatar src={resolveImageUrl(p.imageUrl)} size="md" radius="sm" alt={p.name} color="primary">
+                  {p.name.trim().charAt(0).toUpperCase() || '?'}
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start gap-2 mb-1.5">
+                    <Badge size="sm" variant="light" color={rankColor(i)}>
+                      {i + 1}
+                    </Badge>
+                    <Text size="sm" fw={500} className="flex-1">
+                      {p.name}
+                    </Text>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                    <span className="text-xs text-fg-subtle">
+                      Units <span className="font-semibold text-green-700">{p.totalUnitsSold}</span>
+                    </span>
+                    <span className="text-xs text-fg-subtle">
+                      Revenue <span className="font-semibold text-foreground">{formatCurrency(p.totalRevenue)}</span>
+                    </span>
+                    <Badge size="xs" variant="dot" color={carbonColor(p.carbonIndex)}>
+                      {p.carbonIndex.toFixed(1)} kg
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <Table className="hidden sm:table">
+            <Table.Thead>
               <Table.Tr>
-                <Table.Td colSpan={5}>
-                  <Text size="sm" c="dimmed" ta="center" py="sm">
-                    No order data yet.
-                  </Text>
-                </Table.Td>
+                <Table.Th w={40}>#</Table.Th>
+                <Table.Th>Product</Table.Th>
+                <Table.Th w={80}>Units Sold</Table.Th>
+                <Table.Th w={100}>Revenue</Table.Th>
+                <Table.Th w={90}>CO₂ Index</Table.Th>
               </Table.Tr>
-            ) : (
-              (products ?? []).map((p, i) => (
+            </Table.Thead>
+            <Table.Tbody>
+              {(products ?? []).map((p, i) => (
                 <Table.Tr key={p.productId}>
                   <Table.Td>
-                    <Badge
-                      size="sm"
-                      variant="light"
-                      color={i === 0 ? 'yellow' : i === 1 ? 'gray' : i === 2 ? 'orange' : 'blue'}
-                    >
+                    <Badge size="sm" variant="light" color={rankColor(i)}>
                       {i + 1}
                     </Badge>
                   </Table.Td>
                   <Table.Td>
                     <div className="flex items-center gap-2">
-                      <Avatar src={resolveImageUrl(p.imageUrl)} size="sm" radius="sm" alt={p.name} />
+                      <Avatar src={resolveImageUrl(p.imageUrl)} size="sm" radius="sm" alt={p.name} color="primary">
+                        {p.name.trim().charAt(0).toUpperCase() || '?'}
+                      </Avatar>
                       <Text size="sm" fw={500} className="line-clamp-1">
                         {p.name}
                       </Text>
@@ -73,19 +104,15 @@ const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
                     </Text>
                   </Table.Td>
                   <Table.Td>
-                    <Badge
-                      size="xs"
-                      variant="dot"
-                      color={p.carbonIndex < 2 ? 'green' : p.carbonIndex < 5 ? 'yellow' : 'red'}
-                    >
+                    <Badge size="xs" variant="dot" color={carbonColor(p.carbonIndex)}>
                       {p.carbonIndex.toFixed(1)} kg
                     </Badge>
                   </Table.Td>
                 </Table.Tr>
-              ))
-            )}
-          </Table.Tbody>
-        </Table>
+              ))}
+            </Table.Tbody>
+          </Table>
+        </>
       )}
     </Panel>
   )

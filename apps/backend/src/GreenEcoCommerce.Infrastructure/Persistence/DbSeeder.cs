@@ -128,10 +128,10 @@ public static class DbSeeder
             new() { Id = new Guid("22000000-0000-0000-0000-000000000006"), Name = "Cork",                 Type = MaterialTypeEnum.Natural,      EcoRating = 8 },
             new() { Id = new Guid("22000000-0000-0000-0000-000000000007"), Name = "Cornstarch PLA",       Type = MaterialTypeEnum.BioBased,     EcoRating = 7 },
             new() { Id = new Guid("22000000-0000-0000-0000-000000000008"), Name = "Stainless Steel 304",  Type = MaterialTypeEnum.Recycled,     EcoRating = 6 },
-            new() { Id = new Guid("22000000-0000-0000-0000-000000000009"), Name = "Coconut Shell",        Type = MaterialTypeEnum.Biodegradable,EcoRating = 9 },
+            new() { Id = new Guid("22000000-0000-0000-0000-000000000009"), Name = "Coconut Shell",        Type = MaterialTypeEnum.Natural,      EcoRating = 9 },
             new() { Id = new Guid("22000000-0000-0000-0000-000000000010"), Name = "Jute",                 Type = MaterialTypeEnum.Natural,      EcoRating = 8 },
             new() { Id = new Guid("22000000-0000-0000-0000-000000000011"), Name = "Recycled Cardboard",   Type = MaterialTypeEnum.Recycled,     EcoRating = 7 },
-            new() { Id = new Guid("22000000-0000-0000-0000-000000000012"), Name = "Soy Wax",              Type = MaterialTypeEnum.Compostable,  EcoRating = 7 },
+            new() { Id = new Guid("22000000-0000-0000-0000-000000000012"), Name = "Soy Wax",              Type = MaterialTypeEnum.BioBased,     EcoRating = 7 },
         };
 
         context.Materials.AddRange(materials);

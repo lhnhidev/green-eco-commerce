@@ -1,9 +1,10 @@
 import { invalidateGetMyOrderById, invalidateGetMyOrders, useCancelMyOrder, useGetMyOrderById } from '@api'
 import { OrderStatusEnum } from '@api/schemas'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
 import Container from '@components/ui/primitives/Container'
 import Loading from '@components/ui/status/Loading'
-import { Badge, Button, Divider, Group, Image, Paper, Stack, Text, Title } from '@mantine/core'
+import { Badge, Button, Divider, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { modals } from '@mantine/modals'
 import { notifications } from '@mantine/notifications'
 import { ArrowLeftIcon, DownloadSimpleIcon, LeafIcon, MapPinIcon, PackageIcon, StarIcon } from '@phosphor-icons/react'
@@ -44,7 +45,7 @@ const OrderDetailPage = () => {
   const breadcrumbItems = [
     { title: 'Home', href: '/' },
     { title: 'My Orders', href: '/my-orders' },
-    { title: `Order #${id?.substring(0, 8).toUpperCase()}`, href: `/my-orders/${id}` },
+    { title: `Order #${id?.slice(-8).toUpperCase()}`, href: `/my-orders/${id}` },
   ]
 
   if (isLoading) return <Loading text="Loading order details..." />
@@ -76,7 +77,7 @@ const OrderDetailPage = () => {
   const handleDownloadInvoice = async () => {
     setDownloadingInvoice(true)
     try {
-      await downloadFile(`/api/me/orders/${order.id}/invoice.pdf`, `invoice_${order.id.substring(0, 8)}.pdf`)
+      await downloadFile(`/api/me/orders/${order.id}/invoice.pdf`, `invoice_${order.id.slice(-8)}.pdf`)
     } catch {
       notifications.show({ title: 'Download failed', message: 'Could not download invoice PDF.', color: 'red' })
     } finally {
@@ -95,7 +96,7 @@ const OrderDetailPage = () => {
           </Title>
           <Group gap="xs">
             <Text size="sm" c="dimmed" ff="mono">
-              #{order.id?.substring(0, 8).toUpperCase()}
+              #{order.id?.slice(-8).toUpperCase()}
             </Text>
             <Badge size="sm" variant="light" color={statusColor[order.status] ?? 'gray'}>
               {order.status}
@@ -133,13 +134,10 @@ const OrderDetailPage = () => {
         <Stack gap="sm">
           {order.items.map((item) => (
             <div key={item.productId} className="flex gap-3 items-center">
-              <Image
-                src={resolveImageUrl(item.productImage) || 'https://placehold.co/48x48?text=Eco'}
+              <ImageWithFallback
+                src={resolveImageUrl(item.productImage)}
                 alt={item.productName}
-                w={48}
-                h={48}
-                fit="cover"
-                radius="sm"
+                className="w-12 h-12 object-cover rounded-sm shrink-0"
               />
               <div className="flex-1">
                 <Text fw={600} size="sm">

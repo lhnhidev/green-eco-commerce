@@ -1,20 +1,11 @@
-import {
-  invalidateGetAllUsers,
-  useActivateUser,
-  useCreateUser,
-  useDeactivateUser,
-  useDeleteUser,
-  useGetAllUsers,
-  useUpdateUser,
-} from '@api'
+import { invalidateGetAllUsers, useActivateUser, useDeactivateUser, useDeleteUser, useGetAllUsers } from '@api'
 import type { ProblemDetails, UserDto } from '@api/schemas'
-import UserForm, { type UserFormValues } from '@components/features/user/UserForm'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
 import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
 import RowActions from '@components/ui/primitives/RowActions'
 import Toolbar from '@components/ui/primitives/Toolbar'
-import { ActionIcon, Avatar, Badge, Button, Modal, TextInput, Tooltip } from '@mantine/core'
+import { ActionIcon, Avatar, Badge, Button, TextInput, Tooltip } from '@mantine/core'
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import {
@@ -31,6 +22,7 @@ import { resolveImageUrl } from '@utils/resolveImageUrl'
 import type { AxiosError } from 'axios'
 import dayjs from 'dayjs'
 import { useState } from 'react'
+import { useNavigate } from 'react-router'
 
 const PAGE_SIZE = 20
 
@@ -38,13 +30,12 @@ const getErrorMessage = (error: unknown, fallback: string) =>
   (error as AxiosError<ProblemDetails>).response?.data.detail || fallback
 
 const UserList = () => {
+  const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [debouncedSearch] = useDebouncedValue(search, 300)
   const [page, setPage] = useState(1)
   const [exporting, setExporting] = useState(false)
-  const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false)
   const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
-  const [editingUser, setEditingUser] = useState<UserDto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<UserDto | null>(null)
 
   const handleExportExcel = async () => {
@@ -85,39 +76,6 @@ const UserList = () => {
 
   const invalidateUsers = () => invalidateGetAllUsers(queryClient)
 
-  const { mutate: createUser, isPending: creating } = useCreateUser({
-    mutation: {
-      onSuccess: async () => {
-        await invalidateUsers()
-        closeModal()
-        notifications.show({ title: 'Created', message: 'User account created.', color: 'green' })
-      },
-      onError: (error) =>
-        notifications.show({
-          title: 'Error',
-          message: getErrorMessage(error, 'Could not create user.'),
-          color: 'red',
-        }),
-    },
-  })
-
-  const { mutate: updateUser, isPending: updating } = useUpdateUser({
-    mutation: {
-      onSuccess: async () => {
-        await invalidateUsers()
-        closeModal()
-        setEditingUser(null)
-        notifications.show({ title: 'Updated', message: 'User account updated.', color: 'green' })
-      },
-      onError: (error) =>
-        notifications.show({
-          title: 'Error',
-          message: getErrorMessage(error, 'Could not update user.'),
-          color: 'red',
-        }),
-    },
-  })
-
   const { mutate: deleteUser, isPending: deleting } = useDeleteUser({
     mutation: {
       onSuccess: async () => {
@@ -134,24 +92,6 @@ const UserList = () => {
         }),
     },
   })
-
-  const openCreate = () => {
-    setEditingUser(null)
-    openModal()
-  }
-
-  const openEdit = (user: UserDto) => {
-    setEditingUser(user)
-    openModal()
-  }
-
-  const handleFormSubmit = (values: UserFormValues) => {
-    if (editingUser) {
-      updateUser({ id: editingUser.id, data: values })
-    } else {
-      createUser({ data: values })
-    }
-  }
 
   const handleDeleteClick = (user: UserDto) => {
     setDeleteTarget(user)
@@ -233,7 +173,7 @@ const UserList = () => {
         const isTogglingThis = activatingVar?.id === u.id || deactivatingVar?.id === u.id
         return (
           <RowActions
-            onEdit={() => openEdit(u)}
+            onEdit={() => navigate(`/admin/user/${u.id}/edit`)}
             onDelete={() => handleDeleteClick(u)}
             extra={
               u.isActive ? (
@@ -274,42 +214,11 @@ const UserList = () => {
     <AdminPageShell
       title="Users"
       actions={
-        <Button size="xs" leftSection={<PlusIcon size={13} />} onClick={openCreate}>
+        <Button size="xs" leftSection={<PlusIcon size={13} />} onClick={() => navigate('/admin/user/create')}>
           Add user
         </Button>
       }
     >
-      <Toolbar
-        left={
-          <TextInput
-            placeholder="Search by name or email..."
-            size="xs"
-            leftSection={<MagnifyingGlassIcon size={13} />}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.currentTarget.value)
-              setPage(1)
-            }}
-            w={240}
-          />
-        }
-        right={
-          <>
-            <span className="text-2xs text-muted-foreground">{totalCount} users total</span>
-            <Button
-              size="xs"
-              variant="light"
-              color="gray"
-              leftSection={<DownloadSimpleIcon size={13} />}
-              loading={exporting}
-              onClick={handleExportExcel}
-            >
-              Export Excel
-            </Button>
-          </>
-        }
-      />
-
       <DataTable
         columns={columns}
         rows={users}
@@ -320,16 +229,39 @@ const UserList = () => {
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
+        toolbar={
+          <Toolbar
+            left={
+              <TextInput
+                placeholder="Search by name or email..."
+                size="xs"
+                leftSection={<MagnifyingGlassIcon size={13} />}
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.currentTarget.value)
+                  setPage(1)
+                }}
+                w={240}
+              />
+            }
+            right={
+              <>
+                <span className="text-2xs text-muted-foreground">{totalCount} users total</span>
+                <Button
+                  size="xs"
+                  variant="light"
+                  color="gray"
+                  leftSection={<DownloadSimpleIcon size={13} />}
+                  loading={exporting}
+                  onClick={handleExportExcel}
+                >
+                  Export Excel
+                </Button>
+              </>
+            }
+          />
+        }
       />
-
-      <Modal opened={modalOpened} onClose={closeModal} title={editingUser ? 'Edit User' : 'New User'} size="md">
-        <UserForm
-          editingUser={editingUser}
-          onSubmit={handleFormSubmit}
-          onCancel={closeModal}
-          isSubmitting={creating || updating}
-        />
-      </Modal>
 
       <ConfirmModal
         opened={deleteOpened}

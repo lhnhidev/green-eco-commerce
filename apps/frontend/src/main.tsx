@@ -7,10 +7,15 @@ import { Provider } from 'react-redux'
 import { RouterProvider } from 'react-router/dom'
 import './index.css'
 import { GoogleOAuthProvider } from '@react-oauth/google'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { queryClient } from '@/lib/queryClient'
 import { router } from '@/router'
 import { store } from '@/store'
 import '@fontsource-variable/inter/wght.css'
+// Data/measurement role only (stat values, chart ticks) — reinforces that these numbers
+// were measured, not just headlined. See theme.other.adminMonoFont below.
+import '@fontsource/ibm-plex-mono/400.css'
+import '@fontsource/ibm-plex-mono/600.css'
 import 'animate.css'
 
 // import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
@@ -93,6 +98,18 @@ const theme = createTheme({
     container: 1280,
     containerWide: 1440,
     stickyTop: 72,
+
+    // Admin dashboard redesign palette — additive on top of the primary/secondary scale
+    // above, not a replacement (avoids rippling into every button/badge app-wide). Mirrored
+    // as Tailwind utilities (bg-admin-moss, text-admin-canopy, ...) via the matching
+    // --color-admin-* vars in index.css's @theme inline block — kept in sync manually,
+    // same pattern as the primaryShade/--color-primary comment above.
+    adminMoss: '#4b5d52',
+    adminCompost: '#b3763f',
+    adminCanopy: '#132318',
+    adminMist: '#f3f6f2',
+    // Data/measurement typography role — stat values, chart ticks, the CO2 signature number.
+    adminMonoFont: "'IBM Plex Mono', monospace",
   },
 
   components: {
@@ -159,16 +176,6 @@ const theme = createTheme({
         },
         td: { fontSize: 'var(--ds-text-xs)' },
       },
-    },
-  },
-})
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5, // Dữ liệu được coi là mới trong 5 phút
-      retry: 1, // Thử lại 1 lần nếu API lỗi
-      refetchOnWindowFocus: false, // Không fetch lại khi click chuyển tab trình duyệt
     },
   },
 })

@@ -5,6 +5,7 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { MaterialTypeEnum } from './materialTypeEnum';
 import type { ProductSortBy } from './productSortBy';
 
 export type GetAllProductsParams = {
@@ -12,9 +13,11 @@ sortBy?: ProductSortBy;
 sortDescending?: boolean;
 search?: string;
 categoryIds?: string[];
+materialIds?: string[];
 isOrganic?: boolean;
 isBiodegradable?: boolean;
 isRecycled?: boolean;
+materialTypes?: MaterialTypeEnum[];
 minPrice?: number;
 maxPrice?: number;
 pageNumber?: number;

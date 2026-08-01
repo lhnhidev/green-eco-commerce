@@ -60,14 +60,24 @@ const SettingsPage = () => {
         submitLabel="Save changes"
         isSubmitting={isPending}
       >
-        <NumberInput
-          label="Green points per carbon index ratio"
-          description="Green points earned = order's carbon index saved × this ratio."
-          withAsterisk
-          min={0}
-          decimalScale={2}
-          {...form.getInputProps('greenPointsPerCarbonIndexRatio')}
-        />
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 py-1">
+          <div className="sm:max-w-[60%]">
+            <label className="block text-sm font-medium text-gray-800" htmlFor="greenPointsPerCarbonIndexRatio">
+              Green points per carbon index ratio
+            </label>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Green points earned = order's carbon index saved × this ratio.
+            </p>
+          </div>
+          <NumberInput
+            id="greenPointsPerCarbonIndexRatio"
+            withAsterisk
+            min={0}
+            decimalScale={2}
+            className="sm:w-40 shrink-0"
+            {...form.getInputProps('greenPointsPerCarbonIndexRatio')}
+          />
+        </div>
       </FormPanel>
     </AdminPageShell>
   )

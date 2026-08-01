@@ -7,6 +7,7 @@ using GreenEcoCommerce.Application.Interfaces.Storage;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using UglyToad.PdfPig;
 
 namespace GreenEcoCommerce.Application.Features.Documents.Commands;
@@ -17,7 +18,8 @@ public record UploadDocumentCommand(Guid UserId, string FileName, Stream FileStr
         IApplicationDbContext dbContext,
         IApplicationEnvironment env,
         IAIService aiService,
-        IFileStorageService fileStorage) : IRequestHandler<UploadDocumentCommand, DocumentDto>
+        IFileStorageService fileStorage,
+        ILogger<Handler> logger) : IRequestHandler<UploadDocumentCommand, DocumentDto>
     {
         public async Task<DocumentDto> Handle(UploadDocumentCommand request, CancellationToken ct)
         {
@@ -69,30 +71,50 @@ public record UploadDocumentCommand(Guid UserId, string FileName, Stream FileStr
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error extracting text from {request.FileName}: {ex.Message}");
+                logger.LogError(ex, "Error extracting text from {FileName}", request.FileName);
             }
 
             if (!string.IsNullOrWhiteSpace(fullText))
             {
                 int chunkSize = 2000;
+                var chunks = new List<string>();
                 for (int i = 0; i < fullText.Length; i += chunkSize)
                 {
                     string chunk = fullText.Substring(i, Math.Min(chunkSize, fullText.Length - i));
-                    if (string.IsNullOrWhiteSpace(chunk)) continue;
+                    if (!string.IsNullOrWhiteSpace(chunk))
+                    {
+                        chunks.Add(chunk);
+                    }
+                }
 
+                // Giới hạn 4 request đồng thời tới Gemini; mỗi chunk vẫn try/catch độc lập
+                // như trước để 1 chunk lỗi không làm mất embedding của các chunk còn lại.
+                using var semaphore = new SemaphoreSlim(4);
+                var embeddingTasks = chunks.Select(async chunk =>
+                {
+                    await semaphore.WaitAsync(ct);
                     try
                     {
                         float[] vector = await aiService.GetEmbeddingsAsync(chunk, ct);
-                        doc.Embeddings.Add(new Embedding
-                        {
-                            DocumentId = doc.Id,
-                            ChunkText = chunk,
-                            VectorData = vector
-                        });
+                        return new Embedding { DocumentId = doc.Id, ChunkText = chunk, VectorData = vector };
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"Error getting embedding for chunk: {ex.Message}");
+                        logger.LogError(ex, "Error getting embedding for chunk");
+                        return null;
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                });
+
+                var embeddings = await Task.WhenAll(embeddingTasks);
+                foreach (var embedding in embeddings)
+                {
+                    if (embedding is not null)
+                    {
+                        doc.Embeddings.Add(embedding);
                     }
                 }
             }

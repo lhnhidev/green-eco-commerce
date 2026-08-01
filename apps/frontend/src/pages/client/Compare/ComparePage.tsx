@@ -1,5 +1,6 @@
 import { invalidateGetCart, useAddCartItem, useGetProductsByIds } from '@api'
 import { removeFromCompare } from '@components/features/compare/compare.slice'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
 import PageHeader from '@components/ui/primitives/PageHeader'
@@ -127,8 +128,8 @@ const ComparePage = () => {
                         </button>
                       </div>
                       <Link to={`/products/${p.id}`}>
-                        <img
-                          src={resolveImageUrl(p.imageUrl.at(0)) || '/placeholder.png'}
+                        <ImageWithFallback
+                          src={resolveImageUrl(p.imageUrl.at(0))}
                           alt={p.name}
                           className="w-full aspect-[4/3] object-cover rounded-md bg-gray-50"
                         />

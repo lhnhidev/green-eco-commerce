@@ -40,7 +40,7 @@ const RootLayoutAdmin = () => {
 
   return (
     <AppShell
-      padding="md"
+      padding={5}
       layout="alt"
       header={{ height: 56 }}
       navbar={{
@@ -52,7 +52,7 @@ const RootLayoutAdmin = () => {
       <HeaderAdmin />
       <SidebarContent />
 
-      <AppShell.Main className="bg-surface-sunken">
+      <AppShell.Main className="bg-admin-mist">
         <div className="mx-auto w-full max-w-[1400px]">
           <Suspense fallback={<Loading text="Loading" />}>
             <Outlet />

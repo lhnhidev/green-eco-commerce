@@ -13,7 +13,7 @@ const InvoicePrint = ({ order }: { order: OrderDto }) => (
       </div>
       <div className="text-right">
         <p className="m-0">
-          <strong>Order ID:</strong> #{order.id.substring(0, 8).toUpperCase()}
+          <strong>Order ID:</strong> #{order.id.slice(-8).toUpperCase()}
         </p>
         <p className="mt-1">
           <strong>Date:</strong> {dayjs(order.createdAt).format('DD/MM/YYYY HH:mm')}

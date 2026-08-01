@@ -92,6 +92,16 @@
   --color-primary-hover: #059d4c;
   --color-primary-subtle: #eefcf1;
 
+  /* Admin dashboard redesign palette — additive, mirrors theme.other.admin* in main.tsx's
+     Mantine theme (kept in sync manually, same pattern as --color-primary above). */
+  --color-admin-moss: #4b5d52;
+  --color-admin-compost: #b3763f;
+  --color-admin-canopy: #132318;
+  --color-admin-mist: #f3f6f2;
+  /* Data/measurement typography role (stat values, chart ticks) — also picked up by the
+     two existing font-mono usages (coupon codes, order IDs), which is a fitting bonus. */
+  --font-mono: 'IBM Plex Mono', monospace;
+
   --text-2xs: var(--ds-text-2xs);
   --text-2xs--line-height: 1.45;
   --text-xs: var(--ds-text-xs);

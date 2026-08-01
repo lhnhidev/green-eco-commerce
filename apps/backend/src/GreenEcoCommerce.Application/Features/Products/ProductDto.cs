@@ -90,6 +90,13 @@ public static partial class ProductDtoMapper
     private static int GetReviewsCount(ICollection<Review> reviews) =>
             reviews.Where(r => r.IsApproved && !r.IsHidden).Count();
 
+    [MapProperty(nameof(Material.Products), nameof(MaterialDto.ProductCount), Use = nameof(CountActiveProducts))]
+    private static partial MaterialDto MapMaterial(Material material);
+
+    [UserMapping(Default = false)]
+    private static int CountActiveProducts(ICollection<Product> products) =>
+            products.Count(p => p.IsActive);
+
     [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
     public static partial Product ToEntity(this ProductPayloadDto payload);
 

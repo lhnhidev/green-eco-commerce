@@ -22,15 +22,36 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
     {
         public async Task<Response> Handle(GetInfoAnalystQuery request, CancellationToken ct)
         {
-            // Orders/Payment/OrderItems không bật lazy loading nên bắt buộc phải Include,
-            // nếu không u.Orders luôn rỗng và mọi chỉ số theo đơn hàng đều bằng 0.
-            var users = await dbContext.Users
-                .IsNotDeleted()
-                .Include(u => u.Orders).ThenInclude(o => o.Payment)
-                .Include(u => u.Orders).ThenInclude(o => o.OrderItems)
+            // Kỳ hiện tại là tháng được yêu cầu, kỳ trước là tháng liền kề trước đó.
+            // Phải dựng bằng DateTimeOffset UTC (offset 0) ngay từ đầu: User.CreatedAt/
+            // Payment.CreatedAt là DateTimeOffset (cột timestamptz), còn nếu so sánh với
+            // DateTime thường thì C# tự convert ngầm sang DateTimeOffset theo local timezone
+            // của máy chạy — Npgsql từ chối ghi tham số DateTimeOffset có offset khác 0 vào
+            // timestamptz ("only offset 0 (UTC) is supported"), gây 500 ngay khi ToListAsync.
+            var periodStart = new DateTimeOffset(request.Year, request.Month, 1, 0, 0, 0, TimeSpan.Zero);
+            var periodEnd = periodStart.AddMonths(1);
+            var previousPeriod = periodStart.AddMonths(-1);
+            int previousMonth = previousPeriod.Month;
+            int previousYear = previousPeriod.Year;
+
+            // Lọc theo khoảng [previousPeriod, periodEnd) ngay trong LINQ Where để EF Core
+            // dịch thành SQL WHERE, thay vì kéo toàn bộ user/order về rồi lọc bằng C# foreach.
+            // Orders/OrderItems không bật lazy loading nên bắt buộc phải Include,
+            // nếu không mọi chỉ số theo đơn hàng đều bằng 0.
+            var orders = await dbContext.Orders
+                .Where(o => !o.User.IsDeleted
+                    && o.Payment != null
+                    && o.Payment.Status == PaymentStatusEnum.Paid
+                    && o.Payment.CreatedAt >= previousPeriod
+                    && o.Payment.CreatedAt < periodEnd)
+                .Include(o => o.Payment)
+                .Include(o => o.OrderItems)
                 .ToListAsync(ct);
 
-            var orders = users.SelectMany(u => u.Orders).ToList();
+            var users = await dbContext.Users
+                .IsNotDeleted()
+                .Where(u => u.CreatedAt >= previousPeriod && u.CreatedAt < periodEnd)
+                .ToListAsync(ct);
 
             decimal currentRevenue = 0m;
             int currentOrders = 0;
@@ -42,18 +63,9 @@ public record GetInfoAnalystQuery(int Month, int Year) : IRequest<GetInfoAnalyst
             int previousUsers = 0;
             decimal previousCo2Saved = 0m;
 
-            // Kỳ hiện tại là tháng được yêu cầu, kỳ trước là tháng liền kề trước đó.
-            var previousPeriod = new DateTime(request.Year, request.Month, 1).AddMonths(-1);
-            int previousMonth = previousPeriod.Month;
-            int previousYear = previousPeriod.Year;
-
             foreach (var o in orders)
             {
-                if (o.Payment is null) continue;
-
-                if (o.Payment.Status != PaymentStatusEnum.Paid) continue;
-
-                int month = o.Payment.CreatedAt.Month;
+                int month = o.Payment!.CreatedAt.Month;
                 int year = o.Payment.CreatedAt.Year;
 
                 decimal co2Saved = o.OrderItems.Sum(oi => oi.UnitCo2Saved * oi.Quantity);

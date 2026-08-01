@@ -120,7 +120,7 @@ const MyOrdersPage = () => {
                   <Table.Tr key={order.id} className="hover:bg-green-50/30 transition-colors">
                     <Table.Td>
                       <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded">
-                        #{order.id?.substring(0, 8).toUpperCase()}
+                        #{order.id?.slice(-8).toUpperCase()}
                       </span>
                     </Table.Td>
                     <Table.Td className="max-w-52 truncate">{order.deliveryAddress || '—'}</Table.Td>

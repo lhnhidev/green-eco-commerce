@@ -27,14 +27,19 @@ public record MaterialPayloadDto(string Name, MaterialTypeEnum Type, int EcoRati
     }
 }
 
-public record MaterialDto(Guid Id, string Name, MaterialTypeEnum Type, int EcoRating);
+public record MaterialDto(Guid Id, string Name, MaterialTypeEnum Type, int EcoRating, int ProductCount);
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
 public static partial class MaterialDtoMapper
 {
     [MapperRequiredMapping(RequiredMappingStrategy.Target)]
+    [MapProperty(nameof(Material.Products), nameof(MaterialDto.ProductCount), Use = nameof(CountActiveProducts))]
     public static partial MaterialDto ToDto(this Material material);
     public static partial IQueryable<MaterialDto> ProjectToDto(this IQueryable<Material> q);
+
+    [UserMapping(Default = false)]
+    private static int CountActiveProducts(ICollection<Product> products) =>
+            products.Count(p => p.IsActive);
 
     public static partial Material ToEntity(this MaterialPayloadDto dto);
     public static partial void ApplyUpdate([MappingTarget] this Material material, MaterialPayloadDto dto);

@@ -119,7 +119,7 @@ const CategoryList = () => {
       width: 220,
       render: (cat) => (
         <span className="font-medium">
-          {cat.parentId && <span className="text-border-strong mr-1.5">└</span>}
+          {cat.parentId && <span className="text-border-strong mr-2">└</span>}
           {cat.name}
         </span>
       ),
@@ -159,24 +159,6 @@ const CategoryList = () => {
         </Button>
       }
     >
-      <Toolbar
-        left={
-          <TextInput
-            placeholder="Search categories..."
-            size="xs"
-            leftSection={<MagnifyingGlassIcon size={13} />}
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            w={220}
-          />
-        }
-        right={
-          <span className="text-2xs text-muted-foreground">
-            {sortedCategories.length} of {categories?.length ?? 0} shown
-          </span>
-        }
-      />
-
       <DataTable
         columns={columns}
         rows={sortedCategories}
@@ -184,6 +166,25 @@ const CategoryList = () => {
         isLoading={isLoading}
         emptyIcon={SquaresFourIcon}
         emptyTitle="No categories found"
+        toolbar={
+          <Toolbar
+            left={
+              <TextInput
+                placeholder="Search categories..."
+                size="xs"
+                leftSection={<MagnifyingGlassIcon size={13} />}
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                w={220}
+              />
+            }
+            right={
+              <span className="text-2xs text-muted-foreground">
+                {sortedCategories.length} of {categories?.length ?? 0} shown
+              </span>
+            }
+          />
+        }
       />
 
       <Modal

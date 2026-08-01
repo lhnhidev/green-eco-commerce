@@ -78,7 +78,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
         <Avatar
           src={resolveImageUrl(user?.avatar)}
           color="green"
-          radius="xl"
+          radius={999}
           alt="it's me"
           className="cursor-pointer"
           classNames={{
@@ -94,7 +94,7 @@ const ProfileUser = ({ position = 'center' }: ProfileUserType) => {
           <Avatar
             src={resolveImageUrl(user?.avatar)}
             color="green"
-            radius="xl"
+            radius={999}
             alt="it's me"
             classNames={{
               placeholder: 'transition-colors hover:bg-green-50 cursor-pointer',

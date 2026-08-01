@@ -1,5 +1,6 @@
 import { invalidateGetCart, useRemoveCartItem, useUpdateCartItem } from '@api'
 import type { CartItemDto } from '@api/schemas'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { notifications } from '@mantine/notifications'
 import { TrashIcon, WarningIcon } from '@phosphor-icons/react'
@@ -53,7 +54,7 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
         onClick={() => dispatch(setIsShow(false))}
         className="relative w-16 h-16 rounded-md overflow-hidden bg-gray-50 border border-border shrink-0 block hover:opacity-80 transition-opacity"
       >
-        <img
+        <ImageWithFallback
           src={resolveImageUrl(cartItem?.productImageUrl)}
           alt={cartItem?.productName ?? 'Product'}
           className="absolute inset-0 w-full h-full object-cover object-center"

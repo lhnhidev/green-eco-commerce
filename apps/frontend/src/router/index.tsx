@@ -38,6 +38,8 @@ const CategoryList = lazy(() => import('@pages/admin/category/CategoryList'))
 const MaterialList = lazy(() => import('@pages/admin/material/MaterialList'))
 const OrderList = lazy(() => import('@pages/admin/order/OrderList'))
 const UserList = lazy(() => import('@pages/admin/user/UserList'))
+const UserCreate = lazy(() => import('@pages/admin/user/UserCreate'))
+const UserEdit = lazy(() => import('@pages/admin/user/UserEdit'))
 const BannerList = lazy(() => import('@pages/admin/banner/BannerList'))
 const ReviewList = lazy(() => import('@pages/admin/review/ReviewList'))
 const CouponList = lazy(() => import('@pages/admin/coupon/CouponList'))
@@ -145,6 +147,8 @@ export const router = createBrowserRouter([
       { path: 'material', element: <MaterialList /> },
       { path: 'order', element: <OrderList /> },
       { path: 'user', element: <UserList /> },
+      { path: 'user/create', element: <UserCreate /> },
+      { path: 'user/:id/edit', element: <UserEdit /> },
       { path: 'banner', element: <BannerList /> },
       { path: 'review', element: <ReviewList /> },
       { path: 'coupon', element: <CouponList /> },

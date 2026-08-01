@@ -12,4 +12,5 @@ export interface MaterialDto {
   name: string;
   type: MaterialTypeEnum;
   ecoRating: number;
+  productCount: number;
 }
