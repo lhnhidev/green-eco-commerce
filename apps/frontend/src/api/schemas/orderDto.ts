@@ -24,4 +24,6 @@ export interface OrderDto {
   createdAt: Date;
   paymentStatus: PaymentStatusEnum;
   paymentMethod: PaymentMethodEnum;
+  customerName: string;
+  customerPhone: string;
 }

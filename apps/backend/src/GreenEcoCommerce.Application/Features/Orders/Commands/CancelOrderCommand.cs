@@ -89,7 +89,7 @@ public record CancelOrderCommand(Guid OrderId, Guid UserId) : IRequest
                 {
                     UserId = order.UserId,
                     Title = "Order cancelled",
-                    Message = $"Your order #{order.Id.ToString()[..8].ToUpperInvariant()} has been cancelled.",
+                    Message = $"Your order #{order.Id.ToString()[^8..].ToUpperInvariant()} has been cancelled.",
                     Type = NotificationTypeEnum.OrderUpdate,
                     Link = $"/my-orders/{order.Id}",
                     CreatedAt = DateTimeOffset.UtcNow

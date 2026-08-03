@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /** biome-ignore-all lint/suspicious/noExplicitAny: <> */
 import Axios, { type AxiosRequestConfig, type InternalAxiosRequestConfig } from 'axios'
+import { getGetMeQueryKey } from '@api'
+import { queryClient } from '@/lib/queryClient'
 
 export const API_BASE_URL = import.meta.env.VITE_API_ROOT ?? 'http://localhost:5244'
 
@@ -58,7 +60,23 @@ axiosInstance.interceptors.response.use(
       } catch (err) {
         processQueue(err)
 
-        await axiosAuthInstance.post('/api/auth/logout')
+        // Skip when the failing request IS /api/auth/me itself: that query already
+        // transitions to its own error state (retry is disabled on it, see useAuth.ts),
+        // so removing it from the cache here while it's still an actively-observed,
+        // in-flight query would orphan its observer — TanStack Query rebuilds a fresh,
+        // never-fetched Query for the same key, which immediately refetches, which 401s
+        // again, which removes again — an unbounded refetch loop that can also land in
+        // TanStack's "paused" fetchStatus and hang forever. Other endpoints (cart, orders,
+        // ...) still need this so their stale cached data doesn't linger after logout.
+        if (originalRequest.url !== '/api/auth/me') {
+          queryClient.removeQueries({ queryKey: getGetMeQueryKey() })
+        }
+
+        try {
+          await axiosAuthInstance.post('/api/auth/logout')
+        } catch {
+          // Ignore logout failure — the original 401 below is what matters.
+        }
 
         return Promise.reject(err)
       } finally {

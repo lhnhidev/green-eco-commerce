@@ -1,14 +1,24 @@
-import { invalidateGetAllProducts, useDeleteProduct, useGetAllProducts } from '@api'
+import { invalidateGetAllProducts, useDeleteProduct, useGetAllCategories, useGetAllProducts } from '@api'
 import type { ProductDto } from '@api/schemas'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
 import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
 import RowActions from '@components/ui/primitives/RowActions'
 import Toolbar from '@components/ui/primitives/Toolbar'
-import { Badge, Button, TextInput } from '@mantine/core'
+import {
+  Badge,
+  Button,
+  Checkbox,
+  Indicator,
+  MultiSelect,
+  NumberInput,
+  Popover,
+  Stack,
+  TextInput,
+} from '@mantine/core'
 import { useDebouncedValue, useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { MagnifyingGlassIcon, PackageIcon, PlusIcon } from '@phosphor-icons/react'
+import { FunnelIcon, MagnifyingGlassIcon, PackageIcon, PlusIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatCurrency } from '@utils/formatCurrency'
 import { useState } from 'react'
@@ -22,9 +32,37 @@ const ProductList = () => {
   const [page, setPage] = useState(1)
   const [deleteTarget, setDeleteTarget] = useState<ProductDto | null>(null)
   const [opened, { open, close }] = useDisclosure(false)
+  const [filterOpened, { toggle: toggleFilter, close: closeFilter }] = useDisclosure(false)
+
+  const [categoryIds, setCategoryIds] = useState<string[]>([])
+  const [minPrice, setMinPrice] = useState<number | ''>('')
+  const [maxPrice, setMaxPrice] = useState<number | ''>('')
+  const [isOrganic, setIsOrganic] = useState(false)
+  const [isBiodegradable, setIsBiodegradable] = useState(false)
+  const [isRecycled, setIsRecycled] = useState(false)
+
+  const activeFilterCount =
+    (categoryIds.length > 0 ? 1 : 0) +
+    (minPrice !== '' || maxPrice !== '' ? 1 : 0) +
+    (isOrganic ? 1 : 0) +
+    (isBiodegradable ? 1 : 0) +
+    (isRecycled ? 1 : 0)
+
+  const clearFilters = () => {
+    setCategoryIds([])
+    setMinPrice('')
+    setMaxPrice('')
+    setIsOrganic(false)
+    setIsBiodegradable(false)
+    setIsRecycled(false)
+    setPage(1)
+  }
 
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { data: categories } = useGetAllCategories()
+  const categoryOptions = (categories ?? []).map((c) => ({ value: c.id, label: c.name }))
+
   const { mutate: deleteProduct, isPending: isDeleting } = useDeleteProduct({
     mutation: {
       onSuccess: async () => {
@@ -37,6 +75,12 @@ const ProductList = () => {
     pageNumber: page,
     pageSize: PAGE_SIZE,
     search: debouncedSearch || undefined,
+    categoryIds: categoryIds.length > 0 ? categoryIds : undefined,
+    minPrice: minPrice === '' ? undefined : minPrice,
+    maxPrice: maxPrice === '' ? undefined : maxPrice,
+    isOrganic: isOrganic || undefined,
+    isBiodegradable: isBiodegradable || undefined,
+    isRecycled: isRecycled || undefined,
   })
 
   const products = data?.items ?? []
@@ -137,23 +181,6 @@ const ProductList = () => {
         </Button>
       }
     >
-      <Toolbar
-        left={
-          <TextInput
-            placeholder="Search products..."
-            size="xs"
-            leftSection={<MagnifyingGlassIcon size={13} />}
-            value={search}
-            onChange={(e) => {
-              setSearch(e.currentTarget.value)
-              setPage(1)
-            }}
-            w={220}
-          />
-        }
-        right={<span className="text-2xs text-muted-foreground">{totalCount} products total</span>}
-      />
-
       <DataTable
         columns={columns}
         rows={products}
@@ -164,6 +191,131 @@ const ProductList = () => {
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
+        toolbar={
+          <Toolbar
+            left={
+              <>
+                <TextInput
+                  placeholder="Search products..."
+                  size="xs"
+                  leftSection={<MagnifyingGlassIcon size={13} />}
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.currentTarget.value)
+                    setPage(1)
+                  }}
+                  w={220}
+                />
+                <Popover opened={filterOpened} onClose={closeFilter} position="bottom-start" shadow="md" width={280}>
+                  <Popover.Target>
+                    <Indicator
+                      label={activeFilterCount}
+                      size={16}
+                      disabled={activeFilterCount === 0}
+                      color="primary"
+                      offset={4}
+                    >
+                      <Button
+                        size="xs"
+                        variant={activeFilterCount > 0 ? 'light' : 'default'}
+                        color={activeFilterCount > 0 ? 'primary' : 'gray'}
+                        leftSection={<FunnelIcon size={13} />}
+                        onClick={toggleFilter}
+                      >
+                        Filter
+                      </Button>
+                    </Indicator>
+                  </Popover.Target>
+                  <Popover.Dropdown>
+                    <Stack gap="sm">
+                      <MultiSelect
+                        label="Category"
+                        placeholder="All categories"
+                        data={categoryOptions}
+                        size="xs"
+                        searchable
+                        clearable
+                        value={categoryIds}
+                        onChange={(val) => {
+                          setCategoryIds(val)
+                          setPage(1)
+                        }}
+                      />
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Price range ($)</label>
+                        <div className="flex items-center gap-2">
+                          <NumberInput
+                            placeholder="Min"
+                            size="xs"
+                            min={0}
+                            value={minPrice}
+                            onChange={(v) => {
+                              setMinPrice(v === '' ? '' : Number(v))
+                              setPage(1)
+                            }}
+                          />
+                          <span className="text-xs text-muted-foreground">–</span>
+                          <NumberInput
+                            placeholder="Max"
+                            size="xs"
+                            min={0}
+                            value={maxPrice}
+                            onChange={(v) => {
+                              setMaxPrice(v === '' ? '' : Number(v))
+                              setPage(1)
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1">Eco labels</label>
+                        <Stack gap={6}>
+                          <Checkbox
+                            size="xs"
+                            label="Organic"
+                            checked={isOrganic}
+                            onChange={(e) => {
+                              setIsOrganic(e.currentTarget.checked)
+                              setPage(1)
+                            }}
+                          />
+                          <Checkbox
+                            size="xs"
+                            label="Biodegradable"
+                            checked={isBiodegradable}
+                            onChange={(e) => {
+                              setIsBiodegradable(e.currentTarget.checked)
+                              setPage(1)
+                            }}
+                          />
+                          <Checkbox
+                            size="xs"
+                            label="Recycled"
+                            checked={isRecycled}
+                            onChange={(e) => {
+                              setIsRecycled(e.currentTarget.checked)
+                              setPage(1)
+                            }}
+                          />
+                        </Stack>
+                      </div>
+                      <Button
+                        size="xs"
+                        variant="subtle"
+                        color="gray"
+                        disabled={activeFilterCount === 0}
+                        onClick={clearFilters}
+                      >
+                        Clear filters
+                      </Button>
+                    </Stack>
+                  </Popover.Dropdown>
+                </Popover>
+              </>
+            }
+            right={<span className="text-2xs text-muted-foreground">{totalCount} products total</span>}
+          />
+        }
       />
 
       <ConfirmModal

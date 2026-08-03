@@ -1,5 +1,6 @@
 import { invalidateGetCart, useAddCartItem } from '@api'
 import type { ProductDto } from '@api/schemas'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import PriceTag from '@components/ui/primitives/PriceTag'
 import StockBadge from '@components/ui/StockBadge'
 import { Modal, NumberInput, Rating } from '@mantine/core'
@@ -53,8 +54,8 @@ const QuickViewModal = ({ product, onClose }: QuickViewModalProps) => {
   return (
     <Modal opened={!!product} onClose={onClose} size="lg" title="Quick View" centered>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <img
-          src={resolveImageUrl(product.imageUrl?.at(0)) || '/placeholder.png'}
+        <ImageWithFallback
+          src={resolveImageUrl(product.imageUrl?.at(0))}
           alt={product.name}
           className="w-full aspect-square object-cover rounded-lg bg-gray-50"
         />

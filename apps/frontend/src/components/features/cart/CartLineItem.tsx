@@ -1,5 +1,6 @@
 import { invalidateGetCart, useRemoveCartItem, useUpdateCartItem } from '@api'
 import type { CartItemDto } from '@api/schemas'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import { notifications } from '@mantine/notifications'
 import { MinusIcon, PlusIcon, TrashIcon, WarningIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
@@ -44,7 +45,7 @@ const CartLineItem = ({ cartItem }: { cartItem: CartItemDto }) => {
       className={`flex gap-3 items-center py-4 border-b border-gray-100 last:border-0 transition-opacity ${isBusy ? 'opacity-50 pointer-events-none' : ''}`}
     >
       <Link to={`/products/${cartItem.productId}`} className="shrink-0">
-        <img
+        <ImageWithFallback
           src={resolveImageUrl(cartItem.productImageUrl)}
           alt={cartItem.productName}
           className="w-16 h-16 rounded-md object-cover bg-gray-50 border border-border"

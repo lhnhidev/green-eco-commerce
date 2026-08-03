@@ -1,4 +1,5 @@
 using System.Text;
+using FluentValidation;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
@@ -13,6 +14,16 @@ public record GenerateContentCommand(Guid UserId, Guid? IdSectionMessage, string
         : IRequest<GenerateContentCommand.Response>
 {
     public record Response(Guid SessionId, string Message);
+
+    public class Validator : AbstractValidator<GenerateContentCommand>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Prompt)
+                    .NotEmpty().WithMessage("Prompt must not be empty.")
+                    .MaximumLength(3000).WithMessage("Prompt cannot exceed 3000 characters.");
+        }
+    }
 
     private const int HistoryMessageCount = 10;
     private const int TopKnowledgeChunks = 4;

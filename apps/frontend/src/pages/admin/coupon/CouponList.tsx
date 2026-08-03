@@ -3,7 +3,9 @@ import { CouponDiscountTypeEnum, type CouponDto } from '@api/schemas'
 import AdminPageShell from '@components/ui/primitives/AdminPageShell'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
 import DataTable, { type DataTableColumn } from '@components/ui/primitives/DataTable'
+import FormGrid from '@components/ui/primitives/FormGrid'
 import RowActions from '@components/ui/primitives/RowActions'
+import Toolbar from '@components/ui/primitives/Toolbar'
 import { Badge, Button, Modal, NumberInput, Select, Switch, TextInput } from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
@@ -228,10 +230,6 @@ const CouponList = () => {
         </Button>
       }
     >
-      <div className="flex items-center justify-end mb-2.5">
-        <span className="text-2xs text-muted-foreground">{coupons.length} coupons total</span>
-      </div>
-
       <DataTable
         columns={columns}
         rows={coupons}
@@ -239,6 +237,7 @@ const CouponList = () => {
         isLoading={isLoading}
         emptyIcon={SealPercentIcon}
         emptyTitle="No coupons yet"
+        toolbar={<Toolbar right={<span className="text-2xs text-muted-foreground">{coupons.length} coupons total</span>} />}
       />
 
       {/* Create/Edit Modal */}
@@ -261,30 +260,34 @@ const CouponList = () => {
             withAsterisk
             {...form.getInputProps('code')}
           />
-          <Select
-            label="Discount Type"
-            data={[
-              { value: CouponDiscountTypeEnum.Percent, label: 'Percentage (%)' },
-              { value: CouponDiscountTypeEnum.Fixed, label: 'Fixed Amount ($)' },
-            ]}
-            withAsterisk
-            {...form.getInputProps('discountType')}
-          />
-          <NumberInput
-            label={form.values.discountType === CouponDiscountTypeEnum.Percent ? 'Discount (%)' : 'Discount ($)'}
-            min={0.01}
-            max={form.values.discountType === CouponDiscountTypeEnum.Percent ? 100 : undefined}
-            decimalScale={2}
-            withAsterisk
-            {...form.getInputProps('discountValue')}
-          />
-          <NumberInput
-            label="Minimum Order Amount ($)"
-            min={0}
-            decimalScale={2}
-            {...form.getInputProps('minOrderAmount')}
-          />
-          <NumberInput label="Max Uses" min={1} withAsterisk {...form.getInputProps('maxUses')} />
+          <FormGrid>
+            <Select
+              label="Discount Type"
+              data={[
+                { value: CouponDiscountTypeEnum.Percent, label: 'Percentage (%)' },
+                { value: CouponDiscountTypeEnum.Fixed, label: 'Fixed Amount ($)' },
+              ]}
+              withAsterisk
+              {...form.getInputProps('discountType')}
+            />
+            <NumberInput
+              label={form.values.discountType === CouponDiscountTypeEnum.Percent ? 'Discount (%)' : 'Discount ($)'}
+              min={0.01}
+              max={form.values.discountType === CouponDiscountTypeEnum.Percent ? 100 : undefined}
+              decimalScale={2}
+              withAsterisk
+              {...form.getInputProps('discountValue')}
+            />
+          </FormGrid>
+          <FormGrid>
+            <NumberInput
+              label="Minimum Order Amount ($)"
+              min={0}
+              decimalScale={2}
+              {...form.getInputProps('minOrderAmount')}
+            />
+            <NumberInput label="Max Uses" min={1} withAsterisk {...form.getInputProps('maxUses')} />
+          </FormGrid>
           <DateTimePicker
             label="Expires At"
             placeholder="Pick date and time"

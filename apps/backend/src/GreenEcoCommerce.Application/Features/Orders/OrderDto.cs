@@ -26,7 +26,9 @@ public record OrderDto(
     OrderItemDto[] Items,
     DateTimeOffset CreatedAt,
     PaymentStatusEnum PaymentStatus,
-    PaymentMethodEnum PaymentMethod
+    PaymentMethodEnum PaymentMethod,
+    string CustomerName,
+    string CustomerPhone
 );
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
@@ -41,6 +43,8 @@ public static partial class OrderDtoMapper
     [MapProperty(nameof(Order.OrderItems), nameof(OrderDto.Items))]
     [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentStatus), Use = nameof(MapPaymentToStatus))]
     [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentMethod), Use = nameof(MapPaymentToMethod))]
+    [MapProperty(nameof(Order.User), nameof(OrderDto.CustomerName), Use = nameof(MapUserToCustomerName))]
+    [MapProperty(nameof(Order.User), nameof(OrderDto.CustomerPhone), Use = nameof(MapUserToCustomerPhone))]
     public static partial OrderDto ToDto(this Order order);
 
     public static partial IQueryable<OrderDto> ProjectToDto(this IQueryable<Order> orders);
@@ -64,6 +68,12 @@ public static partial class OrderDtoMapper
 
     [UserMapping(Default = false)]
     private static string? MapProductImage(Product product) => product.ImageUrl.FirstOrDefault();
+
+    [UserMapping(Default = false)]
+    public static string MapUserToCustomerName(User user) => $"{user.FirstName} {user.LastName}";
+
+    [UserMapping(Default = false)]
+    public static string MapUserToCustomerPhone(User user) => user.Phone;
 }
 
 [Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
@@ -75,6 +85,8 @@ public static partial class OrderDtoSummaryMapper
     [MapValue(nameof(OrderDto.Items), Use = nameof(DefaultEmptyOrderItems))]
     [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentStatus), Use = nameof(@OrderDtoMapper.MapPaymentToStatus))]
     [MapProperty(nameof(Order.Payment), nameof(OrderDto.PaymentMethod), Use = nameof(@OrderDtoMapper.MapPaymentToMethod))]
+    [MapProperty(nameof(Order.User), nameof(OrderDto.CustomerName), Use = nameof(@OrderDtoMapper.MapUserToCustomerName))]
+    [MapProperty(nameof(Order.User), nameof(OrderDto.CustomerPhone), Use = nameof(@OrderDtoMapper.MapUserToCustomerPhone))]
     public static partial OrderDto ToSummaryDto(this Order order);
 
     public static partial IQueryable<OrderDto> ProjectToSummaryDto(this IQueryable<Order> orders);

@@ -21,7 +21,7 @@ public record UpdateOrderStatusCommand(Guid OrderId, OrderStatusEnum Status) : I
                 {
                     UserId = order.UserId,
                     Title = "Order status updated",
-                    Message = $"Your order #{order.Id.ToString()[..8].ToUpperInvariant()} is now {command.Status}.",
+                    Message = $"Your order #{order.Id.ToString()[^8..].ToUpperInvariant()} is now {command.Status}.",
                     Type = NotificationTypeEnum.OrderUpdate,
                     Link = $"/my-orders/{order.Id}",
                     CreatedAt = DateTimeOffset.UtcNow

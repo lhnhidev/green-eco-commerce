@@ -136,19 +136,6 @@ const DocumentList = () => {
         </div>
       </Panel>
 
-      <Toolbar
-        left={
-          <TextInput
-            placeholder="Search documents..."
-            size="xs"
-            leftSection={<MagnifyingGlassIcon size={13} />}
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            w={240}
-          />
-        }
-      />
-
       <DataTable
         columns={columns}
         rows={filteredDocs}
@@ -157,6 +144,23 @@ const DocumentList = () => {
         emptyIcon={FilesIcon}
         emptyTitle="No documents found"
         emptyDescription="Upload a document above to add it to the Knowledge Base."
+        toolbar={
+          <Toolbar
+            left={
+              <TextInput
+                placeholder="Search documents..."
+                size="xs"
+                leftSection={<MagnifyingGlassIcon size={13} />}
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                w={240}
+              />
+            }
+            right={
+              <span className="text-2xs text-muted-foreground">{filteredDocs.length} documents total</span>
+            }
+          />
+        }
       />
 
       <ConfirmModal

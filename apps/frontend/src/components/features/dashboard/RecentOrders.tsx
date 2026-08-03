@@ -19,7 +19,7 @@ const RecentOrders = () => {
     .slice(0, 7)
 
   return (
-    <div className="bg-white border border-border rounded-xl shadow-2xs overflow-hidden">
+    <div className="bg-white border border-border rounded-xl shadow-2xs overflow-hidden h-full">
       <div className="px-3.5 py-2.5 border-b border-border">
         <span className="text-sm font-semibold text-gray-800">Recent orders</span>
       </div>
@@ -42,7 +42,7 @@ const RecentOrders = () => {
               key={o.id}
               className="grid grid-cols-[1.2fr_1.2fr_100px_90px_90px] border-b border-border last:border-0 hover:bg-[#f7fdf9] text-xs"
             >
-              <div className="px-2 py-1.5 font-medium truncate">#{o.id.slice(0, 8)}</div>
+              <div className="px-2 py-1.5 font-medium truncate">#{o.id.slice(-8)}</div>
               <div className="px-2 py-1.5 text-muted-foreground">
                 {new Date(o.createdAt).toLocaleDateString('vi-VN')}
               </div>

@@ -1,7 +1,8 @@
 import { useGetMyOrderById } from '@api'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import Container from '@components/ui/primitives/Container'
 import Loading from '@components/ui/status/Loading'
-import { Button, Divider, Group, Image, Paper, Stack, Text, Title } from '@mantine/core'
+import { Button, Divider, Group, Paper, Stack, Text, Title } from '@mantine/core'
 import { CheckCircleIcon, DownloadSimpleIcon, LeafIcon, StarIcon } from '@phosphor-icons/react'
 import { downloadFile } from '@utils/downloadFile'
 import { formatCurrency } from '@utils/formatCurrency'
@@ -33,7 +34,7 @@ const OrderSuccessPage = () => {
   const handleDownloadInvoice = async () => {
     setDownloadingInvoice(true)
     try {
-      await downloadFile(`/api/me/orders/${order.id}/invoice.pdf`, `invoice_${order.id.substring(0, 8)}.pdf`)
+      await downloadFile(`/api/me/orders/${order.id}/invoice.pdf`, `invoice_${order.id.slice(-8)}.pdf`)
     } catch {
       setDownloadingInvoice(false)
       return
@@ -54,7 +55,7 @@ const OrderSuccessPage = () => {
           Thanks for shopping sustainably. A confirmation has been saved to your order history.
         </Text>
         <Text size="sm" ff="mono" c="dimmed" mt={4}>
-          Order #{order.id?.substring(0, 8).toUpperCase()}
+          Order #{order.id?.slice(-8).toUpperCase()}
         </Text>
       </div>
 
@@ -65,13 +66,10 @@ const OrderSuccessPage = () => {
         <Stack gap="sm">
           {order.items.map((item) => (
             <div key={item.productId} className="flex gap-3 items-center">
-              <Image
-                src={resolveImageUrl(item.productImage) || 'https://placehold.co/48x48?text=Eco'}
+              <ImageWithFallback
+                src={resolveImageUrl(item.productImage)}
                 alt={item.productName}
-                w={48}
-                h={48}
-                fit="cover"
-                radius="sm"
+                className="w-12 h-12 object-cover rounded-sm shrink-0"
               />
               <div className="flex-1">
                 <Text fw={600} size="sm">

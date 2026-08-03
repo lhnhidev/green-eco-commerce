@@ -1,6 +1,7 @@
 import { useGetAllProducts, useGetCart, useGetWishlist } from '@api'
 import CategoryMenu from '@components/features/categories/CategoryMenu'
 import NotificationBell from '@components/features/notifications/NotificationBell'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import Container from '@components/ui/primitives/Container'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
@@ -89,8 +90,8 @@ const SearchAutocomplete = ({ className, onSelect }: { className?: string; onSel
                   }}
                   className="flex items-center gap-3 p-3 hover:bg-gray-50 transition-colors border-b border-gray-50 last:border-0"
                 >
-                  <img
-                    src={resolveImageUrl(product.imageUrl?.[0]) || '/placeholder.png'}
+                  <ImageWithFallback
+                    src={resolveImageUrl(product.imageUrl?.[0])}
                     alt={product.name}
                     className="w-10 h-10 object-cover rounded-lg bg-gray-100 shrink-0"
                   />

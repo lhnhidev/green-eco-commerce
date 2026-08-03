@@ -3,9 +3,17 @@ import type { ProductDto } from '@api/schemas'
 import { MultiImageDropzone } from '@components/features/upload/ImageDropzone'
 import FormGrid from '@components/ui/primitives/FormGrid'
 import FormPanel from '@components/ui/primitives/FormPanel'
-import { MultiSelect, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
+import { Divider, MultiSelect, NumberInput, Select, Textarea, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { LeafIcon } from '@phosphor-icons/react'
 import { useEffect } from 'react'
+
+const SectionLabel = ({ children, icon: Icon }: { children: string; icon?: typeof LeafIcon }) => (
+  <div className="flex items-center gap-1.5 text-2xs font-semibold tracking-wide text-muted-foreground uppercase">
+    {Icon && <Icon size={12} />}
+    {children}
+  </div>
+)
 
 export type ProductFormValues = {
   name: string
@@ -92,6 +100,7 @@ const ProductForm = ({ editingProduct, onSubmit, isSubmitting }: ProductFormProp
       onSubmit={form.onSubmit(onSubmit)}
       width="wide"
     >
+      <SectionLabel>Basic Information</SectionLabel>
       <TextInput
         label="Product Name"
         placeholder="e.g. Bamboo Toothbrush"
@@ -106,34 +115,35 @@ const ProductForm = ({ editingProduct, onSubmit, isSubmitting }: ProductFormProp
         {...form.getInputProps('description')}
       />
 
+      <Divider />
+      <SectionLabel>Pricing & Inventory</SectionLabel>
       <FormGrid>
         <NumberInput label="Price ($)" withAsterisk min={0} decimalScale={2} {...form.getInputProps('price')} />
         <NumberInput label="Stock Qty" min={0} {...form.getInputProps('stockQty')} />
       </FormGrid>
 
-      <Select
-        label="Category"
-        placeholder="Select a category"
-        data={categoryOptions}
-        withAsterisk
-        searchable
-        {...form.getInputProps('categoryId')}
-      />
+      <Divider />
+      <SectionLabel>Classification</SectionLabel>
+      <FormGrid>
+        <Select
+          label="Category"
+          placeholder="Select a category"
+          data={categoryOptions}
+          withAsterisk
+          searchable
+          {...form.getInputProps('categoryId')}
+        />
+        <MultiSelect
+          label="Materials"
+          placeholder="Select materials"
+          data={materialOptions}
+          searchable
+          {...form.getInputProps('materialIds')}
+        />
+      </FormGrid>
 
-      <MultiSelect
-        label="Materials"
-        placeholder="Select materials"
-        data={materialOptions}
-        searchable
-        {...form.getInputProps('materialIds')}
-      />
-
-      <MultiImageDropzone
-        label="Product Images"
-        value={form.values.imageUrl}
-        onChange={(urls) => form.setFieldValue('imageUrl', urls)}
-      />
-
+      <Divider />
+      <SectionLabel icon={LeafIcon}>Environmental Impact</SectionLabel>
       <FormGrid>
         <NumberInput label="Carbon Index (kg CO₂)" min={0} decimalScale={2} {...form.getInputProps('carbonIndex')} />
         <NumberInput
@@ -143,11 +153,18 @@ const ProductForm = ({ editingProduct, onSubmit, isSubmitting }: ProductFormProp
           {...form.getInputProps('baselineCarbonIndex')}
         />
       </FormGrid>
-
       <FormGrid>
         <NumberInput label="Decompose %" min={0} max={100} suffix="%" {...form.getInputProps('decomposePercent')} />
         <NumberInput label="Recycle %" min={0} max={100} suffix="%" {...form.getInputProps('recyclePercent')} />
       </FormGrid>
+
+      <Divider />
+      <SectionLabel>Media</SectionLabel>
+      <MultiImageDropzone
+        label="Product Images"
+        value={form.values.imageUrl}
+        onChange={(urls) => form.setFieldValue('imageUrl', urls)}
+      />
     </FormPanel>
   )
 }

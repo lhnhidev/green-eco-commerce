@@ -77,7 +77,7 @@ const SidebarContent = () => {
             <p className="text-2xs uppercase tracking-wide text-fg-subtle px-2 pt-1 pb-1 font-semibold">
               {section.label}
             </p>
-            <div className="flex flex-col gap-px">
+            <div className="flex flex-col gap-px border-l-2 border-border ml-2 pl-2.5">
               {section.items.map((item) => (
                 <NavLink key={item.to} to={item.to} onClick={() => dispatch(closeMobileSidebar())} className="block">
                   {({ isActive }) => <NavigationIndex icon={item.icon} text={item.text} isActive={isActive} />}
@@ -88,7 +88,7 @@ const SidebarContent = () => {
         ))}
       </div>
 
-      <div className="pt-1.5 border-t border-border">
+      <div className="pt-1.5 border-t border-border ml-2 pl-2.5">
         <NavLink to="/admin/settings" onClick={() => dispatch(closeMobileSidebar())} className="block">
           {({ isActive }) => <NavigationIndex icon={GearIcon} text="Settings" isActive={isActive} />}
         </NavLink>

@@ -27,6 +27,8 @@ type DataTableProps<T> = {
   onPageChange?: (page: number) => void
   onRowClick?: (row: T) => void
   stickyHeader?: boolean
+  /** Rendered as the table panel's header (above the rows) — lets a page's search/filter row read as part of the same card instead of floating above it. */
+  toolbar?: ReactNode
 }
 
 // Density (verticalSpacing/th/td font sizes) comes from theme.components.Table in main.tsx —
@@ -44,9 +46,11 @@ function DataTable<T>({
   onPageChange,
   onRowClick,
   stickyHeader,
+  toolbar,
 }: DataTableProps<T>) {
   return (
     <Panel variant="admin" padding="none" className="overflow-hidden">
+      {toolbar && <div className="border-b border-border px-3">{toolbar}</div>}
       <div className="overflow-x-auto">
         <Table stickyHeader={stickyHeader}>
           <Table.Thead>

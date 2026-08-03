@@ -1,4 +1,5 @@
-import { useGetAllCategories, useGetAllProducts } from '@api'
+import { useGetAllCategories, useGetAllMaterials, useGetAllProducts } from '@api'
+import type { MaterialDto } from '@api/schemas'
 import ProductCard from '@components/features/products/ProductCard'
 import Container from '@components/ui/primitives/Container'
 import EmptyState from '@components/ui/primitives/EmptyState'
@@ -21,6 +22,7 @@ import {
 import {
   CurrencyDollarIcon,
   DropIcon,
+  FlaskIcon,
   FunnelIcon,
   LeafIcon,
   ListDashesIcon,
@@ -28,6 +30,7 @@ import {
   PackageIcon,
   PlantIcon,
   RecycleIcon,
+  TreeIcon,
   WarningCircleIcon,
   XCircleIcon,
   XIcon,
@@ -36,9 +39,19 @@ import { buildCategoryTree, type CategoryTreeNode } from '@utils/buildCategoryTr
 import { formatCurrency } from '@utils/formatCurrency'
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { ProductSortBy } from '@/api/schemas'
+import { MaterialTypeEnum, ProductSortBy } from '@/api/schemas'
 
 const MAX_PRICE = 1000
+
+// The 5 remaining MaterialTypeEnum values (Biodegradable/Compostable were removed - they
+// described post-use decomposability, not material origin, and now live in DecomposePercent).
+const MATERIAL_TYPE_OPTIONS: { value: MaterialTypeEnum; label: string; icon: typeof PlantIcon; color: string }[] = [
+  { value: MaterialTypeEnum.Natural, label: 'Natural', icon: TreeIcon, color: 'text-green-600' },
+  { value: MaterialTypeEnum.Synthetic, label: 'Synthetic', icon: FlaskIcon, color: 'text-purple-500' },
+  { value: MaterialTypeEnum.Recycled, label: 'Recycled', icon: RecycleIcon, color: 'text-emerald-500' },
+  { value: MaterialTypeEnum.Organic, label: 'Organic', icon: PlantIcon, color: 'text-green-600' },
+  { value: MaterialTypeEnum.BioBased, label: 'Bio-based', icon: DropIcon, color: 'text-blue-500' },
+]
 
 // ─── Reusable filter panel (shared between the desktop sticky rail and the mobile Drawer) ─
 
@@ -46,12 +59,11 @@ interface FilterPanelProps {
   treeSelectData: TreeNodeData[]
   categoryId: string
   setCategoryId: (v: string) => void
-  isOrganic: boolean
-  setIsOrganic: (v: boolean) => void
-  isBiodegradable: boolean
-  setIsBiodegradable: (v: boolean) => void
-  isRecycled: boolean
-  setIsRecycled: (v: boolean) => void
+  materials: MaterialDto[]
+  selectedMaterialIds: string[]
+  toggleMaterial: (id: string) => void
+  selectedMaterialTypes: MaterialTypeEnum[]
+  toggleMaterialType: (type: MaterialTypeEnum) => void
   inStockOnly: boolean
   setInStockOnly: (v: boolean) => void
   priceRange: [number, number]
@@ -64,12 +76,11 @@ const FilterPanel = ({
   treeSelectData,
   categoryId,
   setCategoryId,
-  isOrganic,
-  setIsOrganic,
-  isBiodegradable,
-  setIsBiodegradable,
-  isRecycled,
-  setIsRecycled,
+  materials,
+  selectedMaterialIds,
+  toggleMaterial,
+  selectedMaterialTypes,
+  toggleMaterialType,
   inStockOnly,
   setInStockOnly,
   priceRange,
@@ -94,44 +105,7 @@ const FilterPanel = ({
     </div>
 
     <div className="bg-white p-4 rounded-lg border border-border">
-      <h3 className="font-semibold text-gray-900 uppercase tracking-wide text-2xs mb-3 flex items-center gap-2">
-        <LeafIcon weight="fill" size={13} className="text-primary" />
-        Sustainability
-      </h3>
       <div className="flex flex-col gap-3">
-        <Checkbox
-          label={
-            <div className="flex items-center gap-2">
-              <PlantIcon size={15} className="text-green-600" />
-              <span className="text-sm">Organic</span>
-            </div>
-          }
-          checked={isOrganic}
-          onChange={(e) => setIsOrganic(e.currentTarget.checked)}
-          color="primary"
-        />
-        <Checkbox
-          label={
-            <div className="flex items-center gap-2">
-              <DropIcon size={15} className="text-blue-500" />
-              <span className="text-sm">Biodegradable</span>
-            </div>
-          }
-          checked={isBiodegradable}
-          onChange={(e) => setIsBiodegradable(e.currentTarget.checked)}
-          color="primary"
-        />
-        <Checkbox
-          label={
-            <div className="flex items-center gap-2">
-              <RecycleIcon size={15} className="text-emerald-500" />
-              <span className="text-sm">Recycled</span>
-            </div>
-          }
-          checked={isRecycled}
-          onChange={(e) => setIsRecycled(e.currentTarget.checked)}
-          color="primary"
-        />
         <Checkbox
           label={
             <div className="flex items-center gap-2">
@@ -144,6 +118,51 @@ const FilterPanel = ({
           color="primary"
         />
       </div>
+
+      <div className="h-px bg-border my-3" />
+
+      <h3 className="font-semibold text-gray-900 uppercase tracking-wide text-2xs mb-3 flex items-center gap-2">
+        <LeafIcon weight="fill" size={13} className="text-primary" />
+        Sustainability
+      </h3>
+      <div className="flex flex-col gap-3">
+        {MATERIAL_TYPE_OPTIONS.map(({ value, label, icon: Icon, color }) => (
+          <Checkbox
+            key={value}
+            label={
+              <div className="flex items-center gap-2">
+                <Icon size={15} className={color} />
+                <span className="text-sm">{label}</span>
+              </div>
+            }
+            checked={selectedMaterialTypes.includes(value)}
+            onChange={() => toggleMaterialType(value)}
+            color="primary"
+          />
+        ))}
+      </div>
+
+      {materials.length > 0 && (
+        <>
+          <div className="h-px bg-border my-3" />
+          <h4 className="font-medium text-gray-700 text-xs mb-2">Materials</h4>
+          <div className="flex flex-col gap-2 max-h-40 overflow-y-auto pr-1">
+            {materials.map((material) => (
+              <Checkbox
+                key={material.id}
+                label={
+                  <span className="text-sm">
+                    {material.name} <span className="text-muted-foreground">({material.productCount})</span>
+                  </span>
+                }
+                checked={selectedMaterialIds.includes(material.id)}
+                onChange={() => toggleMaterial(material.id)}
+                color="primary"
+              />
+            ))}
+          </div>
+        </>
+      )}
     </div>
 
     <div className="bg-white p-4 rounded-lg border border-border">
@@ -202,9 +221,14 @@ const ProductPage = () => {
   const sortOrder = (searchParams.get('order') === 'desc' ? 'desc' : 'asc') as 'asc' | 'desc'
   const minPrice = Number(searchParams.get('minPrice') ?? 0)
   const maxPrice = Number(searchParams.get('maxPrice') ?? MAX_PRICE)
-  const isOrganic = searchParams.get('organic') === 'true'
-  const isBiodegradable = searchParams.get('biodegradable') === 'true'
-  const isRecycled = searchParams.get('recycled') === 'true'
+  const materialIds = useMemo(
+    () => searchParams.get('materials')?.split(',').filter(Boolean) ?? [],
+    [searchParams],
+  )
+  const materialTypes = useMemo(
+    () => (searchParams.get('materialTypes')?.split(',').filter(Boolean) ?? []) as MaterialTypeEnum[],
+    [searchParams],
+  )
   const inStockOnly = searchParams.get('inStock') === 'true'
   const currentSearch = searchParams.get('search') || ''
 
@@ -230,6 +254,8 @@ const ProductPage = () => {
   }
 
   const { data: categoriesData } = useGetAllCategories()
+  const { data: materialsData } = useGetAllMaterials()
+  const materials = materialsData ?? []
 
   const treeSelectData = useMemo(() => {
     if (!categoriesData) return []
@@ -260,13 +286,12 @@ const ProductPage = () => {
     pageSize: productsAmount,
     search: currentSearch || undefined,
     categoryIds: categoryId !== '' ? [categoryId] : [],
+    materialIds: materialIds.length > 0 ? materialIds : undefined,
     minPrice: minPrice,
     maxPrice: maxPrice >= MAX_PRICE ? undefined : maxPrice,
     sortBy: sortBy,
     sortDescending: sortOrder === 'desc',
-    isOrganic: isOrganic,
-    isBiodegradable: isBiodegradable,
-    isRecycled: isRecycled,
+    materialTypes: materialTypes.length > 0 ? materialTypes : undefined,
   })
 
   // The backend has no "in stock" filter — this narrows the already-fetched page,
@@ -284,6 +309,16 @@ const ProductPage = () => {
 
   const handleClearFilters = () => {
     setSearchParams({})
+  }
+
+  const toggleMaterial = (id: string) => {
+    const next = materialIds.includes(id) ? materialIds.filter((m) => m !== id) : [...materialIds, id]
+    updateParams({ materials: next.length > 0 ? next.join(',') : null })
+  }
+
+  const toggleMaterialType = (type: MaterialTypeEnum) => {
+    const next = materialTypes.includes(type) ? materialTypes.filter((t) => t !== type) : [...materialTypes, type]
+    updateParams({ materialTypes: next.length > 0 ? next.join(',') : null })
   }
 
   const handlePageChange = (page: number) => {
@@ -304,19 +339,18 @@ const ProductPage = () => {
         onRemove: () => updateParams({ categoryId: null }),
       })
     }
-    if (isOrganic) {
-      chips.push({ key: 'organic', label: 'Organic', onRemove: () => updateParams({ organic: null }) })
-    }
-    if (isBiodegradable) {
-      chips.push({
-        key: 'biodegradable',
-        label: 'Biodegradable',
-        onRemove: () => updateParams({ biodegradable: null }),
-      })
-    }
-    if (isRecycled) {
-      chips.push({ key: 'recycled', label: 'Recycled', onRemove: () => updateParams({ recycled: null }) })
-    }
+    materialIds.forEach((id) => {
+      const material = materials.find((m) => m.id === id)
+      if (material) {
+        chips.push({ key: `material-${id}`, label: material.name, onRemove: () => toggleMaterial(id) })
+      }
+    })
+    materialTypes.forEach((type) => {
+      const option = MATERIAL_TYPE_OPTIONS.find((o) => o.value === type)
+      if (option) {
+        chips.push({ key: `material-type-${type}`, label: option.label, onRemove: () => toggleMaterialType(type) })
+      }
+    })
     if (inStockOnly) {
       chips.push({ key: 'inStock', label: 'In stock only', onRemove: () => updateParams({ inStock: null }) })
     }
@@ -333,9 +367,9 @@ const ProductPage = () => {
     currentSearch,
     categoryId,
     selectedCategoryName,
-    isOrganic,
-    isBiodegradable,
-    isRecycled,
+    materialIds,
+    materials,
+    materialTypes,
     inStockOnly,
     minPrice,
     maxPrice,
@@ -347,12 +381,11 @@ const ProductPage = () => {
     treeSelectData,
     categoryId,
     setCategoryId: (v) => updateParams({ categoryId: v || null }),
-    isOrganic,
-    setIsOrganic: (v) => updateParams({ organic: v ? 'true' : null }),
-    isBiodegradable,
-    setIsBiodegradable: (v) => updateParams({ biodegradable: v ? 'true' : null }),
-    isRecycled,
-    setIsRecycled: (v) => updateParams({ recycled: v ? 'true' : null }),
+    materials,
+    selectedMaterialIds: materialIds,
+    toggleMaterial,
+    selectedMaterialTypes: materialTypes,
+    toggleMaterialType,
     inStockOnly,
     setInStockOnly: (v) => updateParams({ inStock: v ? 'true' : null }, false),
     priceRange,

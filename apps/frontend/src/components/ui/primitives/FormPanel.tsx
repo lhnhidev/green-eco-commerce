@@ -13,7 +13,7 @@ type FormPanelProps = {
   isSubmitting?: boolean
   cancelTo?: string
   children: ReactNode
-  /** `narrow` (720px, default) or `wide` (1000px) — for forms with many side-by-side fields. */
+  /** `narrow` (720px, default) or `wide` (880px) — for forms with many side-by-side fields. */
   width?: 'narrow' | 'wide'
 }
 
@@ -29,7 +29,7 @@ const FormPanel = ({
   children,
   width = 'narrow',
 }: FormPanelProps) => (
-  <div className={width === 'wide' ? 'max-w-[1000px]' : 'max-w-[720px]'}>
+  <div className={`mx-auto ${width === 'wide' ? 'max-w-[880px]' : 'max-w-[720px]'}`}>
     <div className="flex items-center gap-2 mb-4">
       {backTo && (
         <ActionIcon component={Link} to={backTo} variant="subtle" size="sm" aria-label="Back">

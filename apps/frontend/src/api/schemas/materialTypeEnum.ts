@@ -13,8 +13,6 @@ export const MaterialTypeEnum = {
   Natural: 'Natural',
   Synthetic: 'Synthetic',
   Recycled: 'Recycled',
-  Biodegradable: 'Biodegradable',
-  Compostable: 'Compostable',
   Organic: 'Organic',
   BioBased: 'BioBased',
 } as const;

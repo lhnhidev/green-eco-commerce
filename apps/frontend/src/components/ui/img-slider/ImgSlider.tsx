@@ -1,3 +1,4 @@
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import { Carousel } from '@mantine/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import { useRef } from 'react'
@@ -9,9 +10,10 @@ type ImgSliderProps = {
   percent: string
   activeImg?: string
   onSelect?: (img: string) => void
+  alt?: string
 }
 
-const ImgSlider = ({ imgs, isAuto, delayTime = 2500, percent, activeImg, onSelect }: ImgSliderProps) => {
+const ImgSlider = ({ imgs, isAuto, delayTime = 2500, percent, activeImg, onSelect, alt }: ImgSliderProps) => {
   const autoplay = useRef(Autoplay({ delay: delayTime }))
 
   if (imgs === undefined || imgs.length === 0) return null
@@ -37,7 +39,11 @@ const ImgSlider = ({ imgs, isAuto, delayTime = 2500, percent, activeImg, onSelec
             aria-label={`View product image ${index + 1}`}
             aria-current={activeImg === img}
           >
-            <img src={img} alt={`Product thumbnail ${index + 1}`} />
+            <ImageWithFallback
+              src={img}
+              alt={alt ? `${alt} thumbnail ${index + 1}` : `Product thumbnail ${index + 1}`}
+              className="w-full aspect-square object-cover"
+            />
           </button>
         </Carousel.Slide>
       ))}

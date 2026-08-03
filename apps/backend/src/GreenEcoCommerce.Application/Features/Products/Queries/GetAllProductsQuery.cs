@@ -38,9 +38,11 @@ public record GetAllProductsQuery(GetAllProductsQuery.Parameters Query)
         public string? Search { get; init; } = string.Empty;
 
         public Guid[]? CategoryIds { get; init; } = [];
+        public Guid[]? MaterialIds { get; init; } = [];
         public bool? IsOrganic { get; init; }
         public bool? IsBiodegradable { get; init; }
         public bool? IsRecycled { get; init; }
+        public MaterialTypeEnum[]? MaterialTypes { get; init; } = [];
         public decimal? MinPrice { get; init; }
         public decimal? MaxPrice { get; init; }
 
@@ -58,6 +60,11 @@ public record GetAllProductsQuery(GetAllProductsQuery.Parameters Query)
                             ((IEnumerable<Guid>)CategoryIds).Contains(p.Category.ParentId.Value)));
             }
 
+            if (MaterialIds is { Length: > 0 })
+            {
+                query = query.Where(p => p.Materials.Any(m => ((IEnumerable<Guid>)MaterialIds).Contains(m.Id)));
+            }
+
             if (MinPrice.HasValue) { query = query.Where(p => p.Price >= MinPrice.Value); }
 
             if (MaxPrice.HasValue) { query = query.Where(p => p.Price <= MaxPrice.Value); }
@@ -69,14 +76,18 @@ public record GetAllProductsQuery(GetAllProductsQuery.Parameters Query)
 
             if (IsBiodegradable.GetValueOrDefault())
             {
-                query = query.Where(p =>
-                        p.Materials.Any(m => m.Type == MaterialTypeEnum.Biodegradable) || p.DecomposePercent > 0);
+                query = query.Where(p => p.DecomposePercent > 0);
             }
 
             if (IsRecycled.GetValueOrDefault())
             {
                 query = query.Where(p =>
                         p.Materials.Any(m => m.Type == MaterialTypeEnum.Recycled) || p.RecyclePercent > 0);
+            }
+
+            if (MaterialTypes is { Length: > 0 })
+            {
+                query = query.Where(p => p.Materials.Any(m => ((IEnumerable<MaterialTypeEnum>)MaterialTypes).Contains(m.Type)));
             }
 
             return query;

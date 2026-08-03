@@ -191,35 +191,6 @@ const ReviewList = () => {
 
   return (
     <AdminPageShell title="Reviews">
-      <Toolbar
-        left={
-          <>
-            <TextInput
-              placeholder="Search by reviewer or comment..."
-              size="xs"
-              leftSection={<MagnifyingGlassIcon size={13} />}
-              value={search}
-              onChange={(e) => {
-                setSearch(e.currentTarget.value)
-                setPage(1)
-              }}
-              w={260}
-            />
-            <Select
-              size="xs"
-              data={STATUS_OPTIONS}
-              value={statusFilter}
-              onChange={(v) => {
-                setStatusFilter((v as StatusFilter) ?? 'all')
-                setPage(1)
-              }}
-              w={140}
-            />
-          </>
-        }
-        right={<span className="text-2xs text-muted-foreground">{filtered.length} reviews</span>}
-      />
-
       <DataTable
         columns={columns}
         rows={paged}
@@ -230,6 +201,36 @@ const ReviewList = () => {
         page={page}
         totalPages={totalPages}
         onPageChange={setPage}
+        toolbar={
+          <Toolbar
+            left={
+              <>
+                <TextInput
+                  placeholder="Search by reviewer or comment..."
+                  size="xs"
+                  leftSection={<MagnifyingGlassIcon size={13} />}
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.currentTarget.value)
+                    setPage(1)
+                  }}
+                  w={260}
+                />
+                <Select
+                  size="xs"
+                  data={STATUS_OPTIONS}
+                  value={statusFilter}
+                  onChange={(v) => {
+                    setStatusFilter((v as StatusFilter) ?? 'all')
+                    setPage(1)
+                  }}
+                  w={140}
+                />
+              </>
+            }
+            right={<span className="text-2xs text-muted-foreground">{filtered.length} reviews</span>}
+          />
+        }
       />
 
       <ConfirmModal

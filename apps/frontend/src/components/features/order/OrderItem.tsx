@@ -1,5 +1,6 @@
 import { getGetCartQueryKey, invalidateGetCart, useRemoveCartItem } from '@api'
 import type { CartDto, CartItemDto } from '@api/schemas'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
@@ -57,7 +58,7 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
   return (
     <div className="flex gap-3 items-center">
       <button type="button" onClick={() => navigate(`/products/${product.productId}`)} className="shrink-0">
-        <img
+        <ImageWithFallback
           className="rounded-md w-12 h-12 object-cover bg-gray-50"
           src={resolveImageUrl(product.productImageUrl)}
           alt={product.productName}

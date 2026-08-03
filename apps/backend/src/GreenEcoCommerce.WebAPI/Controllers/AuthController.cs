@@ -154,11 +154,6 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         string? expiredToken = Request.Cookies["AccessToken"];
         string? refreshToken = Request.Cookies["RefreshToken"];
 
-        foreach ((string key, string value) in Request.Cookies)
-        {
-            Console.WriteLine($"Key: {key} | Value: {value}");
-        }
-
         if (string.IsNullOrEmpty(expiredToken) || string.IsNullOrEmpty(refreshToken))
         {
             return TypedResults.BadRequest(new ProblemDetails

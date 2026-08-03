@@ -126,6 +126,17 @@ const MaterialList = () => {
       ),
     },
     {
+      key: 'productCount',
+      header: 'Products',
+      width: 120,
+      render: (m) => (
+        <span className="text-sm">
+          <span className="font-medium">{m.productCount}</span>{' '}
+          <span className="text-2xs text-muted-foreground">product{m.productCount === 1 ? '' : 's'}</span>
+        </span>
+      ),
+    },
+    {
       key: 'ecoRating',
       header: 'Eco rating',
       width: 200,
@@ -164,24 +175,6 @@ const MaterialList = () => {
         <StatCard label="Average eco rating" value={`${stats.avgEco}/100`} icon={LeafIcon} tone="primary" />
       </div>
 
-      <Toolbar
-        left={
-          <TextInput
-            placeholder="Search materials..."
-            size="xs"
-            leftSection={<MagnifyingGlassIcon size={13} />}
-            value={search}
-            onChange={(e) => setSearch(e.currentTarget.value)}
-            w={220}
-          />
-        }
-        right={
-          <span className="text-2xs text-muted-foreground">
-            {filtered.length} of {materials?.length ?? 0} shown
-          </span>
-        }
-      />
-
       <DataTable
         columns={columns}
         rows={filtered}
@@ -189,6 +182,25 @@ const MaterialList = () => {
         isLoading={isLoading}
         emptyIcon={StackIcon}
         emptyTitle="No materials found"
+        toolbar={
+          <Toolbar
+            left={
+              <TextInput
+                placeholder="Search materials..."
+                size="xs"
+                leftSection={<MagnifyingGlassIcon size={13} />}
+                value={search}
+                onChange={(e) => setSearch(e.currentTarget.value)}
+                w={220}
+              />
+            }
+            right={
+              <span className="text-2xs text-muted-foreground">
+                {filtered.length} of {materials?.length ?? 0} shown
+              </span>
+            }
+          />
+        }
       />
 
       <Modal

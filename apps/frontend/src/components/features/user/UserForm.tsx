@@ -1,8 +1,13 @@
+import { useUploadImage } from '@api'
 import type { UserDto } from '@api/schemas'
 import { RoleEnum } from '@api/schemas'
-import { ImageDropzone } from '@components/features/upload/ImageDropzone'
-import { Button, PasswordInput, Select, TextInput } from '@mantine/core'
+import FormGrid from '@components/ui/primitives/FormGrid'
+import FormPanel from '@components/ui/primitives/FormPanel'
+import { ActionIcon, Avatar, FileButton, Loader, PasswordInput, Select, TextInput } from '@mantine/core'
 import { useForm } from '@mantine/form'
+import { notifications } from '@mantine/notifications'
+import { CameraIcon } from '@phosphor-icons/react'
+import { resolveImageUrl } from '@utils/resolveImageUrl'
 import { useEffect } from 'react'
 
 export type UserFormValues = {
@@ -43,12 +48,12 @@ const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{6,}
 type UserFormProps = {
   editingUser: UserDto | null
   onSubmit: (values: UserFormValues) => void
-  onCancel: () => void
   isSubmitting?: boolean
 }
 
-const UserForm = ({ editingUser, onSubmit, onCancel, isSubmitting }: UserFormProps) => {
+const UserForm = ({ editingUser, onSubmit, isSubmitting }: UserFormProps) => {
   const isEditing = !!editingUser
+  const { mutateAsync: uploadImage, isPending: isUploadingAvatar } = useUploadImage()
 
   const form = useForm<UserFormValues>({
     initialValues: editingUser ? toFormValues(editingUser) : emptyValues,
@@ -68,14 +73,51 @@ const UserForm = ({ editingUser, onSubmit, onCancel, isSubmitting }: UserFormPro
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingUser])
 
+  const handleAvatarChange = async (file: File | null) => {
+    if (!file) return
+    try {
+      const result = await uploadImage({ data: { file } })
+      form.setFieldValue('avatar', result.url)
+    } catch {
+      notifications.show({ title: 'Upload failed', message: 'Could not upload avatar.', color: 'red' })
+    }
+  }
+
   return (
-    <form onSubmit={form.onSubmit(onSubmit)} className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <TextInput label="First name" withAsterisk {...form.getInputProps('firstName')} />
-        <TextInput label="Last name" withAsterisk {...form.getInputProps('lastName')} />
+    <FormPanel
+      title={isEditing ? 'Edit User' : 'Add New User'}
+      description={isEditing ? 'Update this account’s details.' : 'Fill in the details to create a new account.'}
+      backTo="/admin/user"
+      cancelTo="/admin/user"
+      submitLabel={isEditing ? 'Save Changes' : 'Create User'}
+      isSubmitting={isSubmitting}
+      onSubmit={form.onSubmit(onSubmit)}
+    >
+      <div className="flex items-start gap-4">
+        <div className="flex-1">
+          <FormGrid>
+            <TextInput label="First name" withAsterisk {...form.getInputProps('firstName')} />
+            <TextInput label="Last name" withAsterisk {...form.getInputProps('lastName')} />
+          </FormGrid>
+        </div>
+        <FileButton onChange={handleAvatarChange} accept="image/*">
+          {(props) => (
+            <div className="relative shrink-0 cursor-pointer" {...props}>
+              <Avatar
+                src={form.values.avatar ? resolveImageUrl(form.values.avatar) : null}
+                size={64}
+                radius="50%"
+                className="border border-border"
+              />
+              <ActionIcon size="sm" radius="xl" variant="filled" className="absolute -bottom-0.5 -right-0.5">
+                {isUploadingAvatar ? <Loader size={10} color="white" /> : <CameraIcon size={12} />}
+              </ActionIcon>
+            </div>
+          )}
+        </FileButton>
       </div>
       <TextInput label="Email" withAsterisk {...form.getInputProps('email')} />
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <FormGrid>
         <TextInput
           label="Phone number"
           placeholder="10-digit phone number"
@@ -83,24 +125,15 @@ const UserForm = ({ editingUser, onSubmit, onCancel, isSubmitting }: UserFormPro
           {...form.getInputProps('phone')}
         />
         <Select label="Role" withAsterisk data={Object.values(RoleEnum)} {...form.getInputProps('role')} />
-      </div>
+      </FormGrid>
       <TextInput label="Address" withAsterisk {...form.getInputProps('address')} />
-      <ImageDropzone label="Avatar" value={form.values.avatar} onChange={(url) => form.setFieldValue('avatar', url)} />
       <PasswordInput
         label={isEditing ? 'New password' : 'Password'}
         description={isEditing ? "Sets a new password for this user's account." : undefined}
         withAsterisk
         {...form.getInputProps('password')}
       />
-      <div className="flex justify-end gap-2 mt-1">
-        <Button variant="subtle" color="gray" size="xs" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" size="xs" loading={isSubmitting}>
-          {isEditing ? 'Save Changes' : 'Create User'}
-        </Button>
-      </div>
-    </form>
+    </FormPanel>
   )
 }
 

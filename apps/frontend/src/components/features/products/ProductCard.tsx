@@ -9,6 +9,7 @@ import {
 } from '@api'
 import type { ProductDto } from '@api/schemas'
 import { MAX_COMPARE_ITEMS, toggleCompare } from '@components/features/compare/compare.slice'
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import PriceTag from '@components/ui/primitives/PriceTag'
 import StockBadge from '@components/ui/StockBadge'
 import { useAppDispatch } from '@hooks/useAppDispatch'
@@ -119,10 +120,10 @@ const ProductCard = ({ product }: { product: ProductDto }) => {
         <div className="relative flex h-full flex-col overflow-hidden rounded-lg bg-white border border-border shadow-xs transition-shadow duration-200 hover:shadow-md">
           {/* Image Section */}
           <div className="relative aspect-[4/5] overflow-hidden bg-gray-50/50">
-            <img
+            <ImageWithFallback
               alt={product.name}
               className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              src={resolveImageUrl(product?.imageUrl?.at(0)) || '/placeholder.png'}
+              src={resolveImageUrl(product?.imageUrl?.at(0))}
             />
 
             {/* Subtle dark gradient overlay on hover to make icons pop */}

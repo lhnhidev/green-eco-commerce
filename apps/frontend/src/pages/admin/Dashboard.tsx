@@ -1,4 +1,5 @@
 import { useGetInfoAnalyst } from '@api'
+import Co2SavedCard from '@components/features/dashboard/Co2SavedCard'
 import LowStockProducts from '@components/features/dashboard/LowStockProducts'
 import MonthlyStatisticsChart from '@components/features/dashboard/MonthlyStatisticsChart'
 import RecentOrders from '@components/features/dashboard/RecentOrders'
@@ -9,7 +10,7 @@ import Loading from '@components/ui/status/Loading'
 import { Button } from '@mantine/core'
 import { MonthPickerInput } from '@mantine/dates'
 import { notifications } from '@mantine/notifications'
-import { DownloadSimpleIcon, LeafIcon, MoneyIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
+import { DownloadSimpleIcon, MoneyIcon, ShoppingCartIcon, UserIcon } from '@phosphor-icons/react'
 import { downloadFile } from '@utils/downloadFile'
 import { useState } from 'react'
 
@@ -107,15 +108,7 @@ const Dashboard = () => {
             direction: getGrowth(analysted.amountUsers),
           }}
         />
-        <StatCard
-          label="CO₂ Saved"
-          icon={LeafIcon}
-          value={`${Number(analysted.totalCo2Saved.currentValue).toFixed(1)} kg`}
-          delta={{
-            value: Number(Number(analysted.totalCo2Saved.growthPercentage).toFixed(1)),
-            direction: getGrowth(analysted.totalCo2Saved),
-          }}
-        />
+        <Co2SavedCard data={analysted.totalCo2Saved} direction={getGrowth(analysted.totalCo2Saved)} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 mb-2.5">
