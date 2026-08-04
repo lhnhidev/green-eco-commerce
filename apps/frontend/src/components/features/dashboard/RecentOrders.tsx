@@ -11,8 +11,13 @@ const statusColor: Record<OrderStatusEnum, string> = {
   Cancelled: 'red',
 }
 
-const RecentOrders = () => {
-  const { data, isLoading } = useGetAllOrders()
+type Props = {
+  month?: number
+  year?: number
+}
+
+const RecentOrders = ({ month, year }: Props) => {
+  const { data, isLoading } = useGetAllOrders({ month, year })
 
   const rows = [...(data?.items ?? [])]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
