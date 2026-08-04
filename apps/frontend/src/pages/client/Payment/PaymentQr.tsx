@@ -18,6 +18,10 @@ const PaymentQr = ({ amount }: Props) => {
         className="w-full max-w-xs rounded-lg"
       />
       <p className="text-xs text-gray-400">≈ {amountVnd.toLocaleString('vi-VN')} VND</p>
+      <p className="text-2xs text-amber-600 text-center max-w-xs">
+        Demo environment — this QR is not connected to a real payment gateway. No bank/wallet
+        verification happens; "Paid" is confirmed manually.
+      </p>
     </div>
   )
 }
