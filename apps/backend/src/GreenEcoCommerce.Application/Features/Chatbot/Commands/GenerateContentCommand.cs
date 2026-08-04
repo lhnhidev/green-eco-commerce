@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using FluentValidation;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
@@ -109,11 +110,7 @@ public record GenerateContentCommand(Guid UserId, Guid? IdSectionMessage, string
 
         private async Task<string> BuildKnowledgeBaseBlockAsync(string prompt, CancellationToken ct)
         {
-            var embeddings = await dbContext.Embeddings
-                    .Select(e => new { e.ChunkText, e.VectorData })
-                    .ToListAsync(ct);
-
-            if (embeddings.Count == 0)
+            if (!await dbContext.Embeddings.AnyAsync(ct))
             {
                 return string.Empty;
             }
@@ -128,11 +125,23 @@ public record GenerateContentCommand(Guid UserId, Guid? IdSectionMessage, string
                 return string.Empty;
             }
 
-            var topChunks = embeddings
+            // Nearest-neighbor search runs in Postgres via the pgvector `<=>` cosine-distance
+            // operator (index-accelerated by the HNSW index on embeddings.vector_data) instead
+            // of loading the whole table into memory. Only the returned top-K rows are then
+            // re-scored in-memory to keep the exact ">0 similarity" cutoff used before.
+            string vectorLiteral =
+                    "[" + string.Join(",", promptVector.Select(v => v.ToString("R", CultureInfo.InvariantCulture))) + "]";
+
+            var nearest = await dbContext.Embeddings
+                    .FromSqlInterpolated(
+                            $"SELECT * FROM embeddings ORDER BY vector_data <=> {vectorLiteral}::vector LIMIT {TopKnowledgeChunks}")
+                    .Select(e => new { e.ChunkText, e.VectorData })
+                    .ToListAsync(ct);
+
+            var topChunks = nearest
                     .Select(e => new { e.ChunkText, Similarity = CosineSimilarity(promptVector, e.VectorData) })
-                    .OrderByDescending(e => e.Similarity)
-                    .Take(TopKnowledgeChunks)
                     .Where(e => e.Similarity > 0)
+                    .OrderByDescending(e => e.Similarity)
                     .ToList();
 
             if (topChunks.Count == 0)
