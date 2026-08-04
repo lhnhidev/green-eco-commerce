@@ -60,8 +60,9 @@ public static class ReviewEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<ReviewDto[]>> GetAllReviews([AsParameters] GetAllReviewsQuery query, ISender sender) =>
-            TypedResults.Ok(await sender.Send(query));
+    private static async Task<Ok<PagedResult<ReviewDto>>> GetAllReviews(
+            [AsParameters] GetAllReviewsQuery.Parameters query, ISender sender) =>
+            TypedResults.Ok(await sender.Send(new GetAllReviewsQuery(query)));
 
     private static async Task<Results<Ok<ReviewDto>, NotFound>> ApproveReview(Guid id, ISender sender)
     {
