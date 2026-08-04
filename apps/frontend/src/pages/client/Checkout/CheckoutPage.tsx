@@ -1,6 +1,7 @@
 import {
   invalidateGetCart,
   invalidateGetMyAddresses,
+  invalidateGetMyStatistics,
   useCreateAddress,
   useGetCart,
   useGetGreenWallet,
@@ -116,6 +117,7 @@ const CheckoutPage = () => {
     mutation: {
       onSuccess: (data) => {
         invalidateGetCart(queryClient)
+        invalidateGetMyStatistics(queryClient)
         notifications.show({
           title: 'Order placed!',
           message: `Your order #${data.orderId.slice(-8).toUpperCase()} has been placed.`,

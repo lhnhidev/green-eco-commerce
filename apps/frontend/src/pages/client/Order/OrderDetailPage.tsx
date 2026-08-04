@@ -1,4 +1,10 @@
-import { invalidateGetMyOrderById, invalidateGetMyOrders, useCancelMyOrder, useGetMyOrderById } from '@api'
+import {
+  invalidateGetMyOrderById,
+  invalidateGetMyOrders,
+  invalidateGetMyStatistics,
+  useCancelMyOrder,
+  useGetMyOrderById,
+} from '@api'
 import { OrderStatusEnum } from '@api/schemas'
 import ImageWithFallback from '@components/ui/ImageWithFallback'
 import PageBreadcrumbs from '@components/ui/PageBreadcrumbs'
@@ -35,6 +41,7 @@ const OrderDetailPage = () => {
       onSuccess: async () => {
         await invalidateGetMyOrderById(queryClient, id ?? '')
         await invalidateGetMyOrders(queryClient)
+        await invalidateGetMyStatistics(queryClient)
         notifications.show({ title: 'Order Cancelled', message: 'Your order has been cancelled.', color: 'green' })
       },
       onError: () =>
