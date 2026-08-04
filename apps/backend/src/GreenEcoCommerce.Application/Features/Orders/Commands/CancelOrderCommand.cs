@@ -39,14 +39,14 @@ public record CancelOrderCommand(Guid OrderId, Guid UserId) : IRequest
             {
                 if (order.EarnedPoints < 0)
                 {
-                    int refund = (int)Math.Round(-order.EarnedPoints);
+                    int refund = -order.EarnedPoints;
                     await dbContext.DepositWalletAsync(wallet, refund, $"Refund for cancelled order {order.Id}", order.Id, ct);
                 }
                 else
                 {
                     // Claw back points earned from this order, clamped to what's still available
                     // (the user may have already spent some of it elsewhere).
-                    int clawback = Math.Min(wallet.Balance, (int)Math.Round(order.EarnedPoints));
+                    int clawback = Math.Min(wallet.Balance, order.EarnedPoints);
                     if (clawback > 0)
                     {
                         wallet.Balance -= clawback;

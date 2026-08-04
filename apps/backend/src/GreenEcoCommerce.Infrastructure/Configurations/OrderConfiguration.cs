@@ -16,7 +16,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.Status).HasColumnName("status").HasConversion<string>().HasMaxLength(50);
         builder.Property(x => x.DeliveryAddress).HasColumnName("delivery_address").HasMaxLength(500);
         builder.Property(x => x.DiscountAmount).HasColumnName("discount_amount").HasPrecision(18, 2);
-        builder.Property(x => x.EarnedPoints).HasColumnName("earned_points").HasPrecision(18, 2);
+        builder.Property(x => x.EarnedPoints).HasColumnName("earned_points");
         builder.Property(x => x.CouponCode).HasColumnName("coupon_code").HasMaxLength(50);
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
 
