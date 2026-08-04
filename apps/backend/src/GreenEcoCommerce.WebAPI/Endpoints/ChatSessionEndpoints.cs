@@ -46,7 +46,7 @@ public static class ChatSessionEndpoints
     {
         var userId = GetUserId(user);
         var session = await sender.Send(new GetChatSessionByIdQuery(id, userId));
-        return TypedResults.Ok(session);
+        return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
     }
 
     private static async Task<Ok<ChatMessageDto[]>> GetChatSessionMessages(Guid id, ClaimsPrincipal user, ISender sender)
