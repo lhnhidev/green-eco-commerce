@@ -14,6 +14,11 @@ public record UpdateCategoryCommand(Guid Id, CategoryPayloadDto Dto) : IRequest<
         {
             if (command.Dto.ParentId.HasValue)
             {
+                if (command.Dto.ParentId.Value == command.Id)
+                {
+                    throw new BadRequestException("A category cannot be its own parent.");
+                }
+
                 var parentCategory = await dbContext.Categories.FindAsync([command.Dto.ParentId.Value], ct) ??
                                      throw new NotFoundException($"Parent category with ID {command.Dto.ParentId.Value} not found.");
 
