@@ -13,6 +13,8 @@ sortBy?: OrderSortBy;
 sortDescending?: boolean;
 search?: string;
 status?: OrderStatusEnum;
+month?: number;
+year?: number;
 pageNumber?: number;
 pageSize?: number;
 };

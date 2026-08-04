@@ -54,10 +54,10 @@ const ReviewList = () => {
     return {}
   }, [statusFilter])
 
-  // useGetAllReviews returns the full matching set in one call (no server pagination exists for
-  // this endpoint), so paging below is genuinely client-side over an already-complete list —
-  // not the page-scoped-filter bug this pattern represents elsewhere in the app.
-  const { data: reviews = [], isLoading } = useGetAllReviews(queryParams)
+  // Server-side paginated: pageNumber/pageSize are sent to the backend. Search has no backend
+  // param for reviews, so it stays a client-side refinement over the currently-loaded page only.
+  const { data, isLoading } = useGetAllReviews({ ...queryParams, pageNumber: page, pageSize: PAGE_SIZE })
+  const reviews = data?.items ?? []
 
   const { mutate: approve, variables: approvingVar } = useApproveReview({
     mutation: {
@@ -95,8 +95,7 @@ const ReviewList = () => {
     return reviews.filter((r) => !kw || r.userName.toLowerCase().includes(kw) || r.comment.toLowerCase().includes(kw))
   }, [reviews, search])
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
-  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const totalPages = Math.max(1, Math.ceil((data?.totalCount ?? 0) / PAGE_SIZE))
 
   const handleDelete = () => {
     if (deleteTarget) deleteReview({ id: deleteTarget.id })
@@ -193,7 +192,7 @@ const ReviewList = () => {
     <AdminPageShell title="Reviews">
       <DataTable
         columns={columns}
-        rows={paged}
+        rows={filtered}
         getRowKey={(r) => r.id}
         isLoading={isLoading}
         emptyIcon={ChatCircleTextIcon}
@@ -228,7 +227,7 @@ const ReviewList = () => {
                 />
               </>
             }
-            right={<span className="text-2xs text-muted-foreground">{filtered.length} reviews</span>}
+            right={<span className="text-2xs text-muted-foreground">{data?.totalCount ?? 0} reviews</span>}
           />
         }
       />

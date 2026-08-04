@@ -5038,7 +5038,7 @@ export const getAllReviews = (
 ) => {
 
 
-      return customInstance<ReviewDto[]>(
+      return customInstance<PagedResultOfReviewDto>(
       {url: `/api/admin/reviews`, method: 'GET',
         params, signal
     },

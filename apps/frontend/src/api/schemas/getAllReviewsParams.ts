@@ -7,6 +7,9 @@
  */
 
 export type GetAllReviewsParams = {
+sortDescending?: boolean;
 isApproved?: boolean;
 isHidden?: boolean;
+pageNumber?: number;
+pageSize?: number;
 };

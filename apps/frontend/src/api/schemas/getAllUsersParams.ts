@@ -5,12 +5,15 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
+import type { RoleEnum } from './roleEnum';
 import type { UserSortBy } from './userSortBy';
 
 export type GetAllUsersParams = {
 sortBy?: UserSortBy;
 sortDescending?: boolean;
 search?: string;
+role?: RoleEnum;
+isActive?: boolean;
 pageNumber?: number;
 pageSize?: number;
 };
