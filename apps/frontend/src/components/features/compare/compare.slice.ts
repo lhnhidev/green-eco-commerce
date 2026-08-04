@@ -13,7 +13,7 @@ const loadInitialIds = (): string[] => {
   }
 }
 
-const persist = (ids: string[]) => {
+export const persist = (ids: string[]) => {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
   }
@@ -38,15 +38,12 @@ const compareSlice = createSlice({
       } else if (state.productIds.length < MAX_COMPARE_ITEMS) {
         state.productIds.push(id)
       }
-      persist(state.productIds)
     },
     removeFromCompare: (state, action: PayloadAction<string>) => {
       state.productIds = state.productIds.filter((x) => x !== action.payload)
-      persist(state.productIds)
     },
     clearCompare: (state) => {
       state.productIds = []
-      persist(state.productIds)
     },
   },
 })
