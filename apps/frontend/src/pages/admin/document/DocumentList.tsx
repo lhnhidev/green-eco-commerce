@@ -83,11 +83,16 @@ const DocumentList = () => {
       key: 'status',
       header: 'Status',
       width: 100,
-      render: () => (
-        <Badge size="xs" variant="dot" color="green">
-          Vectorized
-        </Badge>
-      ),
+      render: (doc) =>
+        doc.embeddingCount > 0 ? (
+          <Badge size="xs" variant="dot" color="green">
+            Vectorized
+          </Badge>
+        ) : (
+          <Badge size="xs" variant="dot" color="gray">
+            Not vectorized
+          </Badge>
+        ),
     },
     {
       key: 'uploaded',
