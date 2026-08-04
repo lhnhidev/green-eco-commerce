@@ -17,7 +17,8 @@ public record AddCartItemCommand(Guid UserId, CartItemPayloadDto Item) : IReques
         public async Task<CartDto> Handle(AddCartItemCommand command, CancellationToken ct)
         {
             // Validate product exists
-            if (!await dbContext.Products.AnyAsync(p => p.Id == command.Item.ProductId, ct))
+            var product = await dbContext.Products.FirstOrDefaultAsync(p => p.Id == command.Item.ProductId, ct);
+            if (product is null)
             {
                 throw new NotFoundException($"Product with ID {command.Item.ProductId} not found.");
             }
@@ -29,6 +30,12 @@ public record AddCartItemCommand(Guid UserId, CartItemPayloadDto Item) : IReques
 
             // Check if item already exists in cart
             var item = cart.CartItems.FirstOrDefault(i => i.ProductId == command.Item.ProductId);
+
+            var newTotalQuantity = (item?.Quantity ?? 0) + command.Item.Quantity;
+            if (newTotalQuantity > product.StockQty)
+            {
+                throw new BadRequestException($"Only {product.StockQty} units of {product.Name} are available in stock.");
+            }
 
             if (item != null)
             {
