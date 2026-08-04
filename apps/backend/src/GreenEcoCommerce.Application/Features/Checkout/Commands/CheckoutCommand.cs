@@ -158,6 +158,8 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                     },
                     ct);
 
+                await dbContext.SaveChangesAsync(ct);
+
                 // 5. Clear Cart
                 await dbContext.Carts.ClearAsync(command.UserId, ct);
 
