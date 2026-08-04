@@ -1,6 +1,7 @@
 ﻿using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
+using GreenEcoCommerce.Domain.Exceptions;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Orders.Commands;
@@ -13,6 +14,11 @@ public record UpdateOrderStatusCommand(Guid OrderId, OrderStatusEnum Status) : I
         {
             var order = await dbContext.Orders.FindAsync([command.OrderId], ct) ??
                         throw new KeyNotFoundException($"Order with ID {command.OrderId} not found.");
+
+            if (order.Status is OrderStatusEnum.Delivered or OrderStatusEnum.Cancelled && command.Status != order.Status)
+            {
+                throw new BadRequestException($"Order is already {order.Status} and cannot be changed further.");
+            }
 
             order.Status = command.Status;
 
