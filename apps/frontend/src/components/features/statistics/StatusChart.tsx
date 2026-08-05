@@ -1,5 +1,5 @@
 import { OrderStatusEnum } from '@api/schemas/orderStatusEnum'
-import type { StatusSlice } from '@hooks/useMyStatistics'
+import type { GetMyStatisticsQueryStatusSlice } from '@api/schemas'
 import { DonutChart } from '@mantine/charts'
 
 const STATUS_META: Record<OrderStatusEnum, { label: string; color: string }> = {
@@ -11,7 +11,7 @@ const STATUS_META: Record<OrderStatusEnum, { label: string; color: string }> = {
 }
 
 type StatusChartProps = {
-  data: StatusSlice[]
+  data: GetMyStatisticsQueryStatusSlice[]
 }
 
 /** Order count distribution by status. */

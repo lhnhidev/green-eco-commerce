@@ -1,5 +1,5 @@
+import { useGetMyStatistics } from '@api'
 import Loading from '@components/ui/status/Loading'
-import { useMyStatistics } from '@hooks/useMyStatistics'
 import { Alert, Center, Group, Paper, SegmentedControl, SimpleGrid, Stack, Text, Tooltip } from '@mantine/core'
 import {
   ClockIcon,
@@ -83,7 +83,7 @@ const ChartCard = ({ title, isEmpty, children }: ChartCardProps) => (
 
 const StatisticsTab = () => {
   const [months, setMonths] = useState('6')
-  const { data, isLoading, isError, refetch } = useMyStatistics(Number(months))
+  const { data, isLoading, isError, refetch } = useGetMyStatistics({ months: Number(months) })
 
   if (isLoading) return <Loading text="Loading statistics" />
 

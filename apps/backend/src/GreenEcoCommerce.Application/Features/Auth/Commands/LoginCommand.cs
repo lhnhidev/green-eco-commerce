@@ -31,6 +31,11 @@ public record LoginCommand(string Email, string Password) : IRequest<LoginComman
                 throw new BadRequestException("Invalid credentials.");
             }
 
+            if (!user.IsActive)
+            {
+                throw new BadRequestException("This account has been deactivated.");
+            }
+
             string token = jwtService.GenerateToken(user, minutesExpired: 15);
             string refreshToken = jwtService.GenerateRefreshToken();
 

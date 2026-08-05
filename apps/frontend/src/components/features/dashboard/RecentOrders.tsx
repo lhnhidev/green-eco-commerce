@@ -1,4 +1,5 @@
 import { useGetAllOrders } from '@api'
+import { OrderSortBy } from '@api/schemas'
 import type { OrderStatusEnum } from '@api/schemas/orderStatusEnum'
 import { Badge } from '@mantine/core'
 import { formatCurrency } from '@utils/formatCurrency'
@@ -11,8 +12,18 @@ const statusColor: Record<OrderStatusEnum, string> = {
   Cancelled: 'red',
 }
 
-const RecentOrders = () => {
-  const { data, isLoading } = useGetAllOrders()
+type Props = {
+  month?: number
+  year?: number
+}
+
+const RecentOrders = ({ month, year }: Props) => {
+  const { data, isLoading } = useGetAllOrders({
+    month,
+    year,
+    sortBy: OrderSortBy.CreatedAt,
+    sortDescending: true,
+  })
 
   const rows = [...(data?.items ?? [])]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())

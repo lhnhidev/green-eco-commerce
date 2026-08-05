@@ -8,4 +8,6 @@
 
 export type GetBestSellingProductsParams = {
 top?: number;
+month?: number;
+year?: number;
 };

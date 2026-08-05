@@ -16,13 +16,18 @@ public record UserProfilePayloadDto(
     string Address
 )
 {
-    // Validator không tham số, giữ nguyên cho các nơi đang dùng (cập nhật profile, cập nhật user).
-    public class Validator : Validator<UserProfilePayloadDto>;
+    // Dùng riêng cho self-update profile: password không bắt buộc (để trống = giữ nguyên).
+    public class Validator : Validator<UserProfilePayloadDto>
+    {
+        protected override bool RequirePassword => false;
+    }
 
     // Validator generic để các payload kế thừa (vd UserPayloadDto khi đăng ký) dùng lại
     // đúng bộ rule cho FirstName/LastName/Phone/Address/Password.
     public class Validator<T> : AbstractValidator<T> where T : UserProfilePayloadDto
     {
+        protected virtual bool RequirePassword => true;
+
         public Validator()
         {
             RuleFor(x => x.FirstName)
@@ -51,7 +56,8 @@ public record UserProfilePayloadDto(
                     .Matches("[A-Z]").WithMessage("Password must contain at least one uppercase letter.")
                     .Matches("[a-z]").WithMessage("Password must contain at least one lowercase letter.")
                     .Matches("[0-9]").WithMessage("Password must contain at least one digit.")
-                    .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.");
+                    .Matches("[^a-zA-Z0-9]").WithMessage("Password must contain at least one special character.")
+                    .When(x => RequirePassword || !string.IsNullOrEmpty(x.Password));
         }
     }
 }

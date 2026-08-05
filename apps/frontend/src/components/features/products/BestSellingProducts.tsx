@@ -8,8 +8,14 @@ import { resolveImageUrl } from '@utils/resolveImageUrl'
 const rankColor = (i: number) => (i === 0 ? 'yellow' : i === 1 ? 'gray' : i === 2 ? 'orange' : 'blue')
 const carbonColor = (v: number) => (v < 2 ? 'green' : v < 5 ? 'yellow' : 'red')
 
-const BestSellingProducts = ({ top = 10 }: { top?: number }) => {
-  const { data: products, isLoading } = useGetBestSellingProducts({ top })
+type Props = {
+  top?: number
+  month?: number
+  year?: number
+}
+
+const BestSellingProducts = ({ top = 10, month, year }: Props) => {
+  const { data: products, isLoading } = useGetBestSellingProducts({ top, month, year })
 
   return (
     <Panel variant="admin" padding="md" className="h-full">

@@ -232,6 +232,8 @@ public static class OrderEndpoints
                     col.Spacing(8);
 
                     col.Item().Text("Delivery Details").Bold();
+                    col.Item().Text(order.CustomerName);
+                    col.Item().Text(order.CustomerPhone);
                     col.Item().Text(order.DeliveryAddress);
 
                     col.Item().PaddingTop(10).Table(table =>

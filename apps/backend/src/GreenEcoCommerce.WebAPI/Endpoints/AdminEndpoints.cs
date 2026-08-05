@@ -41,9 +41,10 @@ public static class AdminEndpoints
         return TypedResults.Ok(result);
     }
 
-    private static async Task<Ok<GetBestSellingProductsQuery.Response[]>> GetBestSellingProducts(ISender sender, int top = 10)
+    private static async Task<Ok<GetBestSellingProductsQuery.Response[]>> GetBestSellingProducts(
+            ISender sender, int top = 10, int? month = null, int? year = null)
     {
-        var result = await sender.Send(new GetBestSellingProductsQuery(top));
+        var result = await sender.Send(new GetBestSellingProductsQuery(top, month, year));
         return TypedResults.Ok(result);
     }
 

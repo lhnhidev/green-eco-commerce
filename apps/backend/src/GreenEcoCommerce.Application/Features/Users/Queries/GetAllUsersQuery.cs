@@ -2,6 +2,7 @@ using GreenEcoCommerce.Application.Common.Models;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Queries;
 using GreenEcoCommerce.Domain.Entities;
+using GreenEcoCommerce.Domain.Enums;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Users.Queries;
@@ -33,6 +34,9 @@ public record GetAllUsersQuery(GetAllUsersQuery.Parameters Query) : IRequest<Pag
 
         public string? Search { get; init; } = string.Empty;
 
+        public RoleEnum? Role { get; init; }
+        public bool? IsActive { get; init; }
+
         public IQueryable<User> ApplySearching(IQueryable<User> query)
         {
             if (string.IsNullOrWhiteSpace(Search)) return query;
@@ -45,7 +49,12 @@ public record GetAllUsersQuery(GetAllUsersQuery.Parameters Query) : IRequest<Pag
                     p.Email.ToString().Contains(search) || p.Phone.ToString().Contains(search));
         }
 
-        public IQueryable<User> ApplyFiltering(IQueryable<User> query) { return query; }
+        public IQueryable<User> ApplyFiltering(IQueryable<User> query)
+        {
+            if (Role.HasValue) { query = query.Where(u => u.Role == Role.Value); }
+            if (IsActive.HasValue) { query = query.Where(u => u.IsActive == IsActive.Value); }
+            return query;
+        }
 
         public IQueryable<User> ApplySorting(IQueryable<User> query)
         {

@@ -1,4 +1,4 @@
-import type { CategorySlice } from '@hooks/useMyStatistics'
+import type { GetMyStatisticsQueryCategorySlice } from '@api/schemas'
 import { DonutChart } from '@mantine/charts'
 
 const PALETTE = ['teal.6', 'green.6', 'lime.6', 'cyan.6', 'blue.6', 'indigo.6', 'grape.6', 'orange.6']
@@ -6,7 +6,7 @@ const PALETTE = ['teal.6', 'green.6', 'lime.6', 'cyan.6', 'blue.6', 'indigo.6', 
 const formatVnd = (value: number) => `${value.toLocaleString('vi-VN')} ₫`
 
 type CategoryChartProps = {
-  data: CategorySlice[]
+  data: GetMyStatisticsQueryCategorySlice[]
 }
 
 /** Spending distribution across product categories (by amount). */

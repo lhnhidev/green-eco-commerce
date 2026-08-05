@@ -17,10 +17,15 @@ public static class ProductQueries
             return query.Include(p => p.Materials);
         }
 
-        public async Task UpdateStockQtyAsync(Guid id, int quantity, CancellationToken ct = default)
+        // Atomic conditional decrement: the WHERE and SET both evaluate against the row's
+        // current value at UPDATE time, so concurrent checkouts can't both pass a stale
+        // in-memory stock check and overwrite each other's decrement (lost update).
+        public async Task<bool> TryDecrementStockAsync(Guid id, int quantity, CancellationToken ct = default)
         {
-            await query.WithId(id)
-                .ExecuteUpdateAsync(s => s.SetProperty(p => p.StockQty, p => quantity), ct);
+            var affected = await query.WithId(id)
+                .Where(p => p.StockQty >= quantity)
+                .ExecuteUpdateAsync(s => s.SetProperty(p => p.StockQty, p => p.StockQty - quantity), ct);
+            return affected > 0;
         }
     }
 }

@@ -21,6 +21,8 @@ const RootLayout = () => {
     )
   }
 
+  // Chủ đích: tách biệt hoàn toàn admin console khỏi storefront, kể cả các trang
+  // tĩnh (about/contact/faq...) — admin luôn bị đưa về /admin khi vào layout này.
   if (user?.role === RoleEnum.Admin) {
     return <Navigate to="/admin" replace />
   }

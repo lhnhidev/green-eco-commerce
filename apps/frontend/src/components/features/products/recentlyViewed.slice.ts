@@ -13,7 +13,7 @@ const loadInitialIds = (): string[] => {
   }
 }
 
-const persist = (ids: string[]) => {
+export const persist = (ids: string[]) => {
   if (typeof localStorage !== 'undefined') {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(ids))
   }
@@ -35,11 +35,9 @@ const recentlyViewedSlice = createSlice({
       const id = action.payload
       // Most-recent-first, no duplicates, capped at MAX_RECENTLY_VIEWED.
       state.productIds = [id, ...state.productIds.filter((x) => x !== id)].slice(0, MAX_RECENTLY_VIEWED)
-      persist(state.productIds)
     },
     clearRecentlyViewed: (state) => {
       state.productIds = []
-      persist(state.productIds)
     },
   },
 })

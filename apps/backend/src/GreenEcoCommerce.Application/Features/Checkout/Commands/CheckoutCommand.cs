@@ -39,14 +39,10 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
 
                 foreach (var item in cart.CartItems)
                 {
-                    if (item.Product.StockQty < item.Quantity)
+                    if (!await dbContext.Products.TryDecrementStockAsync(item.Product.Id, item.Quantity, ct))
                     {
                         throw new BadRequestException($"Product {item.Product.Name} is out of stock or insufficient.");
                     }
-
-                    // Deduct stock
-                    item.Product.StockQty -= item.Quantity; // Persist stock update
-                    await dbContext.Products.UpdateStockQtyAsync(item.Product.Id, item.Product.StockQty, ct);
 
                     decimal subTotal = item.Product.Price * item.Quantity;
                     totalPrice += subTotal;
@@ -87,9 +83,18 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                         ? Math.Round(totalPrice * (coupon.DiscountValue / 100), 2)
                         : Math.Min(coupon.DiscountValue, totalPrice);
 
-                    coupon.UsedCount++;
+                    // Atomic conditional increment — same lost-update concern as stock above:
+                    // two concurrent checkouts could both read UsedCount < MaxUses and both commit.
+                    var couponClaimed = await dbContext.Coupons
+                        .Where(c => c.Id == coupon.Id && c.UsedCount < c.MaxUses)
+                        .ExecuteUpdateAsync(s => s.SetProperty(c => c.UsedCount, c => c.UsedCount + 1), ct);
+
+                    if (couponClaimed == 0)
+                    {
+                        throw new BadRequestException("This coupon is invalid, expired, or not applicable to this order.");
+                    }
+
                     appliedCouponCode = coupon.Code;
-                    await dbContext.SaveChangesAsync(ct);
                 }
 
                 decimal discountAmount = couponDiscount;
@@ -157,6 +162,8 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                         }
                     },
                     ct);
+
+                await dbContext.SaveChangesAsync(ct);
 
                 // 5. Clear Cart
                 await dbContext.Carts.ClearAsync(command.UserId, ct);

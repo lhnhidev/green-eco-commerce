@@ -30,6 +30,16 @@ public record GetAllOrdersQuery(Guid? UserId, GetAllOrdersQuery.Parameters Query
                 orderQuery = orderQuery.Where(o => o.Status == request.Query.Status);
             }
 
+            if (request.Query.Month.HasValue && request.Query.Year.HasValue)
+            {
+                // UTC-zero-offset construction: Order.CreatedAt is timestamptz, and Npgsql
+                // rejects DateTimeOffset parameters with a non-zero offset for that column type.
+                var periodStart = new DateTimeOffset(
+                    request.Query.Year.Value, request.Query.Month.Value, 1, 0, 0, 0, TimeSpan.Zero);
+                var periodEnd = periodStart.AddMonths(1);
+                orderQuery = orderQuery.Where(o => o.CreatedAt >= periodStart && o.CreatedAt < periodEnd);
+            }
+
             return await request.Query.ApplyAsync(orderQuery, OrderDtoSummaryMapper.ProjectToSummaryDto, ct);
         }
     }
@@ -40,6 +50,8 @@ public record GetAllOrdersQuery(Guid? UserId, GetAllOrdersQuery.Parameters Query
         public bool? SortDescending { get; init; }
         public string? Search { get; init; }
         public OrderStatusEnum? Status { get; init; }
+        public int? Month { get; init; }
+        public int? Year { get; init; }
 
         public IQueryable<Order> ApplySearching(IQueryable<Order> query)
         {

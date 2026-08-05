@@ -113,7 +113,7 @@ const Dashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-2.5 mb-2.5">
         <div className="lg:col-span-8">
-          <RecentOrders />
+          <RecentOrders month={activeDate.getMonth() + 1} year={activeDate.getFullYear()} />
         </div>
         <div className="lg:col-span-4">
           <LowStockProducts />
@@ -123,7 +123,7 @@ const Dashboard = () => {
       <MonthlyStatisticsChart year={activeDate.getFullYear()} />
 
       <div className="mt-4">
-        <BestSellingProducts top={10} />
+        <BestSellingProducts top={10} month={activeDate.getMonth() + 1} year={activeDate.getFullYear()} />
       </div>
     </AdminPageShell>
   )
