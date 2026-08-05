@@ -3,6 +3,7 @@ using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
 using GreenEcoCommerce.Domain.Exceptions;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Orders.Commands;
 
@@ -12,12 +13,24 @@ public record UpdateOrderStatusCommand(Guid OrderId, OrderStatusEnum Status) : I
     {
         public async Task Handle(UpdateOrderStatusCommand command, CancellationToken ct)
         {
-            var order = await dbContext.Orders.FindAsync([command.OrderId], ct) ??
-                        throw new KeyNotFoundException($"Order with ID {command.OrderId} not found.");
+            var order = await dbContext.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.Product)
+                .Include(o => o.Payment)
+                .FirstOrDefaultAsync(o => o.Id == command.OrderId, ct)
+                ?? throw new KeyNotFoundException($"Order with ID {command.OrderId} not found.");
 
             if (order.Status is OrderStatusEnum.Delivered or OrderStatusEnum.Cancelled && command.Status != order.Status)
             {
                 throw new BadRequestException($"Order is already {order.Status} and cannot be changed further.");
+            }
+
+            // Cancelling from the admin dropdown must reverse stock/points/coupon/payment
+            // exactly like the user's self-service CancelOrderCommand does, otherwise this
+            // path silently leaves stock and Green Wallet balances wrong.
+            if (command.Status == OrderStatusEnum.Cancelled && order.Status != OrderStatusEnum.Cancelled)
+            {
+                await OrderCancellationEffects.ReverseAsync(dbContext, order, ct);
             }
 
             order.Status = command.Status;
