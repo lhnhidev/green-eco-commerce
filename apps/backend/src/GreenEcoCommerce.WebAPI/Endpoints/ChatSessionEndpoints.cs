@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using GreenEcoCommerce.Application.Features.Chatbot;
 using GreenEcoCommerce.Application.Features.ChatSessions;
 using GreenEcoCommerce.Application.Features.ChatSessions.Commands;
 using GreenEcoCommerce.Application.Features.ChatSessions.Queries;
@@ -18,6 +19,7 @@ public static class ChatSessionEndpoints
 
         group.MapGet("/", GetAllChatSessions);
         group.MapGet("/{id:guid}", GetChatSessionById);
+        group.MapGet("/{id:guid}/messages", GetChatSessionMessages);
         group.MapPost("/", CreateChatSession);
         group.MapPut("/{id:guid}", UpdateChatSession);
         group.MapDelete("/{id:guid}", DeleteChatSession);
@@ -33,7 +35,7 @@ public static class ChatSessionEndpoints
         return userId;
     }
 
-    private static async Task<Ok<List<ChatSessionDto>>> GetAllChatSessions(ClaimsPrincipal user, ISender sender)
+    private static async Task<Ok<ChatSessionDto[]>> GetAllChatSessions(ClaimsPrincipal user, ISender sender)
     {
         var userId = GetUserId(user);
         var sessions = await sender.Send(new GetAllChatSessionsQuery(userId));
@@ -44,7 +46,14 @@ public static class ChatSessionEndpoints
     {
         var userId = GetUserId(user);
         var session = await sender.Send(new GetChatSessionByIdQuery(id, userId));
-        return TypedResults.Ok(session);
+        return session is null ? TypedResults.NotFound() : TypedResults.Ok(session);
+    }
+
+    private static async Task<Ok<ChatMessageDto[]>> GetChatSessionMessages(Guid id, ClaimsPrincipal user, ISender sender)
+    {
+        var userId = GetUserId(user);
+        var messages = await sender.Send(new GetChatSessionMessagesQuery(id, userId));
+        return TypedResults.Ok(messages);
     }
 
     private static async Task<Created<ChatSessionDto>> CreateChatSession(ClaimsPrincipal user, [FromBody] ChatSessionPayloadDto payload, ISender sender)

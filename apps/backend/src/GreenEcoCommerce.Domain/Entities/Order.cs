@@ -10,12 +10,13 @@ public class Order: IHasCreatedAt
     public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Pending;
     public required string DeliveryAddress { get; set; }
     public decimal DiscountAmount { get; set; }
-    public decimal EarnedPoints { get; set; }
+    public int EarnedPoints { get; set; }
+    public string? CouponCode { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     // Navigation Properties
     public User User { get; set; } = null!;
     public PointTransaction PointTransaction { get; set; } = null!;
-    public Payment? Payment { get; set; } = null!;
+    public Payment? Payment { get; set; }
     public ICollection<OrderItem> OrderItems { get; set; } = new HashSet<OrderItem>();
 }

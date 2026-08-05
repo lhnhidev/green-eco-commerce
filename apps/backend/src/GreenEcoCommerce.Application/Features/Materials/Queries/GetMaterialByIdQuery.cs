@@ -1,20 +1,18 @@
-using AutoMapper;
-using GreenEcoCommerce.Domain.Exceptions;
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Materials.Queries;
 
-public record GetMaterialByIdQuery(Guid Id) : IRequest<MaterialItem>;
-
-public class GetMaterialByIdQueryHandler(IMaterialRepository materialRepository, IMapper mapper) : IRequestHandler<GetMaterialByIdQuery, MaterialItem>
+public record GetMaterialByIdQuery(Guid Id) : IRequest<MaterialDto?>
 {
-    public async Task<MaterialItem> Handle(GetMaterialByIdQuery request, CancellationToken cancellationToken)
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<GetMaterialByIdQuery, MaterialDto?>
     {
-        var materialItem = await materialRepository.GetByIdAsync(request.Id);
-
-        return (materialItem == null)
-            ? throw new NotFoundException("Material not found")
-            : mapper.Map<MaterialItem>(materialItem);
+        public async Task<MaterialDto?> Handle(GetMaterialByIdQuery request, CancellationToken ct)
+        {
+            var material = await dbContext.Materials.WithId(request.Id).ProjectToDto().FirstOrDefaultAsync(ct);
+            return material;
+        }
     }
 }

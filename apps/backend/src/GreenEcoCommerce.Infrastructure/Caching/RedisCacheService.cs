@@ -7,7 +7,7 @@ public class RedisCacheService(IDistributedCache distributedCache) : ICacheServi
 {
     public async Task<T?> GetAsync<T>(string key, CancellationToken cancellationToken = default)
     {
-        var cachedData = await distributedCache.GetStringAsync(key, cancellationToken);
+        string? cachedData = await distributedCache.GetStringAsync(key, cancellationToken);
         if (cachedData == null)
         {
             return default;
@@ -23,7 +23,7 @@ public class RedisCacheService(IDistributedCache distributedCache) : ICacheServi
             AbsoluteExpirationRelativeToNow = expiration ?? TimeSpan.FromHours(3) // Mặc định 3 giờ
         };
 
-        var serializedData = System.Text.Json.JsonSerializer.Serialize(value);
+        string serializedData = System.Text.Json.JsonSerializer.Serialize(value);
         await distributedCache.SetStringAsync(key, serializedData, options, cancellationToken);
     }
 
@@ -41,7 +41,7 @@ public class RedisCacheService(IDistributedCache distributedCache) : ICacheServi
     // Tuy nhiên, với quy mô project hiện tại, xài đỡ thì đưuọc
     public async Task<bool> IsLiveAsync(string key, CancellationToken cancellationToken = default)
     {
-        var cachedData = await distributedCache.GetStringAsync(key, cancellationToken);
+        string? cachedData = await distributedCache.GetStringAsync(key, cancellationToken);
         return cachedData != null;
     }
 }

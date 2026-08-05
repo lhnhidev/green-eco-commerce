@@ -23,6 +23,15 @@ internal class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(t => t.Role).HasColumnName("role").HasConversion<string>().HasMaxLength(15).IsRequired();
 
+        builder.Property(x => x.IsActive).HasColumnName("is_active").IsRequired();
+        builder.Property(x => x.IsDeleted).HasColumnName("is_deleted").IsRequired();
+
+        builder.Property(x => x.GoogleId).HasColumnName("google_id").HasMaxLength(50);
+        builder.HasIndex(x => x.GoogleId).IsUnique();
+
+        builder.Property(x => x.FacebookId).HasColumnName("facebook_id").HasMaxLength(50);
+        builder.HasIndex(x => x.FacebookId).IsUnique();
+
         builder.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
 

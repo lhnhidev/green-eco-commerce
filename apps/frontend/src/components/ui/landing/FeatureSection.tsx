@@ -1,23 +1,26 @@
-import type { ReactElement } from 'react'
+import Section from '@components/ui/primitives/Section'
+import type { ReactElement, ReactNode } from 'react'
 
 type FeatureSectionProp = {
-  backgroundColor: string | null
+  tone?: 'default' | 'subtle' | 'brand'
   title: string
   description: string
+  action?: ReactNode
   contentComponent: ReactElement
 }
 
-const FeatureSection = ({ title, description, contentComponent, backgroundColor }: FeatureSectionProp) => {
+const FeatureSection = ({ title, description, action, contentComponent, tone = 'default' }: FeatureSectionProp) => {
   return (
-    <section className={`py-16 ${backgroundColor === null ? '' : backgroundColor}`}>
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-primary mb-4">{title}</h2>
-          <p className="text-gray-500 max-w-2xl mx-auto">{description}</p>
+    <Section tone={tone} size="md">
+      <div className="flex items-end justify-between gap-4 mb-6">
+        <div>
+          <h2 className="text-2xl font-semibold text-gray-900">{title}</h2>
+          <p className="text-sm text-muted-foreground mt-1 max-w-xl">{description}</p>
         </div>
-        {contentComponent}
+        {action}
       </div>
-    </section>
+      {contentComponent}
+    </Section>
   )
 }
 

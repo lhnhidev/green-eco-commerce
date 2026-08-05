@@ -1,19 +1,20 @@
 using FluentValidation.TestHelper;
-using GreenEcoCommerce.Application.Features.Auth.Register;
-using GreenEcoCommerce.Application.Features.Auth.Validators;
+using GreenEcoCommerce.Application.Features.Users;
+using GreenEcoCommerce.Domain.Enums;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class RegisterCommandValidatorTests
 {
-    private readonly RegisterCommandValidator validator = new();
+    private readonly UserPayloadDto.Validator validator = new();
 
-    // Creates a fully valid RegisterCommand; individual fields can be overridden.
-    private static RegisterCommand CreateValidCommand(string firstName = "John", string lastName = "Doe",
+    // Creates a fully valid registration payload; individual fields can be overridden.
+    private static UserPayloadDto CreateValidCommand(string firstName = "John", string lastName = "Doe",
                                                       string phone = "0311111110", string address = "123 Main Street",
-                                                      string? role = null, string email = "john@example.com",
+                                                      string email = "john@example.com",
                                                       string password = "Password1!") =>
-            new(firstName, lastName, phone, address, role, email, password);
+            new(Avatar: "", Email: email, Password: password, FirstName: firstName, LastName: lastName,
+                Phone: phone, Address: address, Role: RoleEnum.User);
 
     // ── Happy path ───────────────────────────────────────────────────────────
 

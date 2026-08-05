@@ -1,14 +1,17 @@
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
+using GreenEcoCommerce.Application.Queries;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Materials.Commands;
 
-public record DeleteMaterialCommand(Guid Id) : IRequest;
-
-public class DeleteMaterialCommandHandler(IMaterialRepository materialRepository) : IRequestHandler<DeleteMaterialCommand>
+public record DeleteMaterialCommand(Guid Id) : IRequest
 {
-    public async Task Handle(DeleteMaterialCommand request, CancellationToken cancellationToken)
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<DeleteMaterialCommand>
     {
-        await materialRepository.DeleteAsync(request.Id);
+        public async Task Handle(DeleteMaterialCommand command, CancellationToken ct)
+        {
+            await dbContext.Materials.WithId(command.Id).ExecuteDeleteAsync(ct);
+        }
     }
 }

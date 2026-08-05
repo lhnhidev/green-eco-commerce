@@ -1,5 +1,7 @@
-using AutoMapper;
+using FluentValidation;
+using GreenEcoCommerce.Application.Interfaces.Configuration;
 using GreenEcoCommerce.Domain.Entities;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.Carts;
 
@@ -7,41 +9,48 @@ public record CartItemDto(
     Guid ProductId,
     string ProductName,
     decimal ProductPrice,
-    string[] ProductImageUrl,
+    string ProductImageUrl,
+    decimal UnitCo2Saved,
     int Quantity,
     int CurrentStockQuantity
-)
+);
+
+public record CartItemPayloadDto(Guid ProductId, int Quantity = 1)
 {
-    public CartItemDto() : this(Guid.Empty, string.Empty, 0, Array.Empty<string>(), 0, 0) {}
-}
-
-public record  CartDto(
-    Guid Id,
-    Guid UserId,
-    List<CartItemDto> Items,
-    decimal TotalPrice
-)
-{
-    public CartDto() : this(Guid.Empty, Guid.Empty, new List<CartItemDto>(), 0) {}
-}
-
-public record AddCartItemPayloadDto(Guid ProductId, int Quantity = 1);
-
-public record UpdateCartItemPayloadDto(int Quantity);
-
-public class CartDtoProfile : Profile
-{
-    public CartDtoProfile()
+    public class Validator : AbstractValidator<CartItemPayloadDto>
     {
-        CreateMap<CartItem, CartItemDto>()
-            .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product.Name))
-            .ForMember(dest => dest.ProductPrice, opt => opt.MapFrom(src => src.Product.Price))
-            .ForMember(dest => dest.ProductImageUrl, opt => opt.MapFrom(src => src.Product.ImageUrl))
-            .ForMember(dest => dest.CurrentStockQuantity, opt => opt.MapFrom(src => src.Product.StockQty));
+        public Validator()
+        {
+            RuleFor(x => x.Quantity)
+                .GreaterThan(0).WithMessage("Quantity must be greater than 0.")
+                .LessThanOrEqualTo(100).WithMessage("Quantity must not exceed 100 per item.");
+        }
+    }
+}
 
-        CreateMap<Cart, CartDto>()
-            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.CartItems))
-            .ForMember(dest => dest.TotalPrice, opt => opt.MapFrom(src =>
-                src.CartItems.Sum(ci => ci.Quantity * ci.Product.Price)));
+public record CartDto(Guid Id, Guid UserId, CartItemDto[] Items, int PointsGained);
+
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Target)]
+public static partial class CartDtoMapper
+{
+    [MapProperty([nameof(CartItem.Product), nameof(Product.StockQty)], nameof(CartItemDto.CurrentStockQuantity))]
+    [MapProperty(nameof(CartItem.Product), nameof(CartItemDto.UnitCo2Saved), Use = nameof(MapProductToUnitCo2Saved))]
+    public static partial CartItemDto ToDto(this CartItem cartItem);
+
+    [MapProperty(nameof(Cart.CartItems), nameof(CartDto.Items))]
+    [MapValue(nameof(CartDto.PointsGained), 0)]
+    public static partial CartDto ToDto(this Cart cart);
+
+    private static string MapImageUrlsToSingleImage(string[] imageUrls) => imageUrls.FirstOrDefault() ?? string.Empty;
+
+    private static decimal MapProductToUnitCo2Saved(Product product) => product.BaselineCarbonIndex > product.CarbonIndex ? product.BaselineCarbonIndex - product.CarbonIndex : 0;
+
+    public static partial IQueryable<CartDto> ProjectToDto(this IQueryable<Cart> q);
+
+    public static async Task<CartDto> ConfigurePointsSavedAsync(this CartDto cart, IApplicationConfiguration configuration)
+    {
+        decimal ratio = await configuration.GetGreenPointsPerCarbonIndexRatioAsync();
+        int pointsGained = (int)Math.Floor(cart.Items.Sum(item => item.UnitCo2Saved * item.Quantity) * ratio);
+        return cart with { PointsGained = pointsGained };
     }
 }

@@ -1,7 +1,9 @@
-using AutoMapper;
+using FluentValidation;
 using GreenEcoCommerce.Application.Features.Materials;
+using GreenEcoCommerce.Application.Features.Reviews;
 using GreenEcoCommerce.Domain.Entities;
 using MediatR;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.Products;
 
@@ -15,9 +17,42 @@ public record ProductPayloadDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    ICollection<string> ImageUrl,
-    ICollection<Guid> MaterialIds
-) : IRequest<ProductDto>;
+    string[] ImageUrl,
+    Guid[] MaterialIds
+) : IRequest<ProductDto>
+{
+    public class Validator : AbstractValidator<ProductPayloadDto>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Name)
+                    .NotEmpty().WithMessage("Product name is required.")
+                    .MaximumLength(255).WithMessage("Product name must not exceed 255 characters.");
+
+            RuleFor(x => x.Price)
+                    .GreaterThan(0).WithMessage("Price must be greater than 0.");
+
+            RuleFor(x => x.StockQty)
+                    .GreaterThanOrEqualTo(0).WithMessage("Stock quantity cannot be negative.");
+
+            RuleFor(x => x.CategoryId)
+                    .NotEmpty().WithMessage("Category ID is required.");
+
+            RuleFor(x => x.CarbonIndex)
+                    .GreaterThan(0).WithMessage("Carbon index must be greater than 0.")
+                    .LessThan(10000).WithMessage("Carbon index must be less than 10000.");
+
+            RuleFor(x => x.BaselineCarbonIndex)
+                    .GreaterThan(0).WithMessage("Baseline carbon index must be greater than 0.");
+
+            RuleFor(x => x.DecomposePercent)
+                    .InclusiveBetween(0, 100).WithMessage("Decompose percent must be between 0 and 100.");
+
+            RuleFor(x => x.RecyclePercent)
+                    .InclusiveBetween(0, 100).WithMessage("Recycle percent must be between 0 and 100.");
+        }
+    }
+}
 
 public record ProductDto(
     Guid Id,
@@ -30,22 +65,41 @@ public record ProductDto(
     float BaselineCarbonIndex,
     float DecomposePercent,
     float RecyclePercent,
-    ICollection<string> ImageUrl,
-    ICollection<MaterialItem> Materials,
+    string[] ImageUrl,
+    MaterialDto[] Materials,
+    float Rating,
+    int ReviewsCount,
     bool IsActive
-)
-{
-    public ProductDto() : this(default, "", null, 0, 0, default, 0, 0, 0, 0, new List<string>(), new List<MaterialItem>(), false) { }
-}
+);
 
-public class ProductDtoProfile : Profile
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class ProductDtoMapper
 {
-    public ProductDtoProfile()
-    {
-        CreateMap<ProductPayloadDto, Product>()
-            .ForMember(dest => dest.Materials, opt => opt.Ignore())
-            .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.ImageUrl.ToArray()));
+    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
+    [MapProperty(nameof(Product.Reviews), nameof(ProductDto.Rating), Use = nameof(CalculateRating))]
+    [MapProperty(nameof(Product.Reviews), nameof(ProductDto.ReviewsCount), Use = nameof(GetReviewsCount))]
+    public static partial ProductDto ToDto(this Product product);
 
-        CreateMap<Product, ProductDto>();
-    }
+    public static partial IQueryable<ProductDto> ProjectToDto(this IQueryable<Product> products);
+
+    [UserMapping(Default = false)]
+    private static float CalculateRating(ICollection<Review> reviews) =>
+            reviews.Any() ? (float)reviews.Where(r => r.IsApproved && !r.IsHidden).Average(r => r.Rating) : 0;
+
+    [UserMapping(Default = false)]
+    private static int GetReviewsCount(ICollection<Review> reviews) =>
+            reviews.Where(r => r.IsApproved && !r.IsHidden).Count();
+
+    [MapProperty(nameof(Material.Products), nameof(MaterialDto.ProductCount), Use = nameof(CountActiveProducts))]
+    private static partial MaterialDto MapMaterial(Material material);
+
+    [UserMapping(Default = false)]
+    private static int CountActiveProducts(ICollection<Product> products) =>
+            products.Count(p => p.IsActive);
+
+    [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
+    public static partial Product ToEntity(this ProductPayloadDto payload);
+
+    [MapperIgnoreSource(nameof(ProductPayloadDto.MaterialIds))]
+    public static partial void ApplyUpdate([MappingTarget] this Product product, ProductPayloadDto payload);
 }

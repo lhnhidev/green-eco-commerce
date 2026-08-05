@@ -6,8 +6,8 @@ public class GreenWallet: IHasUpdatedAt
 {
     public Guid Id { get; set; } = Guid.CreateVersion7();
     public Guid UserId { get; set; }
-    public decimal Balance { get; set; } = 0;
-    public decimal EarnedTotal { get; set; } = 0;
+    public int Balance { get; set; }
+    public int EarnedTotal { get; set; }
     public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     // Navigation Properties

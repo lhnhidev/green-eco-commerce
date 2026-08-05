@@ -2,6 +2,7 @@ using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Infrastructure.Converters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace GreenEcoCommerce.Infrastructure.Persistence.Context;
 
@@ -33,6 +34,26 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Document> Documents => Set<Document>();
     public DbSet<Embedding> Embeddings => Set<Embedding>();
 
+    // Settings & Config
+    public DbSet<AppConfiguration> AppConfigurations => Set<AppConfiguration>();
+
+    // Reviews, Coupons & Banners
+    public DbSet<Review> Reviews => Set<Review>();
+    public DbSet<Coupon> Coupons => Set<Coupon>();
+    public DbSet<Banner> Banners => Set<Banner>();
+
+    // Wishlist
+    public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
+
+    // Notifications
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    // Address book
+    public DbSet<Address> Addresses => Set<Address>();
+
+    public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
+            Database.BeginTransactionAsync(ct);
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
@@ -43,6 +64,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.HasPostgresExtension("vector");
 
         // Supabase mặc định dùng schema public
         modelBuilder.HasDefaultSchema("public");

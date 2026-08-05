@@ -1,9 +1,7 @@
-using GreenEcoCommerce.Application.Features.Payments;
-using GreenEcoCommerce.Application.Features.Payments.Command;
-using GreenEcoCommerce.Application.Features.Payments.Query;
+using GreenEcoCommerce.Application.Features.Payments.Commands;
+using GreenEcoCommerce.Application.Features.Payments.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
 
 namespace GreenEcoCommerce.WebAPI.Endpoints;
 
@@ -12,27 +10,22 @@ public static class PaymentEndpoints
     public static void MapPaymentEndpoints(this WebApplication app)
     {
         var group = app.MapGroup("/api/payments").WithTags("Payments")
-            .ProducesProblem(StatusCodes.Status500InternalServerError);
+            .ProducesProblem(StatusCodes.Status500InternalServerError)
+            .RequireAuthorization("AdminOnly");
 
-        group.MapGet("/", GetAllPayments).RequireAuthorization();
-        group.MapGet("/total-revenue", GetTotalRevenue).RequireAuthorization("AdminOnly");
-        group.MapPost("/", CreatePayment).RequireAuthorization();
+        group.MapGet("/total-revenue", GetTotalRevenue);
+        group.MapPatch("/", UpdatePaymentStatus);
     }
 
-    private static async Task<Ok<decimal>> GetTotalRevenue([AsParameters] GetTotalRevenueQuery query, ISender sender)
+    private static async Task<Ok<decimal>> GetTotalRevenue(ISender sender)
     {
-        var total = await sender.Send(query);
+        decimal total = await sender.Send(new GetTotalRevenueQuery());
         return TypedResults.Ok(total);
     }
 
-    private static async Task<Created<CreatePaymentCommandResponse>> CreatePayment([FromBody] CreatePaymentCommand command, ISender sender)
+    private static async Task<Results<NoContent, NotFound>> UpdatePaymentStatus(UpdatePaymentStatusCommand command, ISender sender)
     {
-        var createdPayment = await sender.Send(command);
-        return TypedResults.Created($"/payments/{createdPayment.Id}", createdPayment);
-    }
-
-    private static Task GetAllPayments()
-    {
-        throw new NotImplementedException();
+        await sender.Send(command);
+        return TypedResults.NoContent();
     }
 }

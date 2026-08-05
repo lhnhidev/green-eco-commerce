@@ -1,19 +1,18 @@
-using GreenEcoCommerce.Application.Features.Auth.GetMe;
-using GreenEcoCommerce.Application.Features.Auth.Login;
-using GreenEcoCommerce.Application.Features.Auth.Register;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
-using GreenEcoCommerce.Application.Features.Auth.Logout;
-using GreenEcoCommerce.Application.Features.Auth.RefreshToken;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
+using GreenEcoCommerce.Application.Features.Profile;
+using GreenEcoCommerce.Application.Features.Profile.Queries;
+using GreenEcoCommerce.Application.Features.Users;
 using GreenEcoCommerce.Application.Interfaces.Security;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace GreenEcoCommerce.WebAPI.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[ProducesResponseType(typeof(object), StatusCodes.Status200OK)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
 [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
 public class AuthController(ISender sender, IJwtService jwtService) : ControllerBase
@@ -24,12 +23,12 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         RefreshToken
     }
 
-    private static Guid CheckUserIdClaim(ClaimsPrincipal user)
+    private static Guid? CheckUserIdClaim(ClaimsPrincipal user)
     {
         var userIdClaim = user.FindFirst(ClaimTypes.NameIdentifier);
         if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
         {
-            throw new UnauthorizedAccessException("Invalid user ID in token");
+            return null;
         }
 
         return userId;
@@ -49,7 +48,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         Response.Cookies.Append(type.ToString(), token, cookieOptions);
     }
 
-    [HttpPost("register")]
+    [HttpPost("register", Name = nameof(Register))]
     [EndpointDescription("""
                          Đăng ký tài khoản dựa vào thông tin gửi lên. Đăng ký thành công thì gửi về một id của người dùng đã đăng ký
 
@@ -66,7 +65,7 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
                          }
                          ```
                          """)]
-    [ProducesResponseType<RegisterResponse>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
+    [ProducesResponseType<UserDto>(StatusCodes.Status200OK, Description = "Đăng ký người dùng thành công.")]
     [ProducesResponseType(
         typeof(ProblemDetails),
         StatusCodes.Status400BadRequest,
@@ -75,66 +74,93 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
         typeof(ProblemDetails),
         StatusCodes.Status500InternalServerError,
         Description = "Lỗi hệ thống.")]
-    public async Task<IActionResult> Register(RegisterCommand command)
+    public async Task<Results<Ok<UserDto>, BadRequest<ProblemDetails>>> Register(RegisterPayload payload)
     {
-        var response = await sender.Send(command);
-        return Ok(response);
+        var response = await sender.Send(payload.ToUserPayloadDto());
+        return TypedResults.Ok(response);
     }
 
-    [HttpPost("login")]
-    [ProducesResponseType<UserInfoResponse>(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Login(LoginCommand command)
+    [HttpPost("login", Name = nameof(Login))]
+    public async Task<Results<Ok<UserProfileDto>, BadRequest<ProblemDetails>>> Login(LoginCommand command)
     {
         var response = await sender.Send(command);
         SetTokenCookie(response.Token, TokenType.AccessToken);
         SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
-        return Ok(response.UserInfo);
+        return TypedResults.Ok(response.UserProfile);
     }
 
-    [HttpPost("logout")]
-    [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> Logout()
+    [HttpPost("google", Name = nameof(GoogleLogin))]
+    public async Task<Results<Ok<UserProfileDto>, BadRequest<ProblemDetails>>> GoogleLogin(GoogleLoginCommand command)
     {
-        var userId = CheckUserIdClaim(User);
-        await sender.Send(new LogoutCommand(userId));
+        var response = await sender.Send(command);
+        SetTokenCookie(response.Token, TokenType.AccessToken);
+        SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
+        return TypedResults.Ok(response.UserProfile);
+    }
+
+    [HttpPost("facebook", Name = nameof(FacebookLogin))]
+    public async Task<Results<Ok<UserProfileDto>, BadRequest<ProblemDetails>>> FacebookLogin(FacebookLoginCommand command)
+    {
+        var response = await sender.Send(command);
+        SetTokenCookie(response.Token, TokenType.AccessToken);
+        SetTokenCookie(response.RefreshToken, TokenType.RefreshToken);
+        return TypedResults.Ok(response.UserProfile);
+    }
+
+    [HttpPost("logout", Name = nameof(Logout))]
+    public async Task<NoContent> Logout()
+    {
+        string? token = Request.Cookies["AccessToken"];
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            var claimsPrincipal = jwtService.ValidateToken(token, validateLifetime: false);
+
+            var userId = CheckUserIdClaim(claimsPrincipal);
+
+            if (userId.HasValue)
+            {
+                await sender.Send(new LogoutCommand(userId.Value));
+            }
+        }
 
         Response.Cookies.Delete("AccessToken");
         Response.Cookies.Delete("RefreshToken");
 
-        return NoContent();
+        return TypedResults.NoContent();
     }
 
-    [HttpGet("me")]
+    [HttpGet("me", Name = nameof(GetMe))]
     [Authorize]
-    [ProducesResponseType<UserProfileResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> GetMe()
+    public async Task<Results<Ok<UserProfileDto>, NotFound, BadRequest<ProblemDetails>>> GetMe()
     {
         var userId = CheckUserIdClaim(User);
-        var response = await sender.Send(new GetMeQuery(userId));
-        return Ok(response);
+        if (!userId.HasValue)
+        {
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Title = "Invalid User",
+                Detail = "Invalid user ID in token"
+            });
+        }
+
+        var response = await sender.Send(new GetUserProfileQuery(userId.Value));
+        return response != null ? TypedResults.Ok(response) : TypedResults.NotFound();
     }
 
-    [HttpPost("refresh-token")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> RefreshToken()
+    [HttpPost("refresh-token", Name = nameof(RefreshToken))]
+    public async Task<Results<NoContent, BadRequest<ProblemDetails>>> RefreshToken()
     {
-        var expiredToken = Request.Cookies["AccessToken"];
-        var refreshToken = Request.Cookies["RefreshToken"];
-
-        foreach (var cookie in Request.Cookies)
-        {
-            string key = cookie.Key;
-            string value = cookie.Value;
-
-            Console.WriteLine($"Key: {key} | Value: {value}");
-        }
+        string? expiredToken = Request.Cookies["AccessToken"];
+        string? refreshToken = Request.Cookies["RefreshToken"];
 
         if (string.IsNullOrEmpty(expiredToken) || string.IsNullOrEmpty(refreshToken))
         {
-            return Unauthorized("Invalid access token or refresh token");
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Token",
+                Detail = "Invalid access token or refresh token"
+            });
         }
 
         try
@@ -142,15 +168,28 @@ public class AuthController(ISender sender, IJwtService jwtService) : Controller
             var claimsPrincipal = jwtService.ValidateToken(expiredToken, validateLifetime: false);
             var userId = CheckUserIdClaim(claimsPrincipal);
 
-            var result = await sender.Send(new RefreshTokenCommand(userId, refreshToken));
+            if (!userId.HasValue)
+            {
+                return TypedResults.BadRequest(new ProblemDetails
+                {
+                    Title = "Invalid User",
+                    Detail = "Invalid user ID in token"
+                });
+            }
+
+            var result = await sender.Send(new RefreshTokenCommand(userId.Value, refreshToken));
             SetTokenCookie(result.Token, TokenType.AccessToken);
             SetTokenCookie(result.RefreshToken, TokenType.RefreshToken);
 
-            return Ok();
+            return TypedResults.NoContent();
         }
         catch (UnauthorizedAccessException)
         {
-            return Unauthorized("Invalid token");
+            return TypedResults.BadRequest(new ProblemDetails
+            {
+                Title = "Invalid Token",
+                Detail = "Invalid access token or refresh token"
+            });
         }
     }
 }

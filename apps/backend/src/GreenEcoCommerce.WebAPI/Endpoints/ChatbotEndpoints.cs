@@ -1,4 +1,5 @@
-using GreenEcoCommerce.Application.Features.Chatbot.Command;
+using System.Security.Claims;
+using GreenEcoCommerce.Application.Features.Chatbot.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -15,9 +16,15 @@ public static class ChatbotEndpoints
         group.MapPost("/", AskChatbot).RequireAuthorization();
     }
 
-    private static async Task<Ok<string>> AskChatbot([FromBody] GenerateContentCommand command, ISender sender)
+    public record AskChatbotRequest(Guid? IdSectionMessage, string Prompt);
+
+    private static async Task<Ok<GenerateContentCommand.Response>> AskChatbot(
+        [FromBody] AskChatbotRequest request, ClaimsPrincipal user, ISender sender)
     {
-        var response = await sender.Send(command);
+        string? userIdStr = user.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!Guid.TryParse(userIdStr, out var userId)) throw new UnauthorizedAccessException();
+
+        var response = await sender.Send(new GenerateContentCommand(userId, request.IdSectionMessage, request.Prompt));
         return TypedResults.Ok(response);
     }
 }

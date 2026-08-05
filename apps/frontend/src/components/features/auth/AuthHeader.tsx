@@ -1,6 +1,6 @@
+import { useAppDispatch } from '@hooks/useAppDispatch'
+import { useAppSelector } from '@hooks/useAppSelector'
 import { SegmentedControl } from '@mantine/core'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
-import { useAppSelector } from '../../../hooks/useAppSelector'
 import { changeActive } from './auth.slice'
 
 type AuthHeaderType = {
@@ -23,10 +23,12 @@ const AuthHeader = ({ title, description }: AuthHeaderType) => {
         <SegmentedControl
           value={active}
           onChange={() => dispatch(changeActive(active === 'register' ? 'login' : 'register'))}
+          fullWidth
+          radius="xl"
           classNames={{
-            root: '!rounded-4xl !w-full !bg-[var(--color-muted)]',
-            indicator: '!rounded-4xl',
-            innerLabel: '!font-medium !text-xs',
+            root: 'bg-muted',
+            indicator: 'rounded-full',
+            innerLabel: 'font-medium text-xs',
           }}
           data={[
             { label: 'Login', value: 'login' },

@@ -1,3 +1,4 @@
+import Section from '@components/ui/primitives/Section'
 import { HeadsetIcon, LeafIcon, ShieldCheckIcon, TruckIcon } from '@phosphor-icons/react'
 
 const TrustSection = () => {
@@ -6,20 +7,19 @@ const TrustSection = () => {
       id: '1',
       icon: TruckIcon,
       title: 'Free Delivery',
-      description: 'Free shipping on orders over $50',
+      description: 'Free shipping on every order',
     },
     {
       id: '2',
       icon: ShieldCheckIcon,
-      title: 'Plant Guarantee',
-      description: '30-day health guarantee on all plants',
+      title: 'Quality Guarantee',
+      description: '30-day guarantee on all sustainable goods',
     },
     {
       id: '3',
       icon: HeadsetIcon,
-
-      title: 'Plant Care Support',
-      description: '24/7 expert plant care guidance',
+      title: 'Expert Support',
+      description: 'Real humans, Mon–Fri 9AM–6PM EST',
     },
     {
       id: '4',
@@ -30,21 +30,19 @@ const TrustSection = () => {
   ]
 
   return (
-    <section className="py-16 bg-muted/50">
-      <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8">
-          {features.map((feature) => (
-            <div key={feature.id} className="text-center">
-              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-4">
-                <feature.icon className="h-6 w-6 text-primary" />
-              </div>
-              <h3 className="font-semibold mb-2">{feature.title}</h3>
-              <p className="text-sm text-gray-500">{feature.description}</p>
+    <Section tone="subtle" size="sm">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {features.map((feature) => (
+          <div key={feature.id} className="text-center">
+            <div className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 mb-2">
+              <feature.icon size={20} className="text-primary" />
             </div>
-          ))}
-        </div>
+            <h3 className="font-medium text-sm mb-0.5">{feature.title}</h3>
+            <p className="text-xs text-muted-foreground">{feature.description}</p>
+          </div>
+        ))}
       </div>
-    </section>
+    </Section>
   )
 }
 

@@ -1,19 +1,17 @@
-using AutoMapper;
-using GreenEcoCommerce.Domain.Entities;
-using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Materials.Commands;
 
-public record CreateMaterialCommand(string Name, string Type, int EcoRating) : IRequest<CreateMaterialResponse>;
-
-public class CreateMaterialResponseHandler(IMaterialRepository materialRepository, IMapper mapper) : IRequestHandler<CreateMaterialCommand, CreateMaterialResponse>
+public class CreateMaterialCommandHandler(IApplicationDbContext dbContext) : IRequestHandler<MaterialPayloadDto, MaterialDto>
 {
-    public async Task<CreateMaterialResponse> Handle(CreateMaterialCommand command, CancellationToken cancellationToken)
+    public async Task<MaterialDto> Handle(MaterialPayloadDto command, CancellationToken ct)
     {
-        var material = mapper.Map<Material>(command);
-        await materialRepository.AddAsync(material, cancellationToken);
+        var material = command.ToEntity();
 
-        return mapper.Map<CreateMaterialResponse>(material);
+        await dbContext.Materials.AddAsync(material, ct);
+        await dbContext.SaveChangesAsync(ct);
+
+        return material.ToDto();
     }
 }

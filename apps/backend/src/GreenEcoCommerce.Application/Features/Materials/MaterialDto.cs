@@ -1,25 +1,46 @@
-using AutoMapper;
-using GreenEcoCommerce.Application.Features.Materials.Commands;
+using FluentValidation;
 using GreenEcoCommerce.Domain.Entities;
 using GreenEcoCommerce.Domain.Enums;
+using MediatR;
+using Riok.Mapperly.Abstractions;
 
 namespace GreenEcoCommerce.Application.Features.Materials;
 
-public record CreateMaterialResponse(Guid Id, string Name, MaterialTypeEnum Type, int EcoRating);
-
-public record MaterialItem(Guid Id, string Name, MaterialTypeEnum Type, int EcoRating);
-
-public record MaterialUpdateDto(string Name, string Type, int EcoRating);
-
-public class MaterialProfile : Profile
+public record MaterialPayloadDto(string Name, MaterialTypeEnum Type, int EcoRating) : IRequest<MaterialDto>
 {
-    public MaterialProfile()
+    public class Validator : AbstractValidator<MaterialPayloadDto>
     {
-        CreateMap<CreateMaterialCommand, Material>();
-        CreateMap<MaterialUpdateDto, Material>();
-        CreateMap<Material, CreateMaterialResponse>();
-        CreateMap<Material, MaterialItem>();
-        CreateMap<UpdateMaterialCommand, Material>()
-            .IncludeMembers(src => src.Dto);
+        public Validator()
+        {
+            RuleFor(p => p.Name)
+                    .NotEmpty().WithMessage("Name is required")
+                    .MaximumLength(100).WithMessage("Name must not exceed 100 characters");
+
+            RuleFor(p => p.Type)
+                    .IsInEnum().WithMessage("Type must be in enum");
+
+            RuleFor(p => p.EcoRating)
+                    .NotNull().WithMessage("EcoRating is required")
+                    .LessThanOrEqualTo(100).WithMessage("EcoRating must be less than or equal to 100")
+                    .GreaterThanOrEqualTo(0).WithMessage("EcoRating must be greater than or equal to 0");
+        }
     }
+}
+
+public record MaterialDto(Guid Id, string Name, MaterialTypeEnum Type, int EcoRating, int ProductCount);
+
+[Mapper(RequiredMappingStrategy = RequiredMappingStrategy.Source)]
+public static partial class MaterialDtoMapper
+{
+    [MapperRequiredMapping(RequiredMappingStrategy.Target)]
+    [MapProperty(nameof(Material.Products), nameof(MaterialDto.ProductCount), Use = nameof(CountActiveProducts))]
+    public static partial MaterialDto ToDto(this Material material);
+    public static partial IQueryable<MaterialDto> ProjectToDto(this IQueryable<Material> q);
+
+    [UserMapping(Default = false)]
+    private static int CountActiveProducts(ICollection<Product> products) =>
+            products.Count(p => p.IsActive);
+
+    public static partial Material ToEntity(this MaterialPayloadDto dto);
+    public static partial void ApplyUpdate([MappingTarget] this Material material, MaterialPayloadDto dto);
 }

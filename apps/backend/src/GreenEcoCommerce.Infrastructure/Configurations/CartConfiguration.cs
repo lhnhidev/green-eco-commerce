@@ -15,5 +15,7 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
         builder.Property(x => x.UserId).HasColumnName("user_id");
 
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+
+        builder.HasIndex(x => x.UserId).IsUnique();
     }
 }

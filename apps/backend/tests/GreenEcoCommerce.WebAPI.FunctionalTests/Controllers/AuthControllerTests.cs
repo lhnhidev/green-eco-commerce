@@ -1,6 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
-using GreenEcoCommerce.Application.Features.Auth.Register;
+using GreenEcoCommerce.Application.Features.Users;
 using GreenEcoCommerce.WebAPI.FunctionalTests.Shared;
 
 namespace GreenEcoCommerce.WebAPI.FunctionalTests.Controllers;
@@ -24,7 +24,6 @@ public sealed class AuthControllerTests(CustomWebApplicationFactory factory)
     private const string ValidLastName = "Van A";
     private const string ValidPhone = "0811125678"; // matches ^(0[3|5|7|8|9])+([0-8]{8})\b$
     private const string ValidAddress = "123 Le Loi Street, District 1, HCMC";
-    private const string ValidRole = "User";
     private const string ValidEmail = "validuser@greeneco.com";
     private const string ValidPassword = "SecureP@ss123";
 
@@ -443,17 +442,16 @@ public sealed class AuthControllerTests(CustomWebApplicationFactory factory)
     /// Builds a valid registration payload, with optional field overrides for
     /// negative-path test cases.
     /// </summary>
-    private static RegisterCommand BuildRegisterPayload(string? firstName = null, string? lastName = null,
+    private static RegisterPayload BuildRegisterPayload(string? firstName = null, string? lastName = null,
                                                         string? phone = null, string? address = null,
-                                                        string? role = null, string? email = null,
+                                                        string? email = null,
                                                         string? password = null)
     {
-        return new RegisterCommand(
+        return new RegisterPayload(
             firstName ?? ValidFirstName,
             lastName ?? ValidLastName,
             phone ?? ValidPhone,
             address ?? ValidAddress,
-            role ?? ValidRole,
             email ?? ValidEmail,
             password ?? ValidPassword);
     }

@@ -1,27 +1,44 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using EntityFramework.Exceptions.PostgreSQL;
 using FluentValidation;
 using GreenEcoCommerce.Application.Behaviors;
+using GreenEcoCommerce.Application.Features.Auth.Commands;
+using GreenEcoCommerce.Application.Interfaces.Addresses;
 using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
+using GreenEcoCommerce.Application.Interfaces.Configuration;
+using GreenEcoCommerce.Application.Interfaces.Environment;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
+using GreenEcoCommerce.Application.Interfaces.Storage;
 using GreenEcoCommerce.Domain.Interfaces;
+using GreenEcoCommerce.Infrastructure.Addresses;
 using GreenEcoCommerce.Infrastructure.Caching;
 using GreenEcoCommerce.Infrastructure.ChatbotServices;
+using GreenEcoCommerce.Infrastructure.Configuration;
 using GreenEcoCommerce.Infrastructure.Identity;
 using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
+using GreenEcoCommerce.Infrastructure.Storage;
+using GreenEcoCommerce.WebAPI;
 using GreenEcoCommerce.WebAPI.Middlewares;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using GreenEcoCommerce.WebAPI.Endpoints;
+using GreenEcoCommerce.WebAPI.OpenApi;
+using Microsoft.AspNetCore.OpenApi;
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 
 // Khi tạo JWT sẽ giữ nguyên tên gốc, không tự ý map sang URI dài của XML
 JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
@@ -67,12 +84,12 @@ var auditingInterceptor = new AuditingInterceptor();
 // Đăng ký MediatR và quét toàn bộ Assembly chứa class cấu hình
 builder.Services.AddMediatR(cfg =>
 {
-    cfg.RegisterServicesFromAssembly(typeof(GreenEcoCommerce.Application.Features.Auth.Login.LoginCommand).Assembly);
+    cfg.RegisterServicesFromAssembly(typeof(LoginCommand).Assembly);
     cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 
 // Đăng ký FluentValidation
-builder.Services.AddValidatorsFromAssembly(typeof(GreenEcoCommerce.Application.Features.Auth.Login.LoginCommand).Assembly);
+builder.Services.AddValidatorsFromAssembly(typeof(LoginCommand).Assembly);
 
 // Cấu hình CORS (Cho phép React gọi API mà không bị chặn)
 builder.Services.AddCors(options =>
@@ -98,33 +115,97 @@ builder.Services.AddOpenApi(opt =>
 
         return Task.CompletedTask;
     });
+
+    opt.AddSchemaTransformer<EnforceRequiredSchemaTransformer>();
+
+    opt.AddOperationTransformer((operation, context, _) =>
+    {
+        // Find the method name from the endpoint metadata
+        var endpointMetadata = context.Description.ActionDescriptor.EndpointMetadata;
+        var methodInfo = endpointMetadata.OfType<MethodInfo>().FirstOrDefault();
+
+        if (methodInfo != null)
+        {
+            operation.OperationId = methodInfo.Name;
+        }
+
+        return Task.CompletedTask;
+    }).AddOperationTransformer((operation, _, _) =>
+    {
+        if (operation.Parameters != null)
+        {
+            foreach (var param in operation.Parameters.Cast<Microsoft.OpenApi.OpenApiParameter>())
+            {
+                if (!string.IsNullOrEmpty(param.Name))
+                {
+                    param.Name = System.Text.Json.JsonNamingPolicy.CamelCase.ConvertName(param.Name);
+                }
+            }
+        }
+        return Task.CompletedTask;
+    });;
+
+    opt.CreateSchemaReferenceId = typeInfo =>
+    {
+        var type = typeInfo.Type;
+
+        // Check if it's a nested class
+        if (type.IsNested)
+        {
+            // Start with the innermost class name (stripping generic backticks if present)
+            string schemaId = type.Name.Split('`')[0];
+            var currentType = type;
+
+            // Walk up the nested hierarchy and prepend parent class names
+            while (currentType is { IsNested: true, DeclaringType: not null })
+            {
+                currentType = currentType.DeclaringType;
+                string parentName = currentType.Name.Split('`')[0];
+
+                // Combine with a dot
+                schemaId = $"{parentName}.{schemaId}";
+            }
+
+            return schemaId; // Yields: OuterClass.InnerClass
+        }
+
+        // Use Microsoft's default behavior for all other types
+        return OpenApiOptions.CreateDefaultSchemaReferenceId(typeInfo);
+    };
 });
 
 // Thêm kết nối SQL Server, đọc connection string từ appsettings.json)
-builder.Services.AddDbContext<IApplicationDbContext, ApplicationDbContext>(options =>
-{
-    options.UseNpgsql(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
-        b => b.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName)
-    )
-    .AddInterceptors(auditingInterceptor);
-});
+builder.AddNpgsqlDbContext<ApplicationDbContext>(
+    "GreenEcoCommerce-DB",
+    null,
+    options =>
+    {
+        options.UseNpgsql(npgsqlOptions =>
+        {
+            npgsqlOptions.MigrationsAssembly(typeof(ApplicationDbContext).Assembly.FullName);
+            npgsqlOptions.UseVector();
+        }).AddInterceptors(auditingInterceptor).UseExceptionProcessor();
+    });
+builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>(provider =>
+        provider.GetRequiredService<ApplicationDbContext>());
+
+builder.Services.AddSingleton<IApplicationEnvironment, ApplicationEnvironment>();
+builder.Services.AddSingleton<IAIService, AIService>();
+builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
 
 // Đăng ký dịch vụ Redis Distributed Cache của Microsoft
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisConnection");
-});
+builder.AddRedisDistributedCache("cache");
 
 // Đăng ký Controllers và cấu hình route convention
-builder.Services.AddControllers()
-        .AddJsonOptions(options =>
-        {
-            options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        });
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.NumberHandling = JsonNumberHandling.Strict;
+});
 builder.Services.ConfigureHttpJsonOptions(options =>
 {
     options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.SerializerOptions.NumberHandling = JsonNumberHandling.Strict;
 });
 builder.Services.Configure<RouteOptions>(opt =>
 {
@@ -136,41 +217,37 @@ builder.Services.Configure<RouteOptions>(opt =>
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
-// Đăng ký AutoMapper và quét qua tất cả các Profile nằm trong Assembly (Tầng Application)
-builder.Services.AddAutoMapper(cfg =>
-{
-    cfg.AddMaps(typeof(GreenEcoCommerce.Application.Mapping.RegisterCommandToUserProfile));
-});
-
 // Đăng ký DI
 builder.Services.AddScoped<IJwtService, JwtService>();
+builder.Services.AddScoped<ISocialAuthService, SocialAuthService>();
+builder.Services.AddScoped<IAddressAutocompleteService, GoongAddressAutocompleteService>();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<ICacheService, RedisCacheService>();
 
-builder.Services.AddHttpClient<IAiService, AiService>(client =>
-{
-    client.BaseAddress = new Uri("https://generativelanguage.googleapis.com/");
-});
-
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IMaterialRepository, MaterialRepository>();
-builder.Services.AddScoped<ICartRepository, CartRepository>();
 builder.Services.AddScoped<IChatSessionRepository, ChatSessionRepository>();
-builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-builder.Services.AddScoped<IGreenWalletRepository, GreenWalletRepository>();
-builder.Services.AddScoped<IPointTransactionRepository, PointTransactionRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IAppConfigurationRepository, AppConfigurationRepository>();
+builder.Services.AddScoped<IApplicationConfiguration, ApplicationConfiguration>();
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.MapScalarApiReference();
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await dbContext.Database.MigrateAsync();
+
+    if (app.Environment.IsDevelopment())
+    {
+        await DbSeeder.SeedAsync(dbContext);
+    }
 }
 
 app.UseDefaultFiles();
@@ -189,16 +266,25 @@ app.MapControllers();
 app.MapCategoryEndpoints();
 app.MapMaterialEndpoints();
 app.MapProductEndpoints();
-app.MapInfoUserEndpoints();
+app.MapProfileEndpoints();
 app.MapChatbotEndpoints();
 app.MapCartEndpoints();
 app.MapChatSessionEndpoints();
 app.MapOrderEndpoints();
+app.MapMeStatisticsEndpoints();
 app.MapPaymentEndpoints();
-app.MapOrderItemEndpoints();
 app.MapGreenWalletEndpoints();
 app.MapUserEndpoints();
 app.MapAdminEndpoints();
+app.MapCheckoutEndpoints();
+app.MapReviewEndpoints();
+app.MapCouponEndpoints();
+app.MapBannerEndpoints();
+app.MapWishlistEndpoints();
+app.MapDocumentEndpoints();
+app.MapUploadEndpoints();
+app.MapNotificationEndpoints();
+app.MapAddressEndpoints();
 
 app.MapFallbackToFile("index.html");
 

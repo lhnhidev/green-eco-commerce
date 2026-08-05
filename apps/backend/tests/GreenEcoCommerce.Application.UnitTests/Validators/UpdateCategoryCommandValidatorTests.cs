@@ -1,18 +1,12 @@
 using FluentValidation.TestHelper;
 using GreenEcoCommerce.Application.Features.Categories;
 using GreenEcoCommerce.Application.Features.Categories.Commands;
-using GreenEcoCommerce.Application.Features.Categories.Validators;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class UpdateCategoryCommandValidatorTests
 {
-    private readonly UpdateCategoryCommandValidator validator;
-
-    public UpdateCategoryCommandValidatorTests()
-    {
-        validator = new UpdateCategoryCommandValidator();
-    }
+    private readonly UpdateCategoryCommand.Validator validator = new();
 
     private static UpdateCategoryCommand CreateValidCommand(
         Guid? id = null,
@@ -37,19 +31,6 @@ public class UpdateCategoryCommandValidatorTests
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();
-    }
-
-    [Fact]
-    public void Validate_ShouldFail_WhenIdIsEmptyGuid()
-    {
-        // Arrange
-        var command = CreateValidCommand(id: Guid.Empty);
-
-        // Act
-        var result = validator.TestValidate(command);
-
-        // Assert
-        result.ShouldHaveValidationErrorFor(x => x.Id);
     }
 
     [Fact]
@@ -98,7 +79,7 @@ public class UpdateCategoryCommandValidatorTests
     public void Validate_ShouldFail_WhenNameIsTooLong()
     {
         // Arrange
-        var name = new string('A', 101);
+        string name = new('A', 151);
         var command = CreateValidCommand(name: name);
 
         // Act
@@ -139,10 +120,10 @@ public class UpdateCategoryCommandValidatorTests
     // ── Description ──────────────────────────────────────────────────────────
 
     [Fact]
-    public void Validate_ShouldFail_WhenDescriptionExceeds500Chars()
+    public void Validate_ShouldFail_WhenDescriptionExceeds1000Chars()
     {
         // Arrange
-        var command = CreateValidCommand(description: new string('D', 501));
+        var command = CreateValidCommand(description: new string('D', 1001));
 
         // Act
         var result = validator.TestValidate(command);

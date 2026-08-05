@@ -1,12 +1,11 @@
 using FluentValidation.TestHelper;
 using GreenEcoCommerce.Application.Features.Categories;
-using GreenEcoCommerce.Application.Features.Categories.Validators;
 
 namespace GreenEcoCommerce.Application.UnitTests.Validators;
 
 public class CreateCategoryValidatorTests
 {
-    private readonly CreateCategoryValidator validator = new();
+    private readonly CategoryPayloadDto.Validator validator = new();
 
     // ── Name ────────────────────────────────────────────────────────────────
 
@@ -14,7 +13,7 @@ public class CreateCategoryValidatorTests
     public void Validate_ShouldPass_WhenAllDataIsValid()
     {
         // Arrange
-        var dto = new CategoryPayloadDto("Electronics", "A valid description", null);
+        var dto = new CategoryPayloadDto("Electronics", "A valid description");
 
         // Act
         var result = validator.TestValidate(dto);
@@ -54,7 +53,7 @@ public class CreateCategoryValidatorTests
     public void Validate_ShouldFail_WhenNameIsTooLong()
     {
         // Arrange
-        var name = new string('A', 101); // 101 chars > 100 max
+        string name = new('A', 151); // 151 chars > 150 max
         var dto = new CategoryPayloadDto(name);
 
         // Act
@@ -84,7 +83,7 @@ public class CreateCategoryValidatorTests
     public void Validate_ShouldPass_WhenNameIsExactly100Chars()
     {
         // Arrange
-        var name = new string('A', 100);
+        string name = new('A', 100);
         var dto = new CategoryPayloadDto(name);
 
         // Act
@@ -100,7 +99,7 @@ public class CreateCategoryValidatorTests
     public void Validate_ShouldFail_WhenDescriptionExceeds500Chars()
     {
         // Arrange
-        var description = new string('D', 501); // 501 chars > 500 max
+        string description = new('D', 1001); // 1001 chars > 1000 max
         var dto = new CategoryPayloadDto("ValidName", description);
 
         // Act
@@ -114,7 +113,7 @@ public class CreateCategoryValidatorTests
     public void Validate_ShouldPass_WhenDescriptionIsNull()
     {
         // Arrange
-        var dto = new CategoryPayloadDto("ValidName", null);
+        var dto = new CategoryPayloadDto("ValidName");
 
         // Act
         var result = validator.TestValidate(dto);
@@ -142,7 +141,7 @@ public class CreateCategoryValidatorTests
     public void Validate_ShouldPass_WhenDescriptionIsExactly500Chars()
     {
         // Arrange
-        var description = new string('D', 500);
+        string description = new('D', 500);
         var dto = new CategoryPayloadDto("ValidName", description);
 
         // Act
@@ -158,7 +157,7 @@ public class CreateCategoryValidatorTests
     public void Validate_ShouldPass_WhenParentIdIsNull()
     {
         // Arrange
-        var dto = new CategoryPayloadDto("ValidName", null, null);
+        var dto = new CategoryPayloadDto("ValidName");
 
         // Act
         var result = validator.TestValidate(dto);

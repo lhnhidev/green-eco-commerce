@@ -1,21 +1,31 @@
-using AutoMapper;
-using GreenEcoCommerce.Domain.Entities;
+using FluentValidation;
+using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Domain.Exceptions;
-using GreenEcoCommerce.Domain.Interfaces;
 using MediatR;
 
 namespace GreenEcoCommerce.Application.Features.Materials.Commands;
 
-public record UpdateMaterialCommand(Guid Id, MaterialUpdateDto Dto) : IRequest<MaterialItem>;
-
-public class UpdateMaterialCommandHandler(IMaterialRepository materialRepository, IMapper mapper) : IRequestHandler<UpdateMaterialCommand, MaterialItem>
+public record UpdateMaterialCommand(Guid Id, MaterialPayloadDto Dto) : IRequest<MaterialDto>
 {
-    public async Task<MaterialItem> Handle(UpdateMaterialCommand command, CancellationToken cancellationToken)
+    public class Handler(IApplicationDbContext dbContext) : IRequestHandler<UpdateMaterialCommand, MaterialDto>
     {
-        var material = mapper.Map<Material>(command);
-        var found = await materialRepository.UpdateAsync(material, cancellationToken);
-        return found
-            ? mapper.Map<MaterialItem>(material)
-            : throw new NotFoundException($"Material with ID {command.Id} not found.");
+        public async Task<MaterialDto> Handle(UpdateMaterialCommand command, CancellationToken ct)
+        {
+            var material = await dbContext.Materials.FindAsync([command.Id], ct) ??
+                           throw new NotFoundException($"Material with ID {command.Id} not found.");
+
+            material.ApplyUpdate(command.Dto);
+            await dbContext.SaveChangesAsync(ct);
+
+            return material.ToDto();
+        }
+    }
+
+    public class Validator : AbstractValidator<UpdateMaterialCommand>
+    {
+        public Validator()
+        {
+            RuleFor(x => x.Dto).SetValidator(new MaterialPayloadDto.Validator());
+        }
     }
 }

@@ -6,6 +6,7 @@ export default defineConfig({
     output: {
       httpClient: 'axios',
       target: './src/api/index.ts',
+      clean: true,
       schemas: './src/api/schemas',
       client: 'react-query',
       override: {
@@ -13,6 +14,10 @@ export default defineConfig({
           path: './src/lib/axios.ts',
           name: 'customInstance',
         },
+        query: {
+          useInvalidate: true,
+        },
+        useDates: true,
       },
     },
   },

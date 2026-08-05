@@ -1,5 +1,5 @@
-import type { RegisterCommand } from '../api/schemas'
+import type { RegisterPayload } from '@api/schemas'
 
-export type LocalRegisterFormValues = RegisterCommand & {
+export type LocalRegisterFormValues = RegisterPayload & {
   repeatPassword: string
 }

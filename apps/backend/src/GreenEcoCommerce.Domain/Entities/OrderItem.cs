@@ -7,7 +7,7 @@ public class OrderItem
     public Guid ProductId { get; set; }
     public int Quantity { get; set; }
     public decimal UnitPrice { get; set; }
-    public float UnitCo2Saved { get; set; }
+    public decimal UnitCo2Saved { get; set; }
 
     // Navigation Properties
     public Order Order { get; set; } = null!;

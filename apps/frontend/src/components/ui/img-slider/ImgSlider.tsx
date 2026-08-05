@@ -1,24 +1,22 @@
+import ImageWithFallback from '@components/ui/ImageWithFallback'
 import { Carousel } from '@mantine/carousel'
 import Autoplay from 'embla-carousel-autoplay'
 import { useRef } from 'react'
-import { useAppDispatch } from '../../../hooks/useAppDispatch'
-import { changeImgSliderSliceActive } from './img-slider.slice'
 
 type ImgSliderProps = {
   imgs: Array<string> | undefined
   isAuto: boolean
   delayTime?: number
   percent: string
+  activeImg?: string
+  onSelect?: (img: string) => void
+  alt?: string
 }
 
-const ImgSlider = ({ imgs, isAuto, delayTime = 2500, percent }: ImgSliderProps) => {
-  const dispatch = useAppDispatch()
-
+const ImgSlider = ({ imgs, isAuto, delayTime = 2500, percent, activeImg, onSelect, alt }: ImgSliderProps) => {
   const autoplay = useRef(Autoplay({ delay: delayTime }))
 
-  if (imgs === undefined) return <div></div>
-
-  dispatch(changeImgSliderSliceActive(imgs[0]))
+  if (imgs === undefined || imgs.length === 0) return null
 
   return (
     <Carousel
@@ -32,20 +30,21 @@ const ImgSlider = ({ imgs, isAuto, delayTime = 2500, percent }: ImgSliderProps) 
       onMouseEnter={() => isAuto && autoplay.current.stop()}
       onMouseLeave={() => isAuto && autoplay.current.play()}
     >
-      {imgs.map((img) => (
-        <Carousel.Slide key={crypto.randomUUID()}>
-          <div className="cursor-pointer hover:brightness-90 transition-all duration-75">
-            {/** biome-ignore lint/a11y/noStaticElementInteractions: <> */}
-            {/** biome-ignore lint/a11y/useKeyWithClickEvents: <> */}
-            <img
-              onClick={() => {
-                console.log(123)
-                dispatch(changeImgSliderSliceActive(img))
-              }}
+      {imgs.map((img, index) => (
+        <Carousel.Slide key={`${index}-${img}`}>
+          <button
+            type="button"
+            onClick={() => onSelect?.(img)}
+            className={`block w-full hover:brightness-90 transition-all duration-150 rounded-lg overflow-hidden ${activeImg === img ? 'ring-2 ring-primary' : ''}`}
+            aria-label={`View product image ${index + 1}`}
+            aria-current={activeImg === img}
+          >
+            <ImageWithFallback
               src={img}
-              alt=""
+              alt={alt ? `${alt} thumbnail ${index + 1}` : `Product thumbnail ${index + 1}`}
+              className="w-full aspect-square object-cover"
             />
-          </div>
+          </button>
         </Carousel.Slide>
       ))}
     </Carousel>
