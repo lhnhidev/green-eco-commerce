@@ -71,7 +71,14 @@ public record UpdateCouponCommand(
         {
             var coupon = await db.Coupons.FindAsync([cmd.Id], ct);
             if (coupon is null) return null;
-            coupon.Code = cmd.Code.ToUpperInvariant();
+
+            var normalizedCode = cmd.Code.ToUpperInvariant();
+            if (await db.Coupons.AnyAsync(c => c.Code == normalizedCode && c.Id != cmd.Id, ct))
+            {
+                throw new BadRequestException("A coupon with this code already exists.");
+            }
+
+            coupon.Code = normalizedCode;
             coupon.DiscountType = cmd.DiscountType;
             coupon.DiscountValue = cmd.DiscountValue;
             coupon.MinOrderAmount = cmd.MinOrderAmount;
