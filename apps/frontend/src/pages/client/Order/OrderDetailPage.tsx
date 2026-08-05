@@ -1,4 +1,5 @@
 import {
+  invalidateGetGreenWallet,
   invalidateGetMyOrderById,
   invalidateGetMyOrders,
   invalidateGetMyStatistics,
@@ -42,6 +43,7 @@ const OrderDetailPage = () => {
         await invalidateGetMyOrderById(queryClient, id ?? '')
         await invalidateGetMyOrders(queryClient)
         await invalidateGetMyStatistics(queryClient)
+        await invalidateGetGreenWallet(queryClient)
         notifications.show({ title: 'Order Cancelled', message: 'Your order has been cancelled.', color: 'green' })
       },
       onError: () =>
