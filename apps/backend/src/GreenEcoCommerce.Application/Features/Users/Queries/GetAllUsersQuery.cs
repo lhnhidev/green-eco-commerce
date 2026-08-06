@@ -46,7 +46,7 @@ public record GetAllUsersQuery(GetAllUsersQuery.Parameters Query) : IRequest<Pag
             return query.Where(p =>
                     (p.LastName + " " + p.FirstName).ToLower().Contains(search) ||
                     (p.FirstName + " " + p.LastName).ToLower().Contains(search) ||
-                    p.Email.ToString().ToLower().Contains(search) || p.Phone.ToString().Contains(search));
+                    ((string)p.Email).ToLower().Contains(search) || ((string)p.Phone).Contains(search));
         }
 
         public IQueryable<User> ApplyFiltering(IQueryable<User> query)
