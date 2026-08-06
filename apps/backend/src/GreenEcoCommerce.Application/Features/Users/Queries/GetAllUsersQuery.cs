@@ -41,12 +41,12 @@ public record GetAllUsersQuery(GetAllUsersQuery.Parameters Query) : IRequest<Pag
         {
             if (string.IsNullOrWhiteSpace(Search)) return query;
 
-            string search = Search.ToLower();
+            string search = Search.Trim().ToLower();
 
             return query.Where(p =>
                     (p.LastName + " " + p.FirstName).ToLower().Contains(search) ||
                     (p.FirstName + " " + p.LastName).ToLower().Contains(search) ||
-                    p.Email.ToString().Contains(search) || p.Phone.ToString().Contains(search));
+                    p.Email.ToString().ToLower().Contains(search) || p.Phone.ToString().Contains(search));
         }
 
         public IQueryable<User> ApplyFiltering(IQueryable<User> query)

@@ -9,9 +9,9 @@ import Toolbar from '@components/ui/primitives/Toolbar'
 import { Badge, Button, Modal, NumberInput, Select, Switch, TextInput } from '@mantine/core'
 import { DateTimePicker } from '@mantine/dates'
 import { useForm } from '@mantine/form'
-import { useDisclosure } from '@mantine/hooks'
+import { useDebouncedValue, useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { PlusIcon, SealPercentIcon, TagIcon } from '@phosphor-icons/react'
+import { MagnifyingGlassIcon, PlusIcon, SealPercentIcon, TagIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useState } from 'react'
@@ -22,7 +22,7 @@ type CouponForm = {
   discountValue: number
   minOrderAmount: number
   maxUses: number
-  expiresAt: Date | null
+  expiresAt: Date | string | null
   isActive: boolean
 }
 
@@ -43,11 +43,19 @@ const CouponList = () => {
   const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false)
   const [editTarget, setEditTarget] = useState<CouponDto | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<CouponDto | null>(null)
+  const [search, setSearch] = useState('')
+  const [debouncedSearch] = useDebouncedValue(search, 300)
+  const [statusFilter, setStatusFilter] = useState<'true' | 'false' | null>(null)
+  const [typeFilter, setTypeFilter] = useState<CouponDiscountTypeEnum | null>(null)
 
   const queryClient = useQueryClient()
   const invalidate = () => invalidateGetAllCoupons(queryClient)
 
-  const { data: coupons = [], isLoading } = useGetAllCoupons()
+  const { data: coupons = [], isLoading } = useGetAllCoupons({
+    search: debouncedSearch || undefined,
+    isActive: statusFilter === null ? undefined : statusFilter === 'true',
+    discountType: typeFilter ?? undefined,
+  })
 
   const form = useForm<CouponForm>({
     initialValues: defaultForm,
@@ -117,7 +125,7 @@ const CouponList = () => {
   }
 
   const handleSubmit = (values: CouponForm) => {
-    const expiresAt = values.expiresAt!.toISOString()
+    const expiresAt = dayjs(values.expiresAt).toISOString()
     if (editTarget) {
       updateCoupon({
         id: editTarget.id,
@@ -237,7 +245,47 @@ const CouponList = () => {
         isLoading={isLoading}
         emptyIcon={SealPercentIcon}
         emptyTitle="No coupons yet"
-        toolbar={<Toolbar right={<span className="text-2xs text-muted-foreground">{coupons.length} coupons total</span>} />}
+        toolbar={
+          <Toolbar
+            left={
+              <>
+                <TextInput
+                  placeholder="Search by coupon code..."
+                  size="xs"
+                  leftSection={<MagnifyingGlassIcon size={13} />}
+                  value={search}
+                  onChange={(e) => setSearch(e.currentTarget.value)}
+                  w={220}
+                />
+                <Select
+                  placeholder="All statuses"
+                  size="xs"
+                  data={[
+                    { value: 'true', label: 'Active' },
+                    { value: 'false', label: 'Disabled' },
+                  ]}
+                  value={statusFilter}
+                  onChange={(val) => setStatusFilter(val as 'true' | 'false' | null)}
+                  clearable
+                  w={130}
+                />
+                <Select
+                  placeholder="All types"
+                  size="xs"
+                  data={[
+                    { value: CouponDiscountTypeEnum.Percent, label: 'Percentage (%)' },
+                    { value: CouponDiscountTypeEnum.Fixed, label: 'Fixed Amount ($)' },
+                  ]}
+                  value={typeFilter}
+                  onChange={(val) => setTypeFilter(val as CouponDiscountTypeEnum | null)}
+                  clearable
+                  w={150}
+                />
+              </>
+            }
+            right={<span className="text-2xs text-muted-foreground">{coupons.length} coupons total</span>}
+          />
+        }
       />
 
       {/* Create/Edit Modal */}

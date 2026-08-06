@@ -10,7 +10,7 @@ const CHART_HEIGHT = 300
 
 const currencyFormat = new Intl.NumberFormat('en-US', {
   style: 'currency',
-  currency: 'VND',
+  currency: 'USD',
   maximumFractionDigits: 0,
 })
 const integerFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })

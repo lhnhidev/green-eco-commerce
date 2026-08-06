@@ -13,7 +13,8 @@ public static class UserQueries
 
         public IQueryable<User> WithEmail(string email)
         {
-            return query.Where(u => (string)u.Email == email);
+            string normalized = email.Trim().ToLowerInvariant();
+            return query.Where(u => (string)u.Email == normalized);
         }
 
         public IQueryable<User> IsActive()

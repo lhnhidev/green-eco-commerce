@@ -8,10 +8,34 @@ namespace GreenEcoCommerce.Application.Features.Coupons.Queries;
 
 public record GetAllCouponsQuery : IRequest<CouponDto[]>
 {
+    public string? Search { get; init; }
+    public bool? IsActive { get; init; }
+    public CouponDiscountTypeEnum? DiscountType { get; init; }
+
     public class Handler(IApplicationDbContext db) : IRequestHandler<GetAllCouponsQuery, CouponDto[]>
     {
-        public async Task<CouponDto[]> Handle(GetAllCouponsQuery _, CancellationToken ct) =>
-            await db.Coupons.OrderByDescending(c => c.CreatedAt).ProjectToDto().ToArrayAsync(ct);
+        public async Task<CouponDto[]> Handle(GetAllCouponsQuery request, CancellationToken ct)
+        {
+            var query = db.Coupons.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(request.Search))
+            {
+                string search = request.Search.Trim().ToLower();
+                query = query.Where(c => c.Code.ToLower().Contains(search));
+            }
+
+            if (request.IsActive.HasValue)
+            {
+                query = query.Where(c => c.IsActive == request.IsActive.Value);
+            }
+
+            if (request.DiscountType.HasValue)
+            {
+                query = query.Where(c => c.DiscountType == request.DiscountType.Value);
+            }
+
+            return await query.OrderByDescending(c => c.CreatedAt).ProjectToDto().ToArrayAsync(ct);
+        }
     }
 }
 
