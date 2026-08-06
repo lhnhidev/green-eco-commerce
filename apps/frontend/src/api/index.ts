@@ -47,6 +47,7 @@ import type {
   ExportAnalystExcelParams,
   FacebookLoginCommand,
   GenerateContentCommandResponse,
+  GetAllCouponsParams,
   GetAllOrdersParams,
   GetAllProductsParams,
   GetAllReviewsParams,
@@ -5300,13 +5301,14 @@ const {mutation: mutationOptions} = options ?
     }
 
 export const getAllCoupons = (
-
+    params?: GetAllCouponsParams,
  signal?: AbortSignal
 ) => {
 
 
       return customInstance<CouponDto[]>(
-      {url: `/api/admin/coupons`, method: 'GET', signal
+      {url: `/api/admin/coupons`, method: 'GET',
+        params, signal
     },
       );
     }
@@ -5314,23 +5316,23 @@ export const getAllCoupons = (
 
 
 
-export const getGetAllCouponsQueryKey = () => {
+export const getGetAllCouponsQueryKey = (params?: GetAllCouponsParams,) => {
     return [
-    `/api/admin/coupons`
+    `/api/admin/coupons`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetAllCouponsQueryOptions = <TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
+export const getGetAllCouponsQueryOptions = <TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
 ) => {
 
 const {query: queryOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetAllCouponsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetAllCouponsQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllCoupons>>> = ({ signal }) => getAllCoupons(signal);
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAllCoupons>>> = ({ signal }) => getAllCoupons(params, signal);
 
 
 
@@ -5344,7 +5346,7 @@ export type GetAllCouponsQueryError = ProblemDetails
 
 
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
+  params: undefined |  GetAllCouponsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCoupons>>,
           TError,
@@ -5354,7 +5356,7 @@ export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
+  params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCoupons>>,
           TError,
@@ -5364,16 +5366,16 @@ export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
+  params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
+  params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
-  const queryOptions = getGetAllCouponsQueryOptions(options)
+  const queryOptions = getGetAllCouponsQueryOptions(params,options)
 
   const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
 
@@ -5382,10 +5384,10 @@ export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons
 
 
 export const invalidateGetAllCoupons = async (
- queryClient: QueryClient,  options?: InvalidateOptions
+ queryClient: QueryClient, params?: GetAllCouponsParams, options?: InvalidateOptions
   ): Promise<QueryClient> => {
 
-  await queryClient.invalidateQueries({ queryKey: getGetAllCouponsQueryKey() }, options);
+  await queryClient.invalidateQueries({ queryKey: getGetAllCouponsQueryKey(params) }, options);
 
   return queryClient;
 }

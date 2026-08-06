@@ -24,6 +24,7 @@ export * from './chatSessionPayloadDto';
 export * from './checkoutCommandResponse';
 export * from './checkoutRequest';
 export * from './couponDiscountTypeEnum';
+export * from './getAllCouponsParams';
 export * from './couponDto';
 export * from './createCouponCommand';
 export * from './documentDto';

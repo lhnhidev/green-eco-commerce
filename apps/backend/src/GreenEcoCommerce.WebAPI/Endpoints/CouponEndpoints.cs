@@ -43,8 +43,8 @@ public static class CouponEndpoints
         }
     }
 
-    private static async Task<Ok<CouponDto[]>> GetAllCoupons(ISender sender) =>
-        TypedResults.Ok(await sender.Send(new GetAllCouponsQuery()));
+    private static async Task<Ok<CouponDto[]>> GetAllCoupons([AsParameters] GetAllCouponsQuery query, ISender sender) =>
+        TypedResults.Ok(await sender.Send(query));
 
     private static async Task<Created<CouponDto>> CreateCoupon(CreateCouponCommand command, ISender sender)
     {

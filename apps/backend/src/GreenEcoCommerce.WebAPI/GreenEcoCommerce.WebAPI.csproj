@@ -39,4 +39,8 @@
     <ProjectReference Include="..\GreenEcoCommerce.Infrastructure\GreenEcoCommerce.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Remove="wwwroot\uploads\images\d1b8b4de-5516-4cb5-bf76-66150a502c79.jpg" />
+  </ItemGroup>
+
 </Project>

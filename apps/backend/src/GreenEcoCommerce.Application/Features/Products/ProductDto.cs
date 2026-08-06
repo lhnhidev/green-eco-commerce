@@ -84,7 +84,7 @@ public static partial class ProductDtoMapper
 
     [UserMapping(Default = false)]
     private static float CalculateRating(ICollection<Review> reviews) =>
-            reviews.Any() ? (float)reviews.Where(r => r.IsApproved && !r.IsHidden).Average(r => r.Rating) : 0;
+            (float)(reviews.Where(r => r.IsApproved && !r.IsHidden).Select(r => (double?)r.Rating).Average() ?? 0);
 
     [UserMapping(Default = false)]
     private static int GetReviewsCount(ICollection<Review> reviews) =>
