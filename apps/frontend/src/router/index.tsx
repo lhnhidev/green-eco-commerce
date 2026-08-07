@@ -16,6 +16,7 @@ import ProductPage from '@pages/client/Product/ProductPage'
 import ProfilePage from '@pages/client/Profile/ProfilePage'
 import AboutPage from '@pages/client/static/AboutPage'
 import ContactPage from '@pages/client/static/ContactPage'
+import EcoAssistantPage from '@pages/client/static/EcoAssistantPage'
 import FaqPage from '@pages/client/static/FaqPage'
 import PrivacyPage from '@pages/client/static/PrivacyPage'
 import ReturnsPage from '@pages/client/static/ReturnsPage'
@@ -123,6 +124,7 @@ export const router = createBrowserRouter([
       { path: '/compare', element: <ComparePage /> },
       { path: '/about', element: <AboutPage /> },
       { path: '/contact', element: <ContactPage /> },
+      { path: '/eco-assistant', element: <EcoAssistantPage /> },
       { path: '/faq', element: <FaqPage /> },
       { path: '/shipping', element: <ShippingPage /> },
       { path: '/returns', element: <ReturnsPage /> },

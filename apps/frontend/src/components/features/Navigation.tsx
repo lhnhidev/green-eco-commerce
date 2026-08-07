@@ -23,6 +23,7 @@ const navigationItems = [
   { path: '/about', label: 'About Us' },
   { path: '/faq', label: 'FAQ' },
   { path: '/contact', label: 'Contact' },
+  { path: '/eco-assistant', label: 'Eco Assistant' },
 ]
 
 // ─── Search autocomplete ─────────────────────────────────────────────────────
