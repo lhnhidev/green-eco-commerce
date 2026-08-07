@@ -154,9 +154,9 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                         {
                             OrderId = orderId,
                             Method = command.PaymentMethod,
-                            Status = command.PaymentMethod == PaymentMethodEnum.COD
-                                    ? PaymentStatusEnum.Pending
-                                    : PaymentStatusEnum.Paid,
+                            // Every payment method settles after checkout, never on the spot: COD on delivery,
+                            // VNPay via its return callback, Bank/MoMo via the SePay transfer webhook.
+                            Status = PaymentStatusEnum.Pending,
                             Amount = finalPrice,
                             TransactionRef = Guid.NewGuid().ToString("N") // Placeholder for 3rd party payment ref
                         }

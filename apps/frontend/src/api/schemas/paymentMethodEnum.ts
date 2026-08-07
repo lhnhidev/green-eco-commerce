@@ -13,4 +13,5 @@ export const PaymentMethodEnum = {
   Bank: 'Bank',
   MoMo: 'MoMo',
   COD: 'COD',
+  VnPay: 'VnPay',
 } as const;

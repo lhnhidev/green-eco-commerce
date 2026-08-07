@@ -11,6 +11,7 @@ using GreenEcoCommerce.Application.Interfaces.Caching;
 using GreenEcoCommerce.Application.Interfaces.Chatbot;
 using GreenEcoCommerce.Application.Interfaces.Configuration;
 using GreenEcoCommerce.Application.Interfaces.Environment;
+using GreenEcoCommerce.Application.Interfaces.Payments;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Interfaces.Security;
 using GreenEcoCommerce.Application.Interfaces.Storage;
@@ -20,6 +21,7 @@ using GreenEcoCommerce.Infrastructure.Caching;
 using GreenEcoCommerce.Infrastructure.ChatbotServices;
 using GreenEcoCommerce.Infrastructure.Configuration;
 using GreenEcoCommerce.Infrastructure.Identity;
+using GreenEcoCommerce.Infrastructure.PaymentServices;
 using GreenEcoCommerce.Infrastructure.Persistence;
 using GreenEcoCommerce.Infrastructure.Persistence.Context;
 using GreenEcoCommerce.Infrastructure.Repositories;
@@ -192,6 +194,7 @@ builder.Services.AddScoped<IApplicationDbContext, ApplicationDbContext>(provider
 builder.Services.AddSingleton<IApplicationEnvironment, ApplicationEnvironment>();
 builder.Services.AddSingleton<IAIService, AIService>();
 builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
+builder.Services.AddSingleton<IVnPayService, VnPayService>();
 
 // Đăng ký dịch vụ Redis Distributed Cache của Microsoft
 builder.AddRedisDistributedCache("cache");
@@ -273,6 +276,8 @@ app.MapChatSessionEndpoints();
 app.MapOrderEndpoints();
 app.MapMeStatisticsEndpoints();
 app.MapPaymentEndpoints();
+app.MapVnPayEndpoints();
+app.MapSePayEndpoints();
 app.MapGreenWalletEndpoints();
 app.MapUserEndpoints();
 app.MapAdminEndpoints();

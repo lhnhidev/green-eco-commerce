@@ -43,6 +43,7 @@ import type {
   CheckoutRequest,
   CouponDto,
   CreateCouponCommand,
+  CreateVnPayPaymentUrlCommandResponse,
   DocumentDto,
   ExportAnalystExcelParams,
   FacebookLoginCommand,
@@ -94,7 +95,8 @@ import type {
   UserProfileDto,
   UserProfilePayloadDto,
   ValidateCouponRequest,
-  ValidateCouponResponse
+  ValidateCouponResponse,
+  VnPayEndpointsCreateVnPayPaymentUrlRequest
 } from './schemas';
 
 import { customInstance } from '../lib/axios';
@@ -4016,6 +4018,160 @@ const {mutation: mutationOptions} = options ?
       return useMutation(getUpdatePaymentStatusMutationOptions(options), queryClient);
     }
 
+export const createPaymentUrl = (
+    vnPayEndpointsCreateVnPayPaymentUrlRequest: VnPayEndpointsCreateVnPayPaymentUrlRequest,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<CreateVnPayPaymentUrlCommandResponse>(
+      {url: `/api/payments/vnpay/create-url`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: vnPayEndpointsCreateVnPayPaymentUrlRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getCreatePaymentUrlMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPaymentUrl>>, TError,{data: VnPayEndpointsCreateVnPayPaymentUrlRequest}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createPaymentUrl>>, TError,{data: VnPayEndpointsCreateVnPayPaymentUrlRequest}, TContext> => {
+
+const mutationKey = ['createPaymentUrl'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPaymentUrl>>, {data: VnPayEndpointsCreateVnPayPaymentUrlRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createPaymentUrl(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePaymentUrlMutationResult = NonNullable<Awaited<ReturnType<typeof createPaymentUrl>>>
+    export type CreatePaymentUrlMutationBody = VnPayEndpointsCreateVnPayPaymentUrlRequest
+    export type CreatePaymentUrlMutationError = ProblemDetails
+
+    export const useCreatePaymentUrl = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPaymentUrl>>, TError,{data: VnPayEndpointsCreateVnPayPaymentUrlRequest}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createPaymentUrl>>,
+        TError,
+        {data: VnPayEndpointsCreateVnPayPaymentUrlRequest},
+        TContext
+      > => {
+      return useMutation(getCreatePaymentUrlMutationOptions(options), queryClient);
+    }
+
+export const handleReturn = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<unknown>(
+      {url: `/api/payments/vnpay/return`, method: 'GET', signal
+    },
+      );
+    }
+
+
+
+
+export const getHandleReturnQueryKey = () => {
+    return [
+    `/api/payments/vnpay/return`
+    ] as const;
+    }
+
+
+export const getHandleReturnQueryOptions = <TData = Awaited<ReturnType<typeof handleReturn>>, TError = ProblemDetails>( options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof handleReturn>>, TError, TData>>, }
+) => {
+
+const {query: queryOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getHandleReturnQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof handleReturn>>> = ({ signal }) => handleReturn(signal);
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof handleReturn>>, TError, TData> & { queryKey: DataTag<QueryKey, TData, TError> }
+}
+
+export type HandleReturnQueryResult = NonNullable<Awaited<ReturnType<typeof handleReturn>>>
+export type HandleReturnQueryError = ProblemDetails
+
+
+export function useHandleReturn<TData = Awaited<ReturnType<typeof handleReturn>>, TError = ProblemDetails>(
+  options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof handleReturn>>, TError, TData>> & Pick<
+        DefinedInitialDataOptions<
+          Awaited<ReturnType<typeof handleReturn>>,
+          TError,
+          Awaited<ReturnType<typeof handleReturn>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useHandleReturn<TData = Awaited<ReturnType<typeof handleReturn>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof handleReturn>>, TError, TData>> & Pick<
+        UndefinedInitialDataOptions<
+          Awaited<ReturnType<typeof handleReturn>>,
+          TError,
+          Awaited<ReturnType<typeof handleReturn>>
+        > , 'initialData'
+      >, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+export function useHandleReturn<TData = Awaited<ReturnType<typeof handleReturn>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof handleReturn>>, TError, TData>>, }
+ , queryClient?: QueryClient
+  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
+
+export function useHandleReturn<TData = Awaited<ReturnType<typeof handleReturn>>, TError = ProblemDetails>(
+  options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof handleReturn>>, TError, TData>>, }
+ , queryClient?: QueryClient
+ ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
+
+  const queryOptions = getHandleReturnQueryOptions(options)
+
+  const query = useQuery(queryOptions, queryClient) as  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+export const invalidateHandleReturn = async (
+ queryClient: QueryClient,  options?: InvalidateOptions
+  ): Promise<QueryClient> => {
+
+  await queryClient.invalidateQueries({ queryKey: getHandleReturnQueryKey() }, options);
+
+  return queryClient;
+}
+
+
+
+
+
 export const getGreenWallet = (
 
  signal?: AbortSignal
@@ -5346,7 +5502,7 @@ export type GetAllCouponsQueryError = ProblemDetails
 
 
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  params: undefined |  GetAllCouponsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
+ params: undefined |  GetAllCouponsParams, options: { query:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
         DefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCoupons>>,
           TError,
@@ -5356,7 +5512,7 @@ export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons
  , queryClient?: QueryClient
   ):  DefinedUseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
+ params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>> & Pick<
         UndefinedInitialDataOptions<
           Awaited<ReturnType<typeof getAllCoupons>>,
           TError,
@@ -5366,12 +5522,12 @@ export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
+ params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
  , queryClient?: QueryClient
   ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> }
 
 export function useGetAllCoupons<TData = Awaited<ReturnType<typeof getAllCoupons>>, TError = ProblemDetails>(
-  params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
+ params?: GetAllCouponsParams, options?: { query?:Partial<UseQueryOptions<Awaited<ReturnType<typeof getAllCoupons>>, TError, TData>>, }
  , queryClient?: QueryClient
  ):  UseQueryResult<TData, TError> & { queryKey: DataTag<QueryKey, TData, TError> } {
 
