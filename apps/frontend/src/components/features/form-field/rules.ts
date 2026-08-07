@@ -1,6 +1,6 @@
-import type { FieldValues, Path } from 'react-hook-form'
+import type { FieldValues, Path, RegisterOptions } from 'react-hook-form'
 
-export const getDefaultRules = <T extends FieldValues>(name: Path<T>) => {
+export const getDefaultRules: <T extends FieldValues>(name: Path<T>) => RegisterOptions<T> = (name) => {
   switch (name) {
     case 'email':
       return {
@@ -29,10 +29,26 @@ export const getDefaultRules = <T extends FieldValues>(name: Path<T>) => {
     case 'firstName':
       return {
         required: 'First name is required',
+        minLength: {
+          value: 2,
+          message: 'First name must be at least 2 characters long',
+        },
+        maxLength: {
+          value: 80,
+          message: 'First name must be at most 80 characters long',
+        },
       }
     case 'lastName':
       return {
         required: 'Last name is required',
+        minLength: {
+          value: 2,
+          message: 'Last name must be at least 2 characters long',
+        },
+        maxLength: {
+          value: 80,
+          message: 'Last name must be at most 80 characters long',
+        },
       }
     case 'phone':
       return {
@@ -45,6 +61,14 @@ export const getDefaultRules = <T extends FieldValues>(name: Path<T>) => {
     case 'address':
       return {
         required: 'Address is required',
+        minLength: {
+          value: 5,
+          message: 'Address must be at least 5 characters long',
+        },
+        maxLength: {
+          value: 500,
+          message: 'Address must be at most 500 characters long',
+        },
       }
     default:
       return undefined

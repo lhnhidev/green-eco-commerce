@@ -44,7 +44,7 @@ export const ImageDropzone = ({ value, onChange, label = 'Image', previewAspect 
   }
 
   return (
-    <div>
+    <div className='relative'>
       {label && (
         <Text size="sm" fw={500} mb={4}>
           {label}
@@ -58,19 +58,6 @@ export const ImageDropzone = ({ value, onChange, label = 'Image', previewAspect 
               alt=""
               className={previewAspect ? `w-full ${previewAspect} rounded-md object-cover` : 'h-32 rounded-md object-cover'}
             />
-            <ActionIcon
-              color="red"
-              variant="filled"
-              radius="xl"
-              size="sm"
-              style={{ position: 'absolute', top: previewAspect ? 8 : 0, right: previewAspect ? 8 : 0 }}
-              onClick={(e) => {
-                e.stopPropagation()
-                onChange('')
-              }}
-            >
-              <TrashIcon size={12} />
-            </ActionIcon>
           </div>
         ) : (
           <div className="flex flex-col items-center gap-2 py-6 text-gray-400">
@@ -79,6 +66,21 @@ export const ImageDropzone = ({ value, onChange, label = 'Image', previewAspect 
           </div>
         )}
       </Dropzone>
+      {value && (
+        <ActionIcon
+          color="red"
+          variant="filled"
+          radius="xl"
+          size="sm"
+          style={{ position: 'absolute', top: previewAspect ? 8 : 0, right: previewAspect ? 8 : 0, zIndex: 1000 }}
+          onClick={(e) => {
+            e.stopPropagation()
+            onChange('')
+          }}
+        >
+          <TrashIcon size={12} />
+        </ActionIcon>
+      )}
     </div>
   )
 }
