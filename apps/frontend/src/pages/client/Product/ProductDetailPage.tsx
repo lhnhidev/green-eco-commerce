@@ -213,7 +213,7 @@ const ProductDetailPage = () => {
   return (
     <div className="min-h-screen bg-slate-50/30 pb-20 lg:pb-0 relative font-sans selection:bg-primary/20 selection:text-primary">
       {/* Soft background gradient blob */}
-      <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-green-50/80 to-transparent -z-10" />
+      <div className="absolute top-0 left-0 right-0 h-[500px] bg-linear-to-b from-green-50/80 to-transparent -z-10" />
 
       <Seo
         title={product.name}
@@ -229,7 +229,7 @@ const ProductDetailPage = () => {
           <div className="flex flex-col gap-4">
             {/** biome-ignore lint/a11y/noStaticElementInteractions: mouse-driven zoom, not a control */}
             <div
-              className="relative w-full aspect-[4/3] overflow-hidden rounded-3xl bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] group cursor-zoom-in"
+              className="relative w-full aspect-4/3 overflow-hidden rounded-3xl bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] group cursor-zoom-in"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >

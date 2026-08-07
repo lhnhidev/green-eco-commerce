@@ -35,14 +35,14 @@ const ImgSlider = ({ imgs, isAuto, delayTime = 2500, percent, activeImg, onSelec
           <button
             type="button"
             onClick={() => onSelect?.(img)}
-            className={`block w-full hover:brightness-90 transition-all duration-150 rounded-lg overflow-hidden ${activeImg === img ? 'ring-2 ring-primary' : ''}`}
+            className={`block w-full hover:brightness-90 transition-all duration-150 rounded-lg overflow-hidden ${activeImg === img ? 'border-4 border-primary' : ''}`}
             aria-label={`View product image ${index + 1}`}
             aria-current={activeImg === img}
           >
             <ImageWithFallback
               src={img}
               alt={alt ? `${alt} thumbnail ${index + 1}` : `Product thumbnail ${index + 1}`}
-              className="w-full aspect-square object-cover"
+              className="w-full aspect-4/3 object-cover"
             />
           </button>
         </Carousel.Slide>
