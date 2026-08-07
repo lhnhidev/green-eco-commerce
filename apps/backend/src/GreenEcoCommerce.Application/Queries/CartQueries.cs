@@ -25,7 +25,8 @@ public static class CartQueries
 
         public async Task ClearAsync(Guid userId, CancellationToken ct)
         {
-            await query.OfUser(userId).ExecuteDeleteAsync(ct);
+            var cart = await query.OfUser(userId).IncludeCartItems(false).FirstAsync(ct);
+            cart.CartItems.Clear();
         }
     }
 }

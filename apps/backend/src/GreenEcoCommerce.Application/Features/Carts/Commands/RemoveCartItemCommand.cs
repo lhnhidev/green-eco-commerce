@@ -14,7 +14,7 @@ public record RemoveCartItemCommand(Guid UserId, Guid ProductId) : IRequest<Cart
     {
         public async Task<CartDto> Handle(RemoveCartItemCommand command, CancellationToken ct)
         {
-            var cart = await dbContext.Carts.OfUser(command.UserId).FirstOrDefaultAsync(ct);
+            var cart = await dbContext.Carts.OfUser(command.UserId).IncludeCartItems(false).FirstOrDefaultAsync(ct);
             if (cart == null) throw new NotFoundException("Cart not found.");
 
             var item = cart.CartItems.FirstOrDefault(i => i.ProductId == command.ProductId);

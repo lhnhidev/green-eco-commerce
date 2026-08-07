@@ -1,4 +1,4 @@
-import { invalidateGetAllProducts, useGetProductById, useUpdateProduct } from '@api'
+import { invalidateGetAllProducts, invalidateGetProductById, useGetProductById, useUpdateProduct } from '@api'
 import ProductForm, { type ProductFormValues } from '@components/features/products/ProductForm'
 import Loading from '@components/ui/status/Loading'
 import { notifications } from '@mantine/notifications'
@@ -17,6 +17,7 @@ const ProductEdit = () => {
     mutation: {
       onSuccess: async () => {
         await invalidateGetAllProducts(queryClient)
+        await invalidateGetProductById(queryClient, id!)
       },
     },
   })

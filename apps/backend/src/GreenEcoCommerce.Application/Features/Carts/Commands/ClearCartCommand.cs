@@ -11,6 +11,7 @@ public record ClearCartCommand(Guid UserId) : IRequest
         public async Task Handle(ClearCartCommand command, CancellationToken ct)
         {
             await dbContext.Carts.ClearAsync(command.UserId, ct);
+            await dbContext.SaveChangesAsync(ct);
         }
     }
 }
