@@ -6,6 +6,7 @@ import { ActionIcon, Menu, ScrollArea, Text, Tooltip } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import {
   ArrowsInSimpleIcon,
+  ArrowsOutSimpleIcon,
   ChatCircleTextIcon,
   ClockCounterClockwiseIcon,
   Leaf,
@@ -13,16 +14,19 @@ import {
 } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
+import { useNavigate } from 'react-router'
 import { setIsShow } from './chatbot.slice'
 
 interface HeaderChatbotProps {
   activeSessionId: string | null
   onNewChat: () => void
   onSelectSession: (id: string) => void
+  variant?: 'floating' | 'page'
 }
 
-const HeaderChatbot = ({ activeSessionId, onNewChat, onSelectSession }: HeaderChatbotProps) => {
+const HeaderChatbot = ({ activeSessionId, onNewChat, onSelectSession, variant = 'floating' }: HeaderChatbotProps) => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const { data: sessions = [] } = useGetAllChatSessions()
 
@@ -109,17 +113,34 @@ const HeaderChatbot = ({ activeSessionId, onNewChat, onSelectSession }: HeaderCh
           </button>
         </Tooltip>
 
-        <Tooltip label="Hide chatbot" withArrow>
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              dispatch(setIsShow(false))
-            }}
-            className="cursor-pointer text-gray-600 hover:text-green-700 hover:bg-green-200/50 transition-all rounded-full p-1.5"
-          >
-            <ArrowsInSimpleIcon size={18} weight="bold" />
-          </button>
-        </Tooltip>
+        {variant === 'floating' && (
+          <Tooltip label="Full screen" withArrow>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                navigate('/eco-assistant')
+                dispatch(setIsShow(false))
+              }}
+              className="cursor-pointer text-gray-600 hover:text-green-700 hover:bg-green-200/50 transition-all rounded-full p-1.5"
+            >
+              <ArrowsOutSimpleIcon size={18} weight="bold" />
+            </button>
+          </Tooltip>
+        )}
+
+        {variant === 'floating' && (
+          <Tooltip label="Hide chatbot" withArrow>
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                dispatch(setIsShow(false))
+              }}
+              className="cursor-pointer text-gray-600 hover:text-green-700 hover:bg-green-200/50 transition-all rounded-full p-1.5"
+            >
+              <ArrowsInSimpleIcon size={18} weight="bold" />
+            </button>
+          </Tooltip>
+        )}
       </div>
     </header>
   )
