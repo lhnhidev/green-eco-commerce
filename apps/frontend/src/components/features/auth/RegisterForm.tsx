@@ -21,6 +21,7 @@ const RegisterForm = () => {
   const {
     handleSubmit,
     control,
+    setError,
     formState: { errors },
   } = useForm<LocalRegisterFormValues>({
     defaultValues: {
@@ -45,6 +46,11 @@ const RegisterForm = () => {
         message: 'Password and repeat password must be same',
         color: 'red',
       })
+      return
+    }
+
+    if (data.address.trim().length < 5) {
+      setError('address', { message: 'Address must be at least 5 characters long' })
       return
     }
 

@@ -33,10 +33,10 @@ const ProfilePage = () => {
       password: '',
     },
     validate: {
-      firstName: (v) => (v.trim().length < 2 ? 'At least 2 characters' : null),
-      lastName: (v) => (v.trim().length < 2 ? 'At least 2 characters' : null),
+      firstName: (v) => (v.trim().length < 2 ? 'First name must be at least 2 characters' : null),
+      lastName: (v) => (v.trim().length < 2 ? 'Last name must be at least 2 characters' : null),
       phone: (v) => (v.trim().length !== 10 ? 'Phone must be exactly 10 digits' : null),
-      address: (v) => (v.trim().length < 5 ? 'At least 5 characters' : null),
+      address: (v) => (v.trim().length < 5 ? 'Address must be at least 5 characters' : null),
     },
   })
 
