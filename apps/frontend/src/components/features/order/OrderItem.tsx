@@ -4,7 +4,7 @@ import ImageWithFallback from '@components/ui/ImageWithFallback'
 import ConfirmModal from '@components/ui/primitives/ConfirmModal'
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
-import { TrashIcon } from '@phosphor-icons/react'
+import { TrashIcon, WarningIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatCurrency } from '@utils/formatCurrency'
 import { resolveImageUrl } from '@utils/resolveImageUrl'
@@ -14,6 +14,10 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
   const lineTotal = Number(product.productPrice) * Number(product.quantity)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+
+  const stock = product.currentStockQuantity ?? 0
+  const quantity = product.quantity ?? 1
+  const exceedsStock = quantity > stock
 
   const { mutate: removeProductFromCart } = useRemoveCartItem({
     mutation: {
@@ -69,6 +73,12 @@ const OrderItem = ({ product }: { product: CartItemDto }) => {
         <div className="min-w-0">
           <p className="font-medium text-sm truncate">{product.productName}</p>
           <p className="text-xs text-muted-foreground">Qty {product.quantity}</p>
+          {exceedsStock && (
+            <p className="flex items-center gap-1 text-xs font-semibold text-red-500 mt-0.5">
+              <WarningIcon weight="fill" size={12} />
+              {stock <= 0 ? 'Out of stock' : `Only ${stock} left in stock`}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <span className="text-sm font-semibold">{formatCurrency(lineTotal)}</span>

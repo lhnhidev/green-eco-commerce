@@ -5,20 +5,15 @@ namespace GreenEcoCommerce.Application.Queries;
 
 public static class CartQueries
 {
-    extension (IQueryable<Cart> query)
+    extension(IQueryable<Cart> query)
     {
-        public IQueryable<Cart> OfUser(Guid userId)
-        {
-            return query.Where(c => c.UserId == userId);
-        }
+        public IQueryable<Cart> OfUser(Guid userId) { return query.Where(c => c.UserId == userId); }
 
         public IQueryable<Cart> IncludeCartItems(bool withProducts = true)
         {
-            var q = query.Include(c => c.CartItems);
-            if (withProducts)
-            {
-                return q.ThenInclude(ci => ci.Product);
-            }
+            var q = query.Include(c => c.CartItems.Where(ci => ci.Product.IsActive));
+
+            if (withProducts) { return q.ThenInclude(ci => ci.Product); }
 
             return q;
         }

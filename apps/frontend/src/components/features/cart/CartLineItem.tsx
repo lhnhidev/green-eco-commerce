@@ -69,7 +69,9 @@ const CartLineItem = ({ cartItem }: { cartItem: CartItemDto }) => {
           <p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-amber-600">
             <WarningIcon weight="fill" size={14} /> Only {stock} left in stock
           </p>
-        ) : null}
+        ) : (
+          <p className="mt-2 text-xs text-gray-400">{stock} in stock</p>
+        )}
 
         <div className="flex items-center gap-2 mt-3">
           <button

@@ -43,6 +43,7 @@ import type {
   CheckoutRequest,
   CouponDto,
   CreateCouponCommand,
+  CreateStripePaymentIntentCommandResponse,
   CreateVnPayPaymentUrlCommandResponse,
   DocumentDto,
   ExportAnalystExcelParams,
@@ -82,7 +83,11 @@ import type {
   RegisterPayload,
   ReviewDto,
   ReviewPayloadDto,
+  SePayEndpointsSePayWebhookRequest,
+  SePayEndpointsWebhookResponse,
   SearchAddressesParams,
+  StripeEndpointsCreateStripePaymentIntentRequest,
+  StripeEndpointsWebhookResponse,
   UpdateApplicationSettingsCommand,
   UpdateCouponCommand,
   UpdateOrderStatusRequest,
@@ -4171,6 +4176,181 @@ export const invalidateHandleReturn = async (
 
 
 
+
+export const handleWebhook = (
+    sePayEndpointsSePayWebhookRequest: SePayEndpointsSePayWebhookRequest,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<SePayEndpointsWebhookResponse>(
+      {url: `/api/payments/sepay/webhook`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: sePayEndpointsSePayWebhookRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getHandleWebhookMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof handleWebhook>>, TError,{data: SePayEndpointsSePayWebhookRequest}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof handleWebhook>>, TError,{data: SePayEndpointsSePayWebhookRequest}, TContext> => {
+
+const mutationKey = ['handleWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof handleWebhook>>, {data: SePayEndpointsSePayWebhookRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  handleWebhook(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type HandleWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof handleWebhook>>>
+    export type HandleWebhookMutationBody = SePayEndpointsSePayWebhookRequest
+    export type HandleWebhookMutationError = ProblemDetails
+
+    export const useHandleWebhook = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof handleWebhook>>, TError,{data: SePayEndpointsSePayWebhookRequest}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof handleWebhook>>,
+        TError,
+        {data: SePayEndpointsSePayWebhookRequest},
+        TContext
+      > => {
+      return useMutation(getHandleWebhookMutationOptions(options), queryClient);
+    }
+
+export const createPaymentIntent = (
+    stripeEndpointsCreateStripePaymentIntentRequest: StripeEndpointsCreateStripePaymentIntentRequest,
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<CreateStripePaymentIntentCommandResponse>(
+      {url: `/api/payments/stripe/create-intent`, method: 'POST',
+      headers: {'Content-Type': 'application/json', },
+      data: stripeEndpointsCreateStripePaymentIntentRequest, signal
+    },
+      );
+    }
+
+
+
+
+export const getCreatePaymentIntentMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPaymentIntent>>, TError,{data: StripeEndpointsCreateStripePaymentIntentRequest}, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof createPaymentIntent>>, TError,{data: StripeEndpointsCreateStripePaymentIntentRequest}, TContext> => {
+
+const mutationKey = ['createPaymentIntent'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createPaymentIntent>>, {data: StripeEndpointsCreateStripePaymentIntentRequest}> = (props) => {
+          const {data} = props ?? {};
+
+          return  createPaymentIntent(data,)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreatePaymentIntentMutationResult = NonNullable<Awaited<ReturnType<typeof createPaymentIntent>>>
+    export type CreatePaymentIntentMutationBody = StripeEndpointsCreateStripePaymentIntentRequest
+    export type CreatePaymentIntentMutationError = ProblemDetails
+
+    export const useCreatePaymentIntent = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createPaymentIntent>>, TError,{data: StripeEndpointsCreateStripePaymentIntentRequest}, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof createPaymentIntent>>,
+        TError,
+        {data: StripeEndpointsCreateStripePaymentIntentRequest},
+        TContext
+      > => {
+      return useMutation(getCreatePaymentIntentMutationOptions(options), queryClient);
+    }
+
+export const handleStripeWebhook = (
+
+ signal?: AbortSignal
+) => {
+
+
+      return customInstance<StripeEndpointsWebhookResponse>(
+      {url: `/api/payments/stripe/webhook`, method: 'POST', signal
+    },
+      );
+    }
+
+
+
+
+export const getHandleStripeWebhookMutationOptions = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof handleStripeWebhook>>, TError,void, TContext>, }
+): UseMutationOptions<Awaited<ReturnType<typeof handleStripeWebhook>>, TError,void, TContext> => {
+
+const mutationKey = ['handleStripeWebhook'];
+const {mutation: mutationOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof handleStripeWebhook>>, void> = () => {
+
+
+          return  handleStripeWebhook()
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type HandleStripeWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof handleStripeWebhook>>>
+
+    export type HandleStripeWebhookMutationError = ProblemDetails
+
+    export const useHandleStripeWebhook = <TError = ProblemDetails,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof handleStripeWebhook>>, TError,void, TContext>, }
+ , queryClient?: QueryClient): UseMutationResult<
+        Awaited<ReturnType<typeof handleStripeWebhook>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getHandleStripeWebhookMutationOptions(options), queryClient);
+    }
 
 export const getGreenWallet = (
 

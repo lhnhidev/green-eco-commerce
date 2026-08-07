@@ -195,6 +195,7 @@ builder.Services.AddSingleton<IApplicationEnvironment, ApplicationEnvironment>()
 builder.Services.AddSingleton<IAIService, AIService>();
 builder.Services.AddSingleton<IFileStorageService, FileStorageService>();
 builder.Services.AddSingleton<IVnPayService, VnPayService>();
+builder.Services.AddSingleton<IStripeService, StripeService>();
 
 // Đăng ký dịch vụ Redis Distributed Cache của Microsoft
 builder.AddRedisDistributedCache("cache");
@@ -278,6 +279,7 @@ app.MapMeStatisticsEndpoints();
 app.MapPaymentEndpoints();
 app.MapVnPayEndpoints();
 app.MapSePayEndpoints();
+app.MapStripeEndpoints();
 app.MapGreenWalletEndpoints();
 app.MapUserEndpoints();
 app.MapAdminEndpoints();

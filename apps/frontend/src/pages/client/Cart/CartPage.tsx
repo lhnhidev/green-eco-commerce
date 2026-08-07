@@ -51,7 +51,7 @@ const CartPage = () => {
   const items = cart?.items ?? []
   const subtotal = items.reduce((acc, item) => acc + (item.productPrice ?? 0) * (item.quantity ?? 1), 0)
   const totalCo2Saved = items.reduce((acc, item) => acc + (item.unitCo2Saved ?? 0) * (item.quantity ?? 1), 0)
-  const hasBlockingStockIssue = items.some((item) => (item.currentStockQuantity ?? 0) <= 0)
+  const hasBlockingStockIssue = items.some((item) => (item.quantity ?? 0) > (item.currentStockQuantity ?? 0))
 
   return (
     <Container className="py-6">
@@ -120,7 +120,7 @@ const CartPage = () => {
 
             {hasBlockingStockIssue && (
               <p className="text-xs font-semibold text-red-500">
-                Remove out-of-stock items before proceeding to checkout.
+                Some items exceed available stock. Adjust quantities before proceeding to checkout.
               </p>
             )}
 

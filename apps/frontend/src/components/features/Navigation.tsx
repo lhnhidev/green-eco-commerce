@@ -226,8 +226,10 @@ export function Navigation() {
               )}
             </button>
 
-            {/* Notifications */}
-            {user && <NotificationBell />}
+            <div className="mr-3">
+              {/* Notifications */}
+              {user && <NotificationBell />}
+            </div>
 
             {/* Profile */}
             <ProfileUser />

@@ -1,5 +1,6 @@
 using FluentValidation;
 using GreenEcoCommerce.Application.Interfaces.Configuration;
+using GreenEcoCommerce.Application.Interfaces.Payments;
 using GreenEcoCommerce.Application.Interfaces.Persistence;
 using GreenEcoCommerce.Application.Queries;
 using GreenEcoCommerce.Domain.Entities;
@@ -10,12 +11,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GreenEcoCommerce.Application.Features.Checkout.Commands;
 
-public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAddress, PaymentMethodEnum PaymentMethod, string? CouponCode = null)
+public record CheckoutCommand(
+        Guid UserId,
+        int PointsToRedeem,
+        string DeliveryAddress,
+        PaymentMethodEnum PaymentMethod,
+        string? CouponCode = null,
+        // Set only for Stripe: the PaymentIntent the client confirmed as succeeded. Verified
+        // server-side against Stripe before the order is trusted as paid — see step 3b below.
+        string? StripePaymentIntentId = null)
         : IRequest<CheckoutCommand.Response>
 {
     public record Response(Guid OrderId);
 
-    public class Handler(IApplicationDbContext dbContext, IApplicationConfiguration configuration) : IRequestHandler<CheckoutCommand, Response>
+    public class Handler(IApplicationDbContext dbContext, IApplicationConfiguration configuration, IStripeService stripeService)
+            : IRequestHandler<CheckoutCommand, Response>
     {
         public async Task<Response> Handle(CheckoutCommand command, CancellationToken ct)
         {
@@ -141,6 +151,23 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                 if (finalPrice < 0)
                     throw new InvalidOperationException("Final price cannot be negative after applying discounts.");
 
+                // 3b. For Stripe, the order is only placed after payment already succeeded (see
+                // CreateStripePaymentIntentCommand) — verify that with Stripe directly rather than
+                // trusting the client's word, since a forged PaymentIntentId would otherwise place a
+                // free order.
+                bool stripeAlreadyPaid = false;
+                if (command.PaymentMethod == PaymentMethodEnum.Stripe)
+                {
+                    if (string.IsNullOrWhiteSpace(command.StripePaymentIntentId) ||
+                        !await stripeService.VerifyPaymentSucceededAsync(command.StripePaymentIntentId, finalPrice, ct))
+                    {
+                        throw new BadRequestException(
+                                "Payment could not be verified. If you were charged, please contact support.");
+                    }
+
+                    stripeAlreadyPaid = true;
+                }
+
                 // 4. Create Order & Payment
                 await dbContext.Orders.AddAsync(
                     new Order
@@ -157,11 +184,14 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                         {
                             OrderId = orderId,
                             Method = command.PaymentMethod,
-                            // Every payment method settles after checkout, never on the spot: COD on delivery,
-                            // VNPay via its return callback, Bank/MoMo via the SePay transfer webhook.
-                            Status = PaymentStatusEnum.Pending,
+                            // Stripe has already settled by this point (verified above). Every other
+                            // method settles after checkout: COD on delivery, VNPay via its return
+                            // callback, Bank/MoMo via the SePay transfer webhook.
+                            Status = stripeAlreadyPaid ? PaymentStatusEnum.Paid : PaymentStatusEnum.Pending,
                             Amount = finalPrice,
-                            TransactionRef = Guid.NewGuid().ToString("N") // Placeholder for 3rd party payment ref
+                            TransactionRef = stripeAlreadyPaid
+                                    ? command.StripePaymentIntentId!
+                                    : Guid.NewGuid().ToString("N") // Placeholder for 3rd party payment ref
                         }
                     },
                     ct);
@@ -215,6 +245,10 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
             RuleFor(x => x)
                 .Must(x => x.PointsToRedeem <= 0 || string.IsNullOrWhiteSpace(x.CouponCode))
                 .WithMessage("Cannot combine a coupon and Green Points on the same order — choose one.");
+
+            RuleFor(x => x.StripePaymentIntentId)
+                .NotEmpty().WithMessage("A confirmed Stripe payment is required for this payment method.")
+                .When(x => x.PaymentMethod == PaymentMethodEnum.Stripe);
         }
     }
 }

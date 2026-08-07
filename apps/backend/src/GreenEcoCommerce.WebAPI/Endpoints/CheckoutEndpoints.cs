@@ -27,11 +27,17 @@ public static class CheckoutEndpoints
             request.PointsToRedeem,
             request.DeliveryAddress,
             request.PaymentMethod,
-            request.CouponCode);
+            request.CouponCode,
+            request.StripePaymentIntentId);
 
         var response = await sender.Send(command);
         return TypedResults.Ok(response);
     }
 }
 
-public record CheckoutRequest(int PointsToRedeem, string DeliveryAddress, PaymentMethodEnum PaymentMethod, string? CouponCode = null);
+public record CheckoutRequest(
+        int PointsToRedeem,
+        string DeliveryAddress,
+        PaymentMethodEnum PaymentMethod,
+        string? CouponCode = null,
+        string? StripePaymentIntentId = null);

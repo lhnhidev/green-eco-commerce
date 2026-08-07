@@ -7,7 +7,7 @@ import {
   useMarkRead,
 } from '@api'
 import type { NotificationDto } from '@api/schemas'
-import { ActionIcon, Indicator, Menu, ScrollArea, Text } from '@mantine/core'
+import { Indicator, Menu, ScrollArea, Text } from '@mantine/core'
 import { BellIcon } from '@phosphor-icons/react'
 import { useQueryClient } from '@tanstack/react-query'
 import dayjs from 'dayjs'
@@ -40,11 +40,9 @@ const NotificationBell = () => {
   return (
     <Menu shadow="md" width={320} position="bottom-end">
       <Menu.Target>
-        <ActionIcon variant="subtle" color="gray" aria-label="Notifications">
-          <Indicator disabled={unreadCount === 0} label={unreadCount > 9 ? '9+' : unreadCount} size={16} color="red">
-            <BellIcon size={18} />
-          </Indicator>
-        </ActionIcon>
+        <Indicator disabled={unreadCount === 0} label={unreadCount > 9 ? '9+' : unreadCount} size={16} color="red">
+          <BellIcon size={18} />
+        </Indicator>
       </Menu.Target>
       <Menu.Dropdown>
         <div className="flex items-center justify-between px-3 py-1">

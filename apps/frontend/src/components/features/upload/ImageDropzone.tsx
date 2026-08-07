@@ -72,7 +72,7 @@ export const ImageDropzone = ({ value, onChange, label = 'Image', previewAspect 
           variant="filled"
           radius="xl"
           size="sm"
-          style={{ position: 'absolute', top: previewAspect ? 8 : 0, right: previewAspect ? 8 : 0, zIndex: 1000 }}
+          style={{ position: 'absolute', top: previewAspect ? 8 : 0, right: previewAspect ? 8 : 0 }}
           onClick={(e) => {
             e.stopPropagation()
             onChange('')

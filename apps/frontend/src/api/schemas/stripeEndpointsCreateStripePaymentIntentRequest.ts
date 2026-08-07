@@ -5,14 +5,9 @@
  * API GreenEcoCommerce app - app for buying and selling green products
  * OpenAPI spec version: v1
  */
-import type { PaymentMethodEnum } from './paymentMethodEnum';
 
-export interface CheckoutRequest {
+export interface StripeEndpointsCreateStripePaymentIntentRequest {
   pointsToRedeem: number;
-  deliveryAddress: string;
-  paymentMethod: PaymentMethodEnum;
   /** @nullable */
   couponCode?: string | null;
-  /** @nullable */
-  stripePaymentIntentId?: string | null;
 }

@@ -4,6 +4,7 @@ import {
   invalidateGetMyAddresses,
   invalidateGetMyStatistics,
   useCreateAddress,
+  useCreatePaymentIntent,
   useCreatePaymentUrl,
   useGetCart,
   useGetGreenWallet,
@@ -29,6 +30,7 @@ import {
   Button,
   Checkbox,
   Group,
+  Loader,
   Modal,
   NumberInput,
   Radio,
@@ -39,23 +41,39 @@ import {
 import { useDisclosure } from '@mantine/hooks'
 import { notifications } from '@mantine/notifications'
 import { MapPinIcon, MoneyWavyIcon, ReceiptIcon, ShoppingCartIcon, TagIcon } from '@phosphor-icons/react'
+import { Elements } from '@stripe/react-stripe-js'
+import { loadStripe, type Stripe } from '@stripe/stripe-js'
 import { useQueryClient } from '@tanstack/react-query'
 import { formatCurrency } from '@utils/formatCurrency'
 import type { AxiosError } from 'axios'
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import PaymentQr from '../Payment/PaymentQr'
+import StripePaymentForm from './StripePaymentForm'
+
+// loadStripe() should only be called once per publishable key — memoize the promise so
+// re-renders don't re-load the Stripe.js script.
+let stripePromise: Promise<Stripe | null> | null = null
+let stripePromiseKey: string | null = null
+const getStripe = (publishableKey: string) => {
+  if (stripePromiseKey !== publishableKey) {
+    stripePromise = loadStripe(publishableKey)
+    stripePromiseKey = publishableKey
+  }
+  return stripePromise!
+}
 
 const breadcrumbItems = [
   { title: 'Home', href: '/' },
   { title: 'Checkout', href: '/checkout' },
 ]
 
-const paymentMethodLabel: Record<'COD' | 'Bank' | 'MoMo' | 'VnPay', string> = {
+const paymentMethodLabel: Record<'COD' | 'Bank' | 'MoMo' | 'VnPay' | 'Stripe', string> = {
   COD: 'Cash on Delivery',
   Bank: 'Bank Transfer',
   MoMo: 'MoMo Wallet',
   VnPay: 'VNPay',
+  Stripe: 'Credit/Debit Card (Stripe)',
 }
 
 const NEW_ADDRESS_OPTION = 'new'
@@ -112,7 +130,7 @@ const CheckoutPage = () => {
     },
   })
 
-  const [paymentManner, setPaymentManner] = useState<'COD' | 'Bank' | 'MoMo' | 'VnPay'>('Bank')
+  const [paymentManner, setPaymentManner] = useState<'COD' | 'Bank' | 'MoMo' | 'VnPay' | 'Stripe'>('Stripe')
   const [opened, { open, close }] = useDisclosure(false)
   const [couponCode, setCouponCode] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState<ValidateCouponResponse | null>(null)
@@ -124,6 +142,15 @@ const CheckoutPage = () => {
   const { data: polledOrder } = useGetMyOrderById(payingOrderId ?? '', {
     query: { enabled: !!payingOrderId, refetchInterval: 3000 },
   })
+
+  // Stripe Payment Element flow: unlike every other payment method, the order is NOT placed up
+  // front. A PaymentIntent is created against the cart total first (no Order yet), the user pays
+  // inline, and only once Stripe confirms success do we call checkout() to actually place the
+  // order — so cancelling/abandoning payment never leaves a placed-but-unpaid order behind.
+  const [stripeSession, setStripeSession] = useState<{ clientSecret: string; publishableKey: string } | null>(null)
+  // True once payment has succeeded and we're placing the order — the Payment Element is swapped
+  // for a spinner during this window since the PaymentIntent has already been consumed.
+  const [finalizingStripeOrder, setFinalizingStripeOrder] = useState(false)
 
   useEffect(() => {
     if (payingOrderId && polledOrder?.paymentStatus === PaymentStatusEnum.Paid) {
@@ -170,12 +197,33 @@ const CheckoutPage = () => {
     },
   })
 
+  const { mutate: createStripeIntent, isPending: startingStripe } = useCreatePaymentIntent({
+    mutation: {
+      onSuccess: (data) => {
+        setStripeSession({ clientSecret: data.clientSecret, publishableKey: data.publishableKey })
+        open()
+      },
+      onError: (error) => {
+        const axiosError = error as AxiosError<ProblemDetails>
+        notifications.show({
+          title: 'Stripe error',
+          message: axiosError.response?.data?.detail || 'Could not start Stripe payment. Please try again.',
+          color: 'red',
+        })
+      },
+    },
+  })
+
   const { mutate: checkout, isPending: checkingOut } = useProcessCheckout({
     mutation: {
       onSuccess: (data) => {
         invalidateGetCart(queryClient)
         invalidateGetMyStatistics(queryClient)
         invalidateGetGreenWallet(queryClient)
+
+        close()
+        setStripeSession(null)
+        setFinalizingStripeOrder(false)
 
         if (paymentManner === 'VnPay') {
           // Order is created with Payment.Status = Pending — hand off to VNPay to collect
@@ -192,6 +240,7 @@ const CheckoutPage = () => {
           return
         }
 
+        // COD places immediately; Stripe only gets here after payment already succeeded.
         notifications.show({
           title: 'Order placed!',
           message: `Your order #${data.orderId.slice(-8).toUpperCase()} has been placed.`,
@@ -201,6 +250,25 @@ const CheckoutPage = () => {
       },
       onError: (error) => {
         const axiosError = error as AxiosError<ProblemDetails>
+
+        if (paymentManner === 'Stripe' && finalizingStripeOrder) {
+          // Payment already succeeded with Stripe but placing the order failed — this is a rare
+          // edge case (e.g. the item went out of stock in the few seconds it took to pay). The
+          // customer was charged, so this needs a clear, non-dismissive-by-accident error.
+          close()
+          setStripeSession(null)
+          setFinalizingStripeOrder(false)
+          notifications.show({
+            title: 'Payment succeeded, but order placement failed',
+            message:
+              axiosError.response?.data?.detail ||
+              'Your card was charged but we could not finalize your order. Please contact support and reference this payment.',
+            color: 'red',
+            autoClose: false,
+          })
+          return
+        }
+
         notifications.show({
           title: 'Checkout failed',
           message: axiosError.response?.data?.detail || 'Something went wrong. Please try again.',
@@ -213,6 +281,7 @@ const CheckoutPage = () => {
   if (cartLoading) return <Loading text="Loading" />
 
   const totalPrice = cart?.items.reduce((acc, item) => acc + item.productPrice * item.quantity, 0) || 0
+  const hasStockIssue = (cart?.items ?? []).some((item) => item.quantity > (item.currentStockQuantity ?? 0))
   const couponDiscount = appliedCoupon?.discountAmount ?? 0
   const pointsDiscount = pointsToRedeem / 20
   // Coupon and Green Points are mutually exclusive per order — only one discount source applies.
@@ -247,28 +316,57 @@ const CheckoutPage = () => {
     }
   }
 
-  const handlePlaceOrder = () => {
-    if (!deliveryAddress.trim()) {
-      notifications.show({ title: 'Address required', message: 'Please enter a delivery address.', color: 'orange' })
-      return
-    }
+  const paymentMethodMap: Record<typeof paymentManner, CheckoutRequest['paymentMethod']> = {
+    COD: PaymentMethodEnum.COD,
+    Bank: PaymentMethodEnum.Bank,
+    MoMo: PaymentMethodEnum.MoMo,
+    VnPay: PaymentMethodEnum.VnPay,
+    Stripe: PaymentMethodEnum.Stripe,
+  }
 
+  // Actually places the order. For every method except Stripe this runs immediately; for Stripe
+  // it only runs after handleStripePaymentSucceeded confirms payment already went through.
+  const runCheckout = (stripePaymentIntentId?: string) => {
     maybeSaveNewAddress()
-
-    const paymentMethodMap: Record<string, CheckoutRequest['paymentMethod']> = {
-      COD: PaymentMethodEnum.COD,
-      Bank: PaymentMethodEnum.Bank,
-      MoMo: PaymentMethodEnum.MoMo,
-      VnPay: PaymentMethodEnum.VnPay,
-    }
     checkout({
       data: {
         deliveryAddress,
         paymentMethod: paymentMethodMap[paymentManner],
         pointsToRedeem,
         couponCode: appliedCoupon?.code,
+        stripePaymentIntentId,
       },
     })
+  }
+
+  const handlePlaceOrder = () => {
+    if (!deliveryAddress.trim()) {
+      notifications.show({ title: 'Address required', message: 'Please enter a delivery address.', color: 'orange' })
+      return
+    }
+
+    if (hasStockIssue) {
+      notifications.show({
+        title: 'Stock issue',
+        message: 'Some items in your cart exceed available stock. Please update your cart before checking out.',
+        color: 'red',
+      })
+      return
+    }
+
+    if (paymentManner === 'Stripe') {
+      // Don't place the order yet — collect payment first. If the user cancels here, nothing
+      // was ever created (no stock decrement, no coupon claim, no order).
+      createStripeIntent({ data: { pointsToRedeem, couponCode: appliedCoupon?.code } })
+      return
+    }
+
+    runCheckout()
+  }
+
+  const handleStripePaymentSucceeded = (paymentIntentId: string) => {
+    setFinalizingStripeOrder(true)
+    runCheckout(paymentIntentId)
   }
 
   return (
@@ -279,11 +377,32 @@ const CheckoutPage = () => {
         onClose={() => {
           close()
           setPayingOrderId(null)
+          setStripeSession(null)
+          setFinalizingStripeOrder(false)
         }}
-        title="Scan to Pay"
+        closeOnClickOutside={!finalizingStripeOrder}
+        withCloseButton={!finalizingStripeOrder}
+        closeOnEscape={!finalizingStripeOrder}
+        title={stripeSession ? 'Pay with Card' : 'Scan to Pay'}
         centered
       >
         {payingOrderId && <PaymentQr amount={total} orderId={payingOrderId} />}
+        {stripeSession &&
+          (finalizingStripeOrder ? (
+            <Stack align="center" gap="sm" py="md">
+              <Loader />
+              <Text size="sm" c="dimmed">
+                Payment received — placing your order…
+              </Text>
+            </Stack>
+          ) : (
+            <Elements
+              stripe={getStripe(stripeSession.publishableKey)}
+              options={{ clientSecret: stripeSession.clientSecret, locale: 'en' }}
+            >
+              <StripePaymentForm onPaymentSucceeded={handleStripePaymentSucceeded} />
+            </Elements>
+          ))}
       </Modal>
 
       <PageBreadcrumbs items={breadcrumbItems} className="mb-4" />
@@ -352,13 +471,14 @@ const CheckoutPage = () => {
             <Radio.Group
               name="paymentManner"
               value={paymentManner}
-              onChange={(v) => setPaymentManner(v as 'COD' | 'Bank' | 'MoMo' | 'VnPay')}
+              onChange={(v) => setPaymentManner(v as 'COD' | 'Bank' | 'MoMo' | 'VnPay' | 'Stripe')}
             >
               <Group>
                 <Radio value="COD" label="COD (Cash on Delivery)" />
-                <Radio value="Bank" label="Bank Transfer" />
-                <Radio value="MoMo" label="MoMo Wallet" />
-                <Radio value="VnPay" label="VNPay" />
+                <Radio value="Stripe" label="Credit/Debit Card (Stripe)" />
+                {/* <Radio value="Bank" label="Bank Transfer" disabled /> */}
+                <Radio value="MoMo" label="MoMo Wallet (Coming Soon)" disabled />
+                <Radio value="VnPay" label="VNPay (Coming Soon)" disabled />
               </Group>
             </Radio.Group>
           </Panel>
@@ -481,12 +601,18 @@ const CheckoutPage = () => {
               </div>
             </div>
 
+            {hasStockIssue && (
+              <p className="text-xs font-semibold text-red-500 mt-3">
+                Some items exceed available stock. Return to your cart to adjust quantities.
+              </p>
+            )}
+
             <Button
               fullWidth
               size="md"
               className="mt-4"
-              loading={checkingOut || startingVnPay}
-              disabled={!cart?.items?.length || !!payingOrderId}
+              loading={checkingOut || startingVnPay || startingStripe}
+              disabled={!cart?.items?.length || !!payingOrderId || !!stripeSession || hasStockIssue}
               onClick={handlePlaceOrder}
             >
               {paymentManner === 'COD' ? 'Place Order (COD)' : 'Pay Now'}

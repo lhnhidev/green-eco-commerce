@@ -4,6 +4,7 @@ import {
   invalidateIsInWishlist,
   useAddCartItem,
   useAddToWishlist,
+  useGetCategoryById,
   useGetProductById,
   useIsInWishlist,
   useRemoveFromWishlist,
@@ -26,9 +27,10 @@ import Loading from '@components/ui/status/Loading'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { useAuth } from '@hooks/useAuth'
-import { ActionIcon, Badge, Button, Modal, NumberInput, Rating, Tabs } from '@mantine/core'
+import { ActionIcon, Badge, Button, Modal, NumberInput, Progress, Rating, Tabs, Tooltip, Paper, Text, Group } from '@mantine/core'
 import { notifications } from '@mantine/notifications'
 import {
+  ArrowsClockwiseIcon,
   ArrowsOutIcon,
   CaretLeftIcon,
   CaretRightIcon,
@@ -97,6 +99,13 @@ const ProductDetailPage = () => {
   const { data: isWishlisted } = useIsInWishlist(id ?? '', {
     query: {
       enabled: !!user && !!id,
+      staleTime: 1000 * 60 * 5,
+    },
+  })
+
+  const { data: category } = useGetCategoryById(product?.categoryId ?? '', {
+    query: {
+      enabled: !!product?.categoryId,
       staleTime: 1000 * 60 * 5,
     },
   })
@@ -178,10 +187,12 @@ const ProductDetailPage = () => {
   const breadcrumbItems = [
     { title: 'Home', href: '/' },
     { title: 'Products', href: '/products' },
+    ...(category ? [{ title: category.name, href: `/products?categoryId=${category.id}` }] : []),
     { title: product.name, href: `/products/${product.id}` },
   ]
 
   const outOfStock = product.stockQty <= 0
+  const unavailable = !product.isActive
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const { left, top, width, height } = e.currentTarget.getBoundingClientRect()
@@ -200,35 +211,39 @@ const ProductDetailPage = () => {
       : null
 
   return (
-    <div className="min-h-screen bg-white pb-20 lg:pb-0">
+    <div className="min-h-screen bg-slate-50/30 pb-20 lg:pb-0 relative font-sans selection:bg-primary/20 selection:text-primary">
+      {/* Soft background gradient blob */}
+      <div className="absolute top-0 left-0 right-0 h-[500px] bg-gradient-to-b from-green-50/80 to-transparent -z-10" />
+
       <Seo
         title={product.name}
         description={product.description ?? undefined}
         image={resolveImageUrl(product.imageUrl[0]) ?? undefined}
       />
 
-      <Container className="py-6">
-        <PageBreadcrumbs items={breadcrumbItems} className="mb-4" separator="/" />
+      <Container className="py-8 relative z-10">
+        <PageBreadcrumbs items={breadcrumbItems} className="mb-6 opacity-80 hover:opacity-100 transition-opacity" separator="/" />
 
-        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px] lg:gap-10">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           {/* Image Gallery */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-4">
             {/** biome-ignore lint/a11y/noStaticElementInteractions: mouse-driven zoom, not a control */}
             <div
-              className="relative w-full aspect-square overflow-hidden rounded-lg bg-white border border-border group cursor-zoom-in"
+              className="relative w-full aspect-[4/3] overflow-hidden rounded-3xl bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] group cursor-zoom-in"
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
             >
               <ImageWithFallback
-                className="w-full h-full object-contain p-4 transition-transform duration-300 ease-out group-hover:scale-105"
+                className="w-full h-full object-contain p-6 transition-transform duration-500 ease-out group-hover:scale-110"
                 style={zoomStyle}
                 alt={product.name}
                 src={activeImg}
               />
-              <div className="absolute top-3 left-3">
-                <Badge size="sm" color="primary" variant="light" leftSection={<LeafIcon weight="fill" size={11} />}>
-                  Eco-certified
-                </Badge>
+              <div className="absolute top-4 left-4 z-10">
+                <div className="flex items-center gap-1.5 bg-white/80 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm border border-white/20">
+                  <LeafIcon weight="fill" size={14} className="text-primary" />
+                  <span className="text-xs font-semibold text-gray-800 tracking-wide uppercase">Eco-Certified</span>
+                </div>
               </div>
               <button
                 type="button"
@@ -236,10 +251,10 @@ const ProductDetailPage = () => {
                   e.stopPropagation()
                   setLightboxOpen(true)
                 }}
-                className="absolute bottom-3 right-3 w-8 h-8 rounded-full bg-white/90 shadow-sm flex items-center justify-center text-gray-600 hover:text-primary transition-colors"
+                className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-white/90 backdrop-blur shadow-lg flex items-center justify-center text-gray-700 hover:text-primary hover:scale-110 transition-all duration-300"
                 aria-label="View full size image"
               >
-                <ArrowsOutIcon size={15} />
+                <ArrowsOutIcon size={18} />
               </button>
             </div>
 
@@ -255,99 +270,156 @@ const ProductDetailPage = () => {
           </div>
 
           {/* Buy box */}
-          <div className="lg:sticky lg:top-[72px] lg:self-start flex flex-col gap-3">
+          <div className="lg:sticky lg:top-[100px] lg:self-start flex flex-col gap-6">
             {product.materials && product.materials.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
-                {product.materials.map((material) => (
-                  <Badge key={material.id} size="sm" variant="light" color="gray">
+              <div className="flex flex-wrap gap-2">
+                {/* {product.materials.map((material) => (
+                  <Badge key={material.id} size="sm" variant="gradient" gradient={{ from: 'teal', to: 'lime', deg: 105 }} className="shadow-sm">
                     {material.name}
                   </Badge>
-                ))}
+                ))} */}
               </div>
             )}
 
-            <h1 className="text-2xl font-semibold text-gray-900 leading-tight">{product.name}</h1>
+            <div className="flex flex-col gap-2">
+              <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 leading-tight tracking-tight">{product.name}</h1>
 
-            <div className="flex items-center gap-2">
-              <Rating value={product?.rating ?? 0} fractions={2} readOnly size="xs" />
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveTab('reviews')
-                  document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' })
-                }}
-                className="text-xs text-muted-foreground hover:text-primary transition-colors"
-              >
-                {product.reviewsCount === 1 ? '1 review' : `${product.reviewsCount} reviews`}
-              </button>
+              <div className="flex items-center gap-3 mt-1">
+                <div className="flex items-center bg-orange-50 px-2.5 py-1 rounded-md border border-orange-100">
+                  <Rating value={product?.rating ?? 0} fractions={2} readOnly size="sm" color="orange" />
+                  <span className="text-sm font-bold text-orange-700 ml-2">{product?.rating?.toFixed(1) ?? '0.0'}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('reviews')
+                    document.getElementById('product-tabs')?.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="text-sm text-gray-500 hover:text-primary underline underline-offset-4 transition-colors font-medium"
+                >
+                  {product.reviewsCount === 1 ? '1 review' : `${product.reviewsCount} reviews`}
+                </button>
+              </div>
             </div>
 
-            <PriceTag value={product.price} size="lg" />
+            <div className="h-px w-full bg-linear-to-r from-gray-200 to-transparent" />
 
-            <div className="flex items-center gap-2">
-              <StockBadge stockQty={product.stockQty} />
-              {carbonSaved && (
-                <span className="inline-flex items-center gap-1 text-xs text-primary">
-                  <ShieldCheckIcon weight="fill" size={13} />
-                  {carbonSaved}% less CO₂e than baseline
-                </span>
-              )}
+            <div className="flex flex-col gap-4">
+              <div className="flex items-end gap-4">
+                <PriceTag value={product.price} size="xl" />
+              </div>
+
+              <div className="flex flex-wrap items-center gap-3">
+                {unavailable ? (
+                  <Badge size="md" color="gray" variant="filled" radius="sm">
+                    Unavailable
+                  </Badge>
+                ) : (
+                  <StockBadge stockQty={product.stockQty} />
+                )}
+
+                {carbonSaved && (
+                  <div className="flex items-center gap-1.5 bg-green-50 text-green-700 px-3 py-1 rounded-full text-sm font-semibold border border-green-100 shadow-sm">
+                    <ShieldCheckIcon weight="fill" size={16} />
+                    {carbonSaved}% less CO₂
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex items-end gap-3 pt-1">
-              <NumberInput
-                label="Quantity"
-                min={1}
-                max={product.stockQty}
-                value={amountProduct}
-                disabled={outOfStock}
-                w={90}
-                onChange={(value) => {
-                  const parsed = typeof value === 'number' ? value : parseInt(value.toString(), 10) || 1
-                  setAmountProduct(Math.min(Math.max(1, parsed), product.stockQty))
-                }}
-              />
-              <span className="text-sm text-muted-foreground pb-2">
-                Total: <PriceTag value={product.price * amountProduct} size="sm" colorClassName="text-gray-900" />
-              </span>
+            <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-6 border border-white shadow-[0_8px_30px_rgb(0,0,0,0.06)] mt-2">
+              <div className="flex items-end gap-5 mb-6">
+                <NumberInput
+                  label={<span className="text-sm font-semibold text-gray-700 mb-1.5 block">Quantity</span>}
+                  description={<span className="text-xs font-medium text-gray-500 mt-1 block">{product.stockQty} available</span>}
+                  min={1}
+                  max={product.stockQty}
+                  value={amountProduct}
+                  disabled={outOfStock || unavailable}
+                  w={110}
+                  size="md"
+                  radius="md"
+                  onChange={(value) => {
+                    const parsed = typeof value === 'number' ? value : parseInt(value.toString(), 10) || 1
+                    setAmountProduct(Math.min(Math.max(1, parsed), product.stockQty))
+                  }}
+                  classNames={{ input: 'font-semibold text-center' }}
+                />
+                <div className="flex flex-col pb-1">
+                  <span className="text-xs text-gray-500 font-bold uppercase tracking-wider mb-1">Subtotal</span>
+                  <PriceTag value={product.price * amountProduct} size="lg" />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <Button
+                  size="lg"
+                  radius="md"
+                  className="flex-1 shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-300 hover:-translate-y-0.5"
+                  color="primary"
+                  disabled={outOfStock || unavailable}
+                  onClick={() => handleAddToCart(product.id, amountProduct)}
+                  leftSection={<ShoppingCartIcon weight="bold" size={20} />}
+                >
+                  {unavailable ? 'Unavailable' : outOfStock ? 'Out of stock' : 'Add to cart'}
+                </Button>
+
+                <Tooltip label={isWishlisted ? 'Remove from favorites' : 'Save to favorites'} withArrow position="top">
+                  <ActionIcon
+                    variant={isWishlisted ? 'light' : 'default'}
+                    size="xl"
+                    radius="md"
+                    color={isWishlisted ? 'red' : 'gray'}
+                    onClick={handleWishlist}
+                    className={`shadow-sm transition-all duration-300 ${isWishlisted ? 'bg-red-50 text-red-500 border-red-100' : 'hover:bg-gray-50'}`}
+                  >
+                    <HeartIcon weight={isWishlisted ? 'fill' : 'bold'} size={22} className={isWishlisted ? 'scale-110 transition-transform' : ''} />
+                  </ActionIcon>
+                </Tooltip>
+
+                <Tooltip label={isComparing ? 'Remove from compare' : 'Add to compare'} withArrow position="top">
+                  <ActionIcon
+                    variant={isComparing ? 'light' : 'default'}
+                    size="xl"
+                    radius="md"
+                    color={isComparing ? 'primary' : 'gray'}
+                    onClick={handleCompare}
+                    className={`shadow-sm transition-all duration-300 ${isComparing ? 'bg-primary/10 text-primary border-primary/20' : 'hover:bg-gray-50'}`}
+                  >
+                    <ScalesIcon weight={isComparing ? 'fill' : 'bold'} size={22} />
+                  </ActionIcon>
+                </Tooltip>
+              </div>
             </div>
 
-            <Button
-              size="md"
-              fullWidth
-              disabled={outOfStock}
-              onClick={() => handleAddToCart(product.id, amountProduct)}
-              leftSection={<ShoppingCartIcon weight="bold" size={16} />}
-            >
-              {outOfStock ? 'Out of stock' : 'Add to cart'}
-            </Button>
-
-            <div className="flex items-center gap-2">
-              <ActionIcon
-                variant="subtle"
-                size="lg"
-                color={isWishlisted ? 'red' : 'gray'}
-                onClick={handleWishlist}
-                aria-label={isWishlisted ? 'Remove from favorites' : 'Save to favorites'}
-                title={isWishlisted ? 'Remove from favorites' : 'Save to favorites'}
-              >
-                <HeartIcon weight={isWishlisted ? 'fill' : 'bold'} size={17} />
-              </ActionIcon>
-              <ActionIcon
-                variant="subtle"
-                size="lg"
-                color={isComparing ? 'primary' : 'gray'}
-                onClick={handleCompare}
-                aria-label={isComparing ? 'Remove from compare' : 'Add to compare'}
-                title={isComparing ? 'Remove from compare' : 'Add to compare'}
-              >
-                <ScalesIcon weight={isComparing ? 'fill' : 'bold'} size={17} />
-              </ActionIcon>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/60 border border-gray-100 shadow-sm">
+                 <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-primary">
+                   <TreeIcon weight="fill" size={20} />
+                 </div>
+                 <span className="text-sm font-semibold text-gray-700 leading-tight">Eco-friendly<br/>packaging</span>
+              </div>
+              <div className="flex items-center gap-3 p-3.5 rounded-xl bg-white/60 border border-gray-100 shadow-sm">
+                 <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-500">
+                   <ShieldCheckIcon weight="fill" size={20} />
+                 </div>
+                 <span className="text-sm font-semibold text-gray-700 leading-tight">Authentic<br/>quality</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <Tabs id="product-tabs" value={activeTab} onChange={setActiveTab} className="mt-section">
+        <Tabs
+          id="product-tabs"
+          value={activeTab}
+          onChange={setActiveTab}
+          className="mt-20 lg:mt-32"
+          classNames={{
+            list: 'border-b border-gray-200 mb-8 gap-4',
+            tabLabel: 'text-base',
+            tab: 'text-base font-semibold text-gray-500 hover:text-gray-900 data-[active]:text-primary data-[active]:border-primary pb-4 transition-colors px-1',
+          }}
+        >
           <Tabs.List>
             <Tabs.Tab value="description">Description</Tabs.Tab>
             <Tabs.Tab value="sustainability">Sustainability</Tabs.Tab>
@@ -355,41 +427,139 @@ const ProductDetailPage = () => {
           </Tabs.List>
 
           <Tabs.Panel value="description" pt="md">
-            <Prose>{formatParam(product.description, '\n\n')}</Prose>
+            <Prose className="text-gray-700 leading-relaxed text-lg!">{formatParam(product.description, '\n\n')}</Prose>
           </Tabs.Panel>
 
           <Tabs.Panel value="sustainability" pt="md">
-            <div className="flex items-center gap-2 mb-4">
-              <TreeIcon weight="fill" size={18} className="text-primary" />
-              <h3 className="text-sm font-semibold text-gray-800">Environmental impact</h3>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Stat label="Product carbon footprint" value={`${product.carbonIndex} kg`} tone="primary" />
-              <Stat label="Standard baseline" value={`${product.baselineCarbonIndex} kg`} />
-              {carbonSaved && <Stat label="CO₂e saved" value={`${carbonSaved}%`} tone="primary" />}
+            <div className="flex flex-col gap-12 max-w-5xl">
+              {/* Carbon Footprint Section */}
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                    <TreeIcon weight="fill" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">Environmental Impact</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  <Paper shadow="sm" radius="xl" p="xl" className="border border-green-100 bg-gradient-to-br from-green-50/80 to-white relative overflow-hidden group">
+                    <div className="absolute -right-6 -top-6 text-green-100/50 group-hover:scale-110 transition-transform duration-500">
+                      <LeafIcon weight="fill" size={120} />
+                    </div>
+                    <Text size="sm" tt="uppercase" fw={700} c="green.8" mb={8} className="tracking-wider">Carbon Footprint</Text>
+                    <div className="flex items-baseline gap-2">
+                      <Text size="3xl" fw={800} c="gray.9">{product.carbonIndex}</Text>
+                      <Text size="md" fw={600} c="dimmed">kg CO₂e</Text>
+                    </div>
+                  </Paper>
+
+                  <Paper shadow="sm" radius="xl" p="xl" className="border border-gray-100 bg-white">
+                    <Text size="sm" tt="uppercase" fw={700} c="gray.5" mb={8} className="tracking-wider">Standard Baseline</Text>
+                    <div className="flex items-baseline gap-2">
+                      <Text size="3xl" fw={800} c="gray.9">{product.baselineCarbonIndex}</Text>
+                      <Text size="md" fw={600} c="dimmed">kg CO₂e</Text>
+                    </div>
+                  </Paper>
+
+                  {carbonSaved && (
+                    <Paper shadow="sm" radius="xl" p="xl" className="border border-primary/20 bg-primary/5">
+                      <Text size="sm" tt="uppercase" fw={700} c="primary" mb={8} className="tracking-wider">CO₂e Saved</Text>
+                      <div className="flex items-baseline gap-2 text-primary">
+                        <Text size="3xl" fw={800}>{carbonSaved}%</Text>
+                        <Text size="md" fw={600}>less emissions</Text>
+                      </div>
+                    </Paper>
+                  )}
+                </div>
+              </section>
+
+              {/* End of Life Section */}
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-blue-50 rounded-lg text-blue-500">
+                    <ArrowsClockwiseIcon weight="fill" size={24} />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">End of Life</h3>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl">
+                  <Paper shadow="sm" radius="xl" p="xl" className="border border-gray-100 bg-white">
+                    <Group justify="space-between" mb="md">
+                      <Text size="lg" fw={700} c="gray.8">Decomposable</Text>
+                      <Badge size="lg" color="primary" variant="light" radius="md" className="font-bold">{product.decomposePercent}%</Badge>
+                    </Group>
+                    <Progress value={product.decomposePercent} color="primary" size="xl" radius="xl" striped animated />
+                  </Paper>
+
+                  <Paper shadow="sm" radius="xl" p="xl" className="border border-gray-100 bg-white">
+                    <Group justify="space-between" mb="md">
+                      <Text size="lg" fw={700} c="gray.8">Recyclable</Text>
+                      <Badge size="lg" color="teal" variant="light" radius="md" className="font-bold">{product.recyclePercent}%</Badge>
+                    </Group>
+                    <Progress value={product.recyclePercent} color="teal" size="xl" radius="xl" striped animated />
+                  </Paper>
+                </div>
+              </section>
+
+              {/* Materials Section */}
+              {product.materials.length > 0 && (
+                <section>
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-amber-50 rounded-lg text-amber-500">
+                      <LeafIcon weight="fill" size={24} />
+                    </div>
+                    <h3 className="text-xl font-bold text-gray-900">Materials Composition</h3>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-4xl">
+                    {product.materials.map((material) => (
+                      <Paper key={material.id} shadow="xs" radius="lg" p="md" className="border border-gray-100 hover:border-primary/40 transition-colors bg-white">
+                        <Group justify="space-between">
+                          <div>
+                            <Text size="md" fw={700} c="gray.9">{material.name}</Text>
+                            <Text size="sm" c="dimmed" fw={500} mt={2}>{material.type}</Text>
+                          </div>
+                          <div className="flex flex-col items-end gap-1 bg-gray-50 px-3 py-2 rounded-xl border border-gray-100">
+                            <Text size="xs" fw={700} c="gray.5" tt="uppercase" className="tracking-wider">Eco Rating</Text>
+                            <Rating value={material.ecoRating} fractions={2} readOnly size="sm" />
+                          </div>
+                        </Group>
+                      </Paper>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
           </Tabs.Panel>
 
           <Tabs.Panel value="reviews" pt="md">
-            <ProductReviews productId={product.id} reviewsCount={product.reviewsCount} averageRating={product.rating} />
+            <div className="bg-white rounded-3xl p-6 lg:p-10 shadow-sm border border-gray-100">
+               <ProductReviews productId={product.id} reviewsCount={product.reviewsCount} averageRating={product.rating} />
+            </div>
           </Tabs.Panel>
         </Tabs>
 
-        <RelatedProducts productId={product.id} />
-        <RecentlyViewedProducts excludeProductId={product.id} />
+        <div className="mt-20 flex flex-col gap-16">
+          <RelatedProducts productId={product.id} />
+          <RecentlyViewedProducts excludeProductId={product.id} />
+        </div>
       </Container>
 
       {/* Sticky mobile add-to-cart bar */}
-      <div className="lg:hidden fixed bottom-14 left-0 right-0 z-30 bg-white border-t border-border px-4 py-2.5 flex items-center gap-3">
-        <div className="flex-1 min-w-0">
-          <p className="text-xs text-gray-400 truncate">{product.name}</p>
+      <div className="lg:hidden fixed bottom-[72px] left-0 right-0 z-30 bg-white/90 backdrop-blur-lg border-t border-gray-200 px-4 py-3 flex items-center gap-4 shadow-[0_-4px_20px_rgb(0,0,0,0.05)]">
+        <div className="flex-1 min-w-0 flex flex-col">
+          <p className="text-xs font-semibold text-gray-500 truncate">
+            {product.name} <span className="font-normal text-gray-400">({product.stockQty} available)</span>
+          </p>
           <PriceTag value={product.price * amountProduct} size="md" />
         </div>
         <Button
-          size="sm"
+          size="md"
+          radius="md"
+          className="shadow-md"
           disabled={outOfStock}
           onClick={() => handleAddToCart(product.id, amountProduct)}
-          leftSection={<ShoppingCartIcon weight="bold" size={14} />}
+          leftSection={<ShoppingCartIcon weight="bold" size={16} />}
         >
           {outOfStock ? 'Out of stock' : 'Add to cart'}
         </Button>
@@ -403,20 +573,21 @@ const ProductDetailPage = () => {
         centered
         padding={0}
         withCloseButton={false}
-        classNames={{ body: 'relative bg-black', content: 'bg-black' }}
+        classNames={{ body: 'relative bg-black/95 backdrop-blur-xl', content: 'bg-transparent shadow-none' }}
+        transitionProps={{ transition: 'fade', duration: 300 }}
       >
         <button
           type="button"
           onClick={() => setLightboxOpen(false)}
-          className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+          className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors backdrop-blur-md"
           aria-label="Close"
         >
-          <XIcon size={18} />
+          <XIcon size={20} />
         </button>
         <ImageWithFallback
           src={activeImg}
           alt={product.name}
-          className="max-w-[90vw] max-h-[85vh] object-contain mx-auto"
+          className="max-w-[95vw] max-h-[90vh] object-contain mx-auto"
         />
         {resolvedImages.length > 1 && (
           <>
@@ -427,10 +598,10 @@ const ProductDetailPage = () => {
                 const prevIdx = (idx - 1 + resolvedImages.length) % resolvedImages.length
                 setActiveImg(resolvedImages[prevIdx])
               }}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+              className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors backdrop-blur-md"
               aria-label="Previous image"
             >
-              <CaretLeftIcon size={20} />
+              <CaretLeftIcon size={24} />
             </button>
             <button
               type="button"
@@ -439,10 +610,10 @@ const ProductDetailPage = () => {
                 const nextIdx = (idx + 1) % resolvedImages.length
                 setActiveImg(resolvedImages[nextIdx])
               }}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+              className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 hover:bg-white/25 text-white flex items-center justify-center transition-colors backdrop-blur-md"
               aria-label="Next image"
             >
-              <CaretRightIcon size={20} />
+              <CaretRightIcon size={24} />
             </button>
           </>
         )}

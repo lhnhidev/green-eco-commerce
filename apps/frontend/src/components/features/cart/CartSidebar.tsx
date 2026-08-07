@@ -2,7 +2,7 @@ import { useGetCart } from '@api'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { useAppSelector } from '@hooks/useAppSelector'
 import { Drawer } from '@mantine/core'
-import { ShoppingCartIcon, UserIcon, XIcon } from '@phosphor-icons/react'
+import { ShoppingCartIcon, UserIcon, WarningIcon, XIcon } from '@phosphor-icons/react'
 import { formatCurrency } from '@utils/formatCurrency'
 import { useNavigate } from 'react-router'
 import CartItem from './CartItem'
@@ -17,6 +17,8 @@ const CartSidebar = () => {
   const close = () => dispatch(setIsShow(false))
   const subtotal = data?.items?.reduce((acc, item) => acc + (item.productPrice ?? 0) * (item.quantity ?? 1), 0) ?? 0
   const itemCount = data?.items?.length ?? 0
+  const hasBlockingStockIssue =
+    data?.items?.some((item) => (item.quantity ?? 0) > (item.currentStockQuantity ?? 0)) ?? false
 
   return (
     <Drawer
@@ -139,15 +141,23 @@ const CartSidebar = () => {
             </div>
             <p className="px-5 text-xs text-gray-400 mb-4">Free shipping, no taxes added</p>
 
+            {hasBlockingStockIssue && (
+              <p className="px-5 mb-3 flex items-center gap-1.5 text-xs font-semibold text-red-500">
+                <WarningIcon weight="fill" size={13} />
+                Some items exceed available stock — adjust quantities to continue.
+              </p>
+            )}
+
             {/* Actions */}
             <div className="px-5 pb-5 flex flex-col gap-2">
               <button
                 type="button"
+                disabled={hasBlockingStockIssue}
                 onClick={() => {
                   close()
                   navigate('/checkout')
                 }}
-                className="w-full py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-sm rounded-md transition-colors flex items-center justify-center gap-2"
+                className="w-full py-2.5 bg-primary hover:bg-primary-hover text-white font-semibold text-sm rounded-md transition-colors flex items-center justify-center gap-2 disabled:opacity-40 disabled:pointer-events-none"
               >
                 Checkout — {formatCurrency(subtotal)}
               </button>

@@ -93,12 +93,16 @@ const CartItem = ({ cartItem }: { cartItem: CartItemDto }) => {
           </button>
         </div>
 
-        {/* Stock warning */}
-        {(outOfStock || atMaxStock) && (
-          <div className="mt-2 flex items-center gap-1 text-[10px] font-semibold text-amber-600">
+        {/* Stock */}
+        {outOfStock || atMaxStock ? (
+          <div
+            className={`mt-2 flex items-center gap-1 text-[10px] font-semibold ${outOfStock ? 'text-red-500' : 'text-amber-600'}`}
+          >
             <WarningIcon weight="fill" size={11} />
             {outOfStock ? 'Out of stock' : `Only ${stock} left in stock`}
           </div>
+        ) : (
+          <p className="mt-2 text-[10px] text-gray-400">{stock} in stock</p>
         )}
 
         {/* CO₂ saved badge */}

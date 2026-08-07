@@ -22,8 +22,7 @@ public record CartItemPayloadDto(Guid ProductId, int Quantity = 1)
         public Validator()
         {
             RuleFor(x => x.Quantity)
-                .GreaterThan(0).WithMessage("Quantity must be greater than 0.")
-                .LessThanOrEqualTo(100).WithMessage("Quantity must not exceed 100 per item.");
+                .GreaterThan(0).WithMessage("Quantity must be greater than 0.");
         }
     }
 }
