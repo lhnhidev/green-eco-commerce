@@ -52,4 +52,7 @@ public interface IApplicationDbContext
 
     // Manual transaction
     Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default);
+
+    // Required to retry a manual transaction as a unit when the provider has retry-on-failure enabled
+    IExecutionStrategy CreateExecutionStrategy();
 }

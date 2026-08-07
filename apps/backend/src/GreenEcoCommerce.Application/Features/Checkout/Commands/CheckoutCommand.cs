@@ -19,6 +19,14 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
     {
         public async Task<Response> Handle(CheckoutCommand command, CancellationToken ct)
         {
+            // Npgsql's retrying execution strategy forbids user-initiated transactions unless the
+            // whole transaction is retried as a unit through the strategy itself.
+            var strategy = dbContext.CreateExecutionStrategy();
+            return await strategy.ExecuteAsync(() => HandleInTransactionAsync(command, ct));
+        }
+
+        private async Task<Response> HandleInTransactionAsync(CheckoutCommand command, CancellationToken ct)
+        {
             await using var transaction = await dbContext.BeginTransactionAsync(ct);
 
             try
@@ -99,8 +107,10 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
 
                 decimal discountAmount = couponDiscount;
                 int earnedPoints;
+                bool redeemingPoints = command.PointsToRedeem > 0;
+                int actualPointsRedeemed = 0;
 
-                if (command.PointsToRedeem > 0)
+                if (redeemingPoints)
                 {
                     if (wallet.Balance < command.PointsToRedeem)
                     {
@@ -109,18 +119,13 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
 
                     // 20 points = $1 (or 1 point = $0.05)
                     discountAmount = command.PointsToRedeem / 20m;
-                    int actualPointsRedeemed = command.PointsToRedeem;
+                    actualPointsRedeemed = command.PointsToRedeem;
 
                     if (discountAmount > totalPrice)
                     {
                         discountAmount = totalPrice;
                         actualPointsRedeemed =
                                 (int)Math.Ceiling(discountAmount * 20m); // Adjust points to exact amount needed
-                    }
-
-                    if (await dbContext.WithdrawalWalletAsync(wallet, actualPointsRedeemed, $"Redeemed for order {orderId}", orderId, ct) == null)
-                    {
-                        throw new BadRequestException("Insufficient balance");
                     }
 
                     earnedPoints = -actualPointsRedeemed;
@@ -130,8 +135,6 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
                     // If user chooses not to redeem points, add points based on configurable ratio
                     earnedPoints = (int)Math.Floor(
                         totalCo2Saved * await configuration.GetGreenPointsPerCarbonIndexRatioAsync(ct));
-
-                    await dbContext.DepositWalletAsync(wallet, earnedPoints, $"Earned from order {orderId}", orderId, ct);
                 }
 
                 decimal finalPrice = totalPrice - discountAmount;
@@ -165,7 +168,21 @@ public record CheckoutCommand(Guid UserId, int PointsToRedeem, string DeliveryAd
 
                 await dbContext.SaveChangesAsync(ct);
 
-                // 5. Clear Cart
+                // 5. Persist the wallet transaction now that the order row exists —
+                // point_transactions.order_id is a FK to orders.id, so this must come after step 4.
+                if (redeemingPoints)
+                {
+                    if (await dbContext.WithdrawalWalletAsync(wallet, actualPointsRedeemed, $"Redeemed for order {orderId}", orderId, ct) == null)
+                    {
+                        throw new BadRequestException("Insufficient balance");
+                    }
+                }
+                else
+                {
+                    await dbContext.DepositWalletAsync(wallet, earnedPoints, $"Earned from order {orderId}", orderId, ct);
+                }
+
+                // 6. Clear Cart
                 await dbContext.Carts.ClearAsync(command.UserId, ct);
                 await dbContext.SaveChangesAsync(ct);
 

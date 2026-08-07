@@ -25,6 +25,9 @@ public record RemoveCartItemCommand(Guid UserId, Guid ProductId) : IRequest<Cart
                 await dbContext.SaveChangesAsync(ct);
             }
 
+            await dbContext.Carts.Entry(cart).Collection(c => c.CartItems).Query().Include(ci => ci.Product)
+                    .LoadAsync(ct);
+
             return await cart.ToDto().ConfigurePointsSavedAsync(config);
         }
     }

@@ -25,9 +25,11 @@ public class PointTransactionConfiguration : IEntityTypeConfiguration<PointTrans
                 .HasForeignKey(x => x.WalletId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+        // One-to-many: an order can accrue more than one point transaction over its lifecycle
+        // (e.g. earn/redeem at checkout, then a reversal/clawback if the order is cancelled).
         builder.HasOne(x => x.Order)
-                .WithOne(x => x.PointTransaction)
-                .HasForeignKey<PointTransaction>(x => x.OrderId)
+                .WithMany(x => x.PointTransactions)
+                .HasForeignKey(x => x.OrderId)
                 .IsRequired(false)
                 .OnDelete(DeleteBehavior.SetNull);
     }

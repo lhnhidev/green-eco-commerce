@@ -54,6 +54,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public Task<IDbContextTransaction> BeginTransactionAsync(CancellationToken ct = default) =>
             Database.BeginTransactionAsync(ct);
 
+    public IExecutionStrategy CreateExecutionStrategy() => Database.CreateExecutionStrategy();
+
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
         base.ConfigureConventions(configurationBuilder);
